@@ -44,7 +44,7 @@ public class JsFilesTest extends TestCase {
       }
     };
     FileFinder fileFinder = FileFinder.getInstance(
-        new MockServletContext(fileSystemResourceLoader), "src/main/js");
+        new MockServletContext(fileSystemResourceLoader), "uitags-main/src/main/js");
 
     this.jsFiles = new JsFiles(suites, fileFinder);
   }
@@ -105,7 +105,7 @@ public class JsFilesTest extends TestCase {
 
   public void testUsesLatestLastModifiedOfAllFiles() throws IOException {
     Resource resource = new FileSystemResourceLoader().getResource(
-        "./src/main/js/html/Element.js");
+        "./uitags-main/src/main/js/html/Element.js");
     File fileToTouch = resource.getFile();
     long latestTimestamp = new Date().getTime();
     assertTrue(fileToTouch.setLastModified(latestTimestamp));
