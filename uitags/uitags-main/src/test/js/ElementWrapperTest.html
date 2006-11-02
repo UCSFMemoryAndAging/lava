@@ -1,0 +1,322 @@
+<html>
+  <head>
+    <title>Test Page</title>
+    <script language="javascript" src="testCommon.js"></script>
+  </head>
+
+  <body>
+    <form name="formName">
+      <!-- Meant to make the element's positioning a bit more unpredicatable,
+           which is useful for testing the dimension related methods. -->
+      <br />&nbsp;&nbsp;&nbsp;
+      <input type="button" id="buttonId" onclick="eventInfo.push(0);" />
+    </form>
+
+    <div id="divId">
+      <b>text node</b>
+    </div>
+
+    <script language="javascript">
+      var eventInfo = new Array();
+      var domElement;
+      var wrapper;
+
+      function setUp() {
+        domElement = document.getElementById("buttonId");
+        wrapper = uiHtml_ElementWrapper.getInstance();
+      }
+
+      function testStyleAttribute() {
+        // NOTE: It's important to make sure that the positioning of
+        //       the element is not absolute, since in Firefox 1, an
+        //       absolute positioning causes/forces the display to be
+        //       always "block".
+        wrapper.setStyleAttribute(domElement, "position", "relative");
+        assertEquals("relative", getStyleAttribute("position"));
+
+        assertNotEquals("none", getStyleAttribute("display"));
+
+        wrapper.setStyleAttribute(domElement, "display", "none");
+        assertEquals("none", getStyleAttribute("display"));
+
+        wrapper.setStyleAttribute(domElement, "display", "inline");
+        assertEquals("inline", getStyleAttribute("display"));
+      }
+
+      function getStyleAttribute(attrName) {
+        return wrapper.getCascadedStyleAttribute(domElement, attrName);
+      }
+
+      function testShowing() {
+        assertTrue(wrapper.isAppearing(domElement));
+        assertTrue(wrapper.isShowing(domElement));
+        assertTrue(wrapper.isAppearing(domElement));
+
+        wrapper.hide(domElement);
+
+        assertFalse(wrapper.isShowing(domElement));
+        assertTrue(wrapper.isAppearing(domElement));
+
+        wrapper.show(domElement);
+
+        assertTrue(wrapper.isShowing(domElement));
+        assertTrue(wrapper.isAppearing(domElement));
+      }
+
+      function testAppearing() {
+        assertTrue(wrapper.isAppearing(domElement));
+        assertTrue(wrapper.isShowing(domElement));
+
+        wrapper.disappear(domElement);
+
+        assertFalse(wrapper.isAppearing(domElement));
+        assertTrue(wrapper.isShowing(domElement));
+
+        wrapper.appear(domElement);
+
+        assertTrue(wrapper.isAppearing(domElement));
+        assertTrue(wrapper.isShowing(domElement));
+      }
+
+      function testDepth() {
+        depth = wrapper.getDepth(domElement);
+        assertFalse(isNaN(parseInt(depth)));
+        assertEquals(0, depth);
+
+        wrapper.setDepth(domElement, 10);
+
+        depth = wrapper.getDepth(domElement);
+        assertFalse(isNaN(parseInt(depth)));
+        assertEquals(10, depth);
+
+        try {
+          wrapper.setDepth(domElement, "invalid");
+          fail("Invalid value, should throw an exception");
+        }
+        catch(e) {
+          if (!(e instanceof uiUtil_IllegalArgumentException)) {
+            throw e;
+          }
+        }
+
+        // its value should stay the same
+        var depth = wrapper.getDepth(domElement);
+        assertFalse(isNaN(parseInt(depth)));
+        assertEquals(10, depth);
+      }
+
+      function testDimension() {
+        var left = 70;
+        var top = 20;
+        var width = 520;
+        var height = 350;
+
+        dimensionTestSet(left, top, width, height);
+        dimensionTestGetAbsolute(left, top, width, height);
+        dimensionTestGetRelative(left, top, width, height);
+
+        // In Firefox 1, Opera 8, and IE 6, even negative values are
+        // accepted
+        left = -20;
+        top = -10;
+        dimensionTestSet(left, top, null, null);
+        dimensionTestGetAbsolute(left, top, width, height);
+        dimensionTestGetRelative(left, top, width, height);
+      }
+
+      function dimensionTestSet(left, top, width, height) {
+        // NOTE: This works only when the position is "absolute"
+        wrapper.setStyleAttribute(domElement, "position", "absolute");
+        wrapper.setDimension(domElement, left, top, width, height);
+      }
+
+      function dimensionTestGetAbsolute(left, top, width, height) {
+        var dimension = wrapper.getAbsoluteDimension(domElement);
+        assertDimensionEquals(dimension, left, top, width, height);
+      }
+
+      function dimensionTestGetRelative(left, top, width, height) {
+        // The childRelative = childAbsolute - parentAbsolute
+        var parentDimension = wrapper.getAbsoluteDimension(domElement.offsetParent);
+        left -= parentDimension.getLeft();
+        top -= parentDimension.getTop();
+
+        var childDimension = wrapper.getRelativeDimension(domElement);
+        assertDimensionEquals(childDimension, left, top, width, height);
+      }
+
+      function assertDimensionEquals(dimension, left, top, width, height) {
+        assertEquals(left, dimension.getLeft());
+        assertEquals(top, dimension.getTop());
+        assertEquals(width, dimension.getWidth());
+        assertEquals(height, dimension.getHeight());
+      }
+
+      function dimensionTestGetAbsolute(left, top, width, height) {
+        var dimension = wrapper.getAbsoluteDimension(domElement);
+        assertDimensionEquals(dimension, left, top, width, height);
+      }
+
+      function testEventHandling() {
+        eventHandlingTestAppend();
+        eventHandlingTestPrepend();
+        eventHandlingTestRemove();
+
+        eventHandlingTestAppend();
+        eventHandlingTestPrepend();
+        eventHandlingTestClear();
+
+        eventHandlingTestExecute();
+      }
+
+      function eventHandlingClearInfo() {
+        while (eventInfo.length > 0) {
+          eventInfo.pop();
+        }
+      }
+
+      function eventHandlingTestAppend() {
+        eventHandlingClearInfo();
+
+        var owner = null;
+        var index = wrapper.appendEventHandler(domElement, "click", function(e) {
+          eventInfo.push(1);
+          owner = this;
+          uiTest_TestUtils.releaseEventLock();
+        });
+
+        assertEquals(1, index);
+        assertEquals(0, eventInfo.length);
+        // NOTE: This method will only work if the element (i.e. button)
+        //       is not a dynamically created element, because in Opera
+        //       it seems that a dynamically created element does not get
+        //       fully initialized straight after its creation, thus it
+        //       might not respond properly to the event.
+        uiTest_TestUtils.synchronousClick(domElement);
+        assertEquals(2, eventInfo.length);
+        assertEquals(0, eventInfo[0]);
+        assertEquals(1, eventInfo[1]);
+        assertEquals(domElement, owner);
+      }
+
+      function eventHandlingTestPrepend() {
+        eventHandlingClearInfo();
+
+        var index = wrapper.prependEventHandler(domElement, "click", function(e) {
+          eventInfo.push(2);
+        });
+
+        assertEquals(-1, index);
+        assertEquals(0, eventInfo.length);
+        uiTest_TestUtils.synchronousClick(domElement);
+        assertEquals(3, eventInfo.length);
+        assertEquals(2, eventInfo[0]);
+        assertEquals(0, eventInfo[1]);
+        assertEquals(1, eventInfo[2]);
+      }
+
+      function eventHandlingTestRemove() {
+        wrapper.removeEventHandler(domElement, "click", -1);
+
+        eventHandlingClearInfo();
+        assertEquals(0, eventInfo.length);
+        uiTest_TestUtils.synchronousClick(domElement);
+        assertEquals(2, eventInfo.length);
+        assertEquals(0, eventInfo[0]);
+        assertEquals(1, eventInfo[1]);
+
+        try {
+          wrapper.removeEventHandler(domElement, "click", 0);
+          fail("Invalid argument, should throw an exception");
+        }
+        catch (e) {
+          if (!(e instanceof uiUtil_IllegalArgumentException)) {
+            throw e;
+          }
+        }
+
+        wrapper.removeEventHandler(domElement, "click", 1);
+        wrapper.appendEventHandler(domElement, "click", function(e) {
+          uiTest_TestUtils.releaseEventLock();
+        });
+
+        eventHandlingClearInfo();
+        assertEquals(0, eventInfo.length);
+        uiTest_TestUtils.synchronousClick(domElement);
+        assertEquals(1, eventInfo.length);
+        assertEquals(0, eventInfo[0]);
+
+        // Delete the last handler (the one for releasing the lock).
+        wrapper.removeEventHandler(domElement, "click", 1);
+      }
+
+      function eventHandlingTestClear() {
+        eventHandlingClearInfo();
+
+        wrapper.clearEventHandlerExtension(domElement, "click");
+        wrapper.appendEventHandler(domElement, "click", function(e) {
+          uiTest_TestUtils.releaseEventLock();
+        });
+
+        assertEquals(0, eventInfo.length);
+        uiTest_TestUtils.synchronousClick(domElement);
+        assertEquals(1, eventInfo.length);
+        assertEquals(0, eventInfo[0]);
+
+        // Delete the last handler (the one for releasing the lock).
+        wrapper.clearEventHandlerExtension(domElement, "click");
+      }
+
+      function eventHandlingTestExecute() {
+        eventHandlingClearInfo();
+
+        assertEquals(0, eventInfo.length);
+        wrapper.executeAggregateEventHandler(domElement, "click");
+        assertEquals(1, eventInfo.length);
+        assertEquals(0, eventInfo[0]);
+
+        // ensure that the event handler is executed under the corrent owner
+        var owner = null;
+        domElement.onclick = function(e) {
+          owner = this;
+        };
+        wrapper.executeAggregateEventHandler(domElement, "click");
+        assertEquals(domElement, owner);
+      }
+
+      function testClearChildDomObjects() {
+        var domDiv = document.getElementById("divId");
+
+        assertNotEquals(0, domDiv.childNodes.length);
+
+        wrapper.clearChildDomObjects(domDiv);
+
+        assertEquals(0, domDiv.childNodes.length);
+      }
+
+      function testDisabling() {
+        assertFalse(wrapper.isDisabled(domElement));
+
+        wrapper.setDisabled(domElement, true);
+
+        assertTrue(wrapper.isDisabled(domElement));
+
+        wrapper.setDisabled(domElement, false);
+
+        assertFalse(wrapper.isDisabled(domElement));
+      }
+
+      function testGetLogicalValue() {
+        assertEquals(domElement.value, wrapper.getLogicalValue(domElement));
+      }
+
+      function testGetInstance() {
+        assertEquals(wrapper, uiHtml_ElementWrapper.getInstance());
+      }
+
+      function testConstructor() {
+        assertNotEquals(wrapper, new uiHtml_ElementWrapper());
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,69 @@
+<pluginMetadata>
+  <mojos>
+    <mojo>
+      <goal>copyTlds</goal>
+      <call>copy-tlds</call>
+      <description>
+        Copies source TLD into EL and non-EL TLDs.
+      </description>
+      <parameters>
+        <parameter>
+          <name>sourceDir</name>
+          <required>true</required>
+          <type>java.lang.String</type>
+          <description>The directory containing the source TLD.</description>
+        </parameter>
+        <parameter>
+          <name>targetDir</name>
+          <required>true</required>
+          <type>java.lang.String</type>
+          <description>The directory to contain generated TLDs.</description>
+        </parameter>
+      </parameters>
+    </mojo>
+
+    <mojo>
+      <goal>copyFactoryDefaultProperties</goal>
+      <call>copy-factorydefaultproperties</call>
+      <description>
+        Copies factory-default.properties to the project site being built.
+      </description>
+      <parameters>
+        <parameter>
+          <name>sourceDir</name>
+          <required>true</required>
+          <type>java.lang.String</type>
+          <description>The directory containing the source factory-default.properties.</description>
+        </parameter>
+        <parameter>
+          <name>targetDir</name>
+          <required>true</required>
+          <type>java.lang.String</type>
+          <description>The directory containing the site being built.</description>
+        </parameter>
+      </parameters>
+    </mojo>
+
+    <mojo>
+      <goal>createReadableJspSource</goal>
+      <call>create-readable-jsp-source</call>
+      <description>
+        Copies *.jsp to *.jsp.txt.
+      </description>
+      <parameters>
+        <parameter>
+          <name>sourceDir</name>
+          <required>true</required>
+          <type>java.lang.String</type>
+          <description>The directory containing the *.jsp files.</description>
+        </parameter>
+        <parameter>
+          <name>targetDir</name>
+          <required>true</required>
+          <type>java.lang.String</type>
+          <description>The directory to which the *.jsp.txt files should go.</description>
+        </parameter>
+      </parameters>
+    </mojo>
+  </mojos>
+</pluginMetadata>

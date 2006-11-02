@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!--
+ -
+ - Copyright 2004 uitags
+ -
+ - Licensed under the Apache License, Version 2.0 (the "License");
+ - you may not use this file except in compliance with the License.
+ - You may obtain a copy of the License at
+ -
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ -
+ - Unless required by applicable law or agreed to in writing, software
+ - distributed under the License is distributed on an "AS IS" BASIS,
+ - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ - See the License for the specific language governing permissions and
+ - limitations under the License.
+ -
+ -->
+
+<document>
+
+  <properties>
+    <title>News</title>
+  </properties>
+
+  <body>
+    <section name="News">
+      <h4>16 October 2006</h4>
+      <a name="Version100NonFinal4Released" />
+      <h5>Version 1.0.0 Non-Final 4</h5>
+      <p>
+        <ul>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1545270&amp;group_id=123782&amp;atid=697569">FR 1545270</a>.
+            JsIncluderServlet now returns proper LastModifiedTime header.
+          </li>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1560120&amp;group_id=123782&amp;atid=697566">BUG 1560120</a>.
+            Options with the same label and value are now considered equal.
+          </li>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1560112&amp;group_id=123782&amp;atid=697566">BUG 1560112</a>.
+            Exception is no longer thrown on empty select box.
+          </li>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1559771&amp;group_id=123782&amp;atid=697566">BUG 1559771</a>.
+            uiUtil_IllegalArgumentException is no longer thrown when the name of an element is specified instead of its ID.
+          </li>
+        </ul>
+      </p>
+      <h4>8 September 2006</h4>
+      <a name="Version100NonFinal3Released" />
+      <h5>Version 1.0.0 Non-Final 3</h5>
+      <p>
+        <ul>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1552472&amp;group_id=123782&amp;atid=697569">FR 1552472</a>.
+            It is now possible to use &lt;attribute&gt; as the child of
+            &lt;calendarGrid&gt;.
+          </li>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1545016&amp;group_id=123782&amp;atid=697566">BUG 1545016</a>.
+            Added code to get around IE's memory leak bug.
+          </li>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1551277&amp;group_id=123782&amp;atid=697566">BUG 1551277</a>.
+            Fixed uitags-maven-plugin which was failing on Windows.
+          </li>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1544887&amp;group_id=123782&amp;atid=697569">FR 1544887</a>.
+            Added BeanInfo classes for the calendar suite.
+          </li>
+        </ul>
+      </p>
+      <h4>August 2006</h4>
+      <a name="Version100NonFinal1Released" />
+      <h5>Version 1.0.0 Non-Final 1</h5>
+      <p>
+        We are proud to release a preview to uitags v1.
+      </p>
+    </section>
+  </body>
+</document>

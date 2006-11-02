@@ -1,0 +1,92 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.sf.uitags</groupId>
+  <artifactId>uitags</artifactId>
+  <version>1.0.0-nonfinal4</version>
+  <name>uitags Parent Project</name>
+  <packaging>pom</packaging>
+  <url>http://uitags.sourceforge.net</url>
+
+  <issueManagement>
+    <system>SourceForge.net Tracker</system>
+    <url>http://sourceforge.net/tracker/?group_id=123782</url>
+  </issueManagement>
+
+  <inceptionYear>2004</inceptionYear>
+
+  <developers>
+    <developer>
+      <name>Jonni Gani</name>
+      <id>jgani</id>
+      <email>jgani AT users.sourceforge.net</email>
+      <url>http://www.gani.com.au</url>
+      <timezone>+10</timezone>
+    </developer>
+    <developer>
+      <name>Hendrik Gani</name>
+      <id>hgani</id>
+      <email>hgani AT users.sourceforge.net</email>
+      <url>http://www.gani.com.au</url>
+      <timezone>+10</timezone>
+    </developer>
+    <developer>
+      <name>Yuan Lu</name>
+      <id>yuan_lu</id>
+      <email>yuan_lu AT users.sourceforge.net</email>
+      <organization />
+      <timezone>+10</timezone>
+    </developer>
+    <developer>
+      <name>Joanna Contreras</name>
+      <id>jcontrer</id>
+      <email>jcontrer AT users.sourceforge.net</email>
+      <organization />
+      <timezone>+10</timezone>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>Apache License Version 2.0</name>
+      <url>LICENSE.txt</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:svn:https://svn.sourceforge.net/svnroot/uitags/uitags1/tags/uitags-1.0.0-nonfinal4</connection>
+    <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/uitags/uitags1/tags/uitags-1.0.0-nonfinal4</developerConnection>
+    <url>https://svn.sourceforge.net/svnroot/uitags/uitags1/tags/uitags-1.0.0-nonfinal4</url>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>shell.sourceforge.net</id>
+      <name>uitags at sourceforge.net</name>
+      <url>scp://shell.sourceforge.net/home/groups/u/ui/uitags/htdocs/m2-repo</url>
+    </repository>
+    <snapshotRepository>
+      <id>shell.sourceforge.net</id>
+      <name>uitags at sourceforge.net</name>
+      <url>scp://shell.sourceforge.net/home/groups/u/ui/uitags/htdocs//m2-snapshot-repo</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <tagBase>
+            https://svn.sourceforge.net/svnroot/uitags/uitags1/tags
+          </tagBase>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <modules>
+    <module>uitags-maven-plugin</module>
+    <module>uitags-main</module>
+    <module>uitags-sampleapp</module>
+  </modules>
+</project>

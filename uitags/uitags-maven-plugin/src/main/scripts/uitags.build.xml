@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<project name="uitags">
+
+  <target name="copy-tlds">
+    <echo message="Copying tld files in ${sourceDir} to ${targetDir}" />
+    <!-- Non-EL version -->
+    <copy file="${sourceDir}/uitags.tld"
+        tofile="${targetDir}/uitags.tld"
+        overwrite="true">
+      <filterset>
+        <filter token="EL_URI"       value="" />
+        <filter token="EL_CLS"       value=""  />
+        <filter token="EL_PKG"       value=""  />
+        <filter token="OBJECT"       value="java.lang.Object" />
+        <filter token="STRING_ARRAY" value="java.lang.String[]" />
+        <filter token="INT"          value="int" />
+        <filter token="BOOLEAN"      value="boolean" />
+      </filterset>
+    </copy>
+    <!-- EL version -->
+    <copy file="${sourceDir}/uitags.tld"
+        tofile="${targetDir}/uitags-el.tld"
+        overwrite="true">
+      <filterset>
+        <filter token="EL_URI"       value="-el" />
+        <filter token="EL_CLS"       value="El"  />
+        <filter token="EL_PKG"       value="el." />
+        <filter token="OBJECT"       value="java.lang.String" />
+        <filter token="STRING_ARRAY" value="java.lang.String" />
+        <filter token="INT"          value="java.lang.String" />
+        <filter token="BOOLEAN"      value="java.lang.String" />
+      </filterset>
+    </copy>
+  </target>
+
+  <target name="copy-factorydefaultproperties">
+    <copy file="${sourceDir}/factory-default.properties" todir="${targetDir}" />
+  </target>
+
+  <target name="create-readable-jsp-source">
+    <copy todir="${targetDir}" includeemptydirs="false">
+      <fileset dir="${sourceDir}">
+        <include name="*.jsp" />
+      </fileset>
+      <mapper type="glob" from="*" to="*.txt"/>
+    </copy>
+  </target>
+</project>

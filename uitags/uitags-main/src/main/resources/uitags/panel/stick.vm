@@ -1,0 +1,1 @@
+uiPanel_driver.registerStickElement(panelId, "$!stickerId", "$!stickerName");

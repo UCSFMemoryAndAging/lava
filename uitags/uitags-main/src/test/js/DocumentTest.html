@@ -1,0 +1,163 @@
+<html>
+  <head>
+    <title>Test Page</title>
+    <script language="javascript" src="testCommon.js"></script>
+
+  <body>
+    <form name="testForm">
+      <input type="radio" name="radio" value="1" />
+      <input type="radio" name="radio" value="2" />
+      <input type="button" id="buttonId" />
+      <input type="submit" id="submitId" name="submit" value="test" />
+    </form>
+
+    <script language="javascript">
+      var eventWidget;
+      var uiDocument;
+      var domSubmit;
+
+      function setUp() {
+        eventWidget = null;
+        uiDocument = uiHtml_Document.getInstance();
+        domSubmit = document.getElementById("submitId");
+      }
+
+      function testSingleton() {
+        assertNotNull(uiDocument);
+        assertEquals(uiDocument, uiHtml_Document.getInstance());
+      }
+
+      function testGetDomObjectById() {
+        assertEquals(domSubmit, uiDocument.getDomObjectById("submitId"));
+        assertNotNull(uiDocument.getDomObjectById("submitId", true));
+        assertNull(uiDocument.getDomObjectById("invalid", false));
+
+        try {
+          assertNull(uiDocument.getDomObjectById("invalid"));
+          fail("Invalid ID, should have thrown an exception");
+        }
+        catch (e) {
+          if (!(e instanceof uiUtil_IllegalArgumentException)) {
+            fail("Unexpected exception type");
+          }
+        }
+      }
+
+      function testGetDomObjectsByName() {
+        assertEquals(0, uiDocument.getDomObjectsByName("invalid", false).length);
+        assertEquals(2, uiDocument.getDomObjectsByName("radio").length);
+        assertEquals(domSubmit, uiDocument.getDomObjectsByName("submit")[0]);
+
+        try {
+          assertNull(uiDocument.getDomObjectsByName("invalid"));
+          fail("Invalid name, should have thrown an exception");
+        }
+        catch (e) {
+          if (!(e instanceof uiUtil_IllegalArgumentException)) {
+            fail("Unexpected exception type");
+          }
+        }
+      }
+
+      function testEventHandling() {
+        var eventInfo = new Array();
+        eventHandlingTestAppend(eventInfo);
+
+        while (eventInfo.length > 0) {
+          eventInfo.pop();
+        }
+        eventHandlingTestPrepend(eventInfo);
+      }
+
+      function eventHandlingTestAppend(eventInfo) {
+        uiDocument.appendEventHandler("click", function(e) {
+          eventInfo.push(0);
+        });
+        uiDocument.appendEventHandler("click", function(e) {
+          eventInfo.push(1);
+          uiTest_TestUtils.releaseEventLock();
+        });
+
+        // Let the event bubble up, since Opera doesn't seem to support
+        // manual document click event trigger.
+        // NOTE: This method will only work if the element (i.e. button)
+        //       is not a dynamically created element, because in Opera
+        //       it seems that a dynamically created element does not get
+        //       fully initialized straight after its creation, thus it
+        //       might not respond properly to the event.
+        var domButton = document.getElementById("buttonId");
+        uiTest_TestUtils.synchronousClick(domButton);
+        assertEquals(0, eventInfo[0]);
+        assertEquals(1, eventInfo[1]);
+      }
+
+      function eventHandlingTestPrepend(eventInfo) {
+        uiDocument.prependEventHandler("click", function(e) {
+          eventInfo.push(2);
+        });
+
+        var domButton = document.getElementById("buttonId");
+        uiTest_TestUtils.synchronousClick(domButton);
+        assertEquals(2, eventInfo[0]);
+        assertEquals(0, eventInfo[1]);
+        assertEquals(1, eventInfo[2]);
+      }
+
+      function testGetPrintStream() {
+        var printSupporter = uiDocument.getPrintStream();
+        assertNotNull(printSupporter);
+
+        try {
+          printSupporter.print("any text");
+          printSupporter.println();
+        }
+        catch (e) {
+          fail("Invalid print stream, caused by:" + e);
+        }
+      }
+
+      function getCascadedStyle(domElement, name) {
+        return uiHtml_ElementWrapper.getInstance().getCascadedStyleAttribute(
+            domElement, name);
+      }
+
+      function testCreateDomObject() {
+        var domSpan = uiDocument.createDomObject("span");
+        assertNotNull(domSpan);
+        assertEquals(domSpan.tagName.toLowerCase(), "span");
+        assertEquals("inline", getCascadedStyle(domSpan, "display"));
+        assertEquals(uiDocument.getDomObject(), domSpan.parentNode);
+
+        var domP = uiHtml_Document.createDomObject("p", false, domSpan);
+        assertNotNull(domP);
+        assertEquals(domP.tagName.toLowerCase(), "p");
+        assertEquals("none", getCascadedStyle(domP, "display"));
+        assertEquals(domSpan, domP.parentNode);
+
+        var domDiv = uiHtml_Document.createDomObject("div");
+        assertNotNull(domDiv);
+        assertEquals(domDiv.tagName.toLowerCase(), "div");
+        assertNull(domDiv.parentNode);
+
+        // NOTE: Before a dom element has a parent, some of its properties
+        //       might not have been set (this behaviour is spotted in IE).
+        domP.appendChild(domDiv);
+        assertEquals("block", getCascadedStyle(domDiv, "display"));
+      }
+
+      function testCreateTextNode() {
+        var domText1 = uiHtml_Document.createTextNode("text1", document.body);
+        assertNotNull(domText1);
+        assertTrue(uiUtil_Type.isTextNode(domText1));
+        assertEquals("text1", domText1.data);
+        assertEquals(document.body, domText1.parentNode);
+
+        var domText2 = uiHtml_Document.createTextNode("text2");
+        assertNotNull(domText2);
+        assertTrue(uiUtil_Type.isTextNode(domText2));
+        assertEquals("text2", domText2.data);
+        assertNull(domText2.parentNode);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+uiCalendar_driver.registerMonthLister(calendarId, "$!{listerId}", "$!{listerName}", new Array(
+#foreach ($label in ${monthLabels})
+  "${label}" #if ($velocityCount < ${velocityAdapter.getArrayLength(${monthLabels})}),#end
+#end
+));

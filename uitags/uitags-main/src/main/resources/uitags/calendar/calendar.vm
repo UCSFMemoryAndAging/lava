@@ -1,0 +1,16 @@
+<table id="${gridId}" class="${gridClass}" ${otherAttributes}></table>
+
+<script type="text/javascript">
+uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
+  var calendarId = uiCalendar_driver.createSuite("${gridId}", new Array(
+#foreach ($label in ${weekLabels})
+  "${label}" #if ($velocityCount < ${velocityAdapter.getArrayLength(${weekLabels})}),#end
+#end ), ${classResolver}, ${actionResolver});
+
+#foreach ($codeLine in $jsCodeList)
+
+  $codeLine
+#end
+
+});
+</script>

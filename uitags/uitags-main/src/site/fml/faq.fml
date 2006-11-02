@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<faqs id="General FAQ">
+  <part id="Compatibility FAQ">
+    <faq id="compatibleBrowsers">
+      <question>Which browsers is uitags compatible with?</question>
+      <answer>
+        <p>
+          uitags works with IE 6 and Firefox 1.5 (and likely
+          with older versions of Firefox as well).
+        </p>
+      </answer>
+    </faq>
+    <faq id="compatibleWebContainers">
+      <question>Which web containers is uitags compatible with?</question>
+      <answer>
+        <p>
+          uitags has been tested and works on the following containers:
+        </p>
+        <ol>
+          <li>
+            Tomcat 5.5.x
+          </li>
+          <li>
+            WebSphere Application Server v6
+            (<b>note:</b> we found that WAS complains about missing compiled
+            tag files unless JSP pre-compilation is turned on)
+          </li>
+        </ol>
+      </answer>
+    </faq>
+    <faq id="compatibilityWithV0">
+      <question>Is uitags v1 compatible with v0?</question>
+      <answer>
+        <p>
+          Unfortunately no. There are huge fundamental differences
+          between v1 and v0 which break compatibility between the two.
+        </p>
+      </answer>
+    </faq>
+  </part>
+  <part id="General">
+    <faq id="shortenJspCode">
+      <question>What is uitags' <i>behavior injection</i>?</question>
+      <answer>
+        <p>
+          Since v1, uitags no longer generates widgets for you.
+          You write your own code to render and style the
+          widgets. You then use uitags to inject behavior (which is
+          essentially JavaScript event handlers) to said widgets.
+          This technique gives you a great deal of flexibility and
+          full control over your widgets.
+        </p>
+        <p>
+          This benefit does come at a price though. Your code
+          tends to become more verbose since you have to write
+          two pieces of code: code for generating widgets, and
+          code for injecting behavior to them.
+          Those who like custom tags to encapsulate both
+          may be disappointed. There are a several solutions to this.
+          Our favorite is to create a JSP 2.0 tag file which
+          wraps both pieces of code.
+        </p>
+        <p>
+          The demo sampleapp contains
+          a number of convenience tag files which you can adapt
+          for your own application. It is important to note that
+          these tag files are not part of uitags official package
+          hence they are not supported. Between releases, we may make
+          dramatic changes to them without providing any upgrade guide.
+        </p>
+      </answer>
+    </faq>
+  </part>
+</faqs>

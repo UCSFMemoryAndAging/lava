@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates><template autoinsert="true" context="newtype_context" deleted="false" description="Newly created files" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.newtype" name="newtype">/**
+ * ${date}
+ *
+ * Copyright 2004 - ${year} uitags
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+${package_declaration}
+
+${typecomment}
+${type_declaration}</template><template id="org.eclipse.jdt.ui.text.codetemplates.gettercomment" name="gettercomment" description="Comment for getter method" context="gettercomment_context" enabled="true" deleted="false">/**
+ * @return Returns the ${bare_field_name}.
+ */</template><template id="org.eclipse.jdt.ui.text.codetemplates.settercomment" name="settercomment" description="Comment for setter method" context="settercomment_context" enabled="true" deleted="false">/**
+ * @param ${param} The ${bare_field_name} to set.
+ */</template><template id="org.eclipse.jdt.ui.text.codetemplates.constructorcomment" name="constructorcomment" description="Comment for created constructors" context="constructorcomment_context" enabled="true" deleted="false">/**
+ * ${tags}
+ */</template><template id="org.eclipse.jdt.ui.text.codetemplates.typecomment" name="typecomment" description="Comment for created types" context="typecomment_context" enabled="true" deleted="false">/**
+ * ${todo}
+ *
+ * @author ${user}
+ * @version $$Id$$
+ */</template><template id="org.eclipse.jdt.ui.text.codetemplates.fieldcomment" name="fieldcomment" description="Comment for fields" context="fieldcomment_context" enabled="true" deleted="false">/**
+ * Comment for &lt;code&gt;${field}&lt;/code&gt;
+ */</template><template id="org.eclipse.jdt.ui.text.codetemplates.methodcomment" name="methodcomment" description="Comment for non-overriding methods" context="methodcomment_context" enabled="true" deleted="false">/**
+ * ${tags}
+ */</template><template id="org.eclipse.jdt.ui.text.codetemplates.overridecomment" name="overridecomment" description="Comment for overriding methods" context="overridecomment_context" enabled="true" deleted="false">/** {@inheritDoc} */</template></templates>

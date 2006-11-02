@@ -1,0 +1,56 @@
+
+package ${elPackageName};
+
+import javax.servlet.jsp.PageContext;
+import net.sf.uitags.tagutil.ElEvaluator;
+import ${packageName}.${className};
+
+/**
+ * {@link net.sf.uitags.${className}} with EL support.
+ */
+public final class ${elClassName} extends ${className} {
+  private static final long serialVersionUID = ${serialVersionUid};
+  private ElEvaluator eval;
+
+  public ${elClassName}() {
+    super();
+  }
+
+#foreach ($attribute in $attributes)
+  ## Note that in velocity, the RHS will not be assigned to LHS if
+  ## the RHS evaluates to null, thus we need to reset the $pos value
+  ## before using it
+  #set ($customClass = false)
+  #set ($castType = false)
+
+  #set ($name = $attribute.getName())
+  #set ($handler = $attribute.getHandlerName())
+  #set ($evaluator = $attribute.getEvaluatorName())
+  #set ($customClass = $attribute.getCustomClassName())
+  #set ($castType = $attribute.getCastTypeName())
+
+  /** {@inheritDoc} */
+  public void ${handler}(String val) {
+  #if ($customClass)
+
+    #if ($castType)
+
+      super.${handler}((${castType}) this.eval.${evaluator}("${name}", val, ${customClass}.class));
+    #else
+
+      super.${handler}(this.eval.${evaluator}("${name}", val, ${customClass}.class));
+    #end
+  #else
+
+    super.${handler}(this.eval.${evaluator}("${name}", val));
+  #end
+
+  }
+#end
+
+  /** {@inheritDoc} */
+  public void setPageContext(PageContext pageContext) {
+    super.setPageContext(pageContext);
+    this.eval = new ElEvaluator(this, this.pageContext);
+  }
+}

@@ -1,0 +1,44 @@
+<script type="text/javascript">
+function uiFormGuide_do${instanceId}(domEvent, ruleSet) {
+  #foreach ($task in $doTasks)
+    ruleSet.$task
+  #end
+}
+
+function uiFormGuide_undo${instanceId}(domEvent, ruleSet) {
+  #foreach ($task in $undoTasks)
+    ruleSet.$task
+  #end
+}
+
+uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
+  var ruleSet = uiFormGuide_driver.createRuleSet(
+      uiFormGuide_do${instanceId}, uiFormGuide_undo${instanceId});
+
+  var rule;
+  ## iterate through the widgets to be observed to generate rules
+  #foreach ($widget in $observedWidgets)
+
+    rule = uiFormGuide_driver.createRule(
+        "$!{widget.getId()}", "$!{widget.getName()}", $widget.getValueInDoubleQuotesOrNull());
+    ruleSet.addRule(rule);
+  #end
+
+  var observed;
+
+  ## iterate through the widgets to be observed to generate observed widgets
+  #foreach ($widget in $observedWidgets)
+
+    observed = uiFormGuide_driver.createObservedIfNotInCache(
+        "$!{widget.getId()}", "$!{widget.getName()}");
+    observed.addRuleSet(ruleSet);
+    uiFormGuide_driver.simulateOnChangeEvent(observed);
+  #end
+
+  #if ($listener)
+    ruleSet.setLifeCycleListener($listener);
+  #end
+
+});
+
+</script>

@@ -1,0 +1,54 @@
+<html>
+  <head>
+    <title>Test Page</title>
+    <script language="javascript" src="testCommon.js"></script>
+
+  <body>
+    <div id="scrollDiv" style="height: 20px">
+      test<br />
+      test<br />
+      test<br />
+      test<br />
+      test<br />
+    </div>
+
+    <script language="javascript">
+      var domDiv;
+      var scrollSupporter;
+
+      function setUp() {
+        domDiv = document.getElementById("scrollDiv");
+        scrollSupporter = new uiHtml_ScrollSupporter(domDiv);
+      }
+
+      function testVerticalScroll() {
+        assertEquals(0, scrollSupporter.getScrollLeft());
+        assertEquals(0, scrollSupporter.getScrollTop());
+
+        scrollSupporter.scrollToBottom();
+
+        // Since scrolling was not enabled by default, any attempt to
+        // scroll the scroll bars should not affect their position.
+        assertEquals(0, scrollSupporter.getScrollTop());
+
+        // Any of these invocations will enable scrolling.
+        scrollSupporter.showScrollBars(true);
+        scrollSupporter.showScrollBars(false);
+        scrollSupporter.showScrollBars();
+        scrollSupporter.hideScrollBars();
+
+        scrollSupporter.scrollToBottom();
+
+        // NOTE: Does not pass in Opera 8, however it works in Opera 9
+        var uiWin = uiHtml_Window.getInstance();
+        if (uiWin.isOpera() && uiWin.getBrowserVersion() >= 9) {
+          assertNotEquals(0, scrollSupporter.getScrollTop());
+        }
+
+        scrollSupporter.scrollToTop();
+
+        assertEquals(0, scrollSupporter.getScrollTop());
+      }
+    </script>
+  </body>
+</html>

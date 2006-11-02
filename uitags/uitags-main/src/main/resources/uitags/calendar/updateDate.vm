@@ -1,0 +1,1 @@
+uiCalendar_driver.registerUpdateTrigger(calendarId, "$!{triggerId}", "$!{triggerName}", "${triggerEvent}", ${dateObtainer});

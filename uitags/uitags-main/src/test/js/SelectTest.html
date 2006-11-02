@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <title>Test Page -- Select</title>
+    <script language="javascript" src="testCommon.js"></script> 
+  </head>
+
+  <body>
+    <form name="testForm">
+      <select id="selectId">
+        <option id="optionId1">text1</option>
+        <option id="optionId2">text2</option>
+      </select>
+      <input type="submit" id="testSubmit" value="test" />
+    </form>
+
+    <script language="javascript">
+      var uiDocument;
+      var select;
+      var option1;
+      var option2;
+
+      function setUp() {
+        uiDocument = uiHtml_Document.getInstance();
+        select = uiHtml_Select.createById('selectId');
+        option1 = uiHtml_SelectOption.createById('optionId1');
+        option2 = uiHtml_SelectOption.createById('optionId2');
+      }
+
+      function testCreateById() {
+        assertNotNull(select);
+      }
+
+      function testGetDomObject() {
+        var domSelect = uiDocument.getElementById('selectId');
+        assertEquals(domSelect, select.getDomObject());
+      }
+      
+      function testAha() {
+        select.indexOf(null, null);
+      }
+/*
+      function testToArray() {
+        var optionArray = select.toArray();
+        assertNotNull(optionArray);
+        assertEquals(2, optionArray.length);
+      }
+      
+      function testIndexOf() {
+        assertNotEquals(uiHtml_Select.INVALID_INDEX, select.indexOf(option1));
+        assertNotEquals(uiHtml_Select.INVALID_INDEX, select.indexOf(option2));
+        assertEquals(uiHtml_Select.INVALID_INDEX, select.indexOf(null));
+      }
+
+      function testGet() {
+        assertEquals(option1, select.get(select.indexOf(option1)));
+        assertEquals(option1, select.get(select.indexOf(option2)));
+        assertEquals(null, select.get(uiHtml_Select.INVALID_INDEX));
+      }*/
+    </script>
+  </body>
+</html>

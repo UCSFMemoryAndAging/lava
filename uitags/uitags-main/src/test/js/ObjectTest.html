@@ -1,0 +1,261 @@
+<html>
+  <head>
+    <title>Test Page</title>
+    <script language="javascript" src="testCommon.js"></script>
+  </head>
+
+  <body>
+    <script language="javascript">
+
+      ///// Test Classes /////
+      // NOTE: It is important for these test classes to be declared
+      //       up here (before they are used).
+      function uiTest_DummyParentClass(id) {
+        this.__id = id;
+      }
+
+      uiTest_DummyParentClass = uiUtil_Object.declareClass(
+          uiTest_DummyParentClass, uiUtil_Object);
+
+      uiTest_DummyParentClass.prototype.getId = function() {
+        return this.__id;
+      }
+
+      uiTest_DummyParentClass.prototype.getValue = function(prefix) {
+        return prefix + parentValue;
+      }
+
+      uiTest_DummyParentClass.prototype.getInheritedValue = function(prefix) {
+        return prefix + parentValue;
+      }
+
+
+      function uiTest_DummyChildClass() {
+        this._super(childId);
+      }
+
+      uiTest_DummyChildClass = uiUtil_Object.declareClass(
+          uiTest_DummyChildClass, uiTest_DummyParentClass);
+
+      uiTest_DummyChildClass.prototype.getCallValue = function() {
+        return this._callSuper("getValue", childValue);
+      }
+
+      uiTest_DummyChildClass.prototype.getInheritedValue = function(prefix) {
+        return this._callSuper("getInheritedValue", prefix + childValue);
+      }
+
+
+      function uiTest_DummyGrandChildClass() {
+        this._super();
+      }
+
+      uiTest_DummyGrandChildClass = uiUtil_Object.declareSingleton(
+          uiTest_DummyGrandChildClass, uiTest_DummyChildClass);
+
+      uiTest_DummyGrandChildClass.prototype.getCallValue = function() {
+        return this._callSuper("getValue", grandChildValue);
+      }
+
+      uiTest_DummyGrandChildClass.prototype.getInheritedValue = function(prefix) {
+        return this._callSuper("getInheritedValue", prefix + grandChildValue);
+      }
+
+
+      var parentId = "parent1";
+      var childId = "child1";
+      var parentValue = "this is the parent";
+      var childValue = "this is the child";
+      var grandChildValue = "this is the grand child";
+      var parentInstance;
+      var childInstance;
+      var grandChildInstance;
+
+      function setUp() {
+        parentInstance = new uiTest_DummyParentClass(parentId);
+        childInstance = new uiTest_DummyChildClass();
+        grandChildInstance = uiTest_DummyGrandChildClass.getInstance();
+      }
+
+      function testInheritance() {
+        inheritanceTestParent();
+        inheritanceTestChild();
+        inheritanceTestGrandChild();
+
+        assertEquals("prefix" + grandChildValue + childValue + parentValue,
+            grandChildInstance.getInheritedValue("prefix"));
+      }
+
+      function inheritanceTestParent() {
+        assertFalse(parentInstance instanceof String);
+        assertTrue(parentInstance instanceof uiTest_DummyParentClass);
+        assertTrue(parentInstance instanceof uiUtil_Object);
+
+        // test a well-known property that represents the instance type
+        assertEquals(uiTest_DummyParentClass, parentInstance.constructor);
+      }
+
+      function inheritanceTestChild() {
+        assertTrue(childInstance instanceof uiTest_DummyChildClass);
+        assertTrue(childInstance instanceof uiTest_DummyParentClass);
+        assertTrue(childInstance instanceof uiUtil_Object);
+
+        // test a well-known property that represents the instance type
+        assertEquals(uiTest_DummyChildClass, childInstance.constructor);
+      }
+
+      function inheritanceTestGrandChild() {
+        assertTrue(grandChildInstance instanceof uiTest_DummyGrandChildClass);
+        assertTrue(grandChildInstance instanceof uiTest_DummyChildClass);
+        assertTrue(grandChildInstance instanceof uiTest_DummyParentClass);
+        assertTrue(grandChildInstance instanceof uiUtil_Object);
+
+        // test a well-known property that represents the instance type
+        assertEquals(uiTest_DummyGrandChildClass,
+            grandChildInstance.constructor);
+      }
+
+      function testSuper() {
+        assertEquals(parentId, parentInstance.getId());
+        assertEquals(childId, childInstance.getId());
+        assertEquals(childId, grandChildInstance.getId());
+      }
+
+      function testCallSuper() {
+        assertEquals(childValue + parentValue, childInstance.getCallValue());
+        assertEquals(grandChildValue + parentValue,
+            grandChildInstance.getCallValue());
+      }
+
+      function testGetClassName() {
+        // Test the instance method.
+        assertEquals("uiTest_DummyChildClass", childInstance.getClassName());
+        assertEquals("uiTest_DummyParentClass", parentInstance.getClassName());
+
+        // Test the static method.
+        assertEquals("uiTest_DummyChildClass",
+            uiUtil_Object.getClassName(uiTest_DummyChildClass));
+        assertEquals("uiTest_DummyParentClass",
+            uiUtil_Object.getClassName(uiTest_DummyParentClass));
+      }
+
+      function testToString() {
+        assertString(parentInstance.toString());
+        assertString(childInstance.toString());
+      }
+
+      function declareClass() {
+        var classRef = uiUtil_Object.declareClass(
+          uiTest_DummyChildClass, uiTest_DummyParentClass);
+        assertNotNull(classRef);
+        assertNotEquals(uiTest_DummyChildClass, classRef);
+        assertNotNull(new classRef());
+      }
+
+      function declareSingleton() {
+        var classRef = uiUtil_Object.declareSingleton(
+          uiTest_DummyGrandChildClass, uiTest_DummyChildClass);
+        assertNotNull(classRef);
+        assertNotEquals(uiTest_DummyChildClass, classRef);
+
+        var instance = classRef.getInstance();
+        assertNotNull(instance);
+        assertEquals(instance, classRef.getInstance());
+
+        try {
+          new classRef();
+          fail("Multiple instances of a singleton is now allowed");
+        }
+        catch(e) {
+          if (!(e instanceof uiUtil_CreateException)) {
+            throw e;
+          }
+        }
+      }
+
+      function declareUtil() {
+        var classRef = uiUtil_Object.declareUtil(
+          uiTest_DummyGrandChildClass, uiUtil_Object);
+
+        try {
+          new classRef();
+          fail("A utility class cannot be instantiated");
+        }
+        catch(e) {
+          if (!(e instanceof uiUtil_CreateException)) {
+            throw e;
+          }
+        }
+      }
+
+      function getPropertiesString() {
+        assertString(uiUtil_Object.getPropertiesString(parentInstance));
+        assertString(uiUtil_Object.getPropertiesString(childInstance));
+        assertString(uiUtil_Object.getPropertiesString(grandChildInstance));
+      }
+
+      function assertString(value) {
+        if ("string" != (typeof value)) {
+          fail(value + " is not of string type");
+        }
+      }
+
+      function testSingleton() {
+        try {
+          new uiTest_DummyGrandChildClass();
+          fail("Singleton shouldn't have multiple instances");
+        }
+        catch (e) {
+          // expected
+        }
+      }
+
+      function testIsAssignableFrom() {
+        assertTrue(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyGrandChildClass, uiTest_DummyGrandChildClass));
+        assertTrue(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyChildClass, uiTest_DummyGrandChildClass));
+        assertTrue(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyParentClass, uiTest_DummyGrandChildClass));
+        assertTrue(uiUtil_Object.isAssignableFrom(
+            uiUtil_Object, uiTest_DummyGrandChildClass));
+
+        assertFalse(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyGrandChildClass, uiTest_DummyChildClass));
+        assertTrue(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyChildClass, uiTest_DummyChildClass));
+        assertTrue(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyParentClass, uiTest_DummyChildClass));
+        assertTrue(uiUtil_Object.isAssignableFrom(
+            uiUtil_Object, uiTest_DummyChildClass));
+
+        assertFalse(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyGrandChildClass, uiTest_DummyParentClass));
+        assertFalse(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyChildClass, uiTest_DummyParentClass));
+        assertTrue(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyParentClass, uiTest_DummyParentClass));
+        assertTrue(uiUtil_Object.isAssignableFrom(
+            uiUtil_Object, uiTest_DummyParentClass));
+
+        assertFalse(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyGrandChildClass, uiUtil_Object));
+        assertFalse(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyChildClass, uiUtil_Object));
+        assertFalse(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyParentClass, uiUtil_Object));
+        assertTrue(uiUtil_Object.isAssignableFrom(
+            uiUtil_Object, uiUtil_Object));
+
+        assertFalse(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyGrandChildClass, Object));
+        assertFalse(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyChildClass, Object));
+        assertFalse(uiUtil_Object.isAssignableFrom(
+            uiTest_DummyParentClass, Object));
+        assertFalse(uiUtil_Object.isAssignableFrom(
+            uiUtil_Object, Object));
+      }
+    </script>
+  </body>
+</html>

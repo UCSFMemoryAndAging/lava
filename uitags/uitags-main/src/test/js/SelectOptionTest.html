@@ -1,0 +1,64 @@
+<html>
+  <head>
+    <title>Test Page -- SelectOption</title>
+    <script language="javascript" src="testCommon.js"></script> 
+  </head>
+
+  <body>
+    <form name="testForm">
+      <select>
+        <option id="optionId1">text1</option>
+        <option id="optionId2">text2</option>
+      </select>
+      <input type="submit" id="testSubmit" value="test" />
+    </form>
+
+    <script language="javascript">
+      var uiDocument;
+      var option1;
+      var option2;
+
+      function setUp() {
+        uiDocument = uiHtml_Document.getInstance();
+        option1 = new uiHtml_SelectOption(
+            uiDocument.getElementById('optionId1'));
+        option2 = new uiHtml_SelectOption(
+            uiDocument.getElementById('optionId2'));
+      }
+
+      function testGetDomObject() {
+        var domOption1 = uiDocument.getElementById('optionId1');
+        assertEquals(domOption1, option1.getDomObject());
+
+        var domOption2 = uiDocument.getElementById('optionId2');
+        assertEquals(domOption2, option2.getDomObject());
+
+        assertNotEquals(domOption1, domOption2);
+      }
+
+      function testClone() {
+        var clone = option1.clone();
+        assertNotEquals(clone, option1);
+        assertNotEquals(
+            uiDocument.getElementById('optionId2'),
+            clone.getDomObject());
+      }
+
+      function testCompareText() {
+        assertNotEquals(0, option1.compareText(option2));
+        assertEquals(0, option1.compareText(option1.clone()));
+      }
+
+      function testCompareTextIgnoreCase() {
+        var newOption = uiHtml_SelectOption.create('TeXT2', 'anyValue');
+        assertNotNull(newOption);
+        assertEquals(0, newOption.compareTextIgnoreCase(option2));
+      }
+
+      function testCreateById() {
+        var newOption = uiHtml_SelectOption.createById('optionId2');
+        assertEquals(option2.getDomObject(), newOption.getDomObject());
+      }
+    </script>
+  </body>
+</html>

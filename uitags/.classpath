@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry path="uitags-main/src/main/java" kind="src"/>
+	<classpathentry path="uitags-main/src/test/java" kind="src"/>
+	<classpathentry path="uitags-maven-plugin/src/main/java" kind="src"/>
+	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
+	<classpathentry path="target" kind="output"/>
+</classpath>

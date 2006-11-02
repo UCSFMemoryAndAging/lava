@@ -1,0 +1,5 @@
+Some concepts and ideas are inspired by the displaytag
+project (http://displaytag.sourceforge.net/).
+
+This software contains modified JavaScript code posted to www.faqts.com
+by Martin Honnen.

@@ -1,0 +1,75 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>net.sf.uitags</groupId>
+    <artifactId>uitags</artifactId>
+    <version>1.0.0-nonfinal4</version>
+  </parent>
+  <groupId>net.sf.uitags</groupId>
+  <artifactId>uitags-maven-plugin</artifactId>
+  <name>uitags Maven Plugin</name>
+  <packaging>maven-plugin</packaging>
+
+  <description>
+    Plugin to hook custom goals into Maven's lifecycle.
+  </description>
+
+
+
+  <!-- ========== Plugins ========== -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.4</source>
+          <target>1.4</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-tools-ant</artifactId>
+            <version>2.0.1</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <goalPrefix>uitags</goalPrefix>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+
+
+  <!-- ========== Dependencies ========== -->
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-script-ant</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>velocity</groupId>
+      <artifactId>velocity-dep</artifactId>
+      <version>1.4</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+
+
+
+  <!-- ========== Properties ========== -->
+  <properties>
+  </properties>
+</project>

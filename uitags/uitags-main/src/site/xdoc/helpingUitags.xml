@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!--
+ -
+ - Copyright 2004 - 2005 uitags
+ -
+ - Licensed under the Apache License, Version 2.0 (the "License");
+ - you may not use this file except in compliance with the License.
+ - You may obtain a copy of the License at
+ -
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ -
+ - Unless required by applicable law or agreed to in writing, software
+ - distributed under the License is distributed on an "AS IS" BASIS,
+ - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ - See the License for the specific language governing permissions and
+ - limitations under the License.
+ -
+ -->
+
+<document>
+
+  <properties>
+    <title>Helping uitags</title>
+  </properties>
+
+  <body>
+    <section name="Why Help uitags">
+      <p>
+        Because it benefits all its users, including yourself. Everything in
+        this package is contributed by volunteers. If everyone
+        chips in a little uitags will grow better, faster.
+      </p>
+    </section>
+    <section name="How to Help uitags">
+      <p>
+        You can help the project in many ways. One way of doing so is by
+        making code contribution, such as submitting patches or bug fixes.
+      </p>
+      <p>
+        If you aren't proficient in developing custom tags, you can still
+        contribute by giving ideas and suggestions (perhaps how to make
+        uitags even easier to use, or which new features you would like to
+        have), improving documentation, or helping out in the forum.
+      </p>
+      <p>
+        Finally and <b>most importantly</b>, we encourage you to <b>spread
+        the word</b> about uitags. Tell your friends about this package.
+        If you use uitags in your web application, perhaps you can place
+        a link to the project homepage (if circumstances permit).
+        Having a wider exposure will give
+        the project and its users great benefits. The more users
+        uitags has, the more help and contribution it will receive,
+        thereby enhancing further its usefulness and quality.
+      </p>
+    </section>
+  </body>
+</document>

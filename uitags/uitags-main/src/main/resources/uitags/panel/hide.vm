@@ -1,0 +1,1 @@
+uiPanel_driver.registerHideTrigger(panelId, "$!{triggerId}", "$!{triggerName}", "$!{triggerEvent}", ${delayInMillis}, ${force});

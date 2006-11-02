@@ -1,0 +1,108 @@
+<html>
+  <head>
+    <title>Test Page</title>
+    <script language="javascript" src="testCommon.js"></script>
+  </head>
+
+  <body>
+    <script language="javascript">
+      var loaded;
+
+      function manualTestIsLoaded() {
+        loaded = uiHtml_Window.isLoaded();
+        if (loaded) {
+          var errorMsg = "Test failed. Window should not have been loaded.";
+          alert(errorMsg);
+          throw errorMsg;
+        }
+
+        uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
+          loaded = uiHtml_Window.isLoaded();
+        });
+      }
+      manualTestIsLoaded();
+
+
+      function testIsOpera() {
+        assertTrue(uiUtil_Type.isBoolean(
+            uiHtml_Window.getInstance().isOpera()));
+      }
+
+      function testIsIe() {
+        assertTrue(uiUtil_Type.isBoolean(
+            uiHtml_Window.getInstance().isIe()));
+      }
+
+      function testGetVersionNumber() {
+        var uiWin = uiHtml_Window.getInstance();
+        // NOTE: At the moment these are the only browsers whose version
+        //       numbers are needed.
+        if (uiWin.isIe() || uiWin.isOpera()) {
+          assertTrue(uiUtil_Type.isNumber(uiWin.getBrowserVersion()));
+          assertTrue(uiWin.getBrowserVersion() > 0);
+        }
+      }
+
+      function testGetInstance() {
+        assertEquals(uiHtml_Window.getInstance(), uiHtml_Window.getInstance());
+      }
+
+      function testSingleton() {
+        assertNotNull(uiHtml_Window.getInstance());
+        try {
+          new uiHtml_Window();
+          fail('There should not be more than one windows.');
+        }
+        catch (e) {
+          assertTrue(e instanceof uiUtil_Exception);
+        }
+      }
+
+      function testGetWidth() {
+        assertTrue(uiUtil_Type.isNumber(
+            uiHtml_Window.getInstance().getWidth()));
+      }
+
+      function testGetHeight() {
+        assertTrue(uiUtil_Type.isNumber(
+            uiHtml_Window.getInstance().getHeight()));
+      }
+
+      function testGetRequestParameters() {
+        var parameters = uiHtml_Window.getInstance().getRequestParameters();
+        assertNotNull(parameters);
+
+        for (key in parameters) {
+          assertNotNull(key);
+        }
+      }
+
+      function testIsLoaded() {
+        assertTrue(loaded);
+      }
+
+      function testUnloadEventHandling() {
+        // Ensure that event after clearing the unload handler list, the
+        // finalizer is still in the list -- later confirmed if
+        // uiHtml_Window.isLoaded() returns false.
+        uiHtml_Window.getInstance().clearEventHandlerExtension("unload");
+
+        // Assert precondition.
+        assertTrue(uiHtml_Window.isLoaded());
+
+        var handlerId = uiHtml_Window.getInstance().appendEventHandler("unload", function(e) {
+          // Ensure that the finalizer is called after this.
+          assertTrue(uiHtml_Window.isLoaded());
+        });
+
+        uiHtml_Window.getInstance().executeAggregateEventHandler("unload");
+
+        // Ensure that in the end, the finalizer gets called.
+        assertFalse(uiHtml_Window.isLoaded());
+
+        // Avoids this from re-executed when the real unload is performed.
+        uiHtml_Window.getInstance().removeEventHandler("unload", handlerId);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1 @@
+uiPanel_driver.registerDragElement(panelId, "$!draggerId", "$!draggerName");

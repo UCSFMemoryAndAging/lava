@@ -1,0 +1,1 @@
+uiOptionTransfer_driver.registerTransferTrigger(panelId, "$!triggerId", "$!triggerName");

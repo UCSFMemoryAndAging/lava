@@ -1,0 +1,45 @@
+<!--
+  - File location (to be fed to jsUnit testRunner):
+  - Shortcut:
+  - file:///home/hgani/project/uitags1/uitags-main/src/test/js/jsunit/testRunner.html?autoRun=true&testpage=/home/hgani/project/uitags1/uitags-main/src/test/js/AllTests.html
+  -->
+
+<html>
+  <head>
+    <title>Test Page -- All</title>
+    <script language="javascript" src="testCommon.js"></script>
+  </head>
+
+  <body>
+    <script language="javascript">
+      var basePath = getTestBasePath();
+
+      function getUtilTestSuite() {
+        var suite = new top.jsUnitTestSuite();
+        suite.addTestPage(basePath + "ObjectTest.html");
+        suite.addTestPage(basePath + "TypeTest.html");
+        suite.addTestPage(basePath + "ArrayUtilsTest.html");
+        suite.addTestPage(basePath + "CalendarTest.html");
+        suite.addTestPage(basePath + "DimensionTest.html");
+        return suite;
+      }
+
+      function getHtmlTestSuite() {
+        var suite = new top.jsUnitTestSuite();
+        suite.addTestPage(basePath + "WindowTest.html");
+        suite.addTestPage(basePath + "DocumentTest.html");
+        suite.addTestPage(basePath + "EventTest.html");
+        suite.addTestPage(basePath + "ElementWrapperTest.html");
+        suite.addTestPage(basePath + "ScrollSupporterTest.html");
+        return suite;
+      }
+
+      function suite() {
+        var suite = new top.jsUnitTestSuite();
+        suite.addTestSuite(getUtilTestSuite());
+        suite.addTestSuite(getHtmlTestSuite());
+        return suite;
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,291 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>net.sf.uitags</groupId>
+    <artifactId>uitags</artifactId>
+    <version>1.0.0-nonfinal4</version>
+  </parent>
+  <groupId>net.sf.uitags</groupId>
+  <artifactId>uitags-main</artifactId>
+  <name>uitags Main</name>
+  <packaging>jar</packaging>
+
+  <description>
+    uitags is an open source JSP custom-tag library that aims
+    to help make web applications easier to use.
+  </description>
+
+  <distributionManagement>
+    <site>
+      <id>shell.sourceforge.net</id>
+      <url>scp://shell.sourceforge.net/home/groups/u/ui/uitags/htdocs/1.x</url>
+    </site>
+  </distributionManagement>
+
+  <!-- ========== Plugins ========== -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.4</source>
+          <target>1.4</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>clean</phase>
+            <configuration>
+              <tasks>
+                <delete dir="${project.build.sourceDirectory}/net/sf/uitags/tag/el" />
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>net.sf.uitags</groupId>
+        <artifactId>uitags-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copyTlds</id>
+            <phase>generate-sources</phase>
+            <configuration>
+              <sourceDir>${project.build.sourceDirectory}/../resources/META-INF</sourceDir>
+              <targetDir>${project.build.outputDirectory}/META-INF</targetDir>
+            </configuration>
+            <goals>
+              <goal>copyTlds</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>detectMissingBeanInfo</id>
+            <phase>generate-sources</phase>
+            <configuration>
+              <tldFile>${project.build.outputDirectory}/META-INF/uitags.tld</tldFile>
+              <sourceDir>${project.build.sourceDirectory}/</sourceDir>
+            </configuration>
+            <goals>
+              <goal>detectMissingBeanInfo</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>generateElSourceCode</id>
+            <phase>generate-sources</phase>
+            <configuration>
+              <tldFile>${project.build.outputDirectory}/META-INF/uitags.tld</tldFile>
+              <elTldFile>${project.build.outputDirectory}/META-INF/uitags-el.tld</elTldFile>
+              <outputDir>${project.build.sourceDirectory}/</outputDir>
+            </configuration>
+            <goals>
+              <goal>generateElSourceCode</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>validatesJsSuiteEntries</id>
+            <phase>package</phase>
+            <configuration>
+              <sourceDir>${project.build.sourceDirectory}/../js</sourceDir>
+              <entriesFile>${project.build.sourceDirectory}/../resources/net/sf/uitags/js/file-names.properties</entriesFile>
+            </configuration>
+            <goals>
+              <goal>validatesJsSuiteEntries</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>copyFactoryDefaultProperties</id>
+            <phase>site:deploy</phase>
+            <configuration>
+              <sourceDir>${project.build.sourceDirectory}/../resources/net/sf/uitags/tagutil</sourceDir>
+              <targetDir>${project.reporting.outputDirectory}</targetDir>
+            </configuration>
+            <goals>
+              <goal>copyFactoryDefaultProperties</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>copyJs</id>
+            <phase>generate-resources</phase>
+            <configuration>
+              <inputDir>${project.build.sourceDirectory}/../js</inputDir>
+              <outputDir>${project.build.outputDirectory}/net/sf/uitags/js</outputDir>
+            </configuration>
+            <goals>
+              <goal>reduceSize</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+
+
+  <!-- ========== Reports ========== -->
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>net.sourceforge.maven-taglib</groupId>
+        <artifactId>maven-taglib-plugin</artifactId>
+        <version>2.3</version>
+        <configuration>
+          <taglib.src.dir>${project.build.outputDirectory}/META-INF</taglib.src.dir>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <quiet>true</quiet>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jxr-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+         <groupId>org.codehaus.mojo</groupId>
+         <artifactId>surefire-report-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+
+
+
+  <!-- ========== Dependencies ========== -->
+  <dependencies>
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>1.6.1</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.1</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jsp-api</artifactId>
+      <version>2.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.0.6</version>
+      <scope>compile</scope>
+      <optional>true</optional><!-- Only when using JstlMessageFinder -->
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.12</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.3</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>1.2.6</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring-mock</artifactId>
+      <version>1.2.6</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>struts</groupId>
+      <artifactId>struts</artifactId>
+      <version>1.1</version>
+      <scope>compile</scope>
+      <optional>true</optional><!-- Only when using StrutsMessageFinder -->
+      <exclusions>
+        <exclusion>
+          <groupId>javax.sql</groupId>
+          <artifactId>jdbc-stdext</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>taglibs</groupId>
+      <artifactId>standard</artifactId>
+      <version>1.0.6</version>
+      <scope>compile</scope>
+      <optional>true</optional><!-- Only when EL support is needed -->
+    </dependency>
+
+    <dependency>
+      <groupId>velocity</groupId>
+      <artifactId>velocity-dep</artifactId>
+      <version>1.4</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xerces</artifactId>
+      <version>2.4.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <version>2.0.2</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+
+
+  <!-- ========== Properties ========== -->
+  <properties>
+  </properties>
+</project>

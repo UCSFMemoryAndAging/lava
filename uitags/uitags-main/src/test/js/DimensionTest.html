@@ -1,0 +1,59 @@
+<html>
+  <head>
+    <title>Test Page</title>
+    <script language="javascript" src="testCommon.js"></script>
+  </head>
+
+  <body>
+    <script language="javascript">
+      var left;
+      var top;
+      var width;
+      var height;
+      var dimension;
+
+      function setUp() {
+        left = 10;
+        top = 20;
+        width = 300;
+        height = 400;
+        dimension = new uiUtil_Dimension(left, top, width, height);
+      }
+
+      function testGetWidth() {
+        assertEquals(width, dimension.getWidth());
+      }
+
+      function testGetHeight() {
+        assertEquals(height, dimension.getHeight());
+      }
+
+      function testGetLeft() {
+        assertEquals(left, dimension.getLeft());
+      }
+
+      function testGetTop() {
+        assertEquals(top, dimension.getTop());
+      }
+
+      function testGetRight() {
+        assertEquals(left + width, dimension.getRight());
+      }
+
+      function testGetBottom() {
+        assertEquals(top + height, dimension.getBottom());
+      }
+
+      function testEquals() {
+        var obj = new uiUtil_Dimension(left, top, width, height);
+        assertTrue(dimension.equals(obj));
+
+        obj = new uiUtil_Dimension(left, top, width, null);
+        assertFalse(dimension.equals(obj));
+
+        obj = new uiUtil_Dimension(left, top, 10, 10);
+        assertFalse(dimension.equals(obj));
+      }
+    </script>
+  </body>
+</html>

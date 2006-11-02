@@ -1,0 +1,130 @@
+<html>
+  <head>
+    <title>Test Page</title>
+    <script language="javascript" src="testCommon.js"></script>
+  </head>
+
+  <body>
+    <form name="testForm" action="http://test/">
+      <div id="containerId">
+        <input type="checkbox" id="checkBoxId" />
+        <input type="button" id="buttonId" />
+      </div>
+    </form>
+
+    <script language="javascript">
+      var domButton;
+      var divClicked;
+      var domSource;
+      var viewPortPosition;
+      var absolutePosition;
+
+      function setUp() {
+        divClicked = false;
+        domSource = null;
+        viewPortPosition = null;
+        absolutePosition = null;
+
+        domButton = document.getElementById("buttonId");
+        domButton.onclick = onButtonClick;
+      }
+
+      function testPreventBubble() {
+        var domDiv = document.getElementById("containerId");
+        domDiv.onclick = onDivClick;
+
+        divClicked = false;
+        uiTest_TestUtils.synchronousClick(domButton);
+        assertTrue(divClicked);
+
+        divClicked = false;
+        domButton.onclick = onButtonClickPreventBubble;
+        uiTest_TestUtils.synchronousClick(domButton);
+        assertFalse(divClicked);
+      }
+
+      function onButtonClick(e) {
+        var event = new uiHtml_Event(e);
+        domSource = event.getDomSource();
+        viewPortPosition = event.getViewPortPosition();
+        absolutePosition = event.getAbsolutePosition();
+        uiTest_TestUtils.releaseEventLock();
+      }
+
+      function onButtonClickPreventBubble(e) {
+        (new uiHtml_Event(e)).preventBubble();
+        uiTest_TestUtils.releaseEventLock();
+      }
+
+      function onDivClick(e) {
+        divClicked = true;
+      }
+
+      function onEventEmptyImpl(e) {
+        // NOTE: This event handler does nothing other than releasing the
+        //       event handling lock.
+        uiTest_TestUtils.releaseEventLock();
+      }
+
+      function testPreventDefault() {
+        var domCheckBox = document.getElementById("checkBoxId");
+
+        domCheckBox.onclick = onEventEmptyImpl;
+        domCheckBox.checked = false;
+        uiTest_TestUtils.synchronousClick(domCheckBox);
+        assertTrue(domCheckBox.checked);
+
+        // NOTE: Can't test this in Opera, since it doesn't seem prevent
+        //       a check box from being ticked (using both onclick and
+        //       onchange).
+        if (!uiHtml_Window.getInstance().isOpera()) {
+          domCheckBox.onclick = onCheckBoxClickPreventDefault;
+          domCheckBox.checked = false;
+          uiTest_TestUtils.synchronousClick(domCheckBox);
+          assertFalse(domCheckBox.checked);
+        }
+      }
+
+      function onCheckBoxClickPreventDefault(e) {
+        (new uiHtml_Event(e)).preventDefault();
+        uiTest_TestUtils.releaseEventLock();
+      }
+
+      function testDomSource() {
+        uiTest_TestUtils.synchronousClick(domButton);
+        assertEquals(domButton, domSource);
+
+        var domCheckBox = document.getElementById("checkBoxId");
+        domCheckBox.onclick = function(e) {
+          domSource = new uiHtml_Event(e).getDomSource();
+          uiTest_TestUtils.releaseEventLock();
+        };
+        uiTest_TestUtils.synchronousClick(domCheckBox);
+        assertEquals(domCheckBox, domSource);
+      }
+
+      function testViewPortPosition() {
+        uiTest_TestUtils.synchronousClick(domButton);
+
+        assertTrue(uiUtil_Type.isInt(viewPortPosition.getLeft()));
+        assertTrue(uiUtil_Type.isInt(viewPortPosition.getTop()));
+
+        // Test the corresponding static method.
+        domButton.onclick = function(e) {
+          viewPortPosition = uiHtml_Event.getViewPortPosition(e);
+          uiTest_TestUtils.releaseEventLock();
+        }
+
+        assertTrue(uiUtil_Type.isInt(viewPortPosition.getLeft()));
+        assertTrue(uiUtil_Type.isInt(viewPortPosition.getTop()));
+      }
+
+      function testAbsolutePosition() {
+        uiTest_TestUtils.synchronousClick(domButton);
+
+        assertTrue(uiUtil_Type.isInt(absolutePosition.getLeft()));
+        assertTrue(uiUtil_Type.isInt(absolutePosition.getTop()));
+      }
+    </script>
+  </body>
+</html>

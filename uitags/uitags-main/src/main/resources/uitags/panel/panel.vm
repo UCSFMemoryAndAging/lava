@@ -1,0 +1,21 @@
+##
+## Renders a floating panel.
+##
+<div id="$id" class="$class" ${otherAttributes}>
+${content}
+</div>
+
+<script type="text/javascript">
+uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
+  var panelId = uiPanel_driver.createSuite("${id}");
+#foreach ($codeLine in $jsCodeList)
+
+  $codeLine
+#end
+
+#if ($listener)
+  uiPanel_driver.setLifeCycleListener(panelId, $listener);
+#end
+
+});
+</script>

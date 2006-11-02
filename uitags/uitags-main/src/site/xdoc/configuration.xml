@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!--
+ -
+ - Copyright 2004 uitags
+ -
+ - Licensed under the Apache License, Version 2.0 (the "License");
+ - you may not use this file except in compliance with the License.
+ - You may obtain a copy of the License at
+ -
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ -
+ - Unless required by applicable law or agreed to in writing, software
+ - distributed under the License is distributed on an "AS IS" BASIS,
+ - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ - See the License for the specific language governing permissions and
+ - limitations under the License.
+ -
+ -->
+
+<document>
+
+  <properties>
+    <title>Documentation</title>
+  </properties>
+
+  <body>
+    <section name="Properties File">
+      <p>
+        uitags comes bundled with a set of default configuration values, called
+        "factory default" settings. You can override these values,
+        and therefore alter uitags' default behavior, by placing
+        uitags.properties in your WEB-INF/classes directory.
+      </p>
+      <pre>
+        WEB-INF/
+           |
+           +--- classes/
+                   |
+                   +--- uitags.properties
+      </pre>
+      <p>
+        Use the
+        <a href="factory-default.properties">factory-default properties</a>
+        file as a template for your uitags.properties file.
+      </p>
+      <p>
+        Another way to control uitags' behavior is by setting values through
+        tag attributes. Some tag attributes have a corresponding entry in
+        uitags.properties. If you expect certain configuration
+        values to be used consistently throughout the whole webapp, put them
+        in the uitags.properties file rather than specify them each time
+        you use a tag.
+      </p>
+    </section>
+    <section name="JavaScript">
+      <p>
+        You need to include uitags JavaScript wherever you use its custom tags.
+        uitags provides a servlet that serves JavaScript to the client browser.
+      </p>
+      <p>
+        To configure the servlet place the following in web.xml:
+      </p>
+      <pre>
+        &lt;servlet&gt;
+          &lt;servlet-name&gt;uitags.js&lt;/servlet-name&gt;
+          &lt;servlet-class&gt;net.sf.uitags.js.JsProviderServlet&lt;/servlet-class&gt;
+        &lt;/servlet&gt;
+
+        &lt;servlet-mapping&gt;
+          &lt;servlet-name&gt;uitags.js&lt;/servlet-name&gt;
+          &lt;url-pattern&gt;/uitags.js&lt;/url-pattern&gt;
+        &lt;/servlet-mapping&gt;
+      </pre>
+      <p>
+        And in your JSP include the following:
+      </p>
+      <pre>
+        &lt;script type="text/javascript" src="&lt;<i>my-context</i>&gt;/uitags.js"&gt;&lt;/script&gt;
+      </pre>
+    </section>
+    <section name="Internationalization (I18N)">
+      <p>
+        Webapps usually rely on frameworks/tools such as Struts or JSTL for
+        internationalization. You can configure uitags plug into your
+        internationalization framework.
+      </p>
+      <p>
+        By the default uitags ignores i18n, it displays
+        strings (provided by tag attributes or in properties files) as is.
+        To enable i18n, simply nominate the adapter that
+        understands how to interface with your i18n framework. For example,
+        the following line in site-wide.properties tells uitags to
+        use Struts i18n framework:
+        <pre>
+          common.message.finder=net.sf.uitags.tagutil.StrutsMessageFinder
+        </pre>
+      </p>
+      <p>
+        You can provide your own message finder, it just has to implement
+        the <code>net.sf.uitags.MessageFinder</code> interface. <b>Note:</b>
+        at the moment Struts and JSTL message finders are the only adapters
+        provided by uitags. We'd appreciate help in writing adapters for other
+        frameworks such as Spring, WebWork, etc.
+      </p>
+      <p>
+        After enabling i18n, you should ensure that you always pass
+        message keys to uitags rather than the actual strings to be displayed.
+      </p>
+    </section>
+  </body>
+</document>

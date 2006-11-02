@@ -1,0 +1,15 @@
+## Renders Javascript code to initialize option transfer functionality.
+<script type="text/javascript">
+
+uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
+  var panelId = uiOptionTransfer_driver.createSuite(
+      "$!sourceId", "$!sourceName", "$!targetId", "$!targetName");
+
+#foreach ($codeLine in $jsCodeList)
+
+  $codeLine
+#end
+
+});
+
+</script>

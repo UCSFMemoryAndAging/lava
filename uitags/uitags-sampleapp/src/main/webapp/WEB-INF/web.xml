@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+            http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+        version="2.4">
+
+  <display-name>uitags Sample Application</display-name>
+  <description>Sample web application for uitags.</description>
+
+  <!--
+    - Use this as your template.
+    -->
+  <!--
+  <servlet>
+    <servlet-name>uitags.js</servlet-name>
+    <servlet-class>net.sf.uitags.js.JsProviderServlet</servlet-class>
+    <init-param>
+      <param-name>directory</param-name>
+      <param-value>/includes/js</param-value>
+      <description>
+        Optional param.
+        If specified, this servlet reads uitags JS files from
+        the specified folder in the file system. If unspecified, the servlet
+        reads the JS files from uitags.jar.
+      </description>
+    </init-param>
+    <init-param>
+      <param-name>suites</param-name>
+      <param-value>core,calendar,panel</param-value>
+      <description>
+        Optional param.
+        If specified, this servlet serves the JS files for the
+        specified suites in the order they are declared. If unspecified,
+        the servlet serves JS files for all suites.
+      </description>
+    </init-param>
+  </servlet>
+  -->
+
+  <!--
+    - This servlet serves core uitags JS code, as well JS code
+    - for all suites in uitags.
+    -->
+  <servlet>
+    <servlet-name>uitags.js</servlet-name>
+    <servlet-class>net.sf.uitags.js.JsProviderServlet</servlet-class>
+  </servlet>
+
+  <!--
+    - This servlet serves core uitags JS code, as well as JS code
+    - for calendar and panel suites. Use this if you only wish to use
+    - parts of uitags and do not want the servlet to serve other
+    - irrelevant JS code.
+    -->
+  <servlet>
+    <servlet-name>comboDatePicker.js</servlet-name>
+    <servlet-class>net.sf.uitags.js.JsProviderServlet</servlet-class>
+    <init-param>
+      <param-name>suites</param-name>
+      <param-value>core,calendar,panel</param-value>
+    </init-param>
+  </servlet>
+
+  <!--
+    - This servlet serves core uitags JS code, as well as JS code
+    - for optionTransfer, shift, and sort suites. Use this if you
+    - only wish to use parts of uitags and do not want the servlet
+    - to serve other irrelevant JS code.
+    -->
+  <servlet>
+    <servlet-name>comboOptionTransfer.js</servlet-name>
+    <servlet-class>net.sf.uitags.js.JsProviderServlet</servlet-class>
+    <init-param>
+      <param-name>suites</param-name>
+      <param-value>core,optionTransfer,shift,sort</param-value>
+    </init-param>
+  </servlet>
+
+  <!--
+    - This servlet reads the JS code from file system, which makes it
+    - useful for debugging.
+    -->
+  <servlet>
+    <servlet-name>uitagsDebug.js</servlet-name>
+    <servlet-class>net.sf.uitags.js.JsProviderServlet</servlet-class>
+    <init-param>
+      <param-name>directory</param-name>
+      <param-value>/includes/js</param-value>
+    </init-param>
+    <init-param>
+      <param-name>debug</param-name>
+      <param-value>true</param-value>
+    </init-param>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>uitags.js</servlet-name>
+    <url-pattern>/uitags.js</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>comboDatePicker.js</servlet-name>
+    <url-pattern>/comboDatePicker.js</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>comboOptionTransfer.js</servlet-name>
+    <url-pattern>/comboOptionTransfer.js</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>uitagsDebug.js</servlet-name>
+    <url-pattern>/uitagsDebug.js</url-pattern>
+  </servlet-mapping>
+
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>

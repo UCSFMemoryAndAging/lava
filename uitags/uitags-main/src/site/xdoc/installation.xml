@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!--
+ -
+ - Copyright 2004 uitags
+ -
+ - Licensed under the Apache License, Version 2.0 (the "License");
+ - you may not use this file except in compliance with the License.
+ - You may obtain a copy of the License at
+ -
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ -
+ - Unless required by applicable law or agreed to in writing, software
+ - distributed under the License is distributed on an "AS IS" BASIS,
+ - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ - See the License for the specific language governing permissions and
+ - limitations under the License.
+ -
+ -->
+
+<document>
+
+  <properties>
+    <title>Installation</title>
+  </properties>
+
+  <body>
+    <section name="Installation">
+      <p>
+        To use uitags in your project, simply place
+        uitags-main-&lt;version&gt;.jar and its runtime dependencies in your
+        webapp's WEB-INF/lib directory. When we say "runtime dependencies",
+        we mean jar files that must be placed in WEB-INF/lib alongside uitags
+        jar file in order for it to work.
+      </p>
+    </section>
+    <section name="Dependency Note">
+      <p>
+        You can view the dependency list <a href="dependencies.html">here</a>.
+      </p>
+      <p>
+        <b>Please note:</b> many of the dependency packages are not needed
+        at runtime; they're required only for building and testing uitags.
+        If you don't want EL support (perhaps because your servlet engine
+        provides built-in EL support), Jakarta Taglib's standard.jar is not
+        needed at runtime.
+      </p>
+      <table>
+        <thead>
+        <tr>
+          <th>Required Only When EL-Support is Needed</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>standard</td>
+        </tr>
+        </tbody>
+      </table>
+      <table>
+        <thead>
+        <tr>
+          <th>Required Only When Using StrutsMessageFinder (i18n)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>struts</td>
+        </tr>
+        </tbody>
+      </table>
+      <table>
+        <thead>
+        <tr>
+          <th>Required Only When Using JstlMessageFinder (i18n)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>jstl</td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+  </body>
+</document>

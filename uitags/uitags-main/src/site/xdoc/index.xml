@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!--
+ -
+ - Copyright 2004 uitags
+ -
+ - Licensed under the Apache License, Version 2.0 (the "License");
+ - you may not use this file except in compliance with the License.
+ - You may obtain a copy of the License at
+ -
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ -
+ - Unless required by applicable law or agreed to in writing, software
+ - distributed under the License is distributed on an "AS IS" BASIS,
+ - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ - See the License for the specific language governing permissions and
+ - limitations under the License.
+ -
+ -->
+
+<document>
+
+  <properties>
+    <title>Home</title>
+  </properties>
+
+  <body>
+    <section name="Introduction">
+      <p>
+        <strong>uitags</strong> is an open source JSP custom-tag library
+        (taglib) that makes developing <em>friendly</em> UI (user interface)
+        <em>effortless</em>. It aims to help developers
+        create interactive UIs that let end-users work more efficiently.
+        Its collection includes tags for well-known UI
+        components, such as formGuide, calendar, optionTransfer, and panel.
+      </p>
+      <p>
+        uitags v1 is the successor to
+        <a href="http://uitags.sourceforge.net/0.x">uitags v0 (the current stable version)</a>.
+        It's being actively developed and is still not final. Its public
+        API may change until it hits the first stable release. Generally
+        uitags v1 is stable enough for production use. We encourage users
+        to choose uitags v1 over v0 as new improvements will only go to v1.
+      </p>
+      <p>
+        To find out more, have a quick look at the remaining of this page,
+        and then proceed to the
+        <a href="http://www.gani.com.au/uitags1/">demo site</a>.
+        Consult the <i>Configuration</i> and <i>Tag Reference</i> pages
+        when you're developing with uitags.
+      </p>
+    </section>
+    <section name="News">
+      <h4>16 October 2006</h4>
+      <h5>Version 1.0.0 Non-Final 4</h5>
+      <p>
+        <ul>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1545270&amp;group_id=123782&amp;atid=697569">FR 1545270</a>.
+            JsIncluderServlet now returns proper LastModifiedTime header.
+          </li>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1560120&amp;group_id=123782&amp;atid=697566">BUG 1560120</a>.
+            Options with the same label and value are now considered equal.
+          </li>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1560112&amp;group_id=123782&amp;atid=697566">BUG 1560112</a>.
+            Exception is no longer thrown on empty select box.
+          </li>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1559771&amp;group_id=123782&amp;atid=697566">BUG 1559771</a>.
+            uiUtil_IllegalArgumentException is no longer thrown when the name of an element is specified instead of its ID.
+          </li>
+        </ul>
+      </p>
+      <h4>8 September 2006</h4>
+      <h5>Version 1.0.0 Non-Final 3</h5>
+      <p>
+        <ul>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1552472&amp;group_id=123782&amp;atid=697569">FR 1552472</a>.
+            It is now possible to use &lt;attribute&gt; as the child of
+            &lt;calendarGrid&gt;.
+          </li>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1545016&amp;group_id=123782&amp;atid=697566">BUG 1545016</a>.
+            Added code to get around IE's memory leak bug.
+          </li>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1551277&amp;group_id=123782&amp;atid=697566">BUG 1551277</a>.
+            Fixed uitags-maven-plugin which was failing on Windows.
+          </li>
+          <li>
+            <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1544887&amp;group_id=123782&amp;atid=697569">FR 1544887</a>.
+            Added BeanInfo classes for the calendar suite.
+          </li>
+        </ul>
+      </p>
+    </section>
+    <section name="Why Use uitags">
+      <subsection name="There are plenty of JavaScript libraries out there. Why use uitags?">
+        <p>
+          Using a taglib lets you write more <b>robust code</b> as
+          you catch errors easier and earlier.
+          Modern IDEs are capable of validating custom tag usage
+          on-the-fly while you write your code. Furthermore, web
+          containers use TLD to enforce proper use of custom tags.
+          You discover coding errors without
+          having to open up a browser.
+        </p>
+        <p>
+          Custom tags, having XML-like syntax, blend in with the
+          rest of your HTML code, making it <b>easier to read</b>.
+          Using uitags, often you write <b>shorter and more intuitive</b>
+          code. For example, to create a panel you write the following:
+          <pre>
+            &lt;uic:panel ...&gt;Panel contents&lt;/uic:panel&gt;
+          </pre>
+          When someone sees that piece of code they know that it
+          renders a panel. Using JavaScript, they'd only see a
+          standard HTML element (likely a &lt;div&gt;) which is
+          turned into a panel by a JavaScript code located elsewhere.
+          This leads to hard-to-comprehend code.
+        </p>
+      </subsection>
+      <subsection name="Flexibility">
+        <p>
+          To give you full flexibility, uitags since v1 no longer
+          renders widgets for you (there's a few exceptions to this).
+          This means that you are <b>free</b> to use whatever technique
+          to render a widget. You could use your MVC framework's
+          custom tags, or write plain HTML. You then use uitags
+          to inject rich client-side behavior to the widget. We call
+          this technique "behavior injection".
+        </p>
+        <p>
+          Here's an example of how to turn an image into a date-picker button:
+          <pre>
+            &lt;!-- You have full freedom in creating and styling your image --&gt;
+            &lt;img id="trigger" ... /&gt;
+            &lt;!-- And then using uitags you inject dynamic behavior to your image --&gt;
+            &lt;uic:show injectTo="trigger" on="click" /&gt;
+          </pre>
+        </p>
+      </subsection>
+      <subsection name="Extensibility">
+        <p>
+          uitags lets you hook into its JavaScript code by providing
+          listeners and strategy classes. As a testimony to uitags'
+          extensibility, we managed to glue together two completely
+          separate uitags suites, <i>panel</i> and <i>calendar</i>, by
+          providing listeners. We then implemented a simple strategy
+          class to turn them into a fully-featured date picker. See the demo at
+          <a href="http://www.gani.com.au/uitags1/comboDatePicker.jsp">http://www.gani.com.au/uitags1/comboDatePicker.jsp</a>.
+        </p>
+      </subsection>
+    </section>
+  </body>
+</document>

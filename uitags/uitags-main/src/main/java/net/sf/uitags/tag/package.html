@@ -1,0 +1,21 @@
+<html>
+
+<body>
+  <p>Tag handlers should contain logic, performing whatever processing
+     and calculation needed. On the other hand, templates should contain
+     static string for generated HTML and JavaScript. The templates should
+     not contain complicated logic. Configurable values
+     should not be specified in the template, they should go to the
+     properties file.</p>
+  <h3>Tag Handlers and Instance Variables</h3>
+  <p>An object may be used as a tag handler's instance variable for holding
+     states (set via the setter methods) only if its state never changes once
+     the setters have all been invoked. Otherwise, temporary instance variables
+     should be used in its place. Inside <code>doStartTag()</code> (or
+     <code>doEndTag()</code>, etc), information is transferred from the
+     temporary variables to initialize the original object's states. This
+     avoids bugs due to reuse of tag handlers.
+     </p>
+</body>
+
+</html>

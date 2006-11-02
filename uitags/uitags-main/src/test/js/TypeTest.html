@@ -1,0 +1,208 @@
+<html>
+  <head>
+    <title>Test Page</title>
+    <script language="javascript" src="testCommon.js"></script>
+  </head>
+
+  <body>
+    <script language="javascript">
+      ///// Test Classes /////
+      // NOTE: It is important for these test classes to be declared
+      //       up here (before they are used).
+
+      function uiTest_DummyClass() {
+      }
+
+
+      var dummyObject;
+      var uninitializedVariable;
+
+      function setUp() {
+        dummyObject = new uiTest_DummyClass();
+      }
+
+      function testIsDefined() {
+        assertFalse(uiUtil_Type.isDefined(uninitializedVariable));
+        assertFalse(uiUtil_Type.isDefined(undeclaredVariable));
+
+        assertTrue(uiUtil_Type.isDefined(false));
+        assertTrue(uiUtil_Type.isDefined(null));
+      }
+
+      function testIsFunction() {
+        assertFalse(uiUtil_Type.isFunction("arbitrary value"));
+        assertTrue(uiUtil_Type.isFunction(function() { }));
+      }
+
+      function testIsObject() {
+        assertFalse(uiUtil_Type.isObject("arbitrary value"));
+
+        assertTrue(uiUtil_Type.isObject(dummyObject));
+        assertTrue(uiUtil_Type.isObject(document));
+        assertTrue(uiUtil_Type.isObject(null));
+      }
+
+      function testIsString() {
+        assertTrue(uiUtil_Type.isString("a string"));
+        assertTrue(uiUtil_Type.isString("value = " + 5));
+        assertFalse(uiUtil_Type.isString(5));
+        assertFalse(uiUtil_Type.isString(null));
+      }
+
+      function testIsBoolean() {
+        assertTrue(uiUtil_Type.isBoolean(true));
+        assertTrue(uiUtil_Type.isBoolean(false));
+        assertFalse(uiUtil_Type.isBoolean("a string"));
+        assertFalse(uiUtil_Type.isBoolean(5));
+        assertFalse(uiUtil_Type.isBoolean(null));
+      }
+
+      function testIsNumber() {
+        assertFalse(uiUtil_Type.isNumber("5"));
+        assertTrue(uiUtil_Type.isNumber(5));
+        assertTrue(uiUtil_Type.isNumber(1.5));
+
+        assertTrue(uiUtil_Type.isNumber(parseInt("15")));
+        assertTrue(uiUtil_Type.isNumber(parseFloat("0.0001")));
+        assertFalse(uiUtil_Type.isNumber(parseInt("a5")));
+      }
+
+      function testIsWholeNumber() {
+        assertTrue(uiUtil_Type.isInt(5));
+        assertFalse(uiUtil_Type.isInt(1.5));
+
+        assertTrue(uiUtil_Type.isInt(parseInt("15")));
+        assertTrue(uiUtil_Type.isInt(parseFloat("15")));
+        assertFalse(uiUtil_Type.isInt(parseFloat("0.0001")));
+      }
+
+      function testIsDecimalNumber() {
+        assertFalse(uiUtil_Type.isDouble(5));
+        assertTrue(uiUtil_Type.isDouble(1.5));
+
+        assertFalse(uiUtil_Type.isDouble(parseInt("15")));
+        assertFalse(uiUtil_Type.isDouble(parseFloat("15")));
+        assertTrue(uiUtil_Type.isDouble(parseFloat("0.0001")));
+      }
+
+      function testGetTypeName() {
+        assertEquals("undefined",
+            uiUtil_Type.getTypeName(uninitializedVariable));
+        assertEquals("uiTest_DummyClass",
+            uiUtil_Type.getTypeName(uiTest_DummyClass));
+
+        assertEquals("object", uiUtil_Type.getTypeName(dummyObject));
+        assertEquals("null", uiUtil_Type.getTypeName(null));
+
+        var domDiv = document.createElement("div");
+        assertEquals("div", uiUtil_Type.getTypeName(domDiv));
+        assertEquals("body", uiUtil_Type.getTypeName(document.body));
+
+        var domText = document.createTextNode("a text");
+        assertEquals("#text", uiUtil_Type.getTypeName(domText));
+        assertEquals("#document", uiUtil_Type.getTypeName(document));
+      }
+
+      function testIsHtmlNode() {
+        var domSelect = document.createElement("select");
+        assertTrue(uiUtil_Type.isHtmlNode(domSelect));
+        assertTrue(uiUtil_Type.isHtmlNode(document.body));
+
+        var domText = document.createTextNode("a text");
+        assertTrue("#text", uiUtil_Type.isHtmlNode(domText));
+        assertTrue("#document", uiUtil_Type.isHtmlNode(document));
+
+        assertFalse(uiUtil_Type.isHtmlNode(uiUtil_Object));
+        assertFalse(uiUtil_Type.isHtmlNode(dummyObject));
+      }
+
+      function testIsElementNode() {
+        var domSelect = document.createElement("select");
+        assertTrue(uiUtil_Type.isElementNode(domSelect));
+        assertTrue(uiUtil_Type.isElementNode(document.body));
+
+        var domText = document.createTextNode("a text");
+        assertFalse(uiUtil_Type.isElementNode(domText));
+        assertFalse(uiUtil_Type.isElementNode(document));
+      }
+
+      function testIsTextNode() {
+        var domText = document.createTextNode("a text");
+        assertTrue(uiUtil_Type.isTextNode(domText));
+        assertFalse(uiUtil_Type.isTextNode(document.body));
+        assertFalse(uiUtil_Type.isTextNode(document));
+      }
+
+      function testGetValue() {
+        assertEquals(dummyObject, uiUtil_Type.getValue(dummyObject, 5));
+        assertEquals(dummyObject, uiUtil_Type.getValue(null, dummyObject));
+
+        assertEquals(5, uiUtil_Type.getValue(uninitializedVariable, 5));
+        assertEquals(5, uiUtil_Type.getValue(5, uninitializedVariable));
+      }
+
+      function testGetString() {
+        var str = "a string";
+        assertEquals(str, uiUtil_Type.getString(str, "blah"));
+        assertEquals(str, uiUtil_Type.getString(uninitializedVariable, str));
+
+        getStringAssertExceptionThrown(null, str);
+        getStringAssertExceptionThrown(5, str);
+      }
+
+      function getStringAssertExceptionThrown(value, defaultValue) {
+        try {
+          uiUtil_Type.getString(value, defaultValue);
+          fail("Invalid string, hould have thrown an exception");
+        }
+        catch (e) {
+          // expected
+        }
+      }
+
+      function testGetBoolean() {
+        assertEquals(true, uiUtil_Type.getBoolean(true, null));
+        assertEquals(false, uiUtil_Type.getBoolean(false, "blah"));
+        assertTrue(uiUtil_Type.getBoolean(uninitializedVariable, true));
+        assertFalse(uiUtil_Type.getBoolean(uninitializedVariable, false));
+
+        getBooleanAssertExceptionThrown(null, true);
+        getBooleanAssertExceptionThrown(5, true);
+      }
+
+      function getBooleanAssertExceptionThrown(value, defaultValue) {
+        try {
+          uiUtil_Type.getBoolean(value, defaultValue);
+          fail("Invalid boolean, hould have thrown an exception");
+        }
+        catch (e) {
+          // expected
+        }
+      }
+
+      function testGetInt() {
+        assertEquals(15, uiUtil_Type.getInt(15, null));
+        assertEquals(88, uiUtil_Type.getInt(uninitializedVariable, 88));
+
+        getWholeNumberAssertExceptionThrown(null, 3);
+        getWholeNumberAssertExceptionThrown(true, 3);
+      }
+
+      function getWholeNumberAssertExceptionThrown(value, defaultValue) {
+        try {
+          uiUtil_Type.getWholeNumber(value, defaultValue);
+          fail("Invalid boolean, hould have thrown an exception");
+        }
+        catch (e) {
+          // expected
+        }
+      }
+
+
+      // NOTE: should be declared somewhere, otherwise, the above statement
+      //       would fail, because the variable never existed
+      var undeclaredVariable;
+
+    </script>
+  </body>
+</html>

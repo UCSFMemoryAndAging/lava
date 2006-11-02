@@ -1,0 +1,5 @@
+<script type="text/javascript">
+uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
+  uiSelect_driver.${callback}("$!{injectTo}", "$!{injectToName}", "$!{applyTo}", "$!{applyToName}");
+});
+</script>

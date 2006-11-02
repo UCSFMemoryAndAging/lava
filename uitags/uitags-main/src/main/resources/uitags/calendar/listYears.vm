@@ -1,0 +1,1 @@
+uiCalendar_driver.registerYearLister(calendarId, "$!{listerId}", "$!{listerName}", ${yearListObtainer});

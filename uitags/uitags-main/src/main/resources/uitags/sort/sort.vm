@@ -1,0 +1,6 @@
+<script type="text/javascript">
+uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
+  uiSort_driver.${callback}("$!{injectTo}", "$!{injectToName}", "$!{applyTo}", "$!{applyToName}");
+});
+</script>
+

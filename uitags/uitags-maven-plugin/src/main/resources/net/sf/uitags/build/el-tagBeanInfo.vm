@@ -1,0 +1,14 @@
+
+package ${elPackageName};
+
+import net.sf.uitags.tagutil.bean.ElTagBeanInfo;
+
+/**
+ * Exposes only the setter methods of
+ * {@link net.sf.uitags.el.${elClassName}}.
+ */
+public final class ${elClassName}BeanInfo extends ElTagBeanInfo {
+  public ${elClassName}BeanInfo() {
+    super();
+  }
+}

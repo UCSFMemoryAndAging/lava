@@ -1,0 +1,846 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+  "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+
+<!--
+ -
+ - Copyright 2004 uitags
+ -
+ - Licensed under the Apache License, Version 2.0 (the "License");
+ - you may not use this file except in compliance with the License.
+ - You may obtain a copy of the License at
+ -
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ -
+ - Unless required by applicable law or agreed to in writing, software
+ - distributed under the License is distributed on an "AS IS" BASIS,
+ - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ - See the License for the specific language governing permissions and
+ - limitations under the License.
+ -
+ -->
+
+<!--
+  - Information about the usage of the tags should be placed in this file.
+  - Information about property overriding should be placed in
+  - factory-default.properties.
+  -->
+<taglib>
+  <tlib-version>1.0.0-nonfinal4</tlib-version>
+  <jsp-version>1.2</jsp-version>
+  <short-name>uitags@EL_URI@</short-name>
+  <uri>http://uitags.sf.net/uitags@EL_URI@</uri>
+  <display-name>uitags@EL_URI@</display-name>
+
+  <!--
+    - ============================
+    - ========== common ==========
+    - ============================
+    -->
+  <tag>
+    <name>attribute</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@Attribute@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>attribute</display-name>
+    <description>A tag that allows JSP developers to add an additional HTML
+      attribute to the enclosing JSP tag (must be a JSP tag that has a
+      corresponding HTML tag).
+    </description>
+
+    <attribute>
+      <name>name</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the tag attribute.</description>
+    </attribute>
+
+    <attribute>
+      <name>value</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Value of the tag attribute.</description>
+    </attribute>
+  </tag>
+
+  <!--
+    - ==============================
+    - ========== calendar ==========
+    - ==============================
+    -->
+  <tag>
+    <name>calendar</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@calendar.Calendar@EL_CLS@Tag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>calendar</display-name>
+    <description></description>
+  </tag>
+
+  <tag>
+    <name>listMonths</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@calendar.ListMonths@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>listMonths</display-name>
+    <description></description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>monthLabels</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>@STRING_ARRAY@</type>
+      <description></description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>listYears</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@calendar.ListYears@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>listYears</display-name>
+    <description></description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>yearListObtainer</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>updateDate</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@calendar.UpdateDate@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>updateDate</display-name>
+    <description></description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>event</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>dateObtainer</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>calendarGrid</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@calendar.CalendarGrid@EL_CLS@Tag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>calendarGrid</display-name>
+    <description></description>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>class</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>weekLabels</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>@STRING_ARRAY@</type>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>classResolver</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>actionResolver</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+  </tag>
+
+
+
+  <!--
+    - ===============================
+    - ========== formGuide ==========
+    - ===============================
+    -->
+  <tag>
+    <name>formGuide</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.FormGuide@EL_CLS@Tag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>formGuide</display-name>
+    <description>The outer-most tag in the form guide facility, wrapping
+      &lt;observe&gt;, &lt;enable&gt;, &lt;disable&gt;, &lt;insert&gt;,
+      and &lt;remove&gt; tags.</description>
+
+    <attribute>
+      <name>listener</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>A life cycle listener for the form guide's events.
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>observe</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Observe@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>observe</display-name>
+    <description>Specifies the widget that triggers the enabling/disabling
+      of other widgets when it holds a certain value. This tag may be
+      specified more than once within a &lt;formGuide&gt;, in which case
+      no widgets get disabled unless all observed widgets hold their trigger
+      values.</description>
+
+    <attribute>
+      <name>elementId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the widget to observe.</description>
+    </attribute>
+    <attribute>
+      <name>elementName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the widget to observe.</description>
+    </attribute>
+    <attribute>
+      <name>forValue</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Widget value that triggers the enabling/disabling of other
+        widgets.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>observeForNull</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.ObserveForNull@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>observeForNull</display-name>
+    <description>Specifies the widget that triggers the enabling/disabling
+      of other widgets when it holds a null value. This tag may be
+      specified more than once within a &lt;formGuide&gt;, in which case
+      no widgets get disabled unless all observed widgets hold their trigger
+      values.</description>
+
+    <attribute>
+      <name>elementId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the widget to observe.</description>
+    </attribute>
+    <attribute>
+      <name>elementName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the widget to observe.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>enable</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Enable@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>enable</display-name>
+    <description>Specifies the widget that gets enabled when the observed
+      widgets hold their trigger values.</description>
+
+    <attribute>
+      <name>elementId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the HTML element to enable.</description>
+    </attribute>
+
+    <attribute>
+      <name>elementName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the widget to enable.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>disable</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Disable@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>disable</display-name>
+    <description>Specifies the widget that gets disabled when the observed
+      widgets hold their trigger values.</description>
+
+    <attribute>
+      <name>elementId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the HTML element to disable.</description>
+    </attribute>
+
+    <attribute>
+      <name>elementName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the widget to disable.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>insert</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Insert@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>enable</display-name>
+    <description>Specifies the element that gets inserted when the observed
+      widgets hold their trigger values.</description>
+
+    <attribute>
+      <name>elementId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the HTML element to insert.</description>
+    </attribute>
+
+    <attribute>
+      <name>elementName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the widget to insert.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>remove</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Remove@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>enable</display-name>
+    <description>Specifies the element that gets removed when the observed
+      widgets hold their trigger values.</description>
+
+    <attribute>
+      <name>elementId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the HTML element to remove.</description>
+    </attribute>
+
+    <attribute>
+      <name>elementName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the widget to remove.</description>
+    </attribute>
+  </tag>
+
+  <!--
+    - ====================================
+    - ========== optionTransfer ==========
+    - ====================================
+    -->
+  <tag>
+    <name>optionTransfer</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.OptionTransfer@EL_CLS@Tag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>optionTransfer</display-name>
+    <description>
+      The outer-most tag in the option transfer facility, other related tags
+      are nested within it. This tag provides option transfer core
+      functionalities.</description>
+  </tag>
+
+  <tag>
+    <name>source</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.Source@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>source</display-name>
+    <description></description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the element to inject.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the element to inject.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>target</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.Target@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>target</display-name>
+    <description>Injects source select box's functionality.</description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the element to inject.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the element to inject.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>transfer</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.Transfer@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>transfer</display-name>
+    <description>Injects the functionality to transfer selected items in the source
+        box to the target box of the option transfer suite.</description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the element to inject.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the element to inject.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>transferAll</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.TransferAll@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>transfer</display-name>
+    <description>Injects the functionality to transfer all items in the source
+        box to the target box of the option transfer suite.</description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the element to inject.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the element to inject.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>return</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.Return@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>return</display-name>
+    <description>Injects the functionality to return selected items in the target
+        box to the source box of the option transfer suite.</description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the element to inject.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the element to inject.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>returnAll</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.ReturnAll@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>return</display-name>
+    <description>Injects the functionality to return all items in the target
+        box to the source box of the option transfer suite.</description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the element to inject.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the element to inject.</description>
+    </attribute>
+  </tag>
+
+
+
+  <!--
+    - ============================
+    - ========== select ==========
+    - ============================
+    -->
+  <tag>
+    <name>select</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@select.Select@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>select</display-name>
+    <description>Renders a Javascript button which conveniently selects or unselects a
+      group of select options or checkboxes.</description>
+    <attribute>
+      <name>type</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Type of convenience button to render. Valid values are
+        'all', 'inverse', and 'range'. The 'all' button alternately selects
+        and unselects all select options or checkboxes. The 'inverse' button
+        selects unselected and unselects selected checkboxes. The 'range'
+        button selects options that are between pairs of selected ones.</description>
+    </attribute>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'id' attribute of the element.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'name' attribute of the element.</description>
+    </attribute>
+    <attribute>
+      <name>applyTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the select box to select/unselect.</description>
+    </attribute>
+    <attribute>
+      <name>applyToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the select box or checkboxes to select/unselect.
+        If checkboxes are used, all of them must have the same name.</description>
+    </attribute>
+  </tag>
+
+
+
+  <!--
+    - ==========================
+    - ========== sort ==========
+    - ==========================
+    -->
+  <tag>
+    <name>sort</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@sort.Sort@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>sort</display-name>
+    <description>Renders a Javascript button which sorts options in a select box.
+      The attributes 'value' and 'image' are mutually exclusive.</description>
+    <attribute>
+      <name>type</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Type of convenience button to render. Valid values are
+        'ascending' and 'descending'. The 'ascending' button sorts select
+        options ascendingly. The 'descending' button sorts options descendingly.
+        Never use a runtime or EL expression for this attribute.</description>
+    </attribute>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'id' attribute of the element.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'name' attribute of the element.</description>
+    </attribute>
+    <attribute>
+      <name>applyTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the select box to sort.</description>
+    </attribute>
+    <attribute>
+      <name>applyToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the select box to sort.</description>
+    </attribute>
+  </tag>
+
+
+
+  <!--
+    - ===========================
+    - ========== shift ==========
+    - ===========================
+    -->
+  <tag>
+    <name>shift</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@shift.Shift@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>shift</display-name>
+    <description>Renders a Javascript button which shifts (upwards or downwards)
+      a group options in a select box. The attributes 'value' and 'image' are
+      mutually exclusive.</description>
+    <attribute>
+      <name>type</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Valid values are 'up', 'down', 'first', and 'last'.
+        'up' and 'down' shift options upwards and downwards respectively.
+        'first' and 'last' shift options to the top and bottom of the list
+        respectively. Never use a runtime or EL expression for this attribute.</description>
+    </attribute>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'id' attribute of the element.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'name' attribute of the element.</description>
+    </attribute>
+    <attribute>
+      <name>applyTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the select box to shift.</description>
+    </attribute>
+    <attribute>
+      <name>applyToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the select box to shift.</description>
+    </attribute>
+  </tag>
+
+
+
+  <!--
+    - ===========================
+    - ========== panel ==========
+    - ===========================
+    -->
+  <tag>
+    <name>panel</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@panel.Panel@EL_CLS@Tag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>panel</display-name>
+    <description>Renders a panel.</description>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Sets the ID of the panel.</description>
+    </attribute>
+    <attribute>
+      <name>class</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'class' attribute of this panel.</description>
+    </attribute>
+    <attribute>
+      <name>anchorTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of an element to attach to.</description>
+    </attribute>
+    <attribute>
+      <name>anchorToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of an element to attach to.</description>
+    </attribute>
+    <attribute>
+      <name>listener</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>The panel's life cycle listener.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>drag</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@panel.Drag@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>drag</display-name>
+    <description>Injects a panel drag functionality.</description>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the drag handle.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the drag handle.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>stick</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@panel.Stick@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>stick</display-name>
+    <description>Injects a panel stick functionality.</description>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the stick handle.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the stick handle.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>show</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@panel.Show@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>show</display-name>
+    <description>Injects a panel show functionality.</description>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the show trigger.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the show trigger.</description>
+    </attribute>
+    <attribute>
+      <name>on</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Valid values are 'click', 'focus', and 'mouseout'.</description>
+    </attribute>
+    <attribute>
+      <name>delay</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>@INT@</type>
+      <description>Delay before responding to event in milliseconds.</description>
+    </attribute>
+    <attribute>
+      <name>position</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Panel positioning type. Valid values are "auto" and "mouse".
+        In "auto" mode, the panel will honour the parent &lt;anchor&gt;'s
+        anchorTo and anchorToName attribute.
+        "mouse" indicates that panel will attach to mouse cursor when
+        brought up.
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>hide</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@panel.Hide@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>hide</display-name>
+    <description>Injects a panel hide functionality.</description>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the hide trigger.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the hide trigger.</description>
+    </attribute>
+    <attribute>
+      <name>on</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Valid values are 'click', 'blur', and 'mouseout'.</description>
+    </attribute>
+    <attribute>
+      <name>delay</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>@INT@</type>
+      <description>Delay before responding to event in milliseconds.</description>
+    </attribute>
+    <attribute>
+      <name>force</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>@BOOLEAN@</type>
+      <description>Hide panel no matter whether the panel sticks or not.</description>
+    </attribute>
+  </tag>
+</taglib>
