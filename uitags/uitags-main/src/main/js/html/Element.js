@@ -515,6 +515,17 @@ uiHtml_Element.getWidgetType = function(domElement) {
 };
 
 /**
+ * author: ctoohey
+ *
+ * Checks whether the supplied object is an array.
+ * A select widget is considered an array (of options).
+ * select and radio group widgets are arrays.
+ */
+uiHtml_Element.isArray = function(domElement) {
+  return domElement != null && domElement[0] != null;
+}
+
+/**
  * Returns the HTML tag name of an element.
  *
  * @param {HTMLElement} domElement the element

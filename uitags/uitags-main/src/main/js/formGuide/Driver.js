@@ -50,8 +50,8 @@ uiHtml_Window.getInstance().prependEventHandler("load", function(e) {
  * @return the rule set
  * @type uiFormGuide_RuleSet
  */
-uiFormGuide_Driver.prototype.createRuleSet = function(doAction, undoAction) {
-  return new uiFormGuide_RuleSet(doAction, undoAction);
+uiFormGuide_Driver.prototype.createRuleSet = function(doAction, undoAction, ignoreAndOr, observeAndOr, prompt) {
+  return new uiFormGuide_RuleSet(doAction, undoAction, ignoreAndOr, observeAndOr, prompt);
 };
 
 /**
@@ -60,15 +60,16 @@ uiFormGuide_Driver.prototype.createRuleSet = function(doAction, undoAction) {
  *
  * @param {String} widgetId ID of the widget
  * @param {String} widgetName name of the widget
- * @param {String} value the value that the widget should have in order
- *     for the rule to hold
+ * @param {String} forValue the value that the widget should have in order
+ *     for the rule to hold (can be a regular expression)
+ * @param {String} negate 
  * @return the rule
  * @type uiFormGuide_Rule
  */
 uiFormGuide_Driver.prototype.createRule =
-    function(widgetId, widgetName, value) {
+    function(widgetId, widgetName, forValue, negate) {
   var widgetGroup = uiHtml_Group.createByEither(widgetId, widgetName);
-  return new uiFormGuide_Rule(widgetGroup, value);
+  return new uiFormGuide_Rule(widgetGroup, forValue, negate);
 };
 
 /**

@@ -26,14 +26,22 @@
  *     when all rules hold
  * @param {function} undoAction the <i>undo</i> action: the function to execute
  *     when at least one rule doesn't hold
+ * @param ignoreAndOr (ctoohey) designates whether one or all ignore tags must match
+ * @param observeAndOr (ctoohey) designates where one or all observe tags must match
+ * @param prompt (ctoohey) prompts the user before performing the doAction, allowing them to cancel
  */
-function uiFormGuide_RuleSet(doAction, undoAction) {
+function uiFormGuide_RuleSet(doAction, undoAction, ignoreAndOr, observeAndOr, prompt) {
   this._super();
   /**
    * @type uiFormGuide_Rule[]
    * @private
    */
   this.__rules = new Array();
+  /** (ctoohey)
+   * @type uiFormGuide_Rule[]
+   * @private
+   */
+  this.__ignoreRules = new Array();
   /**
    * @type function
    * @private
@@ -44,6 +52,11 @@ function uiFormGuide_RuleSet(doAction, undoAction) {
    * @private
    */
   this.__undoAction = undoAction;
+
+  this.__ignoreAndOr = ignoreAndOr;
+  this.__observeAndOr = observeAndOr;
+  this.__prompt = prompt;
+  
   /**
    * @type uiHtml_ElementWrapper
    * @private
@@ -65,6 +78,46 @@ uiFormGuide_RuleSet = uiUtil_Object.declareClass(uiFormGuide_RuleSet, uiUtil_Obj
 ////////// Non-static Methods //////////
 ////////////////////////////////////////
 
+// begin:ctoohey
+/**
+ * Adds an ignore rule to this rule set. This method is typically called right after
+ * a rule set is instantiated in order to populate it.
+ *
+ * @param {uiFormGuide_IgnoreRule} rule the rule to add
+ */
+uiFormGuide_RuleSet.prototype.addIgnoreRule = function(rule) {
+  this.__ignoreRules.push(rule);
+};
+
+/**
+ * Returns <code>true</code> if all ignore rules within this rule set hold,
+ * <code>false</code> otherwise.
+ *
+ * @return <code>true</code> if all ignore rules within this rule set hold,
+ *     <code>false</code> otherwise
+ * @type boolean
+ */
+uiFormGuide_RuleSet.prototype._allIgnoreRulesHold = function() {
+  // check for AND condition
+  for (var i = 0; i < this.__ignoreRules.length; ++i) {
+    if (!this.__ignoreRules[i]._holds()) {
+      return false;
+    }
+  }
+  return true;
+};
+
+/**
+ * Returns an array of all ignore rules in the rule set.
+ *
+ * @return the array
+ * @type uiFormGuide_IgnoreRule[]
+ */
+uiFormGuide_RuleSet.prototype.getIgnoreRules = function() {
+  return this.__ignoreRules;
+};
+// end:ctoohey
+
 /**
  * Adds a rule to this rule set. This method is typically called right after
  * a rule set is instantiated in order to populate it.
@@ -79,18 +132,37 @@ uiFormGuide_RuleSet.prototype.addRule = function(rule) {
  * Returns <code>true</code> if all rules within this rule set hold,
  * <code>false</code> otherwise.
  *
+ * (ctoohey) modified to use observeAndOr attribute to determine outcome
+ *
  * @return <code>true</code> if all rules within this rule set hold,
  *     <code>false</code> otherwise
  * @type boolean
  */
 uiFormGuide_RuleSet.prototype._allRulesHold = function() {
-  // check for AND condition
   for (var i = 0; i < this.__rules.length; ++i) {
-    if (!this.__rules[i]._holds()) {
-      return false;
+    var ruleHolds = this.__rules[i]._holds();
+    if (this.__observeAndOr == "and") {
+      // at least one rule does not hold, so rules do not hold
+      if (!ruleHolds) {
+        return false;
+      }  
     }
+    else if (this.__observeAndOr == "or") {
+      // at least one rule holds, so rules hold
+      if (ruleHolds) {
+        return true;
+      }
+    }    
   }
-  return true;
+
+  if (this.__observeAndOr == "and") {
+	// all of the rules held
+    return true;
+  }
+  else if (this.__observeAndOr == "or") {
+    // none of the rules held
+    return false;
+  }  
 };
 
 /**
@@ -272,4 +344,228 @@ uiFormGuide_RuleSet.prototype.removeElements = function(
     domEvent, elementId, elementName) {
   var group = uiHtml_Group.createByEither(elementId, elementName);
   group.traverse(this, this.__removeEachElement, domEvent);
+};
+
+
+////// ctoohey: beginning of new actions added to extend uitags 
+//////          note: some of the existing actions above were modified as well
+
+
+/**
+ * author: ctoohey
+ * Skip an element, i.e. disable it and set it to the specified value.
+ *
+ * @param {HTMLElement} domElement the element
+ * @param {DOMEvent} domEvent the event
+ * @param textValue the value to set the element to (select the matching text field for selectboxes)
+ * @param optionValue for selectbox elements, select the matching value field
+ * @private
+ */
+uiFormGuide_RuleSet.prototype.__skipEachElement = function(
+    domElement, domEvent, textValue, optionValue) {
+  if (!this.__notifyLifeCycleEvent("onBeforeSkip", domEvent, domElement)) {
+    return;
+  }
+  this.__elementHandler.skip(domElement, textValue, optionValue);
+  this.__notifyLifeCycleEvent("onAfterSkip", domEvent, domElement);
+};
+
+/**
+ * author: ctoohey
+ * Skips single or multiple elements (e.g. if the element is a group of radiobuttons),
+ * i.e. disables them and sets their value to the specified value.
+ *
+ * @param {DOMEvent} domEvent the event
+ * @param {String} elementId ID of the element
+ * @param {String} elementName name of the element
+ * @param textValue the value to set the element to (select the matching text field for selectboxes)
+ * @param optionValue for selectbox elements, select the matching value field
+ * @private
+ */
+uiFormGuide_RuleSet.prototype.skipElement = function(
+    domEvent, elementId, elementName, textValue, optionValue) {
+  var group = uiHtml_Group.createByEither(elementId, elementName);
+  // for select boxes, group is a uiHtml_Select object (where the select options are
+  //  stored in an array)
+  // for radio button group (and any other elements that stored as a collection by the 
+  //  browser), group is a uiHtml_Group object with an items field that is a browser's 
+  //  native collection containing each individual radio button element
+  // for other elements, group is a uiHtml_Group object with an items field that is an
+  //  array containing just the element. 
+  // this way, all elements are stored in an array (or collection) so they can be processed
+  //  similarly
+  // group.traverse utilizes the javascript "arguments" variable to facilitate a passing
+  //  a variable number of arguments so that ..EachElement function which is called for
+  //  each element in group is passed all of the arguments starting with domEvent in this call
+  // for select boxes, the EachElement function is called for the select box as a whole
+  //  and then called for each select box option (see uiHtml_Select.traverse)
+  
+  // currently, the EachElement functions use this.__elementHandler to execute specific functions
+  //  to achieve the goal, and this.__elementHandler is always an instance of ElementWrapper, regardless
+  //  of whether the element has a more specialized wrapper (RadioWrapper, CheckboxWrapper,
+  //  SelectOptionWrapper). this is probably because to date there has not been any specialized 
+  //  behavior required to carry of the standard formGuide actions. if the need arises, then the
+  //  group.traverse function should include the group handler (which is a wrapper) as an argument to 
+  //  the EachElement function and it should use that to execute the specific functions rather than 
+  //  this.__elementHandler (and because those wrappers all "inherit" from ElementWrapper, if those
+  //  wrappers do not implement a given function, they would need to implement and delegate to 
+  //  the ElementWrapper version, or ??? will it automatically call the ElementWrapper version ???)
+  // note: these specialized wrappers are used when it comes to appending event handlers for each 
+  //  uiHtml_Group (where a uiFormGuide_Observed object is created for each distinct uiHtml_Group object,
+  //  and calls appendEventHandler on the group object, which in turn calls its handler (wrapper)
+  //  version of appendEventHandler)
+  group.traverse(this, this.__skipEachElement, domEvent, textValue, optionValue);
+};
+
+
+/**
+ * author: ctoohey
+ * Unskip an element, i.e. enable it and set it to the specified value.
+ *
+ * @param {HTMLElement} domElement the element
+ * @param {DOMEvent} domEvent the event
+ * @param textValue the value to set the element to (select the matching text field for selectboxes)
+ * @param optionValue for selectbox elements, select the matching value field
+ * @private
+ */
+uiFormGuide_RuleSet.prototype.__unskipEachElement = function(
+    domElement, domEvent, textValue, optionValue) {
+  if (!this.__notifyLifeCycleEvent("onBeforeSkip", domEvent, domElement)) {
+    return;
+  }
+  this.__elementHandler.unskip(domElement, textValue, optionValue);
+  this.__notifyLifeCycleEvent("onAfterSkip", domEvent, domElement);
+};
+
+/**
+ * author: ctoohey
+ * Unskips single or multiple elements (e.g. if the element is a group of radiobuttons),
+ * i.e. enables them and sets their value to the specified value.
+ *
+ * @param {DOMEvent} domEvent the event
+ * @param {String} elementId ID of the element
+ * @param {String} elementName name of the element 
+ * @param textValue the value to set the element to (select the matching text field for selectboxes)
+ * @param newOptionValue for selectbox elements, select the matching value field
+ * @private
+ */
+uiFormGuide_RuleSet.prototype.unskipElement = function(
+    domEvent, elementId, elementName, textValue, optionValue) {
+  var group = uiHtml_Group.createByEither(elementId, elementName);
+  group.traverse(this, this.__unskipEachElement, domEvent, textValue, optionValue);
+};
+
+
+/**
+ * author: ctoohey
+ * Clones the options from a src selectbox to a target. This function is used as part of
+ * the removeOption action.
+ * The purpose of this function is to repopulate the target selectbox before removing 
+ * options from it, because a target selectbox may have already had other options removed 
+ * from prior actions, and it should start with a "full deck" before having options 
+ * removed.
+ *
+ * Since the group in this case is a select box, no need to traverse 
+ * elements of a group. 
+ *
+ * @param {DOMEvent} domEvent the event
+ * @param {String} srcElementId ID of the element whose options are cloned
+ * @param {String} srcElementName name of the element whose options are cloned
+ * @param {String} targetElementId ID of the element that gets a copy of src options
+ * @param {String} targetElementName name of the element that gets a copy of src options
+ * 
+ * @private
+ */
+uiFormGuide_RuleSet.prototype.cloneOptions = function(
+    domEvent, srcElementId, srcElementName, targetElementId, targetElementName) {
+  var group = uiHtml_Group.createByEither(elementId, elementName);
+  if (!this.__notifyLifeCycleEvent("onBeforeCloneOptions", domEvent, group.getItemAt(0))) {
+    return;
+  }
+  this.__elementHandler.cloneOptions(srcElementId, srcElementName, targetElementId, targetElementName);
+  this.__notifyLifeCycleEvent("onAfterCloneOptions", domEvent, domElement);
+};
+
+
+/**
+ * author: ctoohey
+ * Removes option from a selectbox that is selected in another select box.
+ * Assumes that both selectboxes have the same options, 
+ * e.g. LavaWeb qualityIssues and qualityIssues2 selectboxes.
+ *
+ * note: currently this action is only implemented for selectboxes, and only
+ *       works for selectboxes that only allow a single selection, not for 
+ *       selectboxes that allow multiple selections
+ * assumption: the src and target selectboxes have the same option values
+ * assumption: the target selectbox has a blank option, so that it its currently
+ *             selected option is the one that is removed, it then sets its 
+ *             currently selected option to its blank option
+ *
+ * Since the group in this case is a select box, no need to traverse 
+ * elements of a group. 
+ *
+ * @param {DOMEvent} domEvent the event
+ * @param {String} srcElementId ID of the element whose currently select option value is removed from targetElement
+ * @param {String} srcElementName name of the element whose currently select option value is removed from targetElement
+ * @param {String} targetElementId ID of the element whose option is removed
+ * @param {String} targetElementName name of the element whose option is removed
+ * 
+ * @private
+ */
+uiFormGuide_RuleSet.prototype.removeOption = function(
+    domEvent, srcElementId, srcElementName, targetElementId, targetElementName) {
+  var group = uiHtml_Group.createByEither(elementId, elementName);
+  if (!this.__notifyLifeCycleEvent("onBeforeRemoveOption", domEvent, group.getItemAt(0))) {
+    return;
+  }
+  this.__elementHandler.removeOption(srcElementId, srcElementName, targetElementId, targetElementName);
+  this.__notifyLifeCycleEvent("onAfterRemoveOption", domEvent, domElement);
+};
+
+
+/**
+ * author: ctoohey
+ * Set the value of an element or elements to the specified value. 
+ *
+ * If the element is a selectbox, select the option whose text field matches textValue 
+ * and/or whose value field matches optionValue (depending upon whether one or both are 
+ * supplied). If there is no match, add a new option to the selectbox using textValue and
+ * optionValue and select it. 
+ *
+ * @param {HTMLElement} domElement the element
+ * @param {DOMEvent} domEvent the event
+ * @param textValue the value to set the element to (select the matching text field for selectboxes)
+ * @param optionValue for selectbox elements, select the matching value field
+ * @private
+ */
+uiFormGuide_RuleSet.prototype.__setValueEachElement = function(
+    domElement, domEvent, textValue, optionValue) {
+  if (!this.__notifyLifeCycleEvent("onBeforeSkip", domEvent, domElement)) {
+    return;
+  }
+  this.__elementHandler.setValue(domElement, textValue, optionValue);
+  this.__notifyLifeCycleEvent("onAfterSkip", domEvent, domElement);
+};
+
+/**
+ * author: ctoohey
+ * Sets the value of an element or elements (e.g. if elements is a group of multiple
+ * elements, e.g. radiobuttons) to the specified value. 
+ *
+ * If the element is a selectbox, select the option whose text field matches textValue 
+ * and/or whose value field matches optionValue (depending upon whether one or both are 
+ * supplied). If there is no match, add a new option to the selectbox using textValue and
+ * optionValue and select it. 
+ *
+ * @param {DOMEvent} domEvent the event
+ * @param {String} elementId ID of the element
+ * @param {String} elementName name of the element
+ * @param textValue the value to set the element to (select the matching text field for selectboxes)
+ * @param newOptionValue for selectbox elements, select the matching value field
+ * @private
+ */
+uiFormGuide_RuleSet.prototype.setValue = function(
+    domEvent, elementId, elementName, textValue, optionValue) {
+  var group = uiHtml_Group.createByEither(elementId, elementName);
+  group.traverse(this, this.__setValueEachElement, domEvent, textValue, optionValue);
 };

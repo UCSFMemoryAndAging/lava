@@ -23,9 +23,11 @@
  * @param {uiHtml_Group} widgetGroup
  * @param {String} expectedValue a <code>null</code> expected value is only
  *     meaningful if the widget group contains selectible widgets such as
- *     checkboxes, radio buttons, or a select box.
+ *     checkboxes, radio buttons, or a select box. T
+ *     (ctoohey) This can be a regular expression.
+ * @param {Boolean} negate (ctoohey) negate whether the rule holds or not
  */
-function uiFormGuide_Rule(widgetGroup, expectedValue) {
+function uiFormGuide_Rule(widgetGroup, expectedValue, negate) {
   this._super();
   /**
    * @type uiHtml_Group
@@ -37,6 +39,8 @@ function uiFormGuide_Rule(widgetGroup, expectedValue) {
    * @private
    */
   this.__expectedValue = expectedValue;
+  
+  this.__negate = negate;
 }
 
 uiFormGuide_Rule = uiUtil_Object.declareClass(uiFormGuide_Rule, uiUtil_Object);
@@ -60,7 +64,14 @@ uiFormGuide_Rule.prototype._holds = function() {
     return (this.__widgetGroup.getValues().length == 0);
   }
 
-  return this.__widgetGroup.hasValue(this.__expectedValue);
+  // (ctoohey) modified to use regular expression matching in determing whether
+  // an element's value matches the rule value
+  if (this.__negate) {
+  	return ! this.__widgetGroup.hasRegExpValue(this.__expectedValue);
+  }
+  else { 
+    return this.__widgetGroup.hasRegExpValue(this.__expectedValue);
+  }
 };
 
 /**
@@ -81,4 +92,14 @@ uiFormGuide_Rule.prototype.getWidgetGroup = function() {
  */
 uiFormGuide_Rule.prototype.getExpectedValue = function() {
   return this.__expectedValue;
+};
+
+/**
+ * Returns the negate value for negating whether the rule holds or not.
+ *
+ * @return the value.
+ * @type Boolean
+ */
+uiFormGuide_Rule.prototype.getNegate = function() {
+  return this.__negate;
 };

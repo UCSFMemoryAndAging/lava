@@ -120,6 +120,31 @@ uiHtml_Group.prototype.hasValue = function(value) {
   return false;
 };
 
+// author:ctoohey
+// observe and ignore child tags matching their forValue is done via
+// a regular expression match
+uiHtml_Group.prototype.hasRegExpValue = function(forValue) {
+  var forValueRegExp = new RegExp(forValue);
+  // note: the __items array contains multiple items for selectboxes and
+  //       radiobutton groups, but for all other types of element this array
+  //       just contains a single widget
+  // note: the forValue=null situation has already been handled in Rule._holds,
+  //       so know that forValue is not null at this point, meaning that if
+  //       this group represents selectible widgets (i.e. select options, 
+  //       radio buttons, checkboxes) that at least one of them is selected.
+  //       thus, must iterate thru all of the selectible items to make sure none
+  //       of them matches before returning false, but as soon as there is a match,
+  //       return true.
+  for (var i = 0; i < this.__items.length; ++i) {
+    var logicalValue = this.__handler.getLogicalValue(this.__items[i]);
+    if (logicalValue != null && logicalValue.match(forValueRegExp)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 uiHtml_Group.prototype.getValues = function() {
   var values = new Array();
   for (var i = 0; i < this.__items.length; ++i) {

@@ -79,6 +79,13 @@ uiHtml_Select.prototype.hasValue = function(value) {
   return this.__group.hasValue(value);
 };
 
+// author:ctoohey
+// observe and ignore child tags matching their forValue is done via
+// a regular expression match
+uiHtml_Select.prototype.hasRegExpValue = function(value) {
+  return this.__group.hasRegExpValue(value);
+}  
+
 uiHtml_Select.prototype.getValues = function() {
   return this.__group.getValues();
 };
@@ -241,6 +248,47 @@ uiHtml_Select.prototype.setSelectedValue = function(value, optDomEvent) {
   this.setSelectedItem(option, optDomEvent);
 };
 
+/**
+ * author: ctoohey
+ * Selects the selectbox option whose text matches textValue and optionValue
+ * or just one of them if only one is supplied.
+ * If there is no match, a new option is created using textValue as the text
+ * and optionValue as the value, and this option is selected. If textValue is
+ * not supplied, the new option has both text and value set to optionValue, and
+ * if optionValue is not supplied, the new option has both text and value set
+ * to textValue.
+ */
+uiHtml_Select.prototype.setSelectedOptionAddIfNoMatch(textValue, optionValue) {
+  var list = widget.options;
+  for(var i = 0; i < this.__options.length; ++i) {
+    if(this.__options[i].text == textValue || this.__options[i].value == optionValue) {
+      this.__domSelect.selectedIndex = i;
+      this.__options[i].selected = true;
+      return;
+    }
+  }
+  
+  // if the option did not exist, add a new option
+  // This trick is needed to make IE work
+  var i = this.__options.length++;
+  if (textValue != null) {
+    this.__options[i].text  = textValue;
+  else {
+    this.__options[i].text  = optionValue;
+  }  
+  
+  if (newOptionValue != null) {
+    this.__options[i].value = newOptionValue;
+  }
+  else {
+    this.__options[i].value = textValue;
+  }
+
+  this.__options[i].selected = true;
+  this.__domSelect.selectedIndex = i;
+}
+
+
 // Removes all Option objects in opts
 uiHtml_Select.prototype.clearItems = function() {
   var options = this.__domSelect.options;
@@ -368,6 +416,9 @@ uiHtml_Select.prototype.__playHistory = function(domEvent, historyIndex) {
     }
   }
 };
+
+
+
 
 
 ////////////////////////////////////
