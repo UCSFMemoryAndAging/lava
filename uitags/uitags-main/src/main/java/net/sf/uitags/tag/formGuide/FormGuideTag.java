@@ -178,8 +178,8 @@ public class FormGuideTag extends AbstractUiTag {
    * The "mode" tag attribute. 
    *
    * Corresponds to the view mode of the current view. If this represents
-   * a readonly mode, e.g. "vw" or "lv", then no widget observations are
-   * added, which basically means the formGuide tag has no effect.
+   * a readonly mode, e.g. "vw" or "lv", then this tag and its children have
+   * no effect, since there should be no user events in readonly mode.
    */
   private String _mode; // setter only 
   private String mode; 
@@ -383,7 +383,9 @@ public class FormGuideTag extends AbstractUiTag {
     template.map("observeAndOr",    this.observeAndOr);    
     template.map("ignoreAndOr",     this.ignoreAndOr);    
 
-    println(template.evalToString());
+    if (!(this.mode.equals("vw") || this.mode.equals("lv"))) {
+    	println(template.evalToString());
+    }
 
     makeInvisibleFromChildren();
     return EVAL_PAGE;
