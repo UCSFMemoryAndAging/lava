@@ -1,5 +1,7 @@
 /**
- * Jan 16, 2005
+ * November 1, 2006
+ * Charlie Toohey
+ * IgnoreForNullTag
  *
  * Copyright 2004 - 2005 uitags
  *
@@ -23,14 +25,10 @@ import net.sf.uitags.tag.AbstractUiTag;
 import net.sf.uitags.tagutil.validation.RuntimeValidator;
 
 /**
- * Notifies {@link net.sf.uitags.tag.formGuide.FormGuideTag} of widgets to observe.
- * 
- * (ctoohey) all FormGuide child tags now extends BaseChildTag instead of AbstractUiTag
- *
- * @author jonni
- * @version $Id$
+ * Notifies {@link net.sf.uitags.tag.formGuide.FormGuideTag} of ignore rules that can
+ * cause formGuide tag as a whole to be ignored.
  */
-public class ObserveForNullTag extends BaseChildTag {
+public class IgnoreForNullTag extends BaseChildTag {
   ///////////////////////////////
   ////////// Constants //////////
   ///////////////////////////////
@@ -47,7 +45,6 @@ public class ObserveForNullTag extends BaseChildTag {
   ////////////////////////////
 
   /** 
-   * (ctoohey)
    * The "negate" tag attribute 
      "true" means widget value NOT equal forValue. 
      "false" means widget value equals forValue.
@@ -66,7 +63,7 @@ public class ObserveForNullTag extends BaseChildTag {
   /**
    * Default constructor.
    */
-  public ObserveForNullTag() {
+  public IgnoreForNullTag() {
     super();
   }
 
@@ -132,16 +129,16 @@ public class ObserveForNullTag extends BaseChildTag {
     if (this.elementIds != null) {
     	String[] elementIdArray = elementIds.split(",");
     	for (String elementId : elementIdArray) {
-    		if (this.component != null) {
+       		if (this.component != null) {
     			elementId = component + "_" + elementId.trim();
     		}
-    		formGuideTag.addObservedElementId(elementId.trim(), null, this.negate);
+    		formGuideTag.addIgnoreElementId(elementId.trim(), null, this.negate);
     	}
     }
     else if (this.elementNames != null) {
     	String[] elementNameArray = elementNames.split(",");
     	for (String elementName : elementNameArray) {
-    		formGuideTag.addObservedElementName(elementName.trim(), null, this.negate);
+    		formGuideTag.addIgnoreElementName(elementName.trim(), null, this.negate);
     	}    		
     }
   }

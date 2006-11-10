@@ -1,5 +1,7 @@
 /**
- * Jan 16, 2005
+ * November 1, 2006
+ * Author: Charlie Toohey
+ * IgnoreTag
  *
  * Copyright 2004 - 2005 uitags
  *
@@ -20,14 +22,10 @@ package net.sf.uitags.tag.formGuide;
 import javax.servlet.jsp.JspException;
 
 /**
- * Notifies {@link net.sf.uitags.tag.formGuide.FormGuideTag} of widgets to observe.
- * 
- * (ctoohey) all FormGuide child tags now extends BaseChildTag instead of AbstractUiTag
- *
- * @author jonni
- * @version $Id$
+ * Notifies {@link net.sf.uitags.tag.formGuide.FormGuideTag} of rules that could cause
+ * the tag to be ignored.
  */
-public class ObserveTag extends ObserveForNullTag {
+public class IgnoreTag extends IgnoreForNullTag {
   ///////////////////////////////
   ////////// Constants //////////
   ///////////////////////////////
@@ -44,8 +42,8 @@ public class ObserveTag extends ObserveForNullTag {
   ////////////////////////////
 
   /**
-   * The "forValue" tag attribute which the element's value must match for the observe rule
-   * to hold. Can be a regular expression.
+   * The "forValue" tag attribute, which the element must match for this ignore rule to hold.
+   * Can be a regular expression.
    */
   private String forValue;
 
@@ -67,7 +65,7 @@ public class ObserveTag extends ObserveForNullTag {
   /**
    * Default constructor.
    */
-  public ObserveTag() {
+  public IgnoreTag() {
     super();
   }
 
@@ -102,12 +100,12 @@ public class ObserveTag extends ObserveForNullTag {
   ///////////////////////////////
 
   public int doStartTag() throws JspException {
-	  super.doStartTag();
       // set defaults
+	  super.doStartTag();
 	  // technique for setting attribute default values. see BaseSkipUnskipTag for details.
 	  this.comboRadioSelect = this._comboRadioSelect;
       if (this.comboRadioSelect == null) {
-	  this.comboRadioSelect = new Boolean(false);
+	    this.comboRadioSelect = new Boolean(false);
       }
 
       return SKIP_BODY;
@@ -116,9 +114,9 @@ public class ObserveTag extends ObserveForNullTag {
   /**
    * Communicates with the parent tag ({@link FormGuideTag}).
    * 
-   * (ctoohey) Modified to allow specifying multiple element ids or names in
-   * the observe tag (using comma separated format) so that if many observe
-   * tags share the same attributes, only one observe tag need be used.
+   * Permits specifying multiple element ids or names in the ignore tag
+   * (using comma separated format) so that if many ignore tags share the same
+   * attributes, only one ignore tag need be used.
    *
    * @return <code>EVAL_PAGE</code>
    * @throws JspException to communicate error
@@ -128,38 +126,38 @@ public class ObserveTag extends ObserveForNullTag {
     if (this.elementIds != null) {
     	String[] elementIdArray = elementIds.split(",");
     	for (String elementId : elementIdArray) {
-    		if (this.component != null) {
+       		if (this.component != null) {
     			elementId = component + "_" + elementId.trim();
     		}
-    		formGuideTag.addObservedElementId(elementId.trim(), this.forValue, this.negate);
-    		// special case for instrument data collection mode, where comboRadioSelect controls
+    		formGuideTag.addIgnoreElementId(elementId.trim(), this.forValue, this.negate);
+       		// special case for instrument data collection mode, where comboRadioSelect controls
     		//  are used. a comboRadioSelect control uses radio buttons for valid values and
     		//  has a select box which just contains missing data code options and the blank
     		//  option (the empty string).
-    		// the element id in the observe tag refers to the radio button group portion of
+    		// the element id in the ignore tag refers to the radio button group portion of
     		//  the control
-    		// currently, the assumption is that the observe tag for a comboRadioSelect will
+    		// currently, the assumption is that the ignore tag for a comboRadioSelect will
     		//  be a valid value, not a missing data code, i.e. the forValue attribute for the
-    		//  observe tag applies to the radio button group portion of the control. when the
+    		//  ignore tag applies to the radio button group portion of the control. when the
     		//  control has a valid value, the value of the selectbox is blank. because of this,
-    		//  the observe rule is configured such that a blank value for the select box means
-    		//  the observe rule for that select box holds, which a missing data code for the
-    		//  select box means the observe rule for the select box does not hold. an observe 
+    		//  the ignore rule is configured such that a blank value for the select box means
+    		//  the ignore rule for that select box holds, which a missing data code for the
+    		//  select box means the ignore rule for the select box does not hold. an ignore 
     		//  element is added for the selectbox portion of the control accordingly.
     		// note: select box element id is the element id of the radio button group with
     		//  _CODE appended
     		if (this.comboRadioSelect == Boolean.TRUE) {
-    			formGuideTag.addObservedElementId(elementId.trim() + "_CODE", "", this.negate);
+    			formGuideTag.addIgnoreElementId(elementId.trim() + "_CODE", "", this.negate);
     		}
     	}
     }
     else if (this.elementNames != null) {
     	String[] elementNameArray = elementNames.split(",");
     	for (String elementName : elementNameArray) {
-    		formGuideTag.addObservedElementName(elementName.trim(), this.forValue, this.negate);
+    		formGuideTag.addIgnoreElementName(elementName.trim(), this.forValue, this.negate);
     		// see comments on special case for comboRadioSelect controls above
     		if (this.comboRadioSelect == Boolean.TRUE) {
-    			formGuideTag.addObservedElementName(elementName.trim() + "_CODE", "", this.negate);
+    			formGuideTag.addIgnoreElementName(elementName.trim() + "_CODE", "", this.negate);
     		}
     	}
     }
