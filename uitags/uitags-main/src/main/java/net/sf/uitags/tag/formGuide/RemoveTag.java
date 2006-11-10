@@ -24,11 +24,13 @@ import net.sf.uitags.tagutil.validation.RuntimeValidator;
 
 /**
  * Notifies {@link net.sf.uitags.tag.formGuide.FormGuideTag} of elements to remove.
+ * 
+ * (ctoohey) all FormGuide child tags now extends BaseChildTag instead of AbstractUiTag
  *
  * @author hgani
  * @version $Id$
  */
-public class RemoveTag extends AbstractUiTag {
+public class RemoveTag extends BaseChildTag {
   ///////////////////////////////
   ////////// Constants //////////
   ///////////////////////////////
@@ -47,15 +49,6 @@ public class RemoveTag extends AbstractUiTag {
   ////////////////////////////
   ////////// Fields //////////
   ////////////////////////////
-
-  /**
-   * The "elementId" tag attribute
-   */
-  private String elementId;
-  /**
-   * The "widgetName" tag attribute
-   */
-  private String elementName;
 
 
 
@@ -76,24 +69,6 @@ public class RemoveTag extends AbstractUiTag {
   ////////// Tag attribute setters //////////
   ///////////////////////////////////////////
 
-  /**
-   * Tag attribute setter.
-   *
-   * @param val value of the tag attribute
-   */
-  public void setElementId(String val) {
-    this.elementId = val;
-  }
-
-  /**
-   * Tag attribute setter.
-   *
-   * @param val value of the tag attribute
-   */
-  public void setElementName(String val) {
-    this.elementName = val;
-  }
-
 
   ///////////////////////////////
   ////////// Tag logic //////////
@@ -106,14 +81,11 @@ public class RemoveTag extends AbstractUiTag {
    * @throws JspException to communicate error
    */
   public int doEndTag() throws JspException {
-    RuntimeValidator.assertAttributeExclusive(
-        "elementId", this.elementId, "elementName", this.elementName);
-    RuntimeValidator.assertEitherSpecified(
-        "elementId", this.elementId, "elementName", this.elementName);
+	  validateAttributes();
 
-    FormGuideTag formGuideTag = (FormGuideTag) findParent(FormGuideTag.class);
-    formGuideTag.addJavascriptCallback(CALLBACK_METHOD,
-        InsertTag.CALLBACK_METHOD, this.elementId, this.elementName);
+	  FormGuideTag formGuideTag = (FormGuideTag) findParent(FormGuideTag.class);
+	  formGuideTag.addJavascriptCallback(CALLBACK_METHOD,
+        InsertTag.CALLBACK_METHOD, this.elementIds, this.elementNames, this.component);
 
     return EVAL_PAGE;
   }
