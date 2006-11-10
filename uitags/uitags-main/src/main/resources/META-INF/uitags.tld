@@ -216,8 +216,8 @@
     <body-content>JSP</body-content>
     <display-name>formGuide</display-name>
     <description>The outer-most tag in the form guide facility, wrapping
-      &lt;observe&gt;, &lt;enable&gt;, &lt;disable&gt;, &lt;insert&gt;,
-      and &lt;remove&gt; tags.</description>
+      &lt;observe&gt;, &lt;enable&gt;, &lt;disable&gt;, &lt;disable&gt;, &lt;insert&gt;,
+      &lt;skip&gt;, &lt;unskip&gt;, &lt;removeOption&gt;, &lt;submitForm&gt; and &lt;setValue&gt; tags.</description>
 
     <attribute>
       <name>listener</name>
@@ -226,6 +226,52 @@
       <description>A life cycle listener for the form guide's events.
       </description>
     </attribute>
+    <attribute>
+      <name>ignoreDoOnLoad</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Flag whether the tag should not execute do actions on page load, i.e. in the case
+                   where all observe rules hold such that the do actions should be executed.
+                   Possible values 'true', 'false' (defaults to 'false').</description>
+    </attribute>
+    <attribute>
+      <name>ignoreUndoOnLoad</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Flag whether the tag should not execute undo actions on page load, i.e. in the case
+                   where all observe rules do not hold such that the undo actions should be executed.
+                   Possible values 'true', 'false' (defaults to 'false').</description>
+    </attribute>
+    <attribute>
+      <name>prompt</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Prompt the user before performing the action(s) when observation(s) met, allowing user to cancel. (defaults to null, meaning no prompt).</description>
+    </attribute>
+    <attribute>
+      <name>ignoreAndOr</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Whether all or just one of the ignore conditions must be met, as specified by
+        &lt;ignore&gt; tags. Possible values are 'or' and 'and'. (defaults to 'and').</description>
+    </attribute>
+    <attribute>
+      <name>observeAndOr</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Whether all or just one of the observe conditions must be met, as specified by
+        &lt;observe&gt; tags. Possible values are 'or' and 'and'. (defaults to 'and').</description>
+    </attribute>
+    <attribute>
+      <name>mode</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>The view mode in effect for the current page. readonly modes, e.g. 'vw' and 'lv' result
+        in the tag and children being ignored. (default is 'dc').</description>
+    </attribute>
+    
   </tag>
 
   <tag>
@@ -233,30 +279,55 @@
     <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Observe@EL_CLS@Tag</tag-class>
     <body-content>empty</body-content>
     <display-name>observe</display-name>
-    <description>Specifies the widget that triggers the enabling/disabling
-      of other widgets when it holds a certain value. This tag may be
-      specified more than once within a &lt;formGuide&gt;, in which case
-      no widgets get disabled unless all observed widgets hold their trigger
-      values.</description>
-
+    <description>Specifies one or more elements that participate in triggering the do/undo actions of other
+      child tags. This tag may be specified more than once within a &lt;formGuide&gt;, in which case
+      the do actions depend on all of them, in conjunction with the parent formGuide tags observeAndOr 
+      attribute. If the observe rules hold, the action child tags are executed; if not, the actions undo
+      function is executed, if the action has an undo function (e.g. skip action has an undo action 
+      called unskip).</description>
     <attribute>
-      <name>elementId</name>
+      <name>elementIds</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>ID of the widget to observe.</description>
+      <description>Comma-separated string of element id's to observe.</description>
     </attribute>
     <attribute>
-      <name>elementName</name>
+      <name>elementNames</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Name of the widget to observe.</description>
+      <description>Comma-separated string of element names to observe (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
     </attribute>
     <attribute>
       <name>forValue</name>
       <required>true</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Widget value that triggers the enabling/disabling of other
-        widgets.</description>
+      <description>Element value that determines whether this individual observe rule is met. Can be a regular expression.</description>
+    </attribute>
+    <attribute>
+      <name>negate</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag. If true, element(s) value must NOT match forValue for observation to be met.
+        (default is false).</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if element is a comboRadioSelect (default is false).</description>
     </attribute>
   </tag>
 
@@ -265,23 +336,135 @@
     <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.ObserveForNull@EL_CLS@Tag</tag-class>
     <body-content>empty</body-content>
     <display-name>observeForNull</display-name>
-    <description>Specifies the widget that triggers the enabling/disabling
-      of other widgets when it holds a null value. This tag may be
-      specified more than once within a &lt;formGuide&gt;, in which case
-      no widgets get disabled unless all observed widgets hold their trigger
-      values.</description>
-
+    <description>Specialized version of the observe tag where the observe rule is met when the element(s)
+      holds a null value. This tag may be specified more than once within a &lt;formGuide&gt;.</description>
     <attribute>
-      <name>elementId</name>
+      <name>elementIds</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>ID of the widget to observe.</description>
+      <description>Comma-separated string of element id's to observe.</description>
     </attribute>
     <attribute>
-      <name>elementName</name>
+      <name>component</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Name of the widget to observe.</description>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names to observe (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>negate</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag. If true, element(s) value must NOT match null for observe rule to be met.
+        (default is false).</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>ignore</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Ignore@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>observe</display-name>
+    <description>Specifies an ignore rule for each element. An ignore rule is met when the element
+      holds the forValue (subject to regular expression matching). This tag may be specified more than once
+      within a &lt;formGuide&gt;. All of the ignore rules togther, in conjunction with the parent formGuide 
+      tags ignoreAndOr attribute, are use to determine whether the entire formGuide tag should be ignored or not.</description>
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's for ignore rules.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names for ignore rules (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>forValue</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Element value that determines whether this individual ignore rule is met. Can be a regular expression.</description>
+    </attribute>
+    <attribute>
+      <name>negate</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag. If true, element(s) value must NOT match forValue for ignore rule to be met.
+        (default is false).</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if element is a comboRadioSelect (default is false).</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>ignoreForNull</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.IgnoreForNull@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>ignoreForNull</display-name>
+    <description>Specialized version of the ignore tag where the ignore rule is met when the element(s)
+      holds a null value. This tag may be specified more than once within a &lt;formGuide&gt;. All of
+      the ignore rules togther, in conjunction with the parent formGuide tags ignoreAndOr attribute, are
+      use to determine whether the entire formGuide tag should be ignored or not.</description>
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's for ignore rules.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names for ignore rules (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>negate</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag. If true, element(s) value must NOT match null for ignore rule to be met.
+        (default is false).</description>
     </attribute>
   </tag>
 
@@ -290,21 +473,30 @@
     <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Enable@EL_CLS@Tag</tag-class>
     <body-content>empty</body-content>
     <display-name>enable</display-name>
-    <description>Specifies the widget that gets enabled when the observed
-      widgets hold their trigger values.</description>
+    <description>Specifies the element(s) that get enabled when the observe rules are met.</description>
 
     <attribute>
-      <name>elementId</name>
+      <name>elementIds</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>ID of the HTML element to enable.</description>
+      <description>Comma-separated string of element id's to enable.</description>
     </attribute>
-
     <attribute>
-      <name>elementName</name>
+      <name>elementNames</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Name of the widget to enable.</description>
+      <description>Comma-separated string of element names to enable (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
     </attribute>
   </tag>
 
@@ -313,21 +505,30 @@
     <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Disable@EL_CLS@Tag</tag-class>
     <body-content>empty</body-content>
     <display-name>disable</display-name>
-    <description>Specifies the widget that gets disabled when the observed
-      widgets hold their trigger values.</description>
+    <description>Specifies the element(s) that get disabled when the observed rule are met.</description>
 
     <attribute>
-      <name>elementId</name>
+      <name>elementIds</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>ID of the HTML element to disable.</description>
+      <description>Comma-separated string of element id's to disable.</description>
     </attribute>
-
     <attribute>
-      <name>elementName</name>
+      <name>elementNames</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Name of the widget to disable.</description>
+      <description>Comma-separated string of element names to disable (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
     </attribute>
   </tag>
 
@@ -336,21 +537,30 @@
     <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Insert@EL_CLS@Tag</tag-class>
     <body-content>empty</body-content>
     <display-name>enable</display-name>
-    <description>Specifies the element that gets inserted when the observed
-      widgets hold their trigger values.</description>
+    <description>Specifies the element(s) that get inserted when the observed rule are met.</description>
 
     <attribute>
-      <name>elementId</name>
+      <name>elementIds</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>ID of the HTML element to insert.</description>
+      <description>Comma-separated string of element id's to insert.</description>
     </attribute>
-
     <attribute>
-      <name>elementName</name>
+      <name>elementNames</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Name of the widget to insert.</description>
+      <description>Comma-separated string of element names to insert (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
     </attribute>
   </tag>
 
@@ -359,23 +569,348 @@
     <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Remove@EL_CLS@Tag</tag-class>
     <body-content>empty</body-content>
     <display-name>enable</display-name>
-    <description>Specifies the element that gets removed when the observed
-      widgets hold their trigger values.</description>
+    <description>Specifies the element(s) that get removed when the observed rule are met.</description>
 
     <attribute>
-      <name>elementId</name>
+      <name>elementIds</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>ID of the HTML element to remove.</description>
+      <description>Comma-separated string of element id's to remove.</description>
     </attribute>
-
     <attribute>
-      <name>elementName</name>
+      <name>elementNames</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Name of the widget to remove.</description>
+      <description>Comma-separated string of element names to remove (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
     </attribute>
   </tag>
+  
+    <tag>
+    <name>skip</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Skip@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>skip</display-name>
+    <description>Specifies the element(s) that get skipped when the observe rules
+      are met. The element(s) are disabled and set to the specified skipTextValue ONLY
+      if the current value of the element is LOGICAL_SKIP (i.e. "-6" or "-6.0")
+      
+      Conversely, if the observe rules are not met, the element(s) are unskipped,
+      meaning that they are enabled and value is set to the unskipTextValue. 
+      
+      If the element is not a selectbox, skip/unskipOptionValue attributes are not used. 
+      
+      If an element is a selectbox, the option matching its text field to the skip/unskipTextValue
+      attribute, or matching its value field to the skip/unskipOptionValue attribute, or both, 
+      is selected. If there is no match, a new option is added to the select box using 
+      skip/unskipTextValue and/or skip/unskipOptionValue, and is selected. For selectboxes, only 
+      one of skip/unskipTextValue or skip/unskipOptionValue must be supplied, or both can be supplied.
+
+      If using this tag for instrument data enty and instrument data collection fields,
+      the tag supplies defaults for all the skip/unskipTextValue and skip/unskipOptionValue attributes 
+      so they need not be supplied.  
+
+      Multiple elements can be skipped with a single tag by specifying a comma-separated list
+      of element id's or name's. Each will be skipped using the same unskip/skipTextValue and
+      unskip/skipOptionValue and comboRadioSelect attributes. 
+
+      note for acs select boxes:
+       the only valid value for skipTextValue is ''. otherwise, a predefined skipTextValue 
+        indicating logical skip is used. skipOptionValue is not used at all. 
+       unskipTextValue and unskipOptionValue are not used at all; if the current value of
+        the widget is logical skip, acs sets the value to ''. otherwise, acs leaves the 
+        current value as the value. 
+       in other words, acs would have to be modified to be able to use skip/unskip values
+        set as attributes on this tag.
+    </description>
+
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's to skip.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names to skip (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>skipTextValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+     <description>Value to set skipped element(s) to, ONLY if its current value is LOGICAL_SKIP ("-6" or "-6.0"). If element is 
+      a selectbox, this is used to select an option with a matching text field.</description>
+    </attribute>
+    <attribute>
+      <name>skipOptionValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only for selectbox elements. This is used to select an option with a matching value field.</description>
+    </attribute>
+    <attribute>
+      <name>unskipTextValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+     <description>Value to set unskipped element(s) to, in case of undo action. If element is a selectbox, this 
+      is used to select an option with a matching text field. </description>
+    </attribute>
+    <attribute>
+      <name>unskipOptionValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only for selectbox elements. This is used to select an option with a matching value field.</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if control is a comboRadioSelect (default is false).</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>unskip</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Unskip@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>unskip</display-name>
+    <description>Specifies the element(s) that are unskipped when the observe rules are met. The 
+      element(s) are enabled and set to the specified unskipTextValue. 
+      
+      Conversely, if the observe rules are not met, the element(s) are skipped,
+      meaning that they are disabled and value is set to the skipTextValue, ONLY if the
+      current value of the element is LOGICAL_SKIP ("-6" or "-6.0") (and if element is
+      selectbox and skipTextValue does not exist, new option is added and selected where
+      option text is skipTextValue and option value is the skipNewOptionValue).
+      
+      If the element is not a selectbox, unskip/skipOptionValue attributes are not used. 
+      
+      If an element is a selectbox, the option matching its text field to the unskip/skipTextValue
+      attribute, or matching its value field to the unskip/skipOptionValue attribute, or both, 
+      is selected. If there is no match, a new option is added to the select box using 
+      unskip/skipTextValue and/or unskip/skipOptionValue, and is selected. For selectboxes, only 
+      one of unskip/skipTextValue or unskip/skipOptionValue must be supplied, or both can be supplied.
+
+      If using this tag for instrument data enty and instrument data collection fields,
+      the tag supplies defaults for all the unskip/skipTextValue and unskip/skipOptionValue attributes 
+      so they need not be supplied.  
+
+      Multiple elements can be unskipped with a single tag by specifying a comma-separated list
+      of element id's or name's. Each will be unskipped using the same unskip/skipTextValue and
+      unskip/skipOptionValue and comboRadioSelect attributes. 
+
+      note for acs select boxes:
+       unskipTextValue and unskipOptionValue are not used at all; if the current value of
+        the widget is logical skip, acs sets the value to ''. otherwise, acs leaves the 
+        current value as the value. 
+       the only valid value for skipTextValue is ''. otherwise, a predefined skipTextValue 
+        indicating logical skip is used. skipOptionValue is not used at all. 
+       in other words, acs would have to be modified to be able to use skip/unskip values
+        set as attributes on this tag.
+    </description>
+
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's to unskip.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names to unskip (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>unskipTextValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+     <description>Value to set unskipped element(s) to. If element is a selectbox, this is used to select an 
+      option with a matching text field.</description>
+    </attribute>
+    <attribute>
+      <name>unskipOptionValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only for selectbox elements. This is used to select an option with a matching value field.</description>
+    </attribute>
+    <attribute>
+      <name>skipTextValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+     <description>In the case of undo action, this is the value to set skipped element(s) to, ONLY if its current value 
+      is LOGICAL_SKIP ("-6" or "-6.0"), If element is a selectbox, this is used to select an option with a matching text field.</description>
+    </attribute>
+    <attribute>
+      <name>skipOptionValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only for selectbox elements. This is used to select an option with a matching value field.</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if control is a comboRadioSelect (default is false).</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>removeOption</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.RemoveOption@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>removeOption</display-name>
+    <description>Specifies a selectbox element whose option(s) get removed, where the removed
+      options are those currently selected by the observe selectbox element(s). Assumes that the 
+      specified removeOption selectbox element contains the same options that the observe 
+      selectbox element(s) contain (minus the option(s) currently selected in the observed 
+      widget(s) which are removed by this action).
+      e.g. the instrument quality issues select box widgets. 
+      note: the removeOption tag(s) must appear after all observe tags within the formGuide parent tag.
+      note: this tag works for autocomplete widgets if elementIds are used, not elementNames
+      note: this tag is only implemented for selectboxes, and only selectboxes that allow a single
+            value to be selected
+      note: if the currently selected option in the selectbox is the option that is removed, the
+            currently selected option is changed to the blank option ('') if one exists, otherwise,
+            the results are undefined</description>
+
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's whose option(s) should be removed.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names whose option(s) should be removed (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>submitForm</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.SubmitForm@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>submitForm</display-name>
+    <description>When the observe rules are met, this action submits the specified form,
+      where the specified event value is submitted as the hidden form event field. This 
+      action is execute via calling the LavaWeb common.js submitForm function.</description>
+
+    <attribute>
+      <name>form</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Form name for the form submission.</description>
+    </attribute>
+    <attribute>
+      <name>event</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Event for the form submission.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>setValue</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.SetValue@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>setValue</display-name>
+    <description>Set the specified element(s) to the specified textValue attribute. The optionValue
+       attribute only applies to selectbox elements.
+       If an element is a selectbox, the option matching its text field to the textValue attribute,
+       or matching its value field to the optionValue attribute, or both, is selected. If there is
+       no match, a new option is added to the select box using textValue and optionValue, and is
+       selected. For selectboxes, only one of textValue or optionValue must be supplied, or both
+       can be supplied.
+       note: presently, acs selectboxes do not use the newOptionValue if a new option must
+             be added to set the value of the selectbox. instead, the new option is added such
+             that both the text and value fields are set to the textValue attribute.
+    </description>
+
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's whose value is set.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names whose value is set (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>textValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+     <description>Value to set element(s) to. If element is a selectbox, this is used to select an option with a matching text field.</description>
+    </attribute>
+    <attribute>
+      <name>optionValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only for selectbox elements. This is used to select an option with a matching value field.</description>
+    </attribute>
+  </tag>
+
 
   <!--
     - ====================================
