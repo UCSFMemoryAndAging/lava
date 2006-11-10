@@ -19,6 +19,9 @@ package net.sf.uitags.tag.formGuide;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
@@ -51,6 +54,21 @@ public class FormGuideTag extends AbstractUiTag {
   private static final String TAG_INSTANCE_ID_KEY =
       "net.sf.uitags.FormGuideTag.instanceId";
 
+  /**
+   * Value to indicate that a property has been logically skipped.
+   */
+  static final String LOGICAL_SKIP_CODE = "-6";
+  /**
+   * Text to indicate that a property has been logically skipped, for
+   * those widgets where text accompanies a value, such as select boxes.
+   */
+  static final String LOGICAL_SKIP_TEXT = "Logical Skip";
+  /**
+   * Special value for radio buttons in a comboRadioSelect widget that
+   * indicates the missing data code from the select box should be used
+   * as the value of the widget.
+  */
+  static final String COMBO_RADIO_SELECT_USE_SELECT = "-9999";
 
 
   ////////////////////////////
@@ -58,9 +76,29 @@ public class FormGuideTag extends AbstractUiTag {
   ////////////////////////////
 
   /**
-   * Widgets to observe
+   * Widgets for ignore rules
+   */
+  private List ignoreWidgets;
+  
+  /**
+   * Widgets for observe rules
    */
   private List observedWidgets;
+  
+  /**
+   * (ctoohey)
+   * Widget groups.
+   * 
+   * Used internally for removeOption child tag tasks.
+   */
+  private Map<String,ObservedWidget> widgetGroups;
+  
+  /**
+   * (ctoohey)
+   * Flag used internally for removeOption child tag tasks.
+   */
+  private Boolean firstObserveCloned = false;
+  
   /**
    * List of JS tasks to perform on "do"
    */
@@ -69,10 +107,82 @@ public class FormGuideTag extends AbstractUiTag {
    * List of JS tasks to perform on "undo"
    */
   private List undoTasks;
+  
   /**
    * The "listener" tag attribute
    */
   private String listener;
+  
+  /**
+   * (ctoohey)
+   * The "ignoreDoOnLoad" tag attribute
+   *
+   * Will not execute the doAction when the page loads if "true". Will if "false" (assuming
+   * all observe rules hold such that the doAction should execute). 
+   */
+  private Boolean _ignoreDoOnLoad; // setter only
+  private Boolean ignoreDoOnLoad;
+
+  /**
+   * (ctoohey)
+   * The "ignoreUndoOnLoad" tag attribute
+   *
+   * Will not execute the undoAction when the page loads if "true". Will if "false" (assuming
+   * all observe rules do not hold such that the undoAction should execute). 
+   */
+  private Boolean _ignoreUndoOnLoad; // setter only
+  private Boolean ignoreUndoOnLoad;
+
+  /**
+   * (ctoohey)
+   * The "prompt" tag attribute
+   *
+   * If not null, the user will be prompted with this string before the do action
+   * executes, giving the user a chance to cancel the do action. The prompt will not be issued
+   * on page load. 
+   */
+  private String _prompt; // setter only
+  private String prompt;
+  
+  /**
+   * (ctoohey)
+   * The "ignoreAndOr" tag attribute
+   * 
+   * Used in determining whether the ignore rules are met, in which case the formGuide tag is
+   * ignored in its entirety.
+   * 
+   * If "and" then all ignore rules must be met.
+   * If "or then only one ignore rule must be met. 
+   * Default is "and".
+   */
+  private String _ignoreAndOr; // setter only
+  private String ignoreAndOr;
+
+  /**
+   * (ctoohey)
+   * The "observeAndOr" tag attribute
+   * 
+   * Used in determining whether the observe rules are met, in which case the do actions in the
+   * formGuide tag are executed (unless the ignore rules are met, in which case the actions are ignored). 
+   * If the observe rules are not met, then the undo actions are executed.
+   * 
+   * If "and" then all observe rules must be met.
+   * If "or then only one observe rule must be met. 
+   * Default is "and".
+   */
+  private String _observeAndOr; // setter only
+  private String observeAndOr;
+  
+  /**
+   * (ctoohey)
+   * The "mode" tag attribute. 
+   *
+   * Corresponds to the view mode of the current view. If this represents
+   * a readonly mode, e.g. "vw" or "lv", then no widget observations are
+   * added, which basically means the formGuide tag has no effect.
+   */
+  private String _mode; // setter only 
+  private String mode; 
 
 
   //////////////////////////////////
@@ -86,7 +196,22 @@ public class FormGuideTag extends AbstractUiTag {
     super();
   }
 
-
+  // author:ctoohey
+  // used by the removeOptions child tag
+  public Map<String, ObservedWidget> getWidgetGroups() {
+	  return this.widgetGroups;
+  }
+  // author:ctoohey
+  public Boolean isFirstObserveCloned() {
+	  return this.firstObserveCloned;
+  }
+  // author:ctoohey
+  public void setFirstObserveCloned(Boolean firstObserveCloned) {
+	  this.firstObserveCloned = firstObserveCloned;
+  }
+ 
+  
+  
   ///////////////////////////////////////////
   ////////// Tag attribute setters //////////
   ///////////////////////////////////////////
@@ -99,6 +224,94 @@ public class FormGuideTag extends AbstractUiTag {
   public void setListener(String val) {
     this.listener = val;
   }
+
+  /**
+   * author:ctoohey
+   * Tag attribute setter.
+   *
+   * @param val value of the tag attribute
+   */
+  public void setIgnoreDoOnLoad(Boolean ignoreDoOnLoad) {
+    this._ignoreDoOnLoad = ignoreDoOnLoad;
+  }
+
+  /**
+   * author:ctoohey
+   * Tag attribute setter.
+   *
+   * @param val value of the tag attribute
+   */
+  public void setIgnoreUndoOnLoad(Boolean ignoreUndoOnLoad) {
+    this._ignoreUndoOnLoad = ignoreUndoOnLoad;
+  }
+  
+  /**
+   * author:ctoohey
+   * Tag attribute setter.
+   *
+   * @param val value of the tag attribute
+   */
+  public void setPrompt(String prompt) {
+    this._prompt = prompt;
+  }
+
+  /**
+   * author:ctoohey
+   * Tag attribute setter.
+   *
+   * The ignoreAndOr attribute has value of "and" or "or" and determines whether
+   * all ignore tag conditions must be met ("and") or just one of the 
+   * ignore tag conditions ("or") must be met.
+   *
+   * See setObserveAndOr for special syntax for select boxes, which also applies
+   * to the ignore tags. 
+   *
+   * @param val value of the tag attribute
+   */
+  public void setIgnoreAndOr(String val) {
+    this._ignoreAndOr = val;
+  }
+
+  /**
+   * author:ctoohey
+   * Tag attribute setter.
+   *
+   * The observeAndOr attribute has value of "and" or "or" and determines whether
+   * all observe tag conditions must be met ("and") or just one of the 
+   * observe tag conditions ("or") must be met.
+   *
+   * note: when the observe tag special syntax for select boxes is used, where
+   *       the forValue in the observe tag can be ".*" indicating that each
+   *       value of the select box other than blank is involved in the observer,
+   *       typically andOr would be "or" because a select box can not have
+   *       multiple values selected at one time, unless, it is a multiple
+   *       select box, in which case andOr could be "and" or "or".
+   *
+   * @param val value of the tag attribute
+   */
+  public void setObserveAndOr(String val) {
+    this._observeAndOr = val;
+  }
+
+  /**
+   * author:ctoohey
+   * Tag attribute setter.
+   *
+   * The view mode in effect.
+   *
+   * @param val value of the tag attribute
+   */
+  public void setMode(String val) {
+    this._mode = val;
+  }
+  /**
+   * authod:ctoohey
+   * Tag attribute getter.
+   */
+  public String getMode() {
+    return this.mode;
+  }
+    
 
 
   ///////////////////////////////
@@ -113,9 +326,34 @@ public class FormGuideTag extends AbstractUiTag {
    */
   public int doStartTag() throws JspException {
     // Initialize here to avoid tag reuse problem
+    this.ignoreWidgets   = new ArrayList();
     this.observedWidgets   = new ArrayList();
+    this.widgetGroups      = new HashMap();
     this.doTasks           = new ArrayList();
     this.undoTasks         = new ArrayList();
+    
+    // set defaults for optional formGuide tag attributes
+    this.ignoreDoOnLoad = this._ignoreDoOnLoad;
+    if (this.ignoreDoOnLoad == null) {
+    	this.ignoreDoOnLoad = new Boolean(false);
+    }
+    this.ignoreUndoOnLoad = this._ignoreUndoOnLoad;
+    if (this.ignoreUndoOnLoad == null) {
+    	this.ignoreUndoOnLoad = new Boolean(false);
+    }
+    this.ignoreAndOr = this._ignoreAndOr;
+    if (this.ignoreAndOr == null) {
+    	this.ignoreAndOr = "and";
+    }
+    this.observeAndOr = this._observeAndOr;
+    if (this.observeAndOr == null) {
+    	this.observeAndOr = "and";
+    }
+    this.mode = this._mode;
+    if (this.mode == null) {
+    	this.mode = "dc";
+    }
+    this.prompt = this._prompt;
 
     makeVisibleToChildren();
     return EVAL_BODY_INCLUDE;
@@ -134,11 +372,16 @@ public class FormGuideTag extends AbstractUiTag {
 
     Template template = Template.forName(Template.FORM_GUIDE);
     template.map("instanceId",      new Long(instanceId));
+    template.map("ignoreWidgets",   this.ignoreWidgets);
     template.map("observedWidgets", this.observedWidgets);
     template.map("doTasks",         this.doTasks);
     template.map("undoTasks",       this.undoTasks);
     template.map("listener",        this.listener);
-
+    template.map("ignoreDoOnLoad",  this.ignoreDoOnLoad);    
+    template.map("ignoreUndoOnLoad",this.ignoreUndoOnLoad);    
+    template.map("prompt",          this.prompt);    
+    template.map("observeAndOr",    this.observeAndOr);    
+    template.map("ignoreAndOr",     this.ignoreAndOr);    
 
     println(template.evalToString());
 
@@ -146,56 +389,129 @@ public class FormGuideTag extends AbstractUiTag {
     return EVAL_PAGE;
   }
 
+  
   /**
-   * Lets child tags add widget name to observe.
+   * author: ctoohey
+   * Lets child tags add widget name for an ignore rule.
+   *
+   * @param elementName name of the element for the ignore rule
+   * @param value value of the element for the ignore rule to hold
+   * @param negate negate whether the ignore rule holds or not
+   */
+  void addIgnoreElementName(String elementName, String value, Boolean negate) {
+	  // can use the same data structure that observe elements use
+	  ObservedWidget ignoreWidget = new ObservedWidget(null, elementName, value, negate);
+	  this.ignoreWidgets.add(ignoreWidget);
+  }
+
+  /**
+   * author: ctoohey
+   * Lets child tags add widget ID for an ignore rule.
+   *
+   * @param elementId ID of the element for the ignore rule
+   * @param value value of the element for the ignore rule to hold
+   * @param negate (ctoohey) negate whether the ignore rule holds or not
+   */
+  void addIgnoreElementId(String elementId, String value, Boolean negate) {
+	  // can use the same data structure that observe elements use
+	  ObservedWidget ignoreWidget = new ObservedWidget(elementId, null, value, negate);
+	  this.ignoreWidgets.add(ignoreWidget);
+  }
+
+  
+  /**
+   * Lets child tags add widget name for observe rule.
    *
    * @param elementName name of the widget to observe
    * @param value value of the widget to observe
+   * @param negate (ctoohey) negate whether the observe rule holds or not
    */
-  void addObservedElementName(String elementName, String value) {
-    this.observedWidgets.add(new ObservedWidget(null, elementName, value));
+  void addObservedElementName(String elementName, String value, Boolean negate) {
+	  ObservedWidget observedWidget = new ObservedWidget(null, elementName, value, negate);
+	  this.observedWidgets.add(observedWidget);
+	  // keep a map of unique observed widgets for the removeOption callback
+	  if (!this.widgetGroups.containsKey(elementName)) {
+		  this.widgetGroups.put(elementName, observedWidget);
+	  }
   }
 
   /**
-   * Lets child tags add widget ID to observe.
+   * Lets child tags add widget ID for observe rule.
    *
    * @param elementId ID of the widget to observe
    * @param value value of the widget to observe
+   * @param negate (ctoohey) negate whether the observe rule holds or not
    */
-  void addObservedElementId(String elementId, String value) {
-    this.observedWidgets.add(new ObservedWidget(elementId, null, value));
+  void addObservedElementId(String elementId, String value, Boolean negate) {
+	  ObservedWidget observedWidget = new ObservedWidget(elementId, null, value, negate);
+	  this.observedWidgets.add(observedWidget);
+	  // keep a map of unique observed widgets for the removeOption callback
+	  if (!this.widgetGroups.containsKey(elementId)) {
+		  this.widgetGroups.put(elementId, observedWidget);
+	  }
   }
 
+  
   /**
-   * Lets child tags specify javascript callback statement.
+   * author:ctoohey 
+   * Lets child tags specify javascript callback statements 
+   * 
+   * @param doCallback Javascript callback for do action generated by child tag
+   * @param undoCallback Javascript callback for undo action generated by child tag
+   */
+  void addJavascriptCallback(String doCallback, String undoCallback) {
+   	    this.doTasks.add(doCallback);
+
+   	    if (undoCallback != null) {
+   	    	this.undoTasks.add(undoCallback);
+   	    }
+  }
+  
+  /**
+   * Lets child tags specify javascript callback statement which
+   * takes 2 parameters (elementId and elementName)
+   * e.g. child tags: enable,disable,insert,remove
+   * 
+   * (ctoohey) modified to work with multiple elements, i.e. comma-separated string
+   * of element ids or element names
+   * 
+   * The reason why addJavascriptCallback is overloaded here is because a number
+   * of child tags use the exact same code to iterate thru element ids/names and
+   * construct the Javascript callback, so this allows those tags to share
+   * that code. 
+   * currently used by child tags: enable, disable, insert, remove
    *
    * @param doCallback the doCallback statement
    * @param undoCallback the undoCallback statement
-   * @param element the ID/name of the involved element
+   * @param string of comma-separated element ID/name of the involved element(s)
    */
   void addJavascriptCallback(
-      String doCallback, String undoCallback,
-      String elementId, String elementName) {
+	String doCallback, String undoCallback,
+    String elementIds, String elementNames, String component) {
 
-    String idParam = getJsElementParameter(elementId);
-    String nameParam = getJsElementParameter(elementName);
-
-    this.doTasks.add(UiString.simpleConstruct(
-        "{0}(domEvent, {1}, {2});",
-        new String[] { doCallback, idParam, nameParam }));
-
-    this.undoTasks.add(UiString.simpleConstruct(
-        "{0}(domEvent, {1}, {2});",
-        new String[] { undoCallback, idParam, nameParam }));
-  }
-
-  private String getJsElementParameter(String value) {
-    if (value == null) {
-      return "null";
+    String[] elementArray = null;
+    if (elementIds != null) {
+    	elementArray = elementIds.split(",");
     }
-    return '"' + value + '"';
-  }
+    else if (elementNames != null) {
+    	elementArray = elementNames.split(",");
+    }
+    for (String elementIdOrName : elementArray) {
+   		if (elementIds != null && component != null) {
+   	   		elementIdOrName = component + "_" + elementIdOrName.trim(); 
+   		}
+   		String idOrNameParam = getJsElementParam(elementIdOrName.trim());
+        this.doTasks.add(UiString.simpleConstruct(
+                "{0}(domEvent, {1}, {2});",
+                new String[] { doCallback, (elementIds != null ? idOrNameParam : null), (elementNames != null ? idOrNameParam : null)}));
 
+        this.undoTasks.add(UiString.simpleConstruct(
+                "{0}(domEvent, {1}, {2});",
+                new String[] { undoCallback, (elementIds != null ? idOrNameParam : null), (elementNames != null ? idOrNameParam : null)}));
+    }
+  }  
+  
+  
 
   ///////////////////////////////////
   ////////// Inner classes //////////
@@ -218,6 +534,12 @@ public class FormGuideTag extends AbstractUiTag {
      * Widget value
      */
     private String value;
+    
+    /**
+     * (ctoohey)
+     * negate flag negates the result of the widget's observe
+     */
+    private Boolean negate;
 
     /**
      * Creates a data container instance.
@@ -225,10 +547,11 @@ public class FormGuideTag extends AbstractUiTag {
      * @param name  widget name
      * @param value widget value
      */
-    private ObservedWidget(String id, String name, String value) {
+    private ObservedWidget(String id, String name, String value, Boolean negate) {
       this.id = id;
       this.name = name;
       this.value = value;
+      this.negate = negate;
     }
 
     /**
@@ -256,6 +579,16 @@ public class FormGuideTag extends AbstractUiTag {
      */
     public String getValueInDoubleQuotesOrNull() {
       return (this.value == null)? "null" : "\"" + this.value + "\"";
+    }
+
+    /**
+     * author:ctoohey
+     * Returns negate value. Made public to allow access by Java bean tool.
+     *
+     * @return widget observe negated
+     */
+    public Boolean getNegate() {
+      return this.negate;
     }
   }
 }
