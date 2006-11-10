@@ -91,7 +91,7 @@ public class IgnoreTag extends IgnoreForNullTag {
    * @param val value of the tag attribute
    */
   public void setComboRadioSelect(Boolean val) {
-    this.comboRadioSelect = val;
+    this._comboRadioSelect = val;
   }
 
 

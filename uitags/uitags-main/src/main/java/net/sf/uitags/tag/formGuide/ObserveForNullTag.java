@@ -86,7 +86,7 @@ public class ObserveForNullTag extends BaseChildTag {
      defaults to "false"
    */
   public void setNegate(Boolean val) {
-    this.negate = val;
+    this._negate = val;
   }
 
 
