@@ -91,7 +91,7 @@ public class FormGuideTag extends AbstractUiTag {
    * 
    * Used internally for removeOption child tag tasks.
    */
-  private Map<String,ObservedWidget> widgetGroups;
+  private Map<String,ObservedWidget> observedWidgetGroups;
   
   /**
    * (ctoohey)
@@ -182,7 +182,23 @@ public class FormGuideTag extends AbstractUiTag {
    * no effect, since there should be no user events in readonly mode.
    */
   private String _mode; // setter only 
-  private String mode; 
+  private String mode;
+  
+  /**
+   * (ctoohey)
+   * The "simulateEvents" tag attribute.
+   * 
+   * This boolean attribute determines whether events which trigger all formGuide tags on the
+   * page should be simulated on page load to properly set up the page. Since this only needs
+   * to be done once, this attribute should be set "true" only on one of the formGuide tags if
+   * multiple tags exist on the page. Also, it should be set on the last formGuide tag of the
+   * page, so that all formGuide tags have initialized on page load before event simulation
+   * takes place.
+   * 
+   * defaults to "false"
+   */
+  private Boolean _simulateEvents;
+  private Boolean simulateEvents;
 
 
   //////////////////////////////////
@@ -198,8 +214,8 @@ public class FormGuideTag extends AbstractUiTag {
 
   // author:ctoohey
   // used by the removeOptions child tag
-  public Map<String, ObservedWidget> getWidgetGroups() {
-	  return this.widgetGroups;
+  public Map<String, ObservedWidget> getObservedWidgetGroups() {
+	  return this.observedWidgetGroups;
   }
   // author:ctoohey
   public Boolean isFirstObserveCloned() {
@@ -312,6 +328,15 @@ public class FormGuideTag extends AbstractUiTag {
     return this.mode;
   }
     
+  /**
+   * author:ctoohey
+   * Tag attribute setter.
+   * 
+   * @param val value of the tag attribute
+   */
+  public void setSimulateEvents(Boolean val) {
+    this._simulateEvents = val;
+  }
 
 
   ///////////////////////////////
@@ -328,7 +353,7 @@ public class FormGuideTag extends AbstractUiTag {
     // Initialize here to avoid tag reuse problem
     this.ignoreWidgets   = new ArrayList();
     this.observedWidgets   = new ArrayList();
-    this.widgetGroups      = new HashMap();
+    this.observedWidgetGroups      = new HashMap();
     this.doTasks           = new ArrayList();
     this.undoTasks         = new ArrayList();
     
@@ -353,7 +378,14 @@ public class FormGuideTag extends AbstractUiTag {
     if (this.mode == null) {
     	this.mode = "dc";
     }
+    this.simulateEvents = this._simulateEvents;
+    if (this.simulateEvents == null) {
+    	this.simulateEvents = false;
+    }
     this.prompt = this._prompt;
+
+    // initialize internal variable
+    firstObserveCloned = false;
 
     makeVisibleToChildren();
     return EVAL_BODY_INCLUDE;
@@ -385,6 +417,11 @@ public class FormGuideTag extends AbstractUiTag {
 
     if (!(this.mode.equals("vw") || this.mode.equals("lv"))) {
     	println(template.evalToString());
+
+    	if (this.simulateEvents) {
+    		Template templateSimulateEvent = Template.forName(Template.FORM_GUIDE_SIMULATE_EVENT);
+    		println(templateSimulateEvent.evalToString());
+    	}
     }
 
     makeInvisibleFromChildren();
@@ -432,8 +469,8 @@ public class FormGuideTag extends AbstractUiTag {
 	  ObservedWidget observedWidget = new ObservedWidget(null, elementName, value, negate);
 	  this.observedWidgets.add(observedWidget);
 	  // keep a map of unique observed widgets for the removeOption callback
-	  if (!this.widgetGroups.containsKey(elementName)) {
-		  this.widgetGroups.put(elementName, observedWidget);
+	  if (!this.observedWidgetGroups.containsKey(elementName)) {
+		  this.observedWidgetGroups.put(elementName, observedWidget);
 	  }
   }
 
@@ -448,8 +485,8 @@ public class FormGuideTag extends AbstractUiTag {
 	  ObservedWidget observedWidget = new ObservedWidget(elementId, null, value, negate);
 	  this.observedWidgets.add(observedWidget);
 	  // keep a map of unique observed widgets for the removeOption callback
-	  if (!this.widgetGroups.containsKey(elementId)) {
-		  this.widgetGroups.put(elementId, observedWidget);
+	  if (!this.observedWidgetGroups.containsKey(elementId)) {
+		  this.observedWidgetGroups.put(elementId, observedWidget);
 	  }
   }
 
