@@ -120,7 +120,7 @@ public class SubmitFormTag extends AbstractUiTag {
 	  formGuideTag.addJavascriptCallback(
 			UiString.simpleConstruct(
 					"{0}(domEvent, document.{1}, {2});",
-					new String[] { CALLBACK_METHOD,	getJsElementParam(this.form), getJsElementParam(this.event)}),
+					new String[] { CALLBACK_METHOD,	this.form, getJsElementParam(this.event)}),
 			null);
     return EVAL_PAGE;
   }
