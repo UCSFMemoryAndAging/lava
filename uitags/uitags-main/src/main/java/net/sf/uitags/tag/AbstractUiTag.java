@@ -128,6 +128,24 @@ public abstract class AbstractUiTag extends BodyTagSupport {
   }
 
   /**
+   * author: ctoohey
+   * Convenience method for converting String values to Javascript parameters
+   * for a Javascript method call
+   * 
+   * Modeled on same method used in FormGuideTag. Child tags also need to generate
+   * Javascript method call strings.
+   * 
+   * @param value value to format for a parameter
+   * @return value formatted for use as a Javascript parameter
+   */
+  protected final String getJsElementParam(String value) {
+	  if (value == null) {
+	     return "null";
+	  }
+	  return '"' + value + '"';
+  }
+  
+  /**
    * Convenience method for printing to the output stream that throws
    * <code>JspException</code> instead of <code>IOException</code>.
    *
