@@ -1,19 +1,15 @@
 <script type="text/javascript">
-#if (!$doTasks.isEmpty())
 function uiFormGuide_do${instanceId}(domEvent, ruleSet) {
   #foreach ($task in $doTasks)
     ruleSet.$task
   #end
 }
-#end
 
-#if (!$undoTasks.isEmpty())
 function uiFormGuide_undo${instanceId}(domEvent, ruleSet) {
   #foreach ($task in $undoTasks)
     ruleSet.$task
   #end
 }
-#end
 
 uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
   #if (!($doTasks.isEmpty() && $undoTasks.isEmpty()))
@@ -37,7 +33,6 @@ uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
   #end
 
   var watchedElement;
-  uiFormGuide_driver.createWatched
   ## iterate through the ignoreRule elements and add them to be watched for events
   #foreach ($element in $ignoreWidgets)
     watchedElement = uiFormGuide_driver.createObservedIfNotInCache("$!{element.getId()}", "$!{element.getName()}");
@@ -53,20 +48,6 @@ uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
     }
   #end
   uiFormGuide_driver.clearObservedForThisRuleSet();
-
-  ## mimic event so that the page is setup properly on load
-  ## only need to do this on any one of the elements that is being watched for events, as all watched elements
-  ##  are associated with the same ruleSet and rules
-  ## note: for elements that have observe and ignore tags in more than one formGuide tag on the same page,
-  ##       simulating an event for the element will process all of its RuleSets/Rules, not just the RuleSet
-  ##       for the current formGuide tag being processed
-  ##       this means that a given RuleSets/Rules may be processed more than once on page load because
-  ##       simulateOnChangeEvent could be called for the same element for different formGuide tags
-  ##       if this were problematic, would need to remove simulateOnChangeEvent call in this template, and
-  ##       add javascript to bottom of page which iterates thru uiFormGuide_driver observedMap (which
-  ##       has a distinct set of observed elements for the page as a whole) and call simulateOnChangeEvent
-  ##       for each element in the map
-  uiFormGuide_driver.simulateOnChangeEvent(watchedElement);
 
   #if ($listener)
     ruleSet.setLifeCycleListener($listener);
