@@ -65,6 +65,7 @@ public final class Template {
       "uitags/calendar/listYears.vm";
 
   public static final String FORM_GUIDE = "uitags/formGuide/formGuide.vm";
+  public static final String FORM_GUIDE_SIMULATE_EVENT = "uitags/formGuide/formGuideSimulateEvent.vm";
 
   public static final String OPTION_TRANSFER =
       "uitags/optionTransfer/optionTransfer.vm";
