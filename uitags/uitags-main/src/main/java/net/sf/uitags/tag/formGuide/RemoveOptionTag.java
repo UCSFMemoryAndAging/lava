@@ -115,7 +115,7 @@ public class RemoveOptionTag extends BaseChildTag {
     						    
    		// iterate thru the observed selectboxes, adding a task to remove the observed selectboxes selected
    		// value from the selectbox specified in the removeOption tag as elementId/elementName 
-   		for (Entry<String,FormGuideTag.ObservedWidget> entry: formGuideTag.getWidgetGroups().entrySet()) {
+   		for (Entry<String,FormGuideTag.ObservedWidget> entry: formGuideTag.getObservedWidgetGroups().entrySet()) {
    			String observeIdParam = getJsElementParam(entry.getValue().getId());
    			String observeNameParam = getJsElementParam(entry.getValue().getName());
    			if (!formGuideTag.isFirstObserveCloned()) {
@@ -125,7 +125,7 @@ public class RemoveOptionTag extends BaseChildTag {
    				// its option(s) removed
 	    	    formGuideTag.addJavascriptCallback(
 	    	    		UiString.simpleConstruct(
-	    	            "{0}(domEvent, {1}, {2}, {3}, {4}, {5});",
+	    	            "{0}(domEvent, {1}, {2}, {3}, {4});",
 	    	            new String[] { CLONE_OPTION_CALLBACK_METHOD, observeIdParam, observeNameParam, (this.elementIds != null ? idOrNameParam : null), (this.elementNames != null ? idOrNameParam : null)}),
 	    	            null);
    			}
@@ -134,7 +134,7 @@ public class RemoveOptionTag extends BaseChildTag {
    			//       every onchange event (unless changing to the blank option), so it handles everything
     	    formGuideTag.addJavascriptCallback(
     				UiString.simpleConstruct(
-   						"{0}(domEvent, {1}, {2}, {3}, {4}, {5});",
+   						"{0}(domEvent, {1}, {2}, {3}, {4});",
    						new String[] { REMOVE_OPTION_CALLBACK_METHOD, observeIdParam, observeNameParam, (this.elementIds != null ? idOrNameParam : null), (this.elementNames != null ? idOrNameParam : null)}),
             		null);
    		}		
