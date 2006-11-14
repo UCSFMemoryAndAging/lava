@@ -24,6 +24,9 @@ function uiHtml_Group(domObjects, optHandler) {
   this.__items = domObjects;
   this.__handler = optHandler;
 
+  // (ctoohey) used to distinguish uiHtml_Select from uiHtml_Group when returned by uiHtml_Group.createByEither
+  this.__type = "group";
+
   if (this.__handler == null) {
     // NOTE: in order for this to work, the collection should contain
     //       at least one item
@@ -187,6 +190,28 @@ uiHtml_Group.__getDomObjectsByEither = function(id, name) {
   var domObjects;
   var domObject = uiHtml_Document.getInstance().getDomObjectById(id, false);
   if (domObject == null) {
+    // must be a radio button group, so get by name (all radio buttons have the same name)
+    if (name == null || name.length == 0) {
+      // special handling for LavaWeb component handler elementId which represents radio button group
+      // need to construct the element name for the radio button group, which is of the format:
+      // "component['COMPONENT_NAME'].PROPERTY_NAME
+
+      // parse out component name from id
+      var endComponent = id.indexOf("_");
+      var component = id.substring(0, endComponent);
+      // parse out property name from id
+      var property = id.substring(endComponent + 1);
+      
+      // temporary special processing to see if instrument design being used. eventually, instrument
+      // design will be refactored to component handler design
+      if (component == "primary" || component == "secondary") {
+        name = "hashMap['" + component + "']." + property;
+      }
+      else {
+        name = "components['" + component + "]." + property;
+      }
+      //alert("construct radio button name, id=" + id + " component=" + component + " property=" + property + " name=" + name);  
+    }
     domObjects = uiHtml_Document.getInstance().getDomObjectsByName(name, false);
   }
   else {

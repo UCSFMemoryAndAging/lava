@@ -37,7 +37,14 @@ uiHtml_CheckBoxWrapper.prototype.appendEventHandler = function(domCheckBox, even
         "appendEventHandler", domCheckBox, "click", handler);
   }
   else {
-    return this._callSuper("appendEventHandler", domCheckBox, event, handler);
+    // (ctoohey) changed to use onclick for all browsers, because in cases where user prompted
+    // and they choose to cancel an action, returning null from the handler of an onclick will
+    // reverse the click effect, e.g. if the user checked the box, it will automatically uncheck
+    // it which is what is wanted when user cancels. this does not happen with onchange.
+    // b.t.w. per Javascript Bible, checkboxes have onclick events but no onchance events
+
+    // original code:return this._callSuper("appendEventHandler", domCheckBox, event, handler);
+    return this._callSuper("appendEventHandler", domCheckBox, "click", handler);
   }
 };
 

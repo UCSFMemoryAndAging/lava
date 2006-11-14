@@ -34,6 +34,8 @@ function uiHtml_Select(domSelect, optOptions) {
   this.__handler = uiHtml_SelectOptionWrapper.getInstance();
   this.__group = new uiHtml_Group(this.__options, this.__handler);
   this.__scrollSupporter = new uiHtml_ScrollSupporter(this.__domSelect);
+  // (ctoohey) used to distinguish uiHtml_Select from uiHtml_Group when returned by uiHtml_Group.createByEither
+  this.__type = "select";
 }
 
 uiHtml_Select = uiUtil_Object.declareClass(uiHtml_Select, uiHtml_Element);
@@ -91,12 +93,14 @@ uiHtml_Select.prototype.getValues = function() {
 };
 
 uiHtml_Select.prototype.traverse = function(handlerOwner, handlerFunction, optArgN) {
-  var argArray = new Array(this.__domSelect);
-  for (var i = 1; i < arguments.length; ++i) {
-    argArray[i] = arguments[i];
-  }
+  var argArray = this.__group.__constructItemArgs(this.__domSelect, arguments);
   handlerFunction.apply(handlerOwner, argArray);
-  this.__group.traverse(handlerOwner, handlerFunction, arguments);
+  // (ctoohey)
+  // the following does not make sense, e.g. if skipping or enabling the selectbox, why
+  // would you want to run skip or enable on each select box option ? with skip, the
+  // code is expecting to work with a selectbox, not a selectbox option, so things really
+  // get screwed up to the point that no request parameter is submitted for the selectbox
+  // this.__group.traverse(handlerOwner, handlerFunction, arguments);
 };
 
 uiHtml_Select.prototype.handleItemAtIndex = function(index, owner, handler) {
@@ -108,7 +112,9 @@ uiHtml_Select.prototype.handleItemWithValue = function(value, owner, handler) {
 };
 
 uiHtml_Select.prototype.addItem = function(option) {
-  this.__options.add(option);
+  // (ctoohey) fixed because was originally calls this.__options.add(option) which is an undocumented javascript function
+  //  and was not working right. now calling new Option
+  this.__options[this.__options.length] = new Option(option.text, option.value, option.defaultSelected, option.selected);
   if (this.__valueMapping) {
     this.__optionMap[option.value] = option;
   }
@@ -209,14 +215,18 @@ uiHtml_Select.prototype.addItems = function(options) {
   }
 };
 
-// Removes the supplied opt from the list of Option objects
+// Removes the supplied option from the select box list of Option objects
+// (ctoohey) rewrote because it was not working. returns true if option removed, false if not (i.e. if
+//   option does not exist in the select box.
 uiHtml_Select.prototype.removeItem = function(option) {
-  var options = this.__domSelect.options;
-  var i = this.indexOf(option);
-  if (i != uiHtml_Select.INVALID_INDEX) {
-    options[i] = null;
+  for(var i = 0; i < this.__options.length; ++i) {
+    if(this.__options[i].text == option.text && this.__options[i].value == option.value) {
+      this.__options[i] = null;
+      return true;
+    }
   }
-};
+  return false;
+}
 
 uiHtml_Select.prototype.sortItems = function(comparator, reverse) {
   var options = this.__domSelect.options;
@@ -250,6 +260,32 @@ uiHtml_Select.prototype.setSelectedValue = function(value, optDomEvent) {
 
 /**
  * author: ctoohey
+ * Returns the currently selected option object, or null if nothing selected.
+ */
+uiHtml_Select.prototype.getSelectedOption = function() {
+  if (this.__domSelect.selectedIndex == -1) {
+    return null;
+  }
+  return this.__options[this.__domSelect.selectedIndex];
+}
+
+/**
+ * author: ctoohey
+ * Selects the selectbox option whose value matches.
+ * If there is no match, nothing is selected.
+ */
+uiHtml_Select.prototype.setSelectedOptionByValue = function(optionValue) {
+  for(var i = 0; i < this.__options.length; ++i) {
+    if(this.__options[i].value == optionValue) {
+      this.__domSelect.selectedIndex = i;
+      this.__options[i].selected = true;
+      return;
+    }
+  }
+}
+
+/**
+ * author: ctoohey
  * Selects the selectbox option whose text matches textValue and optionValue
  * or just one of them if only one is supplied.
  * If there is no match, a new option is created using textValue as the text
@@ -258,8 +294,7 @@ uiHtml_Select.prototype.setSelectedValue = function(value, optDomEvent) {
  * if optionValue is not supplied, the new option has both text and value set
  * to textValue.
  */
-uiHtml_Select.prototype.setSelectedOptionAddIfNoMatch(textValue, optionValue) {
-  var list = widget.options;
+uiHtml_Select.prototype.setSelectedOptionAddIfNoMatch = function(textValue, optionValue) {
   for(var i = 0; i < this.__options.length; ++i) {
     if(this.__options[i].text == textValue || this.__options[i].value == optionValue) {
       this.__domSelect.selectedIndex = i;
@@ -273,12 +308,13 @@ uiHtml_Select.prototype.setSelectedOptionAddIfNoMatch(textValue, optionValue) {
   var i = this.__options.length++;
   if (textValue != null) {
     this.__options[i].text  = textValue;
+  }
   else {
     this.__options[i].text  = optionValue;
   }  
   
-  if (newOptionValue != null) {
-    this.__options[i].value = newOptionValue;
+  if (optionValue != null) {
+    this.__options[i].value = optionValue;
   }
   else {
     this.__options[i].value = textValue;

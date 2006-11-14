@@ -336,7 +336,7 @@ uiHtml_ElementWrapper.prototype.setDepth = function(domElement, depth) {
 
 /**
  * Returns the z-index of an element.
- *
+ */
  * @param {HTMLElement} domElement the DOM element
  * @return the z-index value
  */
@@ -391,7 +391,7 @@ uiHtml_ElementWrapper.prototype.setDimensionObject = function(domElement, dimens
 };
 // Style-related method section ends.
 /////
-
+/
 /////
 // Event-related method section starts.
 /**
@@ -411,7 +411,7 @@ uiHtml_ElementWrapper.prototype.__addAggregateEventHandler = function(
   var aggregateHandler = this.__getAggregateEventHandler(
       domElement, eventName, extPropName);
   aggregateHandler.push(eventHandler);
-
+/
   if (!this.__isEventPropertyInitialized(domElement, eventName)) {
     this.__initializeEventProperty(domElement, eventName);
   }
@@ -451,22 +451,29 @@ uiHtml_ElementWrapper.prototype.__isEventPropertyInitialized = function(
 uiHtml_ElementWrapper.prototype.__initializeEventProperty = function(
     domElement, eventName) {
   var wrapper = this;
-  var origHandler = domElement["on" + eventName];
+  var origHandler =/ domElement["on" + eventName];
   domElement["on" + eventName] = function(e) {
     var backwardAggregateHandler = wrapper.__getAggregateEventHandler(
         domElement, eventName, "__backwardEventHandlers");
     for (var i = backwardAggregateHandler.length - 1; i >= 0; --i) {
+	  //debug: if (uiHtml_Element.getWidgetType(domElement) == "checkbox") {alert("bwd calling handler=" + backwardAggregateHandler[i]);}
       backwardAggregateHandler[i].call(this, e);
     }
 
+    //debug: if (uiHtml_Element.getWidgetType(domElement) == "checkbox") {alert("orig calling handler=" + origHandler);}
     var retValue = (origHandler == null) ? null : origHandler.call(this, e);
 
     var forwardAggregateHandler = wrapper.__getAggregateEventHandler(
         domElement, eventName, "__forwardEventHandlers");
     for (var i = 0; i < forwardAggregateHandler.length; ++i) {
-      forwardAggregateHandler[i].call(this, e);
+	  //debug: if (uiHtml_Element.getWidgetType(domElement) == "checkbox") {alert("fwd calling handler=" + backwardAggregateHandler[i]);}
+      // (ctoohey) use return value from the last handler called, because for onclick handlers (radiobuttons,checkbox)
+      //  can utilize the fact that when they return false the checked state of the element is reversed back to what
+      //  it was, in the case where the user cancels an action at the prompt
+      retValue = forwardAggregateHandler[i].call(this, e);
     }
 
+    //debug:if (uiHtml_Element.getWidgetType(domElement) == "checkbox") {alert("return=" + retValue);}
     return retValue;
   };
 
@@ -479,7 +486,7 @@ uiHtml_ElementWrapper.prototype.__initializeEventProperty = function(
  * Returns the handler list that is maintained by a certain extended property.
  *
  * @param {HTMLElement} domElement the DOM element
- * @param {String} eventName the name of the event
+ * @param {String} /eventName the name of the event
  * @param {String} extPropName the property name
  * @return the handler array
  * @type function[]
@@ -648,7 +655,7 @@ uiHtml_ElementWrapper.prototype.enableDragSupport = function(
  * @param {int} optWidth width of the rectangle
  * @param {int} optHeight height of the rectangle
  */
-uiHtml_ElementWrapper.prototype.restrictDragging = function(
+uiHtml_ElementWrapp/er.prototype.restrictDragging = function(
     domElement, optLeft, optTop, optWidth, optHeight) {
   var supporter = this.__getExtendedProperty(domElement, "__dragSupporter");
   if (supporter == null) {
@@ -688,7 +695,7 @@ uiHtml_ElementWrapper.prototype.getHeight = function(domElement) {
 
 /**
  * Calculates the position of an element relative to its parent/container.
- * This method gives freedom to the caller to specify the width and height,
+ * This method give/s freedom to the caller to specify the width and height,
  * because the returned {@link uiUtil_Dimension} object will include the
  * width and height values provided as arguments of this method.
  *
@@ -723,7 +730,7 @@ uiHtml_ElementWrapper.prototype._obtainRelativeDimension = function(
  * @param {HTMLElement} domElement the DOM element
  * @param {int} width the width value to be included as part of the
  *     returned dimension object
- * @param {int} height the height value to be included as part of the
+ * @param {int} hei/ght the height value to be included as part of the
  *     returned dimension object
  * @return the dimension
  * @type uiUtil_Dimension
@@ -899,27 +906,28 @@ uiHtml_ElementWrapper.prototype.skip = function(domElement, textValue, optionVal
   // is required, because the autocomplete selectbox widget is actually hidden and has an associated
   // visible input box, so need to call a function on the autocomplete widget to disable it (and
   // set the skip value)
-  var obj = ACS['acs_textbox_' + domElement.id];
-  if (obj != null) {
+  var autocompleteObj = ACS['acs_textbox_' + domElement.id];
+  if (autocompleteObj != null) {
   	// autocomplete control has its own function to skip which disables it. if true is passed as
   	// the argument, the value is set to the empty string. if false is passed, value is set to logical skip.
-    //alert("skipSingleWidget acs textbox name=" + obj.textbox.name + " textbox value=" + obj.textbox.value + " select name=" + obj.select.name + " select value=" + obj.select.value);
+    //alert("skipSingleWidget acs textbox name=" + autocompleteObj.textbox.name + " textbox value=" + autocompleteObj.textbox.value + " select name=" + autocompleteObj.select.name + " select value=" + autocompleteObj.select.value);
     if (textValue == '') {
       // the way to set the control to blank is to pass in true
-      obj.skip(true);
+      autocompleteObj.skip(true);
     }
     else {
       // this sets value to Logical Skip (in other words, with autocomplete, currently no way to set
       //  widget's text and value to the text and value passed in to this function. if ever need anything
       //  other than blank or Logical Skip, need to modify autocomplete skip function)
-      obj.skip(false);  
+      autocompleteObj.skip(false);  
     }
   }
   else {
       //alert("uiHtml_ElementWrapper.skip name=" + widget.name + " value=" + widget.value + " type=" + uiCommon_getWidgetType(widget) + " text=" + text + " value=" + value);
-	  var elementType = uiHtml_Element.getWidgetType(widget);
+	  var elementType = uiHtml_Element.getWidgetType(domElement);
 	  if (elementType == 'select') {
 	    var selectObj = new uiHtml_Select(domElement);
+	    //alert("doing skip for domElement id=" + domElement.id + " textValue=" + textValue + " optionValue=" + optionValue);
 	    selectObj.setSelectedOptionAddIfNoMatch(textValue, optionValue);
 	  }
 	  else if (elementType == 'radio' || elementType == 'checkbox') {
@@ -936,25 +944,6 @@ uiHtml_ElementWrapper.prototype.skip = function(domElement, textValue, optionVal
 	  //       disabled element's data is not submitted to the server
 	  domElement.disabled = true;
 
-/*	
-	  // for IE, save the widget backgroundColor so it can be restored when widget unskipped
-	  if (uiCommon_globals.isIe) {
-	    var arr = uiCommon_globals.skippedWidgets;
-	    // only add to skippedWidgets if not already there, as some widgets skipped
-	    // more than once
-	    var duplicateSkip = false;
-		for (i = 0; i < arr.length; i++) {
-			if (arr[i].widget == widget) {
-			  duplicateSkip = true;
-			  break;
-			}		
-		}  
-        if (!duplicateSkip) {	    
-		    arr.push(new uiCommon_Skipped(widget, widget.style.backgroundColor));
-		}
-	    widget.style.backgroundColor = '#cccccc';
-	  }
-*/	  
   }
 }  
 
@@ -976,58 +965,39 @@ uiHtml_ElementWrapper.prototype.unskip = function(domElement, textValue, optionV
   // is required, because the autocomplete selectbox widget is actually hidden and has an associated
   // visible input box, so need to call a function on the autocomplete widget to enable it (and
   // set the unskip value)
-  var obj = ACS['acs_textbox_' + widget.id];
-  if (obj != null) {
+  var autocompleteObj = ACS['acs_textbox_' + domElement.id];
+  if (autocompleteObj != null) {
   	// autocomplete control has its own function to unskip which enables it. 
   	// if the current value of the control is the skipCode, then unskip sets the value to 
   	// empty string. otherwise, it just leaves the value as is.
-    //alert("unskipSingleWidget acs textbox name=" + obj.textbox.name + " textbox value=" + obj.textbox.value + " select name=" + obj.select.name + " select value=" + obj.select.value);
-	obj.unskip();  
+    //alert("unskipSingleWidget acs textbox name=" + autocompleteObj.textbox.name + " textbox value=" + autocompleteObj.textbox.value + " select name=" + autocompleteObj.select.name + " select value=" + autocompleteObj.select.value);
+	autocompleteObj.unskip();  
   }
   else {
-      //alert("unskipSingleWidget name=" + widget.name + " value=" + widget.value + " type=" + uiCommon_getWidgetType(widget) + " text=" + text + " value=" + value);
-      //note: originally, only set unskip value if current widget value was Logical Skip (-6), but per
-      //      the definition of the unskip tag, always set the unskip value. if want to enable a tag
-      //      but leave its value as it, should be using the enable tag
-	  var elementType = uiHtml_Element.getWidgetType(widget);
-	  if (elementType == 'select') {
-	    var selectObj = new uiHtml_Select(domElement);
-	    selectObj.setSelectedOptionAddIfNoMatch(textValue, optionValue);
-	  }
-	  else if (elementType == 'radio' || elementType == 'checkbox') {
-	    // check the box/button whose value is equal to the value argument
-	    if (domElement.value == textValue) {
+      // only set an unskip value if the current value is skip
+      if (domElement.value == "-6" || domElement.value == "-6.0") {
+        //alert("unskipSingleWidget name=" + widget.name + " value=" + widget.value + " type=" + uiCommon_getWidgetType(widget) + " text=" + text + " value=" + value);
+        //note: originally, only set unskip value if current widget value was Logical Skip (-6), but per
+        //      the definition of the unskip tag, always set the unskip value. if want to enable a tag
+        //      but leave its value as it, should be using the enable tag
+	    var elementType = uiHtml_Element.getWidgetType(domElement);
+	    if (elementType == 'select') {
+	      var selectObj = new uiHtml_Select(domElement);
+	      selectObj.setSelectedOptionAddIfNoMatch(textValue, optionValue);
+	    }
+	    else if (elementType == 'radio' || elementType == 'checkbox') {
+	      // check the box/button whose value is equal to the value argument
+	      if (domElement.value == textValue) {
 	   		domElement.checked = true;
-	   	}
-	  }
-	  else {
-	  	domElement.value = textValue;
+	   	  }
+	    }
+	    else {
+	  	  domElement.value = textValue;
+	    }
 	  }
 	
 	  domElement.disabled = false;
 	  
-/*	  
-	  // for IE, have to explicity restore the widget background color to what it was
-	  // before it was unskipped (if it was unskipped)
-      //alert("before IE code");
-	  if (uiCommon_globals.isIe) {
-        //alert("unskipping IE change background color back to what is was before it was skipped (white)");	     
- 	    var arr = uiCommon_globals.skippedWidgets;
-	    // search for the particular widget
-        //for (i = 0; i < arr.length; i++) {
-        //  alert("skippedWidget name=" + arr[i].widget.name + " color=" + arr[i].color);	     
-        //}  
-	    for (i = 0; i < arr.length; i++) {
-	      if (arr[i].widget == widget) {
-            //alert("unskipping skippedWidget name=" + arr[i].widget.name + " color=" + arr[i].color);	     
-	        widget.style.backgroundColor = arr[i].color;
-	        uiCommon_removeArrayElement(arr, i);
-	        break;
-	      }
-	    }
-        //alert("length of skippedWidgets=" + arr.length);	    
-	  }
-*/	  
   }	 
 }
 
@@ -1052,6 +1022,12 @@ uiHtml_ElementWrapper.prototype.cloneOptions = function(srcElementId, srcElement
   else {
       srcSelectObj = uiHtml_Group.createByEither(srcElementId, srcElementName);
   }
+/*
+alert("src contents:");
+for (var i = 0; i < srcSelectObj._getItems().length; ++i) {
+  alert("src item=" + i + " text=" + srcSelectObj.getItemAt(i).text + " value=" + srcSelectObj.getItemAt(i).value);
+}
+*/
 
   var targetSelectObj;
   var targetAutocompleteObj = ACS['acs_textbox_' + targetElementId];
@@ -1061,6 +1037,12 @@ uiHtml_ElementWrapper.prototype.cloneOptions = function(srcElementId, srcElement
   else {
     targetSelectObj = uiHtml_Group.createByEither(targetElementId, targetElementName);
   }
+/*
+alert("target contents:");
+for (var i = 0; i < targetSelectObj._getItems().length; ++i) {
+  alert("target item=" + i + " text=" + targetSelectObj.getItemAt(i).text + " value=" + targetSelectObj.getItemAt(i).value);
+}
+*/
 
   // save target's current selection (can not just save the selectedIndex
   //  because after copy, target's selection may not have same index because the 
@@ -1069,18 +1051,18 @@ uiHtml_ElementWrapper.prototype.cloneOptions = function(srcElementId, srcElement
   var targetSelectedOptionValue = targetSelectObj.getValues()[0];
     
   targetSelectObj.clearItems();
-
   targetSelectObj.addItems(srcSelectObj._getItems());
+/*
+alert("after cloning:");
+for (var i = 0; i < targetSelectObj._getItems().length; ++i) {
+  alert("target item=" + i + " text=" + targetSelectObj.getItemAt(i).text + " value=" + targetSelectObj.getItemAt(i).value);
+}
+*/
 
   // restore target's currently selected value
-  try {
-    targetSelectedObj.setSelectedValue(targetSelectedOptionValue);
-  }
-  catch {
-    // throws exception if value does not exist. this should not happen because of the assumption
-    // that target contains the same options as src. but if that assumption does not hold, the
-    // removeOption action could still work, so just swallow this exception.
-  }
+  // note: it may be possible that the currently selected value does not exist if the src select
+  //       which was cloned did not contain it, in which case nothing is selected after the cloning
+  targetSelectObj.setSelectedOptionByValue(targetSelectedOptionValue);
 } 
 
 /**
@@ -1112,62 +1094,34 @@ uiHtml_ElementWrapper.prototype.removeOption = function(srcElementId, srcElement
     targetSelectObj = uiHtml_Group.createByEither(targetElementId, targetElementName);
   }
 
-  // do not remove the blank option
-  var srcSelectedValue = srcSelectObj.getValues()[0];
-  if (srcSelectValue == '') {
-    return;
-  }
-  var srcSelectedOption = srcSelectObj.getItemByValue(srcSelectedValue);
-
-  // record the currently selected target value. if it is the option that gets removed,
-  // set the target selected option to the blank option 
-  var targetSelectedValue = targetSelectObj.getValues()[0];
-  var targetSelectedOption = targetSelectObj.getItemByValue(targetSelectedValue);
-
-  targetSelectObj.removeItem(srcSelectedOption);
-
-  // if the selected option was removed, set the target's selected option to the blank option
-  if (targetSelectedValue == srcSelectedValue) {
-    if (targetAutocompleteObj != null) {
-      // if autocomplete, change the textbox to blank
-      targetAutocompleteObj.textbox.value = '';
-      targetAutocompleteObj.selectItemByTextEntry(false);
+  // get the selected option in the src whose matching option (matching text and value) in target 
+  // should be removed 
+  var srcSelectedOption = srcSelectObj.getSelectedOption(); // returns null if nothing selected
+  // special case: do not remove the blank option
+  if (srcSelectedOption != null) {
+    if (srcSelectedOption.value == '') {
+      return;
     }
-    else {
-      try {
-        targetSelectObj.setSelectedValue('');
-      }
-      catch {
-        // if it does not have a blank option, oh well
-      }
-    }
-  }
-    
-/*  
-  // if the currently selected option is the one removed, then set the
-  //  currently selected option to the blank option after removal (this
-  //  may happen by default, but doing it explicity may avoid problems)
-  var selectedOption = targetWidget.selectedIndex;
-  var opts = targetWidget.options;
-  for(var i = opts.length - 1; i >= 0; --i) {
-    if(opts[i].text == srcWidget.options[srcWidget.selectedIndex].text && opts[i].value == srcWidget.options[srcWidget.selectedIndex].value) {
-      opts[i] = null;
-      // if this was the selected index, change the selected option to the blank option
-      if (i == selectedOption) {
-        if (targetObj != null) {
+
+    // record the currently selected target value. if it is the option that gets removed,
+    // set the target selected option to the blank option 
+    var targetSelectedOption = targetSelectObj.getSelectedOption();
+    var targetSelectedValue = targetSelectedOption.value;
+
+    if (targetSelectObj.removeItem(srcSelectedOption)) {
+      // if the selected option was removed, set the target's selected option to the blank option
+      if (targetSelectedValue == srcSelectedOption.value) {
+        if (targetAutocompleteObj != null) {
           // if autocomplete, change the textbox to blank
-          targetObj.textbox.value = '';
-          targetObj.selectItemByTextEntry(false);
+          targetAutocompleteObj.textbox.value = '';
+          targetAutocompleteObj.selectItemByTextEntry(false);
         }
         else {
-          uiCommon_selectOption(targetWidget, '', '');
+          targetSelectObj.setSelectedOptionByValue('');
         }
       }
-      break;
     }
   }
-*/
-
 }
 
 
@@ -1182,7 +1136,7 @@ uiHtml_ElementWrapper.prototype.removeOption = function(srcElementId, srcElement
 // note: this functionality is not yet available for acs widgets. for acs widgets,
 //       if the textValue does not match an option, a new option is created and
 //       selected which has textValue as both the text and the value.
-uiHtml_ElementWrapper.prototype.unskip = function(domElement, textValue, optionValue) {
+uiHtml_ElementWrapper.prototype.setValue = function(domElement, textValue, optionValue) {
   // determine whether the control is an autocomplete widget, in which case special handling
   // is required, because the autocomplete selectbox widget is actually hidden and has an associated
   // visible input box, so need to call a function on the autocomplete widget to set a value.
@@ -1191,12 +1145,12 @@ uiHtml_ElementWrapper.prototype.unskip = function(domElement, textValue, optionV
       autoCompleteObj.setValue(textValue);
   }
   else {
-	  var elementType = uiHtml_Element.getWidgetType(widget);
-	  if (widgetType == 'select') {
+	  var elementType = uiHtml_Element.getWidgetType(domElement);
+	  if (elementType == 'select') {
 	    var selectObj = new uiHtml_Select(domElement);
 	    selectObj.setSelectedOptionAddIfNoMatch(textValue, optionValue);
 	  }
-	  else if (widgetType == 'radio' || widgetType == 'checkbox') {
+	  else if (elementType == 'radio' || elementType == 'checkbox') {
 	    // check the box/button whose value is equal to the value argument
 	    if (domElement.value == textValue) {
 	    	domElement.checked = true;
@@ -1208,10 +1162,8 @@ uiHtml_ElementWrapper.prototype.unskip = function(domElement, textValue, optionV
   }
 }  
   
+
   
-}
-
-
 // Generic method section ends.
 /////
 
