@@ -336,7 +336,7 @@ uiHtml_ElementWrapper.prototype.setDepth = function(domElement, depth) {
 
 /**
  * Returns the z-index of an element.
- */
+ *
  * @param {HTMLElement} domElement the DOM element
  * @return the z-index value
  */
