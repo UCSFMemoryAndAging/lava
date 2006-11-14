@@ -60,10 +60,20 @@ uiFormGuide_Rule = uiUtil_Object.declareClass(uiFormGuide_Rule, uiUtil_Object);
  * @type boolean
  */
 uiFormGuide_Rule.prototype._holds = function() {
+  /*
+  if (this.__widgetGroup.__items) {
+    alert("does it hold? id=" + this.__widgetGroup.__items[0].id + " expectedValue=" + this.__expectedValue + " values=" + this.__widgetGroup.getValues());
+  }
+  else {
+    alert("does it hold? id=" + this.__widgetGroup.__domSelect.id + " expectedValue=" + this.__expectedValue + " values=" + this.__widgetGroup.getValues());
+  } 
+  */
   if (this.__expectedValue == null) {
     return (this.__widgetGroup.getValues().length == 0);
   }
 
+  //alert("rule holds result=" + this.__widgetGroup.hasRegExpValue(this.__expectedValue));
+  
   // (ctoohey) modified to use regular expression matching in determing whether
   // an element's value matches the rule value
   if (this.__negate) {

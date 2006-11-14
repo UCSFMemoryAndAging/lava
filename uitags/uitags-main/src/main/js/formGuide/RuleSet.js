@@ -26,11 +26,13 @@
  *     when all rules hold
  * @param {function} undoAction the <i>undo</i> action: the function to execute
  *     when at least one rule doesn't hold
+ * @param ignoreDoOnLoad (ctoohey) do not execute doAction on page load
+ * @param ignoreUndoOnLoad (ctoohey) do not execute undoAction on page load
  * @param ignoreAndOr (ctoohey) designates whether one or all ignore tags must match
  * @param observeAndOr (ctoohey) designates where one or all observe tags must match
  * @param prompt (ctoohey) prompts the user before performing the doAction, allowing them to cancel
  */
-function uiFormGuide_RuleSet(doAction, undoAction, ignoreAndOr, observeAndOr, prompt) {
+function uiFormGuide_RuleSet(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnLoad, ignoreAndOr, observeAndOr, prompt) {
   this._super();
   /**
    * @type uiFormGuide_Rule[]
@@ -53,6 +55,8 @@ function uiFormGuide_RuleSet(doAction, undoAction, ignoreAndOr, observeAndOr, pr
    */
   this.__undoAction = undoAction;
 
+  this.__ignoreDoOnLoad = ignoreDoOnLoad;
+  this.__ignoreUndoOnLoad = ignoreUndoOnLoad;
   this.__ignoreAndOr = ignoreAndOr;
   this.__observeAndOr = observeAndOr;
   this.__prompt = prompt;
@@ -79,6 +83,19 @@ uiFormGuide_RuleSet = uiUtil_Object.declareClass(uiFormGuide_RuleSet, uiUtil_Obj
 ////////////////////////////////////////
 
 // begin:ctoohey
+
+uiFormGuide_RuleSet.prototype.getIgnoreDoOnLoad = function() {
+  return this.__ignoreDoOnLoad;
+}  
+
+uiFormGuide_RuleSet.prototype.getIgnoreUndoOnLoad = function() {
+  return this.__ignoreUndoOnLoad;
+}  
+
+uiFormGuide_RuleSet.prototype.getPrompt = function() {
+  return this.__prompt;
+}  
+
 /**
  * Adds an ignore rule to this rule set. This method is typically called right after
  * a rule set is instantiated in order to populate it.
@@ -98,13 +115,34 @@ uiFormGuide_RuleSet.prototype.addIgnoreRule = function(rule) {
  * @type boolean
  */
 uiFormGuide_RuleSet.prototype._allIgnoreRulesHold = function() {
-  // check for AND condition
-  for (var i = 0; i < this.__ignoreRules.length; ++i) {
-    if (!this.__ignoreRules[i]._holds()) {
-      return false;
-    }
+  // if no ignore tags, then return false so observe rules not ignored
+  if (this.__ignoreRules.length == 0) {
+    return false;
   }
-  return true;
+  for (var i = 0; i < this.__ignoreRules.length; ++i) {
+    var ruleHolds = this.__ignoreRules[i]._holds();
+    if (this.__observeAndOr == "and") {
+      // at least one rule does not hold, so rules do not hold
+      if (!ruleHolds) {
+        return false;
+      }  
+    }
+    else if (this.__observeAndOr == "or") {
+      // at least one rule holds, so rules hold
+      if (ruleHolds) {
+        return true;
+      }
+    }    
+  }
+
+  if (this.__observeAndOr == "and") {
+	// all of the rules held
+    return true;
+  }
+  else if (this.__observeAndOr == "or") {
+    // none of the rules held
+    return false;
+  }  
 };
 
 /**
@@ -363,6 +401,7 @@ uiFormGuide_RuleSet.prototype.removeElements = function(
  */
 uiFormGuide_RuleSet.prototype.__skipEachElement = function(
     domElement, domEvent, textValue, optionValue) {
+  //alert("calling skipEachElement textValue=" + textValue + " optionValue=" + optionValue);
   if (!this.__notifyLifeCycleEvent("onBeforeSkip", domEvent, domElement)) {
     return;
   }
@@ -384,6 +423,7 @@ uiFormGuide_RuleSet.prototype.__skipEachElement = function(
  */
 uiFormGuide_RuleSet.prototype.skipElement = function(
     domEvent, elementId, elementName, textValue, optionValue) {
+  //alert("calling skipElement textValue=" + textValue + " optionValue=" + optionValue);
   var group = uiHtml_Group.createByEither(elementId, elementName);
   // for select boxes, group is a uiHtml_Select object (where the select options are
   //  stored in an array)
@@ -478,12 +518,22 @@ uiFormGuide_RuleSet.prototype.unskipElement = function(
  */
 uiFormGuide_RuleSet.prototype.cloneOptions = function(
     domEvent, srcElementId, srcElementName, targetElementId, targetElementName) {
-  var group = uiHtml_Group.createByEither(elementId, elementName);
+  // in this function, group is only used by the lifecycle function
+  var group = uiHtml_Group.createByEither(targetElementId, targetElementName);
   if (!this.__notifyLifeCycleEvent("onBeforeCloneOptions", domEvent, group.getItemAt(0))) {
     return;
   }
   this.__elementHandler.cloneOptions(srcElementId, srcElementName, targetElementId, targetElementName);
-  this.__notifyLifeCycleEvent("onAfterCloneOptions", domEvent, domElement);
+
+  var srcSelectObj;
+  var srcAutocompleteObj = ACS['acs_textbox_' + srcElementId];
+  if (srcAutocompleteObj != null ) {
+      srcSelectObj = new uiHtml_Select(srcAutocompleteObj.select);
+  }
+  else {
+      srcSelectObj = uiHtml_Group.createByEither(srcElementId, srcElementName);
+  }
+  this.__notifyLifeCycleEvent("onAfterCloneOptions", domEvent, srcSelectObj.getDomObject());
 };
 
 
@@ -514,12 +564,21 @@ uiFormGuide_RuleSet.prototype.cloneOptions = function(
  */
 uiFormGuide_RuleSet.prototype.removeOption = function(
     domEvent, srcElementId, srcElementName, targetElementId, targetElementName) {
-  var group = uiHtml_Group.createByEither(elementId, elementName);
+  var group = uiHtml_Group.createByEither(targetElementId, targetElementName);
   if (!this.__notifyLifeCycleEvent("onBeforeRemoveOption", domEvent, group.getItemAt(0))) {
     return;
   }
   this.__elementHandler.removeOption(srcElementId, srcElementName, targetElementId, targetElementName);
-  this.__notifyLifeCycleEvent("onAfterRemoveOption", domEvent, domElement);
+
+  var srcSelectObj;
+  var srcAutocompleteObj = ACS['acs_textbox_' + srcElementId];
+  if (srcAutocompleteObj != null ) {
+      srcSelectObj = new uiHtml_Select(srcAutocompleteObj.select);
+  }
+  else {
+      srcSelectObj = uiHtml_Group.createByEither(srcElementId, srcElementName);
+  }
+  this.__notifyLifeCycleEvent("onAfterRemoveOption", domEvent, srcSelectObj.getDomObject());
 };
 
 
@@ -568,4 +627,19 @@ uiFormGuide_RuleSet.prototype.setValue = function(
     domEvent, elementId, elementName, textValue, optionValue) {
   var group = uiHtml_Group.createByEither(elementId, elementName);
   group.traverse(this, this.__setValueEachElement, domEvent, textValue, optionValue);
+};
+
+
+/**
+ * author: ctoohey
+ * Calls the common non-uitags submitForm function, passing the specified form
+ * and event request param value.
+ *
+ * @param {DOMEvent} domEvent the event
+ * @param {String} form form to submit
+ * @param {String} event value of event request parameter to submit with form
+ * @private
+ */
+uiFormGuide_RuleSet.prototype.submitForm = function(domEvent, form, event) {
+	submitForm(form, event);
 };
