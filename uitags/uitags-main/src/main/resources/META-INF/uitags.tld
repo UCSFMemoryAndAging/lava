@@ -265,6 +265,16 @@
         &lt;observe&gt; tags. Possible values are 'or' and 'and'. (defaults to 'and').</description>
     </attribute>
     <attribute>
+      <name>simulateEvents</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>This attribute should be set "true" on the last formGuide tag in the page, and causes 
+        simulation of onchange events for all formGuide observed elements for the entire page so that the
+        page is setup properly on page load. For all formGuide tags other than the last, it need not be
+        specified and defaults to "false".</description>
+    </attribute>
+    <attribute>
       <name>mode</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
