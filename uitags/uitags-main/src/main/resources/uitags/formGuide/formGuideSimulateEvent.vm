@@ -1,0 +1,8 @@
+<script type="text/javascript">
+
+uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
+  ## mimic event so that the page is setup properly on load
+  uiFormGuide_driver.simulateOnChangeEvent();
+});
+
+</script>
