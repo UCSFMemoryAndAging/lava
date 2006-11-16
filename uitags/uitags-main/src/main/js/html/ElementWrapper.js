@@ -391,7 +391,7 @@ uiHtml_ElementWrapper.prototype.setDimensionObject = function(domElement, dimens
 };
 // Style-related method section ends.
 /////
-/
+
 /////
 // Event-related method section starts.
 /**
@@ -411,7 +411,7 @@ uiHtml_ElementWrapper.prototype.__addAggregateEventHandler = function(
   var aggregateHandler = this.__getAggregateEventHandler(
       domElement, eventName, extPropName);
   aggregateHandler.push(eventHandler);
-/
+
   if (!this.__isEventPropertyInitialized(domElement, eventName)) {
     this.__initializeEventProperty(domElement, eventName);
   }
@@ -451,7 +451,7 @@ uiHtml_ElementWrapper.prototype.__isEventPropertyInitialized = function(
 uiHtml_ElementWrapper.prototype.__initializeEventProperty = function(
     domElement, eventName) {
   var wrapper = this;
-  var origHandler =/ domElement["on" + eventName];
+  var origHandler = domElement["on" + eventName];
   domElement["on" + eventName] = function(e) {
     var backwardAggregateHandler = wrapper.__getAggregateEventHandler(
         domElement, eventName, "__backwardEventHandlers");
@@ -486,7 +486,7 @@ uiHtml_ElementWrapper.prototype.__initializeEventProperty = function(
  * Returns the handler list that is maintained by a certain extended property.
  *
  * @param {HTMLElement} domElement the DOM element
- * @param {String} /eventName the name of the event
+ * @param {String} eventName the name of the event
  * @param {String} extPropName the property name
  * @return the handler array
  * @type function[]
@@ -655,7 +655,7 @@ uiHtml_ElementWrapper.prototype.enableDragSupport = function(
  * @param {int} optWidth width of the rectangle
  * @param {int} optHeight height of the rectangle
  */
-uiHtml_ElementWrapp/er.prototype.restrictDragging = function(
+uiHtml_ElementWrapper.prototype.restrictDragging = function(
     domElement, optLeft, optTop, optWidth, optHeight) {
   var supporter = this.__getExtendedProperty(domElement, "__dragSupporter");
   if (supporter == null) {
@@ -695,7 +695,7 @@ uiHtml_ElementWrapper.prototype.getHeight = function(domElement) {
 
 /**
  * Calculates the position of an element relative to its parent/container.
- * This method give/s freedom to the caller to specify the width and height,
+ * This method gives freedom to the caller to specify the width and height,
  * because the returned {@link uiUtil_Dimension} object will include the
  * width and height values provided as arguments of this method.
  *
@@ -730,7 +730,7 @@ uiHtml_ElementWrapper.prototype._obtainRelativeDimension = function(
  * @param {HTMLElement} domElement the DOM element
  * @param {int} width the width value to be included as part of the
  *     returned dimension object
- * @param {int} hei/ght the height value to be included as part of the
+ * @param {int} height the height value to be included as part of the
  *     returned dimension object
  * @return the dimension
  * @type uiUtil_Dimension
