@@ -81,7 +81,7 @@ public class SkipTag extends BaseSkipUnskipTag {
    */
   public int doEndTag() throws JspException {
 	  return doEndTag(CALLBACK_METHOD, UnskipTag.CALLBACK_METHOD, 
-			  this.skipTextValue, this.skipOptionValue, this.unskipTextValue, this.unskipOptionValue,
-			  FormGuideTag.LOGICAL_SKIP_TEXT, FormGuideTag.LOGICAL_SKIP_CODE, "", "");
+			  this.skipValue, this.skipOptionText, this.unskipValue, this.unskipOptionText,
+			  FormGuideTag.LOGICAL_SKIP_CODE, FormGuideTag.LOGICAL_SKIP_TEXT, "", "");
   }
 }

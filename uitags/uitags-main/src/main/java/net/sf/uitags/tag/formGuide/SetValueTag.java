@@ -51,18 +51,18 @@ public class SetValueTag extends BaseChildTag {
   ////////////////////////////
 
   /**
-   * The "textValue" tag attribute
+   * The "value" tag attribute
    *
-   * Value to set for the widget. For selectboxes, match option's text field to this to set selectbox.
+   * Value to set for the widget. For selectboxes, match option's value field to this to set selectbox.
    */
-  private String textValue;
+  private String value;
 
   /**
-   * The "optionValue" tag attribute
+   * The "optionText" tag attribute
    *
-   * For selectbox only, match option's value field against this to set value.
+   * For selectbox only, match option's text field against this to set value.
    */
-  private String optionValue;
+  private String optionText;
 
 
   //////////////////////////////////
@@ -87,8 +87,8 @@ public class SetValueTag extends BaseChildTag {
    *
    * @param val value of the tag attribute
    */
-  public void setTextValue(String val) {
-    this.textValue = val;
+  public void setValue(String val) {
+    this.value = val;
   }
 
   /**
@@ -96,8 +96,8 @@ public class SetValueTag extends BaseChildTag {
    *
    * @param val value of the tag attribute
    */
-  public void setOptionValue(String val) {
-    this.optionValue = val;
+  public void setOptionText(String val) {
+    this.optionText = val;
   }
 
 
@@ -137,7 +137,7 @@ public class SetValueTag extends BaseChildTag {
 						"{0}(domEvent, {1}, {2}, {3}, {4});",
 						new String[] { CALLBACK_METHOD, (this.elementIds != null ? idOrNameParam : null), 
 								(this.elementNames != null ? idOrNameParam : null), 
-								getJsElementParam(this.textValue), getJsElementParam(this.optionValue)}),
+								getJsElementParam(this.value), getJsElementParam(this.optionText)}),
 				null);
 	  }
     return EVAL_PAGE;

@@ -42,44 +42,48 @@ public class BaseSkipUnskipTag extends BaseChildTag {
   ////////////////////////////
 
   /**
-   * The "skipTextValue" tag attribute. The value to give the widget that is skipped.
-   * For selectboxes, matched against the option's text field to set the selectbox.
-   */
-  protected String _skipTextValue; // setter 
-  protected String skipTextValue; // used
-  
-  /**
-   * The "skipOptionValue" tag attribute. For selectboxes only, matched against the option's
-   * value field to set the seletbox to that value. 
+   * The "skipValue" tag attribute. The value to give the widget that is skipped.
+   * For selectboxes, matched against the option's value field to set the selectbox.
    * note: presently not implemented for acs select boxes. they have predefined
-   *       skipTextValue and skipOptionValue
+   *       skipValue and skipOptionText
    */
-  protected String _skipOptionValue; // setter
-  protected String skipOptionValue; // used
+  protected String _skipValue; // setter 
+  protected String skipValue; // used
   
   /**
-   * The "unskipTextValue" tag attribute. The value to give the widget value when it 
+   * The "skipOptionText" tag attribute. For selectboxes only, matched against the option's
+   * text field to set the selectbox selected option. 
+   * note: presently not implemented for acs select boxes. they have predefined
+   *       skipValue and skipOptionText
+   */
+  protected String _skipOptionText; // setter
+  protected String skipOptionText; // used
+  
+  /**
+   * The "unskipValue" tag attribute. The value to give the widget value when it 
    * is unskipped, i.e. when undo action causes a skipped widget to be unskipped.
-   * For selectboxes, matched against the option's text field to set the selectbox.
-   *
-   * note: while the skip tag is used to skip a field, based on some observation being 
-   * true, when that observation is false, the field is unskipped, which is why this
-   * attribute is needed.
-   */
-  protected String _unskipTextValue; // setter
-  protected String unskipTextValue;
-  /**
-   * The "unskipOptionValue" tag attribute. For selectboxes only, matched against the option's
-   * value field to set the seletbox to that value. 
+   * For selectboxes, matched against the option's value field to set the selectbox.
    * note: presently not implemented for acs select boxes. they have predefined
-   *       unskipTextValue and unskipOptionValue
+   *       unskipValue and unskipOptionText
    *
    * note: while the skip tag is used to skip a field, based on some observation being 
    * true, when that observation is false, the field is unskipped, which is why this
-   * attribute is needed.
+   * attribute is needed, and vice versa
    */
-  protected String _unskipOptionValue; // setter
-  protected String unskipOptionValue;
+  protected String _unskipValue; // setter
+  protected String unskipValue;
+  /**
+   * The "unskipOptionText" tag attribute. For selectboxes only, matched against the option's
+   * text field to set the selectbox selected option. 
+   * note: presently not implemented for acs select boxes. they have predefined
+   *       unskipValue and unskipOptionText
+   *
+   * note: while the skip tag is used to skip a field, based on some observation being 
+   * true, when that observation is false, the field is unskipped, which is why this
+   * attribute is needed, and vice versa
+   */
+  protected String _unskipOptionText; // setter
+  protected String unskipOptionText;
   
   /**
    * The "comboRadioSelect" tag attribute. The flag indicating whether the widget is a
@@ -104,8 +108,8 @@ public class BaseSkipUnskipTag extends BaseChildTag {
    *
    * @param val value of the tag attribute
    */
-  public void setSkipTextValue(String val) {
-    this._skipTextValue = val;
+  public void setSkipValue(String val) {
+    this._skipValue = val;
   }
   
   /**
@@ -113,8 +117,8 @@ public class BaseSkipUnskipTag extends BaseChildTag {
    *
    * @param val value of the tag attribute
    */
-  public void setSkipOptionValue(String val) {
-    this._skipOptionValue = val;
+  public void setSkipOptionText(String val) {
+    this._skipOptionText = val;
   }
   
   /**
@@ -122,8 +126,8 @@ public class BaseSkipUnskipTag extends BaseChildTag {
    *
    * @param val value of the tag attribute
    */
-  public void setUnskipTextValue(String val) {
-    this._unskipTextValue = val;
+  public void setUnskipValue(String val) {
+    this._unskipValue = val;
   }
   
   /**
@@ -131,8 +135,8 @@ public class BaseSkipUnskipTag extends BaseChildTag {
    *
    * @param val value of the tag attribute
    */
-  public void setUnskipOptionValue(String val) {
-    this._unskipOptionValue = val;
+  public void setUnskipOptionText(String val) {
+    this._unskipOptionText = val;
   }
   
   /**
@@ -188,51 +192,51 @@ public class BaseSkipUnskipTag extends BaseChildTag {
     	  this.comboRadioSelect = new Boolean(false);
       }
 
-      this.skipTextValue = this._skipTextValue;
-      if (this.skipTextValue == null) {
+      this.skipValue = this._skipValue;
+      if (this.skipValue == null) {
     	  if (this.comboRadioSelect) {
-    		  // if comboRadioSelect, skipTextValue are set for the radiobutton portion, and doEndTag
+    		  // if comboRadioSelect, skipOptionText is set for the radiobutton portion, and doEndTag
     		  // method supplies the appropriate defaults for the selectbox portion.
               // set radio button to special value to indicate value should come from the select box
-             this.skipTextValue = FormGuideTag.COMBO_RADIO_SELECT_USE_SELECT;
+    		  this.skipValue = FormGuideTag.COMBO_RADIO_SELECT_USE_SELECT;
     	  }
           else {
-        	  this.skipTextValue = FormGuideTag.LOGICAL_SKIP_TEXT;
+              this.skipValue = FormGuideTag.LOGICAL_SKIP_CODE;
           }
       }
-      this.skipOptionValue = this._skipOptionValue;
-      if (this.skipOptionValue == null) {
+      this.skipOptionText = this._skipOptionText;
+      if (this.skipOptionText == null) {
     	  if (this.comboRadioSelect) {
-    		  // since this is for a radio button, option value does not apply; setting skipTextValue 
+    		  // since this is for a radio button, option text does not apply; setting skipValue 
     		  // above is enough to select the correct radio button
           }
           else {
-             this.skipOptionValue = FormGuideTag.LOGICAL_SKIP_CODE;
+        	  this.skipOptionText = FormGuideTag.LOGICAL_SKIP_TEXT;
           }
       }
 
-      this.unskipTextValue = this._unskipTextValue;
-      if (this.unskipTextValue == null) {
+      this.unskipValue = this._unskipValue;
+      if (this.unskipValue == null) {
         if (this.comboRadioSelect) {
-        	// if comboRadioSelect, unskipTextValue are set for the radiobutton portion, and
+        	// if comboRadioSelect, unskipValue is set for the radiobutton portion, and
         	// doEndTag method supplies the appropriate defaults for the selectbox portion.
         	// set radio button to special value to indicate value should come from the select 
         	// so that the unskip effect is that not radio button is visually selected, and
         	// the select box is blank (as set by the defaults in doEndTag)
-        	this.unskipTextValue = FormGuideTag.COMBO_RADIO_SELECT_USE_SELECT;
+        	this.unskipValue = FormGuideTag.COMBO_RADIO_SELECT_USE_SELECT;
         }
         else {
-        	this.unskipTextValue = "";
+            this.unskipValue = "";
         }
       }
-      this.unskipOptionValue = this._unskipOptionValue; 
-      if (this.unskipOptionValue == null) {
+      this.unskipOptionText = this._unskipOptionText; 
+      if (this.unskipOptionText == null) {
     	  if (this.comboRadioSelect) {
-    		  // since this is for a radio button, option value does not apply; setting unskipTextValue 
-    		  // above is enough to select the correct radio button
-          }
+          	// since this is for a radio button, option text does not apply; setting unskipTextValue 
+          	// above is enough to select the correct radio button
+    	  }
           else {
-             this.unskipOptionValue = "";
+          	this.unskipOptionText = "";
           }
       }
 
@@ -246,10 +250,10 @@ public class BaseSkipUnskipTag extends BaseChildTag {
    * @throws JspException to communicate error
    */
   public int doEndTag(String doCallback, String undoCallback,
-		  				String doTextValue, String doOptionValue,
-		  				String undoTextValue, String undoOptionValue,
-		  				String doTextValueComboRadioSelect, String doOptionValueComboRadioSelect,
-		  				String undoTextValueComboRadioSelect, String undoOptionValueComboRadioSelect) throws JspException {
+		  				String doValue, String doOptionText,
+		  				String undoValue, String undoOptionText,
+		  				String doValueComboRadioSelect, String doOptionTextComboRadioSelect,
+		  				String undoValueComboRadioSelect, String undoOptionTextComboRadioSelect) throws JspException {
 	  
 	validateAttributes();
     FormGuideTag formGuideTag = (FormGuideTag) findParent(FormGuideTag.class);
@@ -269,10 +273,10 @@ public class BaseSkipUnskipTag extends BaseChildTag {
    		formGuideTag.addJavascriptCallback(
    				UiString.simpleConstruct(
    						"{0}(domEvent, {1}, {2}, {3}, {4});",
-   						new String[] { doCallback, (this.elementIds != null ? idOrNameParam : null), (this.elementNames != null ? idOrNameParam : null), getJsElementParam(doTextValue), getJsElementParam(doOptionValue) }),
+   						new String[] { doCallback, (this.elementIds != null ? idOrNameParam : null), (this.elementNames != null ? idOrNameParam : null), getJsElementParam(doValue), getJsElementParam(doOptionText) }),
            		UiString.simpleConstruct(
            				"{0}(domEvent, {1}, {2}, {3}, {4});",
-           				new String[] { undoCallback, (this.elementIds != null ? idOrNameParam : null), (this.elementNames != null ? idOrNameParam : null), getJsElementParam(undoTextValue), getJsElementParam(undoOptionValue) }));
+           				new String[] { undoCallback, (this.elementIds != null ? idOrNameParam : null), (this.elementNames != null ? idOrNameParam : null), getJsElementParam(undoValue), getJsElementParam(undoOptionText) }));
     		
    		// also skip the select box if this is a comboRadioSelect control
    		if (this.comboRadioSelect) {
@@ -283,10 +287,10 @@ public class BaseSkipUnskipTag extends BaseChildTag {
        		formGuideTag.addJavascriptCallback(
        				UiString.simpleConstruct(
        						"{0}(domEvent, {1}, {2}, {3}, {4});",
-       						new String[] { doCallback, (this.elementIds != null ? idOrNameComboRadioSelectParam : null), (this.elementNames != null ? idOrNameComboRadioSelectParam : null), getJsElementParam(doTextValueComboRadioSelect), getJsElementParam(doOptionValueComboRadioSelect) }),
+       						new String[] { doCallback, (this.elementIds != null ? idOrNameComboRadioSelectParam : null), (this.elementNames != null ? idOrNameComboRadioSelectParam : null), getJsElementParam(doValueComboRadioSelect), getJsElementParam(doOptionTextComboRadioSelect) }),
                		UiString.simpleConstruct(
                				"{0}(domEvent, {1}, {2}, {3}, {4});",
-               				new String[] { undoCallback, (this.elementIds != null ? idOrNameComboRadioSelectParam : null), (this.elementNames != null ? idOrNameComboRadioSelectParam : null), getJsElementParam(undoTextValueComboRadioSelect), getJsElementParam(undoOptionValueComboRadioSelect) }));
+               				new String[] { undoCallback, (this.elementIds != null ? idOrNameComboRadioSelectParam : null), (this.elementNames != null ? idOrNameComboRadioSelectParam : null), getJsElementParam(undoValueComboRadioSelect), getJsElementParam(undoOptionTextComboRadioSelect) }));
    		}
     }
     return EVAL_PAGE;
