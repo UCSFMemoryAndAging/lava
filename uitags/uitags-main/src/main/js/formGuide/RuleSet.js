@@ -395,17 +395,17 @@ uiFormGuide_RuleSet.prototype.removeElements = function(
  *
  * @param {HTMLElement} domElement the element
  * @param {DOMEvent} domEvent the event
- * @param textValue the value to set the element to (select the matching text field for selectboxes)
- * @param optionValue for selectbox elements, select the matching value field
+ * @param value the value to set the element to (select the matching option value for selectboxes)
+ * @param optionText for selectbox elements, select the matching option text
  * @private
  */
 uiFormGuide_RuleSet.prototype.__skipEachElement = function(
-    domElement, domEvent, textValue, optionValue) {
-  //alert("calling skipEachElement textValue=" + textValue + " optionValue=" + optionValue);
+    domElement, domEvent, value, optionText) {
+  //alert("calling skipEachElement value=" + value + " optionText=" + optionText);
   if (!this.__notifyLifeCycleEvent("onBeforeSkip", domEvent, domElement)) {
     return;
   }
-  this.__elementHandler.skip(domElement, textValue, optionValue);
+  this.__elementHandler.skip(domElement, value, optionText);
   this.__notifyLifeCycleEvent("onAfterSkip", domEvent, domElement);
 };
 
@@ -417,13 +417,13 @@ uiFormGuide_RuleSet.prototype.__skipEachElement = function(
  * @param {DOMEvent} domEvent the event
  * @param {String} elementId ID of the element
  * @param {String} elementName name of the element
- * @param textValue the value to set the element to (select the matching text field for selectboxes)
- * @param optionValue for selectbox elements, select the matching value field
+ * @param value the value to set the element to (select the matching option value for selectboxes)
+ * @param optionText for selectbox elements, select the matching option text
  * @private
  */
 uiFormGuide_RuleSet.prototype.skipElement = function(
-    domEvent, elementId, elementName, textValue, optionValue) {
-  //alert("calling skipElement textValue=" + textValue + " optionValue=" + optionValue);
+    domEvent, elementId, elementName, value, optionText) {
+  //alert("calling skipElement value=" + value + " optionText=" + optionText);
   var group = uiHtml_Group.createByEither(elementId, elementName);
   // for select boxes, group is a uiHtml_Select object (where the select options are
   //  stored in an array)
@@ -454,7 +454,7 @@ uiFormGuide_RuleSet.prototype.skipElement = function(
   //  uiHtml_Group (where a uiFormGuide_Observed object is created for each distinct uiHtml_Group object,
   //  and calls appendEventHandler on the group object, which in turn calls its handler (wrapper)
   //  version of appendEventHandler)
-  group.traverse(this, this.__skipEachElement, domEvent, textValue, optionValue);
+  group.traverse(this, this.__skipEachElement, domEvent, value, optionText);
 };
 
 
@@ -464,16 +464,16 @@ uiFormGuide_RuleSet.prototype.skipElement = function(
  *
  * @param {HTMLElement} domElement the element
  * @param {DOMEvent} domEvent the event
- * @param textValue the value to set the element to (select the matching text field for selectboxes)
- * @param optionValue for selectbox elements, select the matching value field
+ * @param value the value to set the element to (select the matching option value for selectboxes)
+ * @param optionText for selectbox elements, select the matching option text
  * @private
  */
 uiFormGuide_RuleSet.prototype.__unskipEachElement = function(
-    domElement, domEvent, textValue, optionValue) {
+    domElement, domEvent, value, optionText) {
   if (!this.__notifyLifeCycleEvent("onBeforeSkip", domEvent, domElement)) {
     return;
   }
-  this.__elementHandler.unskip(domElement, textValue, optionValue);
+  this.__elementHandler.unskip(domElement, value, optionText);
   this.__notifyLifeCycleEvent("onAfterSkip", domEvent, domElement);
 };
 
@@ -485,14 +485,14 @@ uiFormGuide_RuleSet.prototype.__unskipEachElement = function(
  * @param {DOMEvent} domEvent the event
  * @param {String} elementId ID of the element
  * @param {String} elementName name of the element 
- * @param textValue the value to set the element to (select the matching text field for selectboxes)
- * @param newOptionValue for selectbox elements, select the matching value field
+ * @param value the value to set the element to (select the matching option value for selectboxes)
+ * @param optionText for selectbox elements, select the matching option text
  * @private
  */
 uiFormGuide_RuleSet.prototype.unskipElement = function(
-    domEvent, elementId, elementName, textValue, optionValue) {
+    domEvent, elementId, elementName, value, optionText) {
   var group = uiHtml_Group.createByEither(elementId, elementName);
-  group.traverse(this, this.__unskipEachElement, domEvent, textValue, optionValue);
+  group.traverse(this, this.__unskipEachElement, domEvent, value, optionText);
 };
 
 
@@ -593,16 +593,16 @@ uiFormGuide_RuleSet.prototype.removeOption = function(
  *
  * @param {HTMLElement} domElement the element
  * @param {DOMEvent} domEvent the event
- * @param textValue the value to set the element to (select the matching text field for selectboxes)
- * @param optionValue for selectbox elements, select the matching value field
+ * @param value the value to set the element to (select the matching option value for selectboxes)
+ * @param optionText for selectbox elements, select the matching option text
  * @private
  */
 uiFormGuide_RuleSet.prototype.__setValueEachElement = function(
-    domElement, domEvent, textValue, optionValue) {
+    domElement, domEvent, value, optionText) {
   if (!this.__notifyLifeCycleEvent("onBeforeSkip", domEvent, domElement)) {
     return;
   }
-  this.__elementHandler.setValue(domElement, textValue, optionValue);
+  this.__elementHandler.setValue(domElement, value, optionText);
   this.__notifyLifeCycleEvent("onAfterSkip", domEvent, domElement);
 };
 
@@ -619,14 +619,14 @@ uiFormGuide_RuleSet.prototype.__setValueEachElement = function(
  * @param {DOMEvent} domEvent the event
  * @param {String} elementId ID of the element
  * @param {String} elementName name of the element
- * @param textValue the value to set the element to (select the matching text field for selectboxes)
- * @param newOptionValue for selectbox elements, select the matching value field
+ * @param value the value to set the element to (select the matching option value for selectboxes)
+ * @param optionText for selectbox elements, select the matching option text
  * @private
  */
 uiFormGuide_RuleSet.prototype.setValue = function(
-    domEvent, elementId, elementName, textValue, optionValue) {
+    domEvent, elementId, elementName, value, optionText) {
   var group = uiHtml_Group.createByEither(elementId, elementName);
-  group.traverse(this, this.__setValueEachElement, domEvent, textValue, optionValue);
+  group.traverse(this, this.__setValueEachElement, domEvent, value, optionText);
 };
 
 

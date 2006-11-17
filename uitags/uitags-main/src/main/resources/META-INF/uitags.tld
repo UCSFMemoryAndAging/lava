@@ -606,38 +606,38 @@
     </attribute>
   </tag>
   
-    <tag>
+  <tag>
     <name>skip</name>
     <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Skip@EL_CLS@Tag</tag-class>
     <body-content>empty</body-content>
     <display-name>skip</display-name>
     <description>Specifies the element(s) that get skipped when the observe rules
-      are met. The element(s) are disabled and set to the specified skipTextValue ONLY
+      are met. The element(s) are disabled and set to the specified skipValue ONLY
       if the current value of the element is LOGICAL_SKIP (i.e. "-6" or "-6.0")
       
       Conversely, if the observe rules are not met, the element(s) are unskipped,
-      meaning that they are enabled and value is set to the unskipTextValue. 
+      meaning that they are enabled and value is set to the unskipValue. 
       
-      If the element is not a selectbox, skip/unskipOptionValue attributes are not used. 
+      If the element is not a selectbox, skip/unskipOptionText attributes are not used. 
       
-      If an element is a selectbox, the option matching its text field to the skip/unskipTextValue
-      attribute, or matching its value field to the skip/unskipOptionValue attribute, or both, 
+      If an element is a selectbox, the option matching its text field to the skip/unskipOptionText
+      attribute, or matching its value field to the skip/unskipValue attribute, or both, 
       is selected. If there is no match, a new option is added to the select box using 
-      skip/unskipTextValue and/or skip/unskipOptionValue, and is selected. For selectboxes, only 
-      one of skip/unskipTextValue or skip/unskipOptionValue must be supplied, or both can be supplied.
+      skip/unskipValue and/or skip/unskipOptionText, and is selected. For selectboxes, only 
+      one of skip/unskipValue or skip/unskipOptionText must be supplied, or both can be supplied.
 
       If using this tag for instrument data enty and instrument data collection fields,
-      the tag supplies defaults for all the skip/unskipTextValue and skip/unskipOptionValue attributes 
+      the tag supplies defaults for all the skip/unskipValue and skip/unskipOptionText attributes 
       so they need not be supplied.  
 
       Multiple elements can be skipped with a single tag by specifying a comma-separated list
-      of element id's or name's. Each will be skipped using the same unskip/skipTextValue and
-      unskip/skipOptionValue and comboRadioSelect attributes. 
+      of element id's or name's. Each will be skipped using the same unskip/skipValue and
+      unskip/skipOptionText and comboRadioSelect attributes. 
 
       note for acs select boxes:
-       the only valid value for skipTextValue is ''. otherwise, a predefined skipTextValue 
-        indicating logical skip is used. skipOptionValue is not used at all. 
-       unskipTextValue and unskipOptionValue are not used at all; if the current value of
+       the only valid value for skipOptionText is ''. otherwise, a predefined skipOptionText 
+        indicating logical skip is used. skipValue is not used at all. 
+       unskipOptionText and unskipValue are not used at all; if the current value of
         the widget is logical skip, acs sets the value to ''. otherwise, acs leaves the 
         current value as the value. 
        in other words, acs would have to be modified to be able to use skip/unskip values
@@ -668,30 +668,30 @@
                    of individual radio button elements.</description>
     </attribute>
     <attribute>
-      <name>skipTextValue</name>
+      <name>skipValue</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
      <description>Value to set skipped element(s) to, ONLY if its current value is LOGICAL_SKIP ("-6" or "-6.0"). If element is 
-      a selectbox, this is used to select an option with a matching text field.</description>
+      a selectbox, this is used to select an option with a matching value field.</description>
     </attribute>
     <attribute>
-      <name>skipOptionValue</name>
+      <name>skipOptionText</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Only for selectbox elements. This is used to select an option with a matching value field.</description>
+      <description>Only for selectbox elements. This is used to select an option with a matching text field.</description>
     </attribute>
     <attribute>
-      <name>unskipTextValue</name>
+      <name>unskipValue</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
      <description>Value to set unskipped element(s) to, in case of undo action. If element is a selectbox, this 
-      is used to select an option with a matching text field. </description>
+      is used to select an option with a matching value field. </description>
     </attribute>
     <attribute>
-      <name>unskipOptionValue</name>
+      <name>unskipOptionText</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Only for selectbox elements. This is used to select an option with a matching value field.</description>
+      <description>Only for selectbox elements. This is used to select an option with a matching text field.</description>
     </attribute>
     <attribute>
       <name>comboRadioSelect</name>
@@ -708,36 +708,34 @@
     <body-content>empty</body-content>
     <display-name>unskip</display-name>
     <description>Specifies the element(s) that are unskipped when the observe rules are met. The 
-      element(s) are enabled and set to the specified unskipTextValue. 
+      element(s) are enabled and set to the specified unskipValue. 
       
       Conversely, if the observe rules are not met, the element(s) are skipped,
-      meaning that they are disabled and value is set to the skipTextValue, ONLY if the
-      current value of the element is LOGICAL_SKIP ("-6" or "-6.0") (and if element is
-      selectbox and skipTextValue does not exist, new option is added and selected where
-      option text is skipTextValue and option value is the skipNewOptionValue).
+      meaning that they are disabled and value is set to the skipValue, ONLY if the
+      current value of the element is LOGICAL_SKIP ("-6" or "-6.0").
       
-      If the element is not a selectbox, unskip/skipOptionValue attributes are not used. 
+      If the element is not a selectbox, unskip/skipOptionText attributes are not used. 
       
-      If an element is a selectbox, the option matching its text field to the unskip/skipTextValue
-      attribute, or matching its value field to the unskip/skipOptionValue attribute, or both, 
+      If an element is a selectbox, the option matching its value field to the unskip/skipValue
+      attribute, or matching its text field to the unskip/skipOptionText attribute, or both, 
       is selected. If there is no match, a new option is added to the select box using 
-      unskip/skipTextValue and/or unskip/skipOptionValue, and is selected. For selectboxes, only 
-      one of unskip/skipTextValue or unskip/skipOptionValue must be supplied, or both can be supplied.
+      unskip/skipValue and/or unskip/skipOptionText, and is selected. For selectboxes, only 
+      one of unskip/skipValue or unskip/skipOptionText must be supplied, or both can be supplied.
 
       If using this tag for instrument data enty and instrument data collection fields,
-      the tag supplies defaults for all the unskip/skipTextValue and unskip/skipOptionValue attributes 
+      the tag supplies defaults for all the unskip/skipValue and unskip/skipOptionText attributes 
       so they need not be supplied.  
 
       Multiple elements can be unskipped with a single tag by specifying a comma-separated list
-      of element id's or name's. Each will be unskipped using the same unskip/skipTextValue and
-      unskip/skipOptionValue and comboRadioSelect attributes. 
+      of element id's or name's. Each will be unskipped using the same unskip/skipValue and
+      unskip/skipOptionText and comboRadioSelect attributes. 
 
       note for acs select boxes:
-       unskipTextValue and unskipOptionValue are not used at all; if the current value of
+       unskipValue and unskipOptionText are not used at all; if the current value of
         the widget is logical skip, acs sets the value to ''. otherwise, acs leaves the 
         current value as the value. 
-       the only valid value for skipTextValue is ''. otherwise, a predefined skipTextValue 
-        indicating logical skip is used. skipOptionValue is not used at all. 
+       the only valid value for skipOptionText is ''. otherwise, a predefined skipOptionText
+        indicating logical skip is used. skipValue is not used at all. 
        in other words, acs would have to be modified to be able to use skip/unskip values
         set as attributes on this tag.
     </description>
@@ -766,30 +764,30 @@
                    of individual radio button elements.</description>
     </attribute>
     <attribute>
-      <name>unskipTextValue</name>
+      <name>unskipValue</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
      <description>Value to set unskipped element(s) to. If element is a selectbox, this is used to select an 
-      option with a matching text field.</description>
+      option with a matching value field.</description>
     </attribute>
     <attribute>
-      <name>unskipOptionValue</name>
+      <name>unskipOptionText</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Only for selectbox elements. This is used to select an option with a matching value field.</description>
+      <description>Only for selectbox elements. This is used to select an option with a matching text field.</description>
     </attribute>
     <attribute>
-      <name>skipTextValue</name>
+      <name>skipValue</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
      <description>In the case of undo action, this is the value to set skipped element(s) to, ONLY if its current value 
-      is LOGICAL_SKIP ("-6" or "-6.0"), If element is a selectbox, this is used to select an option with a matching text field.</description>
+      is LOGICAL_SKIP ("-6" or "-6.0"), If element is a selectbox, this is used to select an option with a matching value field.</description>
     </attribute>
     <attribute>
-      <name>skipOptionValue</name>
+      <name>skipOptionText</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Only for selectbox elements. This is used to select an option with a matching value field.</description>
+      <description>Only for selectbox elements. This is used to select an option with a matching text field.</description>
     </attribute>
     <attribute>
       <name>comboRadioSelect</name>
@@ -872,16 +870,16 @@
     <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.SetValue@EL_CLS@Tag</tag-class>
     <body-content>empty</body-content>
     <display-name>setValue</display-name>
-    <description>Set the specified element(s) to the specified textValue attribute. The optionValue
+    <description>Set the specified element(s) to the specified value attribute. The optionText
        attribute only applies to selectbox elements.
-       If an element is a selectbox, the option matching its text field to the textValue attribute,
-       or matching its value field to the optionValue attribute, or both, is selected. If there is
-       no match, a new option is added to the select box using textValue and optionValue, and is
-       selected. For selectboxes, only one of textValue or optionValue must be supplied, or both
+       If an element is a selectbox, the option matching its value field to the value attribute,
+       or matching its text field to the optionText attribute, or both, is selected. If there is
+       no match, a new option is added to the select box using value and optionText, and is
+       selected. For selectboxes, only one of value or optionText must be supplied, or both
        can be supplied.
-       note: presently, acs selectboxes do not use the newOptionValue if a new option must
+       note: presently, acs selectboxes do not use the value attribute if a new option must
              be added to set the value of the selectbox. instead, the new option is added such
-             that both the text and value fields are set to the textValue attribute.
+             that both the text and value fields are set to the optionText attribute.
     </description>
 
     <attribute>
@@ -908,16 +906,16 @@
                    of individual radio button elements.</description>
     </attribute>
     <attribute>
-      <name>textValue</name>
+      <name>value</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-     <description>Value to set element(s) to. If element is a selectbox, this is used to select an option with a matching text field.</description>
+     <description>Value to set element(s) to. If element is a selectbox, this is used to select an option with a matching value field.</description>
     </attribute>
     <attribute>
-      <name>optionValue</name>
+      <name>optionText</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Only for selectbox elements. This is used to select an option with a matching value field.</description>
+      <description>Only for selectbox elements. This is used to select an option with a matching text field.</description>
     </attribute>
   </tag>
 

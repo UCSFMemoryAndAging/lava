@@ -890,18 +890,18 @@ uiHtml_ElementWrapper.prototype.setDisabled = function(domElement, value) {
 
 // author: ctoohey
 // Skips specified widget (can be a multi- or single-sized widget), which means
-// disabling the widget, and setting its value to the specified textValue argument.
+// disabling the widget, and setting its value to the specified value argument.
 // This method is the exact opposite of unskip().
 // 
-// For selectboxes, options have text and value. The textValue is matched against 
-// the text and/or the optionValue is matched against the value to determine which option 
-// to mark as selected to set the selectbox value.
-// If the option does not exist, then a new option is created, where the textValue is 
-// the text, and optionValue is the value. 
+// For selectboxes, options have text and value. The value is matched against 
+// the element value and/or the optionText is matched against the element
+// text to determine which option to mark as selected to set the selectbox value.
+// If the option does not exist, then a new option is created, where the value is 
+// the value, and optionText is the text. 
 // note: presently this does not apply to acs selectboxes in the case of skip, because 
 //       the acs skip function sets the selectbox to predefined values (see comments below),
-//       so textValue and optionValue are not used when skipping acs selectboxes
-uiHtml_ElementWrapper.prototype.skip = function(domElement, textValue, optionValue) {
+//       so value and optionText are not used when skipping acs selectboxes
+uiHtml_ElementWrapper.prototype.skip = function(domElement, value, optionText) {
   // determine whether the control is an autocomplete widget, in which case special handling
   // is required, because the autocomplete selectbox widget is actually hidden and has an associated
   // visible input box, so need to call a function on the autocomplete widget to disable it (and
@@ -911,7 +911,7 @@ uiHtml_ElementWrapper.prototype.skip = function(domElement, textValue, optionVal
   	// autocomplete control has its own function to skip which disables it. if true is passed as
   	// the argument, the value is set to the empty string. if false is passed, value is set to logical skip.
     //alert("skipSingleWidget acs textbox name=" + autocompleteObj.textbox.name + " textbox value=" + autocompleteObj.textbox.value + " select name=" + autocompleteObj.select.name + " select value=" + autocompleteObj.select.value);
-    if (textValue == '') {
+    if (optionText == '') {
       // the way to set the control to blank is to pass in true
       autocompleteObj.skip(true);
     }
@@ -928,16 +928,16 @@ uiHtml_ElementWrapper.prototype.skip = function(domElement, textValue, optionVal
 	  if (elementType == 'select') {
 	    var selectObj = new uiHtml_Select(domElement);
 	    //alert("doing skip for domElement id=" + domElement.id + " textValue=" + textValue + " optionValue=" + optionValue);
-	    selectObj.setSelectedOptionAddIfNoMatch(textValue, optionValue);
+	    selectObj.setSelectedOptionAddIfNoMatch(optionText, value);
 	  }
 	  else if (elementType == 'radio' || elementType == 'checkbox') {
 	    // check the box/button whose value is equal to the value argument
-	    if (domElement.value == textValue) {
+	    if (domElement.value == value) {
 	    	domElement.checked = true;
     	}
 	  }
 	  else {
-	  	domElement.value = textValue;
+	  	domElement.value = value;
       }
 	
 	  // NOTE: all elements are enabled in the form's onsubmit event handler because a
@@ -949,18 +949,18 @@ uiHtml_ElementWrapper.prototype.skip = function(domElement, textValue, optionVal
 
 // author: ctoohey
 // Unskips supplied obj (can be a multi- or single-sized widget), which means enabling
-// the widget and setting its value to the textValue argument.
+// the widget and setting its value to the value argument.
 // This method is the exact opposite of uiCommon_skipWidgets().
 
-// For selectboxes, options have text and value. The textValue is matched against 
-// the text and or the optionValue is matched against the value to determine which option 
+// For selectboxes, options have text and value. The value argument is matched against the 
+// the value and/or the optionText arg is matched against the text to determine which option 
 // to mark as selected to set the selectbox value.
-// If the option does not exist, then a new option is created, where the textValue is 
-// the text, and optionValue is the value. 
+// If the option does not exist, then a new option is created, where the value arg is 
+// the value, and optionText arg is the text. 
 // note: presently this does not apply to acs selectboxes in the case of unskip, because 
 //       the acs unskip function sets the selectbox to predefined values (see comments below),
-//       so textValue and optionValue are not used when skipping acs selectboxes
-uiHtml_ElementWrapper.prototype.unskip = function(domElement, textValue, optionValue) {
+//       so value and optionText are not used when skipping acs selectboxes
+uiHtml_ElementWrapper.prototype.unskip = function(domElement, value, optionText) {
   // determine whether the control is an autocomplete widget, in which case special handling
   // is required, because the autocomplete selectbox widget is actually hidden and has an associated
   // visible input box, so need to call a function on the autocomplete widget to enable it (and
@@ -983,16 +983,16 @@ uiHtml_ElementWrapper.prototype.unskip = function(domElement, textValue, optionV
 	    var elementType = uiHtml_Element.getWidgetType(domElement);
 	    if (elementType == 'select') {
 	      var selectObj = new uiHtml_Select(domElement);
-	      selectObj.setSelectedOptionAddIfNoMatch(textValue, optionValue);
+	      selectObj.setSelectedOptionAddIfNoMatch(optionText, value);
 	    }
 	    else if (elementType == 'radio' || elementType == 'checkbox') {
 	      // check the box/button whose value is equal to the value argument
-	      if (domElement.value == textValue) {
+	      if (domElement.value == value) {
 	   		domElement.checked = true;
 	   	  }
 	    }
 	    else {
-	  	  domElement.value = textValue;
+	  	  domElement.value = value;
 	    }
 	  }
 	
@@ -1128,36 +1128,36 @@ uiHtml_ElementWrapper.prototype.removeOption = function(srcElementId, srcElement
 // author: ctoohey
 // Sets the specified value for the specified widget. 
 // 
-// For selectboxes, options have text and value. The textValue is matched against 
-// the text and/or optionValue is matched against the value to determine which option to 
+// For selectboxes, options have text and value. The value is matched against 
+// the value and/or optionText is matched against the text to determine which option to 
 // mark as selected to set the selectbox value.
-// If the option does not exist, then a new option is created, where the textValue is 
-// the text, and optionValue is the value. 
+// If the option does not exist, then a new option is created, where the value is 
+// the value, and optionText is the text. 
 // note: this functionality is not yet available for acs widgets. for acs widgets,
-//       if the textValue does not match an option, a new option is created and
-//       selected which has textValue as both the text and the value.
-uiHtml_ElementWrapper.prototype.setValue = function(domElement, textValue, optionValue) {
+//       if the optionText does not match an option, a new option is created and
+//       selected which has optionText as both the text and the value.
+uiHtml_ElementWrapper.prototype.setValue = function(domElement, value, optionText) {
   // determine whether the control is an autocomplete widget, in which case special handling
   // is required, because the autocomplete selectbox widget is actually hidden and has an associated
   // visible input box, so need to call a function on the autocomplete widget to set a value.
   var autoCompleteObj = ACS['acs_textbox_' + domElement.id];
   if (autoCompleteObj != null) {
-      autoCompleteObj.setValue(textValue);
+      autoCompleteObj.setValue(optionText);
   }
   else {
 	  var elementType = uiHtml_Element.getWidgetType(domElement);
 	  if (elementType == 'select') {
 	    var selectObj = new uiHtml_Select(domElement);
-	    selectObj.setSelectedOptionAddIfNoMatch(textValue, optionValue);
+	    selectObj.setSelectedOptionAddIfNoMatch(optionText, value);
 	  }
 	  else if (elementType == 'radio' || elementType == 'checkbox') {
 	    // check the box/button whose value is equal to the value argument
-	    if (domElement.value == textValue) {
+	    if (domElement.value == value) {
 	    	domElement.checked = true;
     	}
 	  }
 	  else if (elementType == 'textarea' || elementType == 'text' || elementType == 'submit' || elementType == 'button') {
-	  	domElement.value = textValue;
+	  	domElement.value = value;
       }
   }
 }  
