@@ -32,7 +32,7 @@
  * @param observeAndOr (ctoohey) designates where one or all observe tags must match
  * @param prompt (ctoohey) prompts the user before performing the doAction, allowing them to cancel
  */
-function uiFormGuide_RuleSet(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnLoad, ignoreAndOr, observeAndOr, prompt) {
+function uiFormGuide_RuleSet(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnLoad, ignoreDo, ignoreUndo, ignoreAndOr, observeAndOr, prompt) {
   this._super();
   /**
    * @type uiFormGuide_Rule[]
@@ -57,6 +57,8 @@ function uiFormGuide_RuleSet(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnL
 
   this.__ignoreDoOnLoad = ignoreDoOnLoad;
   this.__ignoreUndoOnLoad = ignoreUndoOnLoad;
+  this.__ignoreDo = ignoreDo;
+  this.__ignoreUndo = ignoreUndo;
   this.__ignoreAndOr = ignoreAndOr;
   this.__observeAndOr = observeAndOr;
   this.__prompt = prompt;
@@ -90,6 +92,14 @@ uiFormGuide_RuleSet.prototype.getIgnoreDoOnLoad = function() {
 
 uiFormGuide_RuleSet.prototype.getIgnoreUndoOnLoad = function() {
   return this.__ignoreUndoOnLoad;
+}  
+
+uiFormGuide_RuleSet.prototype.getIgnoreDo = function() {
+  return this.__ignoreDo;
+}  
+
+uiFormGuide_RuleSet.prototype.getIgnoreUndo = function() {
+  return this.__ignoreUndo;
 }  
 
 uiFormGuide_RuleSet.prototype.getPrompt = function() {
@@ -177,6 +187,14 @@ uiFormGuide_RuleSet.prototype.addRule = function(rule) {
  * @type boolean
  */
 uiFormGuide_RuleSet.prototype._allRulesHold = function() {
+  // if no observe tags, then return true. this allows tag to just 
+  // specify ignore rules such that if ignore rules do not hold, the
+  // doAction should be executed (undoAction will never be executed, 
+  // because either ignore rule(s) will hold and actions ignored, or,
+  // observe rules will always hold since there are on observe rules)
+  if (this.__rules.length == 0) {
+    return true;
+  }
   for (var i = 0; i < this.__rules.length; ++i) {
     var ruleHolds = this.__rules[i]._holds();
     if (this.__observeAndOr == "and") {
