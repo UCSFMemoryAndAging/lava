@@ -165,6 +165,12 @@ uiFormGuide_Observed.prototype._respond = function(domEvent, simulateRuleSets) {
           continue;
         }
       }
+      else {
+        if (ruleSetsToProcess[i].getIgnoreDo()) {
+          //alert("ignoreDo");
+          continue;
+        }
+      }
       // if prompt attribute was supplied, prompt the user to give them a chance to 
       // cancel the doAction(s). do not prompt on page load, and only prompt once,i.e.
       // on first iteration
@@ -185,6 +191,12 @@ uiFormGuide_Observed.prototype._respond = function(domEvent, simulateRuleSets) {
       if (simulateRuleSets) {
         if (ruleSetsToProcess[i].getIgnoreUndoOnLoad()) {
           //alert("ignoreUndoOnLoad");
+          continue;
+        }
+      } 
+      else {
+        if (ruleSetsToProcess[i].getIgnoreUndo()) {
+          //alert("ignoreUndo");
           continue;
         }
       } 

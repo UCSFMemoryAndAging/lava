@@ -67,8 +67,8 @@ uiHtml_Window.getInstance().prependEventHandler("load", function(e) {
  * @return the rule set
  * @type uiFormGuide_RuleSet
  */
-uiFormGuide_Driver.prototype.createRuleSet = function(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnLoad, ignoreAndOr, observeAndOr, prompt) {
-  var ruleSet = new uiFormGuide_RuleSet(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnLoad, ignoreAndOr, observeAndOr, prompt);
+uiFormGuide_Driver.prototype.createRuleSet = function(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnLoad, ignoreDo, ignoreUndo, ignoreAndOr, observeAndOr, prompt) {
+  var ruleSet = new uiFormGuide_RuleSet(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnLoad, ignoreDo, ignoreUndo, ignoreAndOr, observeAndOr, prompt);
   this.__allRuleSets.push(ruleSet);
   return ruleSet;
 };
@@ -139,6 +139,7 @@ uiFormGuide_Driver.prototype.clearObservedForThisRuleSet = function() {
  */
 uiFormGuide_Driver.prototype.createObservedIfNotInCache =
     function(widgetId, widgetName) {
+  // note that observed widgets include ignore, observe and depends elements
   var key = this.__getObservedMapKey(widgetId, widgetName);
   var observed = this.__observedMap[key];
   if (observed == null) {
