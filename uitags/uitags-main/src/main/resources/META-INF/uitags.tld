@@ -245,6 +245,24 @@
                    Possible values 'true', 'false' (defaults to 'false').</description>
     </attribute>
     <attribute>
+      <name>ignoreDo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Flag whether the tag should not execute do actions on a user event, i.e. in the case
+                   where all observe rules hold such that the do actions should be executed.
+                   Possible values 'true', 'false' (defaults to 'false').</description>
+    </attribute>
+    <attribute>
+      <name>ignoreUndo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Flag whether the tag should not execute undo actions on a user event, i.e. in the case
+                   where all observe rules do not hold such that the undo actions should be executed.
+                   Possible values 'true', 'false' (defaults to 'false').</description>
+    </attribute>
+    <attribute>
       <name>prompt</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
@@ -475,6 +493,48 @@
       <type>java.lang.Boolean</type>
       <description>Optional flag. If true, element(s) value must NOT match null for ignore rule to be met.
         (default is false).</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>depends</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Depends@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>depends</display-name>
+    <description>Specifies any elements upon which the actions within the &lt;formGuide&gt; tag
+      depend, beyond those elements specified in &lt;observe&gt; and &lt;ignore&gt; tags. This
+      ensures that when any of the depends elements receive a change event, the event handler
+      for this &lt;formGuide&gt; tag is executed. 
+      </description>
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's to observe.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names to observe (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if element is a comboRadioSelect (default is false).</description>
     </attribute>
   </tag>
 
