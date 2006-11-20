@@ -61,12 +61,14 @@ uiFormGuide_Rule = uiUtil_Object.declareClass(uiFormGuide_Rule, uiUtil_Object);
  */
 uiFormGuide_Rule.prototype._holds = function() {
   /*
-  if (this.__widgetGroup.__items) {
-    alert("does it hold? id=" + this.__widgetGroup.__items[0].id + " expectedValue=" + this.__expectedValue + " values=" + this.__widgetGroup.getValues());
+  if (this.__expectedValue == '[1-9]|1.+|20') {
+    if (this.__widgetGroup.__items) {
+      alert("does it hold? id=" + this.__widgetGroup.__items[0].id + " expectedValue=" + this.__expectedValue + " values=" + this.__widgetGroup.getValues());
+    }
+    else {
+      alert("does it hold? id=" + this.__widgetGroup.__domSelect.id + " expectedValue=" + this.__expectedValue + " values=" + this.__widgetGroup.getValues());
+    } 
   }
-  else {
-    alert("does it hold? id=" + this.__widgetGroup.__domSelect.id + " expectedValue=" + this.__expectedValue + " values=" + this.__widgetGroup.getValues());
-  } 
   */
   if (this.__expectedValue == null) {
     return (this.__widgetGroup.getValues().length == 0);
