@@ -39,6 +39,16 @@ function uiFormGuide_Observed(widgetGroup) {
 
   var observed = this;
 
+  /*
+  if (this.__widgetGroup.__type != 'select') {
+      alert("creating observed for id=" + this.__widgetGroup._getItems()[0].id);
+  }
+  else {
+      alert("creating observed for id=" + this.__widgetGroup.getDomObject().id);
+  } 
+  */
+
+
   // autocomplete widgets require special handling, so handle their own onchange event 
   // handling, allowing a callback function to be set.
   // know that if element is an autocomplete, dealing with a selectbox, in which case
@@ -149,7 +159,15 @@ uiFormGuide_Observed.prototype._respond = function(domEvent, simulateRuleSets) {
 
   var ruleSetsToExecute = new Array();
   for (var i = 0; i < ruleSetsToProcess.length; ++i) {
-    //alert("PROCESSING RuleSet=" + i + " length=" + ruleSetsToProcess.length + " doAction=" + ruleSetsToProcess[i].__doAction);
+    /*
+    if (this.__widgetGroup.__type != 'select') {
+      alert("handling event for id=" + this.__widgetGroup._getItems()[0].id);
+    }
+    else {
+      alert("handling event for id=" + this.__widgetGroup.getDomObject().id);
+    } 
+    alert("PROCESSING RuleSet=" + i + " length=" + ruleSetsToProcess.length + " doAction=" + ruleSetsToProcess[i].__doAction);
+    */
     if (ruleSetsToProcess[i]._allIgnoreRulesHold()) {
       //alert("Observed respond event handler, all ignore rules hold so ignoring for RuleSet=" + ruleSetsToProcess[i].__doAction);
       continue; // ignore this RuleSet doAction/undoAction
@@ -183,7 +201,9 @@ uiFormGuide_Observed.prototype._respond = function(domEvent, simulateRuleSets) {
   		// nothing is set on the click
         return false; 
       }
-      ruleSetsToExecute.push(ruleSetsToProcess[i]);
+      // (ctoohey) not saving do actions until the end. do them in sequence.
+      //ruleSetsToExecute.push(ruleSetsToProcess[i]);
+      ruleSetsToProcess[i]._doAction(domEvent);
     }
     else {
       //alert("Observed respond event handler, allRulesHold=false for RuleSet=" + ruleSetsToProcess[i].__undoAction); 
@@ -206,9 +226,16 @@ uiFormGuide_Observed.prototype._respond = function(domEvent, simulateRuleSets) {
 
   // Perform the do actions last, because we do not want the
   // actions to get undone later.
+  /* (ctoohey) not doing it this way. because the formGuide tags on a page are put in sequence
+     such that when they are processed in order the logic will be correct, do actions are
+     done immediately above, instead of waiting until after all undo actions. have not figured
+     out why this is and whether there is a good reason that will rear its ugly head. */
+  /*
   for (var i = 0; i < ruleSetsToExecute.length; i++) {
+    alert("executing do actions last,i=" + i);
     ruleSetsToExecute[i]._doAction(domEvent);
   }
+  */
   
   return true;
 };
