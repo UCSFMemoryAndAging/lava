@@ -869,16 +869,11 @@ uiHtml_ElementWrapper.prototype.setDisabled = function(domElement, value) {
   // ctoohey
   var obj = ACS['acs_textbox_' + domElement.id];
   if (obj != null) {
-  	// autocomplete control has its own function to skip which disables it. if true is passed as
-  	// the argument, the value is set to the empty string. if false is passed, value is set to logical skip.
-  	//TODO: modify autocomplete skip, or, add a new autcomplete function which disables the field
-  	//      but leaves its value unchanged, to conform to the true definition of the disable tag (skip
-  	//      tag should be used to both disable and set values)
   	if (value) {
-		obj.skip();  
+		obj.disable();  
 	}
 	else {
-		obj.unskip();
+		obj.enable();
 	}
   }
   else {
@@ -898,9 +893,9 @@ uiHtml_ElementWrapper.prototype.setDisabled = function(domElement, value) {
 // text to determine which option to mark as selected to set the selectbox value.
 // If the option does not exist, then a new option is created, where the value is 
 // the value, and optionText is the text. 
-// note: presently this does not apply to acs selectboxes in the case of skip, because 
-//       the acs skip function sets the selectbox to predefined values (see comments below),
-//       so value and optionText are not used when skipping acs selectboxes
+// note: an exception is autocomplete selectboxes which have limitToList set, in which case
+//       new option is not added if there is no match. value is just not set if there is 
+//       no match. 
 uiHtml_ElementWrapper.prototype.skip = function(domElement, value, optionText) {
   // determine whether the control is an autocomplete widget, in which case special handling
   // is required, because the autocomplete selectbox widget is actually hidden and has an associated
@@ -908,19 +903,9 @@ uiHtml_ElementWrapper.prototype.skip = function(domElement, value, optionText) {
   // set the skip value)
   var autocompleteObj = ACS['acs_textbox_' + domElement.id];
   if (autocompleteObj != null) {
-  	// autocomplete control has its own function to skip which disables it. if true is passed as
-  	// the argument, the value is set to the empty string. if false is passed, value is set to logical skip.
-    //alert("skipSingleWidget acs textbox name=" + autocompleteObj.textbox.name + " textbox value=" + autocompleteObj.textbox.value + " select name=" + autocompleteObj.select.name + " select value=" + autocompleteObj.select.value);
-    if (optionText == '') {
-      // the way to set the control to blank is to pass in true
-      autocompleteObj.skip(true);
-    }
-    else {
-      // this sets value to Logical Skip (in other words, with autocomplete, currently no way to set
-      //  widget's text and value to the text and value passed in to this function. if ever need anything
-      //  other than blank or Logical Skip, need to modify autocomplete skip function)
-      autocompleteObj.skip(false);  
-    }
+    // autocomplete control has its own function to skip which disables it. if true is passed as
+    // the argument, the value is set to the empty string. if false is passed, value is set to logical skip.
+    autocompleteObj.skip(optionText);
   }
   else {
       //alert("uiHtml_ElementWrapper.skip name=" + widget.name + " value=" + widget.value + " type=" + uiCommon_getWidgetType(widget) + " text=" + text + " value=" + value);
@@ -957,9 +942,9 @@ uiHtml_ElementWrapper.prototype.skip = function(domElement, value, optionText) {
 // to mark as selected to set the selectbox value.
 // If the option does not exist, then a new option is created, where the value arg is 
 // the value, and optionText arg is the text. 
-// note: presently this does not apply to acs selectboxes in the case of unskip, because 
-//       the acs unskip function sets the selectbox to predefined values (see comments below),
-//       so value and optionText are not used when skipping acs selectboxes
+// note: an exception is autocomplete selectboxes which have limitToList set, in which case
+//       new option is not added if there is no match. value is just not set if there is 
+//       no match. 
 uiHtml_ElementWrapper.prototype.unskip = function(domElement, value, optionText) {
   // determine whether the control is an autocomplete widget, in which case special handling
   // is required, because the autocomplete selectbox widget is actually hidden and has an associated
@@ -967,11 +952,8 @@ uiHtml_ElementWrapper.prototype.unskip = function(domElement, value, optionText)
   // set the unskip value)
   var autocompleteObj = ACS['acs_textbox_' + domElement.id];
   if (autocompleteObj != null) {
-  	// autocomplete control has its own function to unskip which enables it. 
-  	// if the current value of the control is the skipCode, then unskip sets the value to 
-  	// empty string. otherwise, it just leaves the value as is.
-    //alert("unskipSingleWidget acs textbox name=" + autocompleteObj.textbox.name + " textbox value=" + autocompleteObj.textbox.value + " select name=" + autocompleteObj.select.name + " select value=" + autocompleteObj.select.value);
-	autocompleteObj.unskip();  
+    // autocomplete control has its own function to unskip which enables it and sets its value.
+    autocompleteObj.unskip(optionText);  
   }
   else {
       // only set an unskip value if the current value is skip
@@ -1133,9 +1115,9 @@ uiHtml_ElementWrapper.prototype.removeOption = function(srcElementId, srcElement
 // mark as selected to set the selectbox value.
 // If the option does not exist, then a new option is created, where the value is 
 // the value, and optionText is the text. 
-// note: this functionality is not yet available for acs widgets. for acs widgets,
-//       if the optionText does not match an option, a new option is created and
-//       selected which has optionText as both the text and the value.
+// note: an exception is autocomplete selectboxes which have limitToList set, in which case
+//       new option is not added if there is no match. value is just not set if there is 
+//       no match. 
 uiHtml_ElementWrapper.prototype.setValue = function(domElement, value, optionText) {
   // determine whether the control is an autocomplete widget, in which case special handling
   // is required, because the autocomplete selectbox widget is actually hidden and has an associated
