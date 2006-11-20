@@ -86,6 +86,11 @@ public class FormGuideTag extends AbstractUiTag {
   private List observedWidgets;
   
   /**
+   * Widgets for depends
+   */
+  private List dependsWidgets;
+  
+  /**
    * (ctoohey)
    * Widget groups.
    * 
@@ -117,8 +122,10 @@ public class FormGuideTag extends AbstractUiTag {
    * (ctoohey)
    * The "ignoreDoOnLoad" tag attribute
    *
-   * Will not execute the doAction when the page loads if "true". Will if "false" (assuming
-   * all observe rules hold such that the doAction should execute). 
+   * If "true", will not execute the doAction when the page loads. If "false", will
+   * execute the doAction (assuming all observe rules hold such that the doAction 
+   * should execute). 
+   * defaults to false
    */
   private Boolean _ignoreDoOnLoad; // setter only
   private Boolean ignoreDoOnLoad;
@@ -127,11 +134,37 @@ public class FormGuideTag extends AbstractUiTag {
    * (ctoohey)
    * The "ignoreUndoOnLoad" tag attribute
    *
-   * Will not execute the undoAction when the page loads if "true". Will if "false" (assuming
-   * all observe rules do not hold such that the undoAction should execute). 
+   * If "true", will not execute the undoAction when the page loads. If "false", will
+   * execute the undoAction (assuming all observe rules do not hold such that the undoAction 
+   * should execute). 
+   * defaults to false
    */
   private Boolean _ignoreUndoOnLoad; // setter only
   private Boolean ignoreUndoOnLoad;
+
+  /**
+   * (ctoohey)
+   * The "ignoreDo" tag attribute
+   *
+   * If "true" will not execute the doAction during a user event. If "false", will 
+   * execute the doAction (assuming all observe rules hold such that the doAction 
+   * should execute).
+   * defaults to false 
+   */
+  private Boolean _ignoreDo; // setter only
+  private Boolean ignoreDo;
+
+  /**
+   * (ctoohey)
+   * The "ignoreUndo" tag attribute
+   *
+   * If "true", will not execute the undoAction during a user event. If "false", will
+   * execute the undoAction (assuming all observe rules do not hold such that the undoAction 
+   * should execute).
+   * defaults to false 
+   */
+  private Boolean _ignoreUndo; // setter only
+  private Boolean ignoreUndo;
 
   /**
    * (ctoohey)
@@ -267,6 +300,26 @@ public class FormGuideTag extends AbstractUiTag {
    *
    * @param val value of the tag attribute
    */
+  public void setIgnoreDo(Boolean ignoreDo) {
+    this._ignoreDo = ignoreDo;
+  }
+
+  /**
+   * author:ctoohey
+   * Tag attribute setter.
+   *
+   * @param val value of the tag attribute
+   */
+  public void setIgnoreUndo(Boolean ignoreUndo) {
+    this._ignoreUndo = ignoreUndo;
+  }
+  
+  /**
+   * author:ctoohey
+   * Tag attribute setter.
+   *
+   * @param val value of the tag attribute
+   */
   public void setPrompt(String prompt) {
     this._prompt = prompt;
   }
@@ -353,6 +406,7 @@ public class FormGuideTag extends AbstractUiTag {
     // Initialize here to avoid tag reuse problem
     this.ignoreWidgets   = new ArrayList();
     this.observedWidgets   = new ArrayList();
+    this.dependsWidgets   = new ArrayList();
     this.observedWidgetGroups      = new HashMap();
     this.doTasks           = new ArrayList();
     this.undoTasks         = new ArrayList();
@@ -365,6 +419,14 @@ public class FormGuideTag extends AbstractUiTag {
     this.ignoreUndoOnLoad = this._ignoreUndoOnLoad;
     if (this.ignoreUndoOnLoad == null) {
     	this.ignoreUndoOnLoad = new Boolean(false);
+    }
+    this.ignoreDo = this._ignoreDo;
+    if (this.ignoreDo == null) {
+    	this.ignoreDo = new Boolean(false);
+    }
+    this.ignoreUndo = this._ignoreUndo;
+    if (this.ignoreUndo == null) {
+    	this.ignoreUndo = new Boolean(false);
     }
     this.ignoreAndOr = this._ignoreAndOr;
     if (this.ignoreAndOr == null) {
@@ -406,11 +468,14 @@ public class FormGuideTag extends AbstractUiTag {
     template.map("instanceId",      new Long(instanceId));
     template.map("ignoreWidgets",   this.ignoreWidgets);
     template.map("observedWidgets", this.observedWidgets);
+    template.map("dependsWidgets",  this.dependsWidgets);
     template.map("doTasks",         this.doTasks);
     template.map("undoTasks",       this.undoTasks);
     template.map("listener",        this.listener);
     template.map("ignoreDoOnLoad",  this.ignoreDoOnLoad);    
     template.map("ignoreUndoOnLoad",this.ignoreUndoOnLoad);    
+    template.map("ignoreDo",        this.ignoreDo);    
+    template.map("ignoreUndo",      this.ignoreUndo);    
     template.map("prompt",          this.prompt);    
     template.map("observeAndOr",    this.observeAndOr);    
     template.map("ignoreAndOr",     this.ignoreAndOr);    
@@ -490,7 +555,32 @@ public class FormGuideTag extends AbstractUiTag {
 	  }
   }
 
-  
+
+  /**
+   * author: ctoohey
+   * Lets child tags add widget name upon which actions are is dependent.
+   *
+   * @param elementName name of the element depended upon
+   */
+  void addDependsElementName(String elementName) {
+	  // can use the same data structure that observe elements use
+	  ObservedWidget dependsWidget = new ObservedWidget(null, elementName, null, null);
+	  this.dependsWidgets.add(dependsWidget);
+  }
+
+  /**
+   * author: ctoohey
+   * Lets child tags add widget ID upon which actions are dependent.
+   *
+   * @param elementId ID of the element depended upon
+   */
+  void addDependsElementId(String elementId) {
+	  // can use the same data structure that observe elements use
+	  ObservedWidget dependsWidget = new ObservedWidget(elementId, null, null, null);
+	  this.dependsWidgets.add(dependsWidget);
+  }
+
+
   /**
    * author:ctoohey 
    * Lets child tags specify javascript callback statements 
