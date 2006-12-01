@@ -190,7 +190,8 @@ uiHtml_Group.__getDomObjectsByEither = function(id, name) {
   var domObjects;
   var domObject = uiHtml_Document.getInstance().getDomObjectById(id, false);
   if (domObject == null) {
-    // must be a radio button group, so get by name (all radio buttons have the same name)
+    // either id was not specified, or must be name of a radio button group, need to use
+    // getDomObjectsByName (all radio buttons have the same name)
     if (name == null || name.length == 0) {
       // special handling for LavaWeb component handler elementId which represents radio button group
       // need to construct the element name for the radio button group, which is of the format:
@@ -208,9 +209,8 @@ uiHtml_Group.__getDomObjectsByEither = function(id, name) {
         name = "hashMap['" + component + "']." + property;
       }
       else {
-        name = "components['" + component + "]." + property;
+        name = "components['" + component + "']." + property;
       }
-      //alert("construct radio button name, id=" + id + " component=" + component + " property=" + property + " name=" + name);  
     }
     domObjects = uiHtml_Document.getInstance().getDomObjectsByName(name, false);
   }
