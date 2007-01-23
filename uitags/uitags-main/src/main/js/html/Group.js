@@ -205,7 +205,7 @@ uiHtml_Group.__getDomObjectsByEither = function(id, name) {
       
       // temporary special processing to see if instrument design being used. eventually, instrument
       // design will be refactored to component handler design
-      if (component == "primary" || component == "secondary") {
+      if (component == "instrument" || component == "compareInstrument") {
         name = "hashMap['" + component + "']." + property;
       }
       else {
