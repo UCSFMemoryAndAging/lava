@@ -208,17 +208,6 @@ public class FormGuideTag extends AbstractUiTag {
   
   /**
    * (ctoohey)
-   * The "mode" tag attribute. 
-   *
-   * Corresponds to the view mode of the current view. If this represents
-   * a readonly mode, e.g. "vw" or "lv", then this tag and its children have
-   * no effect, since there should be no user events in readonly mode.
-   */
-  private String _mode; // setter only 
-  private String mode;
-  
-  /**
-   * (ctoohey)
    * The "simulateEvents" tag attribute.
    * 
    * This boolean attribute determines whether events which trigger all formGuide tags on the
@@ -365,25 +354,6 @@ public class FormGuideTag extends AbstractUiTag {
   /**
    * author:ctoohey
    * Tag attribute setter.
-   *
-   * The view mode in effect.
-   *
-   * @param val value of the tag attribute
-   */
-  public void setMode(String val) {
-    this._mode = val;
-  }
-  /**
-   * authod:ctoohey
-   * Tag attribute getter.
-   */
-  public String getMode() {
-    return this.mode;
-  }
-    
-  /**
-   * author:ctoohey
-   * Tag attribute setter.
    * 
    * @param val value of the tag attribute
    */
@@ -436,10 +406,6 @@ public class FormGuideTag extends AbstractUiTag {
     if (this.observeAndOr == null) {
     	this.observeAndOr = "and";
     }
-    this.mode = this._mode;
-    if (this.mode == null) {
-    	this.mode = "dc";
-    }
     this.simulateEvents = this._simulateEvents;
     if (this.simulateEvents == null) {
     	this.simulateEvents = false;
@@ -480,13 +446,11 @@ public class FormGuideTag extends AbstractUiTag {
     template.map("observeAndOr",    this.observeAndOr);    
     template.map("ignoreAndOr",     this.ignoreAndOr);    
 
-    if (!(this.mode.equals("vw") || this.mode.equals("lv"))) {
-    	println(template.evalToString());
+    println(template.evalToString());
 
-    	if (this.simulateEvents) {
-    		Template templateSimulateEvent = Template.forName(Template.FORM_GUIDE_SIMULATE_EVENT);
-    		println(templateSimulateEvent.evalToString());
-    	}
+    if (this.simulateEvents) {
+    	Template templateSimulateEvent = Template.forName(Template.FORM_GUIDE_SIMULATE_EVENT);
+    	println(templateSimulateEvent.evalToString());
     }
 
     makeInvisibleFromChildren();

@@ -292,14 +292,6 @@
         page is setup properly on page load. For all formGuide tags other than the last, it need not be
         specified and defaults to "false".</description>
     </attribute>
-    <attribute>
-      <name>mode</name>
-      <required>false</required>
-      <rtexprvalue>true</rtexprvalue>
-      <description>The view mode in effect for the current page. readonly modes, e.g. 'vw' and 'lv' result
-        in the tag and children being ignored. (default is 'dc').</description>
-    </attribute>
-    
   </tag>
 
   <tag>
