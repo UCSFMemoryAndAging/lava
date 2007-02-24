@@ -141,7 +141,7 @@ public class IgnoreTag extends IgnoreForNullTag {
     		//  ignore tag applies to the radio button group portion of the control. when the
     		//  control has a valid value, the value of the selectbox is blank. because of this,
     		//  the ignore rule is configured such that a blank value for the select box means
-    		//  the ignore rule for that select box holds, which a missing data code for the
+    		//  the ignore rule for that select box holds, while a missing data code for the
     		//  select box means the ignore rule for the select box does not hold. an ignore 
     		//  element is added for the selectbox portion of the control accordingly.
     		// note: select box element id is the element id of the radio button group with
