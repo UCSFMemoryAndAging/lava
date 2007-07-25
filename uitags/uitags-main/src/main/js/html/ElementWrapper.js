@@ -903,8 +903,8 @@ uiHtml_ElementWrapper.prototype.skip = function(domElement, value, optionText) {
   // set the skip value)
   var autocompleteObj = ACS['acs_textbox_' + domElement.id];
   if (autocompleteObj != null) {
-    // autocomplete control has its own function to skip which disables it. if true is passed as
-    // the argument, the value is set to the empty string. if false is passed, value is set to logical skip.
+    // autocomplete control has its own function to skip which disables it. it also sets the value to 
+    // the argument passed to it, matching the option text to set the value. 
     autocompleteObj.skip(optionText);
   }
   else {
