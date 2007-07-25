@@ -203,14 +203,7 @@ uiHtml_Group.__getDomObjectsByEither = function(id, name) {
       // parse out property name from id
       var property = id.substring(endComponent + 1);
       
-      // temporary special processing to see if instrument design being used. eventually, instrument
-      // design will be refactored to component handler design
-      if (component == "instrument" || component == "compareInstrument") {
-        name = "hashMap['" + component + "']." + property;
-      }
-      else {
-        name = "components['" + component + "']." + property;
-      }
+      name = "components['" + component + "']." + property;
     }
     domObjects = uiHtml_Document.getInstance().getDomObjectsByName(name, false);
   }
@@ -228,6 +221,14 @@ uiHtml_Group.__getDomObjectsByEither = function(id, name) {
 };
 
 uiHtml_Group.createByEither = function(id, name) {
+  // if both id and name are specified, first the id is used to attempt to locate the 
+  //  HTML element, and if not found, then the name is used
+  // if no component is specified in the tag and elementId is specifed, id is equal to
+  //  elementId 
+  // if a component and elementId are specified in the tag, is component_elementId, e.g. 
+  // e.g. if elementId="noChgImp" component="instrument", then id="instrument_noChgImp"
+  // if elementName is specifed in the tag, name is equal to elementName, and component
+  //  is ignored
   var domObjects = uiHtml_Group.__getDomObjectsByEither(id, name);
 
   try {
