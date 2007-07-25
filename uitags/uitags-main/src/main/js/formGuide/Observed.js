@@ -60,8 +60,7 @@ function uiFormGuide_Observed(widgetGroup) {
   if (autoCompleteObj != null) {
     //alert("registering event handler with acs");  
     // autocomplete does not pass any arguments to the handler, i.e. the domEvent arg is null
-  	autoCompleteObj.onChangeCallback = observed._respond;
-  	autoCompleteObj.onChangeCallbackOwner = this;
+	autoCompleteObj.appendOnChangeCallback(observed._respond, this);
   }
   else {
     // standard element event handler regsitration. assign event handler function 
