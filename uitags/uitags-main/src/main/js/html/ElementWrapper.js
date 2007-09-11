@@ -904,8 +904,8 @@ uiHtml_ElementWrapper.prototype.skip = function(domElement, value, optionText) {
   var autocompleteObj = ACS['acs_textbox_' + domElement.id];
   if (autocompleteObj != null) {
     // autocomplete control has its own function to skip which disables it. it also sets the value to 
-    // the argument passed to it, matching the option text to set the value. 
-    autocompleteObj.skip(optionText);
+    // the argument passed to it, matching the option value/text to set the value. 
+    autocompleteObj.skip(value, optionText);
   }
   else {
       //alert("uiHtml_ElementWrapper.skip name=" + widget.name + " value=" + widget.value + " type=" + uiCommon_getWidgetType(widget) + " text=" + text + " value=" + value);
@@ -953,7 +953,7 @@ uiHtml_ElementWrapper.prototype.unskip = function(domElement, value, optionText)
   var autocompleteObj = ACS['acs_textbox_' + domElement.id];
   if (autocompleteObj != null) {
     // autocomplete control has its own function to unskip which enables it and sets its value.
-    autocompleteObj.unskip(optionText);  
+    autocompleteObj.unskip(value, optionText);  
   }
   else {
       // only set an unskip value if the current value is skip
@@ -1124,7 +1124,16 @@ uiHtml_ElementWrapper.prototype.setValue = function(domElement, value, optionTex
   // visible input box, so need to call a function on the autocomplete widget to set a value.
   var autoCompleteObj = ACS['acs_textbox_' + domElement.id];
   if (autoCompleteObj != null) {
-      autoCompleteObj.setValue(optionText);
+      // first try to set by matching the value to the options values. if their is no match, the function
+      // does not add the option to the list or issue an alert to the user. matching on value is purely for
+      // use by javascript functions that are setting a known value in the control, e.g. a prior diagnosis
+      // value or a neuroexam normal value. therefore, the functionality of adding the option and alerting the
+      // user is not necessary. that functionality is in setValue, which is tailored towards the user trying 
+      // to select a value via keyboard input.
+      if (!autoCompleteObj.setValueByValue(value)) {
+		// try to match optionText to the options text
+	      autoCompleteObj.setValue(optionText);
+	}
   }
   else {
 	  var elementType = uiHtml_Element.getWidgetType(domElement);
