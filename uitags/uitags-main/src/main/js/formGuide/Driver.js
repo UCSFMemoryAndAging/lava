@@ -67,8 +67,8 @@ uiHtml_Window.getInstance().prependEventHandler("load", function(e) {
  * @return the rule set
  * @type uiFormGuide_RuleSet
  */
-uiFormGuide_Driver.prototype.createRuleSet = function(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnLoad, ignoreDo, ignoreUndo, ignoreAndOr, observeAndOr, prompt) {
-  var ruleSet = new uiFormGuide_RuleSet(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnLoad, ignoreDo, ignoreUndo, ignoreAndOr, observeAndOr, prompt);
+uiFormGuide_Driver.prototype.createRuleSet = function(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnLoad, ignoreDo, ignoreUndo, ignoreAndOr, observeAndOr, prompt, alert) {
+  var ruleSet = new uiFormGuide_RuleSet(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnLoad, ignoreDo, ignoreUndo, ignoreAndOr, observeAndOr, prompt, alert);
   this.__allRuleSets.push(ruleSet);
   return ruleSet;
 };

@@ -179,6 +179,16 @@ public class FormGuideTag extends AbstractUiTag {
   
   /**
    * (ctoohey)
+   * The "alert" tag attribute
+   *
+   * If not null, the user will be alerted with this string. The alert will not be issued
+   * on page load. 
+   */
+  private String _alert; // setter only
+  private String alert;
+  
+  /**
+   * (ctoohey)
    * The "ignoreAndOr" tag attribute
    * 
    * Used in determining whether the ignore rules are met, in which case the formGuide tag is
@@ -205,7 +215,7 @@ public class FormGuideTag extends AbstractUiTag {
    */
   private String _observeAndOr; // setter only
   private String observeAndOr;
-  
+
   /**
    * (ctoohey)
    * The "simulateEvents" tag attribute.
@@ -317,6 +327,16 @@ public class FormGuideTag extends AbstractUiTag {
    * author:ctoohey
    * Tag attribute setter.
    *
+   * @param val value of the tag attribute
+   */
+  public void setAlert(String alert) {
+    this._alert = alert;
+  }
+
+  /**
+   * author:ctoohey
+   * Tag attribute setter.
+   *
    * The ignoreAndOr attribute has value of "and" or "or" and determines whether
    * all ignore tag conditions must be met ("and") or just one of the 
    * ignore tag conditions ("or") must be met.
@@ -411,6 +431,7 @@ public class FormGuideTag extends AbstractUiTag {
     	this.simulateEvents = false;
     }
     this.prompt = this._prompt;
+    this.alert = this._alert;
 
     // initialize internal variable
     firstObserveCloned = false;
@@ -420,7 +441,6 @@ public class FormGuideTag extends AbstractUiTag {
   }
 
   /**
-   * Prints out HTML code to create the form guide.
    *
    * @return <code>EVAL_PAGE</code>
    * @throws JspException to communicate error
@@ -443,6 +463,7 @@ public class FormGuideTag extends AbstractUiTag {
     template.map("ignoreDo",        this.ignoreDo);    
     template.map("ignoreUndo",      this.ignoreUndo);    
     template.map("prompt",          this.prompt);    
+    template.map("alert",           this.alert);    
     template.map("observeAndOr",    this.observeAndOr);    
     template.map("ignoreAndOr",     this.ignoreAndOr);    
 

@@ -188,6 +188,11 @@ uiFormGuide_Observed.prototype._respond = function(domEvent, simulateRuleSets) {
           continue;
         }
       }
+      // if alert attribute was supplied, alert the user and continue. do not alert on page 
+      // load, and only prompt once,i.e. on first iteration
+      if (!simulateRuleSets && i == 0 && ruleSetsToProcess[i].getAlert()) {
+      	alert(ruleSetsToProcess[i].getAlert());
+	  }
       // if prompt attribute was supplied, prompt the user to give them a chance to 
       // cancel the doAction(s). do not prompt on page load, and only prompt once,i.e.
       // on first iteration

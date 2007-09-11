@@ -31,8 +31,9 @@
  * @param ignoreAndOr (ctoohey) designates whether one or all ignore tags must match
  * @param observeAndOr (ctoohey) designates where one or all observe tags must match
  * @param prompt (ctoohey) prompts the user before performing the doAction, allowing them to cancel
+ * @param alert (ctoohey) alerts the user with pertinent information
  */
-function uiFormGuide_RuleSet(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnLoad, ignoreDo, ignoreUndo, ignoreAndOr, observeAndOr, prompt) {
+function uiFormGuide_RuleSet(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnLoad, ignoreDo, ignoreUndo, ignoreAndOr, observeAndOr, prompt, alert) {
   this._super();
   /**
    * @type uiFormGuide_Rule[]
@@ -62,6 +63,7 @@ function uiFormGuide_RuleSet(doAction, undoAction, ignoreDoOnLoad, ignoreUndoOnL
   this.__ignoreAndOr = ignoreAndOr;
   this.__observeAndOr = observeAndOr;
   this.__prompt = prompt;
+  this.__alert = alert;
   
   /**
    * @type uiHtml_ElementWrapper
@@ -104,6 +106,10 @@ uiFormGuide_RuleSet.prototype.getIgnoreUndo = function() {
 
 uiFormGuide_RuleSet.prototype.getPrompt = function() {
   return this.__prompt;
+}  
+
+uiFormGuide_RuleSet.prototype.getAlert = function() {
+  return this.__alert;
 }  
 
 /**

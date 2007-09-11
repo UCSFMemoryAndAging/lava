@@ -14,7 +14,7 @@ function uiFormGuide_undo${instanceId}(domEvent, ruleSet) {
 uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
   #if (!($doTasks.isEmpty() && $undoTasks.isEmpty()))
   var ruleSet = uiFormGuide_driver.createRuleSet(uiFormGuide_do${instanceId}, uiFormGuide_undo${instanceId}, 
-                  $!{ignoreDoOnLoad}, $!{ignoreUndoOnLoad}, $!{ignoreDo}, $!{ignoreUndo}, "${ignoreAndOr}", "${observeAndOr}", #if ($prompt) "${prompt}" #else null #end);
+                  $!{ignoreDoOnLoad}, $!{ignoreUndoOnLoad}, $!{ignoreDo}, $!{ignoreUndo}, "${ignoreAndOr}", "${observeAndOr}", #if ($prompt) "${prompt}" #else null #end, #if ($alert) "${alert}" #else null #end);
   #end  
 
   var rule;
