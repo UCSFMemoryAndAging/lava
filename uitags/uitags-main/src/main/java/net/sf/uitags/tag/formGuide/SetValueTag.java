@@ -64,6 +64,15 @@ public class SetValueTag extends BaseChildTag {
    */
   private String optionText;
 
+  /**
+   * The "comboRadioSelect" tag attribute. The flag indicating whether the widget is a
+   * comboRadioSelect (true), or not (false). Special processing is done for comboRadioSelect
+   * widgets.
+   */
+  private Boolean _comboRadioSelect; // setter only
+  private Boolean comboRadioSelect;
+  
+  private String comboRadioSelectValue; // used internally
 
   //////////////////////////////////
   ////////// Constructors //////////
@@ -100,12 +109,53 @@ public class SetValueTag extends BaseChildTag {
     this.optionText = val;
   }
 
+  /**
+   * Tag attribute setter.
+   *
+   * @param val value of the tag attribute
+   */
+  public void setComboRadioSelect(Boolean val) {
+    this._comboRadioSelect = val;
+  }
 
 
   ///////////////////////////////
   ////////// Tag logic //////////
   ///////////////////////////////
 
+  public int doStartTag() throws JspException {
+      // set defaults
+	  // technique for setting attribute default values. see BaseSkipUnskipTag for details.
+	  this.comboRadioSelect = this._comboRadioSelect;
+      if (this.comboRadioSelect == null) {
+    	  this.comboRadioSelect = new Boolean(false);
+      }
+      
+   	  if (this.comboRadioSelect) {
+   		  // this.value is used to set the radio button portion of the control
+   		  // this.comboRadioSelectValue is used to set the select box portion of the control
+   		  
+   		  // note: optionText is ignored
+   		  
+   		  // value should be specified if comboRadioSelect, but if not, default it to blank
+   		  if (this.value == null) {
+   			  this.value = FormGuideTag.COMBO_RADIO_SELECT_USE_SELECT;
+   			  this.comboRadioSelectValue = "";
+   		  }
+   		  else if (this.value.equals("") || this.value.matches("^-[0-9]+")) {
+   			  // if the value is blank or negative, the value is set on the select box part of the control
+   			  this.comboRadioSelectValue = this.value;
+   			  this.value = FormGuideTag.COMBO_RADIO_SELECT_USE_SELECT;
+   		  }
+   		  else {
+   			  // value is set on the radio button portion of the control, i.e. leave this.value as is
+   			  this.comboRadioSelectValue = "";
+   		  }
+      }
+
+      return SKIP_BODY;
+  }
+  
   /**
    * Communicates with the parent tag ({@link FormGuideTag}).
    *
@@ -131,7 +181,7 @@ public class SetValueTag extends BaseChildTag {
 
 		  // note: the setValue child tag has no undo action, since setValue simply
 		  //       sets a widget to a value
-
+		  
 		  formGuideTag.addJavascriptCallback(
 				UiString.simpleConstruct(
 						"{0}(domEvent, {1}, {2}, {3}, {4});",
@@ -139,6 +189,19 @@ public class SetValueTag extends BaseChildTag {
 								(this.elementNames != null ? idOrNameParam : null), 
 								getJsElementParam(this.value), getJsElementParam(this.optionText)}),
 				null);
+		  
+		  
+		  // also set the select box if this is a comboRadioSelect control
+	   	  if (this.comboRadioSelect) {
+	   	   	String idOrNameComboRadioSelectParam = getJsElementParam(elementIdOrName.trim() + "_CODE");
+	   	   	formGuideTag.addJavascriptCallback(
+	   	   			UiString.simpleConstruct(
+	   	   					"{0}(domEvent, {1}, {2}, {3}, {4});",
+	   	   					new String[] { CALLBACK_METHOD, (this.elementIds != null ? idOrNameComboRadioSelectParam : null), 
+	   	   							(this.elementNames != null ? idOrNameParam : null), 
+	   	   							getJsElementParam(this.comboRadioSelectValue), null}),
+	   	   			null);
+	   	  }
 	  }
     return EVAL_PAGE;
   }

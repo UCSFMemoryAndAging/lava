@@ -51,6 +51,13 @@ public class EnableTag extends BaseChildTag {
   ////////// Fields //////////
   ////////////////////////////
 
+  /**
+   * The "comboRadioSelect" tag attribute. The flag indicating whether the widget is a
+   * comboRadioSelect (true), or not (false). Special processing is done for comboRadioSelect
+   * widgets.
+   */
+  private Boolean _comboRadioSelect; // setter only
+  private Boolean comboRadioSelect;
 
 
   //////////////////////////////////
@@ -70,11 +77,34 @@ public class EnableTag extends BaseChildTag {
   ////////// Tag attribute setters //////////
   ///////////////////////////////////////////
 
+  /**
+   * Tag attribute setter.
+   *
+   * @param val value of the tag attribute
+   */
+  
+  public void setComboRadioSelect(Boolean val) {
+    this._comboRadioSelect = val;
+  }
+
 
   ///////////////////////////////
   ////////// Tag logic //////////
   ///////////////////////////////
 
+  public int doStartTag() throws JspException {
+      // set defaults
+	  // technique for setting attribute default values. see BaseSkipUnskipTag for details.
+	  this.comboRadioSelect = this._comboRadioSelect;
+      if (this.comboRadioSelect == null) {
+    	  this.comboRadioSelect = new Boolean(false);
+      }
+
+      return SKIP_BODY;
+  }
+  
+
+  
   /**
    * Communicates with the parent tag ({@link FormGuideTag}).
    *
@@ -85,9 +115,48 @@ public class EnableTag extends BaseChildTag {
 	  validateAttributes();
 
 	  FormGuideTag formGuideTag = (FormGuideTag) findParent(FormGuideTag.class);
-	  formGuideTag.addJavascriptCallback(CALLBACK_METHOD,
-        DisableTag.CALLBACK_METHOD, this.elementIds, this.elementNames, this.component);
+	  formGuideTag.addJavascriptCallback(CALLBACK_METHOD, DisableTag.CALLBACK_METHOD, 
+			  this.elementIds, this.elementNames, this.component);
 
+	  if (this.comboRadioSelect) {
+		  // generate the select box elements that correspond to the radio button elements
+		  // by appending _CODE to the element id or name, create a comma separated list 
+		  // then add do/undo (enable/disable) actions as javascript callbacks for these 
+		  // elements 
+		  
+		  String[] elementArray = null;
+		  StringBuffer selectElementIds = null;
+		  StringBuffer selectElementNames = null;
+		  if (this.elementIds != null) {
+		   	elementArray = this.elementIds.split(",");
+			selectElementIds = new StringBuffer();
+		  }
+		  else if (this.elementNames != null) {
+		   	elementArray = this.elementNames.split(",");
+			selectElementNames = new StringBuffer();
+		  }
+		  boolean firstElement = true;
+		  for (String elementIdOrName : elementArray) {
+		  		if (this.elementIds != null) {
+		  			if (!firstElement) {
+		  				selectElementIds.append(",");
+		  			}
+		  			selectElementIds.append(elementIdOrName.trim() + "_CODE");
+		  		}
+		  		else {
+		  			if (!firstElement) {
+		  				selectElementNames.append(",");
+		  			}
+		  			selectElementNames.append(elementIdOrName.trim() + "_CODE");
+		  		}
+		  		firstElement = false;
+		  }
+		  
+          formGuideTag.addJavascriptCallback(CALLBACK_METHOD, DisableTag.CALLBACK_METHOD, 
+        		  (selectElementIds != null ? selectElementIds.toString() : null), 
+        		  (selectElementNames != null ? selectElementNames.toString() : null), this.component);
+
+	  }	  
     return EVAL_PAGE;
   }
 }
