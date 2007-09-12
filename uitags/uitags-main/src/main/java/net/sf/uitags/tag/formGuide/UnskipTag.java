@@ -79,6 +79,11 @@ public class UnskipTag extends BaseSkipUnskipTag {
    * @throws JspException to communicate error
    */
   public int doEndTag() throws JspException {
+	  // re: comboRadioSelect controls. unskip sets them to blank (but only if their prior value
+	  // is LOGICAL_SKIP. this is enforced in acselect.js). which means that the radio button portion
+	  // should be set to FormGuideTag.COMBO_RADIO_SELECT_USE_SELECT, which is the default. however,
+	  // this is not enforced; if value/optionText are specified for a comboRadioSelect, the results 
+	  // would be strange.
 	  return doEndTag(CALLBACK_METHOD, SkipTag.CALLBACK_METHOD, 
 			  this.unskipValue, this.unskipOptionText, this.skipValue, this.skipOptionText,
 			  "", "", FormGuideTag.LOGICAL_SKIP_CODE, FormGuideTag.LOGICAL_SKIP_TEXT);

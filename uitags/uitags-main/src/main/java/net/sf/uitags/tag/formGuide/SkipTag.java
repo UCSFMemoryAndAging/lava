@@ -80,6 +80,11 @@ public class SkipTag extends BaseSkipUnskipTag {
    * @throws JspException to communicate error
    */
   public int doEndTag() throws JspException {
+	  // re: comboRadioSelect controls. by definition, skip sets the select box portion to LOGICAL_SKIP
+	  // this means that the radio button portion should be set to FormGuideTag.COMBO_RADIO_SELECT_USE_SELECT
+	  // which is the default, so as long as value and optionText are not specified, this works. 
+	  // however, this is not enforced; if value/optionText are specified for a comboRadioSelect, the results 
+	  // would be strange.
 	  return doEndTag(CALLBACK_METHOD, UnskipTag.CALLBACK_METHOD, 
 			  this.skipValue, this.skipOptionText, this.unskipValue, this.unskipOptionText,
 			  FormGuideTag.LOGICAL_SKIP_CODE, FormGuideTag.LOGICAL_SKIP_TEXT, "", "");
