@@ -566,6 +566,14 @@
                    is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
                    of individual radio button elements.</description>
     </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if control is a comboRadioSelect (default is false), in which
+      			case both the radio buttons and select need to be enabled.</description>
+    </attribute>
   </tag>
 
   <tag>
@@ -597,6 +605,14 @@
                    Also, this attribute is required when elementIds represent radio button groups, in which case component
                    is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
                    of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if control is a comboRadioSelect (default is false), in which
+      			case both the radio buttons and select need to be disabled.</description>
     </attribute>
   </tag>
 
@@ -987,13 +1003,25 @@
       <name>value</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-     <description>Value to set element(s) to. If element is a selectbox, this is used to select an option with a matching value field.</description>
+     <description>Value to set element(s) to. If element is a selectbox, this is used to select an option with a matching value field.
+     			  This is an optional attribute; however, if this is a comboRadioSelect control, value must be supplied
+     			  because it is used to distinguish whether the value should be set on the radio buttons (if non-negative and non-blank)
+     			  or on the select box (if negative or blank). in this case, optionText is ignored.
+     </description>
     </attribute>
     <attribute>
       <name>optionText</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Only for selectbox elements. This is used to select an option with a matching text field.</description>
+      <description>Only for selectbox elements. This is used to select an option with a matching text field.
+      				If the widget is a comboRadioSelect, only value is used and optionText is ignored.</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if control is a comboRadioSelect (default is false).</description>
     </attribute>
   </tag>
 
