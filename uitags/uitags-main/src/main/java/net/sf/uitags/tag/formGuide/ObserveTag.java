@@ -57,7 +57,8 @@ public class ObserveTag extends ObserveForNullTag {
    */
   private Boolean _comboRadioSelect; // setter only
   private Boolean comboRadioSelect;
-
+  
+  private String comboRadioSelectForValue; // internal use
 
 
   //////////////////////////////////
@@ -107,7 +108,26 @@ public class ObserveTag extends ObserveForNullTag {
 	  // technique for setting attribute default values. see BaseSkipUnskipTag for details.
 	  this.comboRadioSelect = this._comboRadioSelect;
       if (this.comboRadioSelect == null) {
-	  this.comboRadioSelect = new Boolean(false);
+    	  this.comboRadioSelect = new Boolean(false);
+      }
+      
+      if (this.comboRadioSelect) {
+	      // if the forValue is a negative number or blank, need to observe the select box portion
+	      // of the control. otherwise, need to observe the radio button portion of the control.
+    	  // adjust the forValue accordingly
+    	  
+    	  // NOTE: this assumes that when the forValue should match one of the codes in the select
+    	  // box, which have negative values, the forValue begins with "-[0-9]" in reg exp terms.
+    	  // the following matches a single code, e.g. -6, as well as multiple codes -6|-7|-8|-9 
+   		  if (this.forValue.equals("") || this.forValue.matches("^-[0-9]*.*")) {
+   			  // if the value is blank or negative, the value is set on the select box part of the control
+   			  this.comboRadioSelectForValue = this.forValue;
+   			  this.forValue = FormGuideTag.COMBO_RADIO_SELECT_USE_SELECT;
+   		  }
+   		  else {
+   			  // value is set on the radio button portion of the control, i.e. leave this.forValue as is
+   			  this.comboRadioSelectForValue = "^$"; // reg exp for empty string
+   		  }
       }
 
       return SKIP_BODY;
@@ -138,18 +158,11 @@ public class ObserveTag extends ObserveForNullTag {
     		//  option (the empty string).
     		// the element id in the observe tag refers to the radio button group portion of
     		//  the control
-    		// currently, the assumption is that the observe tag for a comboRadioSelect will
-    		//  be a valid value, not a missing data code, i.e. the forValue attribute for the
-    		//  observe tag applies to the radio button group portion of the control. when the
-    		//  control has a valid value, the value of the selectbox is blank. because of this,
-    		//  the observe rule is configured such that a blank value for the select box means
-    		//  the observe rule for that select box holds, which a missing data code for the
-    		//  select box means the observe rule for the select box does not hold. an observe 
-    		//  element is added for the selectbox portion of the control accordingly.
+    		// the forValue was configured in doStartTag
     		// note: select box element id is the element id of the radio button group with
     		//  _CODE appended
-    		if (this.comboRadioSelect == Boolean.TRUE) {
-    			formGuideTag.addObservedElementId(elementId.trim() + "_CODE", "", this.negate);
+    		if (this.comboRadioSelect) {
+    			formGuideTag.addObservedElementId(elementId.trim() + "_CODE", this.comboRadioSelectForValue, this.negate);
     		}
     	}
     }
@@ -158,8 +171,8 @@ public class ObserveTag extends ObserveForNullTag {
     	for (String elementName : elementNameArray) {
     		formGuideTag.addObservedElementName(elementName.trim(), this.forValue, this.negate);
     		// see comments on special case for comboRadioSelect controls above
-    		if (this.comboRadioSelect == Boolean.TRUE) {
-    			formGuideTag.addObservedElementName(elementName.trim() + "_CODE", "", this.negate);
+    		if (this.comboRadioSelect) {
+    			formGuideTag.addObservedElementName(elementName.trim() + "_CODE", this.comboRadioSelectForValue, this.negate);
     		}
     	}
     }
