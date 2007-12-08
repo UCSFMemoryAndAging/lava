@@ -957,7 +957,7 @@ uiHtml_ElementWrapper.prototype.unskip = function(domElement, value, optionText)
   }
   else {
       // only set an unskip value if the current value is skip
-      if (domElement.value == "-6" || domElement.value == "-6.0") {
+      if (domElement.value == "-6" || domElement.value == "-6.0" || domElement.value == "Logical Skip") {
         //alert("unskipSingleWidget name=" + widget.name + " value=" + widget.value + " type=" + uiCommon_getWidgetType(widget) + " text=" + text + " value=" + value);
         //note: originally, only set unskip value if current widget value was Logical Skip (-6), but per
         //      the definition of the unskip tag, always set the unskip value. if want to enable a tag

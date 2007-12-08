@@ -691,7 +691,8 @@
             
       Conversely, if the observe rules are not met, the element(s) are unskipped,
       meaning that they are enabled, and only if the current value is LOGICAL_SKIP 
-      ("-6" or "-6.0") then the value is set to the specified unskipValue or unskipOptionText. 
+      ("-6" or "-6.0" or "Logical Skip") then the value is set to the specified unskipValue or 
+      unskipOptionText. 
       
       In other words, the skip tag is intended for elements that can have LOGICAL_SKIP as a 
       value, i.e. the element has an associated list with the standard error codes. Otherwise, 
@@ -699,7 +700,8 @@
       
       If the element is not a selectbox, skipOptionText and unskipOptionText attributes are not used. 
       
-      If an element is a selectbox, the option matching its text field to the skip/unskipOptionText
+      If an element is a selectbox, the skip/unskip value is set as follows:
+      The option matching its text field to the skip/unskipOptionText
       attribute, or matching its value field to the skip/unskipValue attribute, or both, 
       is selected. If there is no match, a new option is added to the select box using 
       skip/unskipValue and/or skip/unskipOptionText, and is selected. For selectboxes, only 
@@ -755,7 +757,8 @@
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
      <description>Skipped element(s) are set to this value. select boxes (including acs element) can have their value set 
-	using this value or skipOptionText. Defaults to "-6"</description>
+	using this value or skipOptionText. Defaults to "-6"  If the field is a text field, may want to explicitly
+	set this attribute to "Logical Skip" which works better than "-6" in a text field.</description>
     </attribute>
     <attribute>
       <name>skipOptionText</name>
@@ -768,17 +771,17 @@
       <name>unskipValue</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-     <description>In the case of undo action, unskipped element(s) whose current value is LOGICAL_SKIP ("-6" or "-6.0")
-      are set to this value. select boxes (including acs elements) can have their value set using this value or 
-	unskipOptionText. Defaults to ""</description>
+     <description>In the case of undo action, unskipped element(s) whose current value is LOGICAL_SKIP ("-6" or "-6.0"
+      or "Logical Skip") are set to this value. select boxes (including acs elements) can have their value set using this 
+      value or unskipOptionText. Defaults to ""</description>
     </attribute>
     <attribute>
       <name>unskipOptionText</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>In the case of undo action, unskipped element(s) whose current value is LOGICAL_SKIP ("-6" or "-6.0")
-       and which are select boxes (including acs elements) are set to an unskip value by matching their option text to this
-       text. Defaults to ""</description>
+      <description>In the case of undo action, unskipped element(s) whose current value is LOGICAL_SKIP ("-6" or "-6.0" or
+       "Logical Skip") and which are select boxes (including acs elements) are set to an unskip value by matching their 
+       option text to this text. Defaults to ""</description>
     </attribute>
     <attribute>
       <name>comboRadioSelect</name>
@@ -795,8 +798,8 @@
     <body-content>empty</body-content>
     <display-name>unskip</display-name>
     <description>Specifies the element(s) that are unskipped when the observe rules are met. The 
-      element(s) are enabled and, ONLY if the current value is LOGICAL_SKIP ("-6" or "-6.0") then
-      the element is set to the specified unskipValue/unskipOptionText. In other words, the unskip
+      element(s) are enabled and, ONLY if the current value is LOGICAL_SKIP ("-6" or "-6.0" or "Logical Skip")
+      then the element is set to the specified unskipValue/unskipOptionText. In other words, the unskip
       tag is intended for elements that can have LOGICAL_SKIP as a value, i.e. the element has an
       associated list with the standard error codes. Otherwise, consider using a combination
       of enable and setValue tags instead of unskip.
@@ -806,11 +809,12 @@
       
       If the element is not a selectbox, unskipOptionText/skipOptionText attributes are not used. 
       
-      If an element is a selectbox, the option matching its value field to the unskip/skipValue
-      attribute, or matching its text field to the unskip/skipOptionText attribute, or both, 
-      is selected. If there is no match, a new option is added to the select box using 
-      unskip/skipValue and/or unskip/skipOptionText, and is selected. For selectboxes, only 
-      one of unskip/skipValue or unskip/skipOptionText must be supplied, or both can be supplied.
+      If an element is a selectbox, the unskip/skip value is set as follows:
+      the option matching its value field to the unskip/skipValue attribute, or matching its 
+      text field to the unskip/skipOptionText attribute, or both, is selected. If there is no match, 
+      a new option is added to the select box using unskip/skipValue and/or unskip/skipOptionText, 
+      and is selected. For selectboxes, only one of unskip/skipValue or unskip/skipOptionText must 
+      be supplied, or both can be supplied.
 
       If using this tag for instrument data enty and instrument data collection fields,
       the tag supplies defaults for all the unskip/skipValue and unskip/skipOptionText attributes 
@@ -861,15 +865,15 @@
       <name>unskipValue</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-     <description>If the current value of the unskipped element is LOGICAL_SKIP ("-6" or "-6.0"), its value is set to this
+     <description>If the current value of the unskipped element is LOGICAL_SKIP ("-6" or "-6.0" or "Logical Skip"), its value is set to this
       value. select boxes (including acs elements) can have their value set using this value or unskipOptionText. Defaults 
-	to ""</description>
+      to ""</description>
     </attribute>
     <attribute>
       <name>unskipOptionText</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>If the current value of the unskipped element is LOGICAL_SKIP ("-6" or "-6.0"), and if the element is a select
+      <description>If the current value of the unskipped element is LOGICAL_SKIP ("-6" or "-6.0" or "Logical Skip"), and if the element is a select
        box (including acs elements), its value is set by matching option text to this text. Defaults to ""</description>
     </attribute>
     <attribute>
@@ -877,7 +881,8 @@
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
      <description>In the case of undo action, set skipped element(s) to this value. select boxes (including acs elements) can have 
-	their value set using this value or skipOptionText. Defaults to "-6"</description>
+	their value set using this value or skipOptionText. Defaults to "-6". If the field is a text field, may want to explicitly
+	set this attribute to "Logical Skip" which works better than "-6" in a text field.</description>
     </attribute>
     <attribute>
       <name>skipOptionText</name>
