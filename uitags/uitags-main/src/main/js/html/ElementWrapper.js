@@ -1147,7 +1147,7 @@ uiHtml_ElementWrapper.prototype.setValue = function(domElement, value, optionTex
 	    	domElement.checked = true;
     	}
 	  }
-	  else if (elementType == 'textarea' || elementType == 'text' || elementType == 'submit' || elementType == 'button') {
+	  else if (elementType == 'textarea' || elementType == 'text' || elementType == 'submit' || elementType == 'button' || elementType == 'hidden') {
 	  	domElement.value = value;
       }
   }
