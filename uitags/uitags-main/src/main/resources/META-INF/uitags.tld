@@ -541,7 +541,8 @@
     <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Enable@EL_CLS@Tag</tag-class>
     <body-content>empty</body-content>
     <display-name>enable</display-name>
-    <description>Specifies the element(s) that get enabled when the observe rules are met.</description>
+    <description>Specifies the element(s) that get enabled when the observe rules are met. When the observe rules
+    			are NOT met, the element(s) are disabled.</description>
 
     <attribute>
       <name>elementIds</name>
@@ -581,7 +582,8 @@
     <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Disable@EL_CLS@Tag</tag-class>
     <body-content>empty</body-content>
     <display-name>disable</display-name>
-    <description>Specifies the element(s) that get disabled when the observed rule are met.</description>
+    <description>Specifies the element(s) that get disabled when the observed rule are met. When the observe rules
+    			are NOT met, the element(s) are enabled.</description>
 
     <attribute>
       <name>elementIds</name>
