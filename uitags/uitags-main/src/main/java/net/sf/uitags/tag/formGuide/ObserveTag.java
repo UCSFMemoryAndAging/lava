@@ -118,8 +118,11 @@ public class ObserveTag extends ObserveForNullTag {
     	  
     	  // NOTE: this assumes that when the forValue should match one of the codes in the select
     	  // box, which have negative values, the forValue begins with "-[0-9]" in reg exp terms.
-    	  // the following matches a single code, e.g. -6, as well as multiple codes -6|-7|-8|-9 
-   		  if (this.forValue.equals("") || this.forValue.matches("^-[0-9]*.*")) {
+    	  // the following matches a single code, e.g. -6, as well as multiple codes -6|-7|-8|-9
+    	  
+    	  // blank should be represented as "^$" since regular expression matching is done, but "" has been
+    	  // used as well, so support that
+   		  if (this.forValue.equals("") || this.forValue.equals("^$") || this.forValue.matches("^-[0-9]*.*")) {
    			  // if the value is blank or negative, the value is set on the select box part of the control
    			  this.comboRadioSelectForValue = this.forValue;
    			  this.forValue = FormGuideTag.COMBO_RADIO_SELECT_USE_SELECT;
