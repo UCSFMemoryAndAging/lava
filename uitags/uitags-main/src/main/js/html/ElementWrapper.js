@@ -1141,12 +1141,21 @@ uiHtml_ElementWrapper.prototype.setValue = function(domElement, value, optionTex
 	    var selectObj = new uiHtml_Select(domElement);
 	    selectObj.setSelectedOptionAddIfNoMatch(optionText, value);
 	  }
-	  else if (elementType == 'radio' || elementType == 'checkbox') {
+	  else if (elementType == 'radio') {
 	    // check the box/button whose value is equal to the value argument
 	    if (domElement.value == value) {
 	    	domElement.checked = true;
     	}
 	  }
+	  else if (elementType == 'checkbox') {
+	    // check the box/button whose value is equal to the value argument
+	    if (domElement.value == value) {
+	    	domElement.checked = true;
+    	}
+    	else {
+    		domElement.checked = false;
+   		}
+ 	  }
 	  else if (elementType == 'textarea' || elementType == 'text' || elementType == 'submit' || elementType == 'button' || elementType == 'hidden') {
 	  	domElement.value = value;
       }
