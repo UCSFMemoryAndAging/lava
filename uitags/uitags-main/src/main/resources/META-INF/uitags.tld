@@ -980,7 +980,10 @@
        or matching its text field to the optionText attribute, or both, is selected. If there is
        no match, a new option is added to the select box using value and optionText, and is
        selected. For selectboxes, only one of value or optionText must be supplied, or both
-       can be supplied.
+       can be supplied. 
+       If an element is an autocomplete, and value does not match any values in the autocomplete
+       select list, then the value will NOT be set. This could be a problem with instruments
+       when hiding codes and the value to set is a code.
     </description>
 
     <attribute>
