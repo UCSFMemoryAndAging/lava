@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- this context file is referenced by WEB-INF/context/context.xml and loaded into the application context -->
+<beans>
+
+
+<import resource="crms-actions.xml"/>
+<import resource="crms-auth.xml"/>
+<import resource="crms-controller.xml"/>
+<import resource="crms-enrollment.xml"/>
+<import resource="crms-instrument.xml"/>
+<import resource="crms-list.xml"/>
+<import resource="crms-managers.xml"/>
+<import resource="crms-mappings.xml"/>
+<import resource="crms-mylava.xml"/>
+<import resource="crms-people.xml"/>
+<import resource="crms-reporting.xml"/>
+<import resource="crms-scheduling.xml"/>
+<import resource="crms-session.xml"/>
+<import resource="crms-webflow.xml"/>
+
+
+
+</beans>
+

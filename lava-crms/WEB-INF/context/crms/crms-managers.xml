@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    
+     <!-- this bean definition configures the CrmsManagerUtils class with the application context --> 
+    <bean id="crmsManagerUtils" class="edu.ucsf.lava.crms.manager.CrmsManagerUtils"/>
+	
+   <!-- there is no other configuration for project, so configure the project manager here -->   
+   <bean id="projectManager" class="edu.ucsf.lava.crms.project.ProjectManager" />
+	
+	
+	
+</beans>
+	

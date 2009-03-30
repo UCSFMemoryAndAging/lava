@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.auth.model.AuthUserRole" table="authuserrole" select-before-update="true">
+		
+		<id name="id" type="long">
+			<column name="URID" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+		<timestamp name="modified" column="modified"/>
+       <many-to-one name="role" column="RoleID" class="edu.ucsf.lava.core.auth.model.AuthRole" lazy="false" not-null="true"/>
+       <many-to-one name="user" column="UID" class="edu.ucsf.lava.core.auth.model.AuthUser" lazy="false"/>
+       <many-to-one name="group" column="GID" class="edu.ucsf.lava.core.auth.model.AuthGroup" lazy="false"/>
+       <property name="notes" column="Notes" type="string" length="255"/>
+
+
+			
+	</class>
+	
+	
+	  <!-- queries  -->
+
+</hibernate-mapping>

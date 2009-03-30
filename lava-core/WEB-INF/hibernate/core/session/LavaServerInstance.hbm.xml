@@ -1,0 +1,38 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<class name="edu.ucsf.lava.core.session.model.LavaServerInstance" table="lavaserverinstance" select-before-update="true">
+
+		<id name="id" type="long">
+			<column name="ServerInstanceID" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+	   <timestamp name="modified" column="modified"/>
+	   <property name="serverDescription" column="ServerDescription" type="string" length="255" />
+       <property name="createTime" column="CreateTime" type="timestamp" not-null="true"/>
+	   <property name="disconnectTime" column="DisconnectTime" type="timestamp"/>
+	   <property name="disconnectWarningMinutes" column="DisconnectWarningMinutes" type="long"/>
+	   <property name="disconnectMessage" column="DisconnectMessage" type="string" length="500"/>
+	   
+	   
+	<!-- associations -->
+
+
+
+	<!-- filters -->
+               <!--define or remove these standard filters-->
+   
+
+</class>
+
+
+         <!-- queries  -->
+
+
+
+</hibernate-mapping>

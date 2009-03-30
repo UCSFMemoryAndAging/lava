@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>       
+	<!-- Use core flow builders for entity and lists in crms -->
+    <bean id="crmsEntityFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.EntityFlowTypeBuilder"/>
+    <bean id="crmsListFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.ListFlowTypeBuilder"/>
+    
+    <bean id="crmsInstrumentListFlowTypeBuilder" class="edu.ucsf.lava.crms.webflow.builder.InstrumentListFlowTypeBuilder"/>
+	<bean id="crmsInstrumentFlowTypeBuilder" class="edu.ucsf.lava.crms.webflow.builder.InstrumentFlowTypeBuilder"/>
+	<bean id="crmsInstrumentCommonFlowTypeBuilder" class="edu.ucsf.lava.crms.webflow.builder.InstrumentCommonFlowTypeBuilder"/>
+	<bean id="crmsInstrumentGroupFlowTypeBuilder" class="edu.ucsf.lava.crms.webflow.builder.InstrumentGroupFlowTypeBuilder"/>
+	<bean id="crmsWelcomeFlowTypeBuilder" class="edu.ucsf.lava.crms.webflow.builder.WelcomeFlowTypeBuilder"/>
+	
+</beans>
+

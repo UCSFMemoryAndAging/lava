@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	
+	<!-- the instrument manager bean -->
+	<bean id="instrumentManager" class="edu.ucsf.lava.crms.assessment.InstrumentManager" >
+		<property name="instrumentDefinitions">
+			<ref bean="instrumentDefinitions"/>
+		</property>  
+		<property name="instrumentPrototypes">
+					<bean class="edu.ucsf.lava.core.spring.MapMerger">
+	    				<constructor-arg><map>
+     						<entry key="crmsInstrumentPrototypes"><ref bean="crmsInstrumentPrototypes"/></entry>
+		     				<entry key="localInstrumentPrototypes"><ref bean="localInstrumentPrototypes"/></entry>
+			     	</map></constructor-arg>
+					</bean>
+		</property>  			
+	</bean>
+	
+	
+    <bean id="abstractInstrumentPrototype" abstract="true" class="edu.ucsf.lava.crms.assessment.model.Instrument">
+   		<constructor-arg index="0"><null/></constructor-arg>
+   		<constructor-arg index="1"><null/></constructor-arg>
+   		<constructor-arg index="2"><null/></constructor-arg>
+   		<constructor-arg index="3"><null/></constructor-arg>
+   		<constructor-arg index="4"><null/></constructor-arg>
+   		<constructor-arg index="5"><null/></constructor-arg>
+   	</bean>
+   	
+   	<!-- refactor into a self-registering collection bean -->
+      <!--  a ProjectName-Visittype:Visit bean map injected into the assessmentService -->
+   	<bean id="crmsInstrumentPrototypes" class="java.util.LinkedHashMap">
+		<constructor-arg><map>	
+		</map></constructor-arg>
+	</bean>	
+	
+		
+	
+	
+	<!-- actions -->
+	<bean id="crmsInstrumentCommonFlowAction" abstract="true" parent="crmsAction">
+		<property name="flowTypeBuilder"><ref bean="crmsInstrumentCommonFlowTypeBuilder"/></property>
+	</bean>
+	
+	<bean id="crmsInstrumentFlowAction" abstract="true" parent="crmsAction">
+		<property name="flowTypeBuilder"><ref bean="crmsInstrumentFlowTypeBuilder"/></property>
+		<property name="parentFlow"><value>lava.crms.assessment.instrument.instrumentGroup</value></property>
+	</bean>
+	
+	<bean id="crmsInstrumentGroupFlowAction" abstract="true" parent="crmsAction">
+		<property name="flowTypeBuilder"><ref bean="crmsInstrumentGroupFlowTypeBuilder"/></property>
+	</bean>
+	
+	<bean id="crmsInstrumentListFlowAction" abstract="true" parent="crmsAction">
+		<property name="flowTypeBuilder"><ref bean="crmsInstrumentListFlowTypeBuilder"/></property>
+		<property name="subFlows"><list>
+			<value>lava.crms.assessment.instrument.instrument</value>
+			<value>lava.crms.assessment.instrument.udsmedications2</value>
+			<value>lava.crms.assessment.instrument.instrumentGroup</value>
+		</list></property>		
+	</bean>
+	
+	<!-- Parent beans that define default actions for instrument list entities -->
+	<bean id="crmsSectionInstrumentListAction" abstract="true" parent="crmsInstrumentListFlowAction">
+			<property name="sectionDefault" value="true"/>
+	</bean>
+	<bean id="crmsPatientSectionInstrumentListAction" abstract="true" parent="crmsInstrumentListFlowAction">
+			<property name="patientSectionDefault" value="true"/>
+	</bean>
+	<bean id="crmsModuleInstrumentListAction" abstract="true" parent="crmsInstrumentListFlowAction">
+			<property name="moduleDefault" value="true"/>
+			<property name="sectionDefault" value="true"/>
+	</bean>
+	<bean id="crmsPatientModuleInstrumentListAction"  abstract="true" parent="crmsInstrumentListFlowAction">
+			<property name="patientModuleDefault" value="true"/>
+			<property name="patientSectionDefault" value="true"/>
+	</bean>
+		
+	<bean id="lava.crms.assessment.summary.patientInstruments" parent="crmsPatientModuleInstrumentListAction"/>
+	<bean id="lava.crms.assessment.summary.projectInstruments" parent="crmsModuleInstrumentListAction"/>
+				
+			
+	
+	<!-- most instruments share common flows (assessment.instrument.instrument.*) and the flow 
+	    listener sets the specific instrument type in the current action. the exception is instruments
+		that require their own handler which are configured below -->
+	<bean id="lava.crms.assessment.instrument.instrument" parent="crmsInstrumentFlowAction"/>
+	
+	<bean id="lava.crms.assessment.instrument.instrumentGroup" parent="crmsInstrumentGroupFlowAction"/>				
+
+	
+	 <!-- form action definitions -->
+    
+    <bean id="baseEntityInstrumentHandler" class="edu.ucsf.lava.crms.assessment.controller.InstrumentHandler" parent="crmsHandler" abstract="true">
+    	<constructor-arg><map>
+      			<!-- key is instrTypeEncoded, i.e. lowercase, with "FileLoader" appended -->
+		</map></constructor-arg>
+		
+		<!-- refactor into a self-registering bean collection -->
+		<property name="projectInstrumentVerifyRates">
+			<bean class="edu.ucsf.lava.core.spring.MapMerger">
+   				<constructor-arg><map>
+   					<!-- a Project-Instrument:Verify Rate map injected into the instrumentHandler -->
+					<entry key="crmsProjectInstrumentVerifyRates"><ref bean="crmsProjectInstrumentVerifyRates"/></entry>
+    				<entry key="localProjectInstrumentVerifyRates"><ref bean="localProjectInstrumentVerifyRates"/></entry>
+		     	</map></constructor-arg>
+			</bean>
+		</property>     		
+	</bean>		
+	
+   	<bean id="crmsProjectInstrumentVerifyRates" class="java.util.LinkedHashMap">
+		<constructor-arg><map>	
+		</map></constructor-arg>
+	</bean>	
+	
+	
+	<bean id="crmsInstrumentComponentFormAction" abstract="true" parent="crmsEntityComponentFormAction"
+		class="edu.ucsf.lava.crms.assessment.controller.InstrumentComponentFormAction">
+	</bean>
+	
+	<bean id="visitInstrumentsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.assessment.controller.VisitInstrumentsHandler" parent="crmsHandler"/>
+		<ref bean="instrumentGroupHandler"/>
+	</list></constructor-arg></bean>  
+
+	<bean id="patientInstrumentsFormAction" parent="crmsListComponentFormAction">
+    	<constructor-arg><list><bean class="edu.ucsf.lava.crms.assessment.controller.PatientInstrumentsHandler" parent="crmsHandler"/></list></constructor-arg>
+	</bean>  
+	
+	<bean id="projectInstrumentsFormAction" parent="crmsListComponentFormAction">
+    	<constructor-arg><list><bean class="edu.ucsf.lava.crms.assessment.controller.ProjectInstrumentsHandler" parent="crmsHandler"/></list></constructor-arg>
+	</bean>  
+
+	<bean id="instrumentFormAction" parent="crmsInstrumentComponentFormAction">
+    	<constructor-arg>
+    		<list>
+      			<bean parent="baseEntityInstrumentHandler"/>
+	      		<bean class="edu.ucsf.lava.crms.assessment.controller.VisitInstrumentsHandler" parent="crmsHandler"/>
+      		</list>
+   		</constructor-arg>
+    </bean>
+
+	<bean id="instrumentGroupHandler" class="edu.ucsf.lava.crms.assessment.controller.InstrumentGroupHandler" parent="crmsHandler">
+		<property name="groupPrototypes">
+			<!-- refactor into a self-registering bean collection -->
+			<bean class="edu.ucsf.lava.core.spring.MapMerger">
+   				<constructor-arg><map>
+					<entry key="crmsInstrumentGroupPrototypes"><ref bean="crmsInstrumentGroupPrototypes"/></entry>
+    				<entry key="localInstrumentGroupPrototypes"><ref bean="localInstrumentGroupPrototypes"/></entry>
+		     	</map></constructor-arg>
+			</bean>
+		</property>     		
+	</bean>
+
+   	<bean id="crmsInstrumentGroupPrototypes" class="java.util.LinkedHashMap">
+		<constructor-arg><map>	
+		</map></constructor-arg>
+	</bean>	
+	
+	<bean id="instrumentGroupFormAction" parent="crmsEntityComponentFormAction">
+		<constructor-arg><bean parent="instrumentGroupHandler"/></constructor-arg>
+	</bean>
+
+
+	<bean id="instrumentFileLoader" abstract="true">
+    	<property name="assessmentService">
+    		<ref bean="assessmentService"/>
+   		</property>
+    	<property name="sessionService">
+    		<ref bean="sessionService"/>
+   		</property>
+	</bean>   		    
+		
+	
+	<!-- standard controllers (not webflow) -->
+	<bean id="instrCalcController" class="edu.ucsf.lava.crms.assessment.controller.CalculateController"/>
+	
+	
+	
+		
+	<!-- InstrumentConfig is a structure to indicate which instruments have been implemented in the application and additional
+	         instrument configuration data. the instrument key used must be that returned by getInstrTypeEncoded defined 
+	         in edu.ucsf.memory.lava.model.Instrument
+	   
+	   		 properties:
+	   		 "className" = fully qualified Java class name for the instrument
+	   		 
+	   		 "supportedFlows" = comma-separated list of flows. possible flows:
+	   		 					"enter" is data entry, possibly followed by verify (double enter), followed by edit status
+	   		 					"enterReview" is data entry followed by review (readonly) possibly followed by verify (double enter)
+	   		 						followed by edit status
+	   		 					"upload" is file upload followed by review followed by edit status
+                                note: until all instruments can be printed, temporarily also use "print" as a supported flow for
+                                those instruments that can be printed
+                                
+                                ** "enter" and "enterReview" are mutually exclusive so only one of them can be supported
+                                
+	         "verify" = instrument support verify via double entry (defaults to true)
+	         			note: if an instrument supports verify then a) it will have a "Verify" action button to allow the
+         				user to verify whenever they want, and b) a configured verify rate based upon the project/instrument 
+         				will determine whether the verify is mandatory some percentage of the time
+         				
+	         "details" = instrument has a single details collection which is displayed in a ScrollablePagedListHolder.
+	         			 e.g. the CBT instruments, but not medications which displays details as editable controls
+	         			 (defaults to false)
+	         -->
+	
+	
+	<bean id="instrumentDefinitions" class="edu.ucsf.lava.crms.assessment.InstrumentDefinitions"/>
+	
+	
+	
+	<bean id="instrumentConfig" abstract="true" class="edu.ucsf.lava.crms.assessment.model.InstrumentConfig">
+		<property name="instrumentDefinitions"><ref bean="instrumentDefinitions"/></property>
+	</bean>
+	
+	<!-- this post processor sets the InstrTypeEncoded == bean id and adds config to the instrument definitions loaded
+	     into the instrument manager -->
+	<bean id="instrumentConfigBeanPostProcessor" class="edu.ucsf.lava.crms.assessment.model.InstrumentConfigBeanPostProcessor"/>
+
+    <bean id="instrumentTracking" parent="instrumentConfig">
+			<!-- for lightweight instrument objects when do not need to know the specific type, e.g. instrument listing,
+			e.g. adding a new instrument where the instrType is not known yet but formBackingObject must exist -->
+			<property name="className"><value>edu.ucsf.lava.crms.assessment.model.InstrumentTracking</value></property>
+			<property name="supportedFlows"><value></value></property>
+	 </bean>		 			
+	 	 				
+		
+</beans>
+
+	
+	   
+   

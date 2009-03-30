@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+
+	<!-- base FormAction and Handler configurations -->
+	
+	<bean id="crmsComponentFormAction" parent="lavaComponentFormAction" abstract="true" 
+			class="edu.ucsf.lava.crms.controller.CrmsComponentFormAction">
+		<property name="patientContextHandler">
+    		<ref bean="patientContextHandler"/>
+   		</property>
+   		<property name="projectContextHandler">
+    		<ref bean="projectContextHandler"/>
+   		</property>   	
+   </bean>
+
+	
+	<bean id="crmsEntityComponentFormAction" abstract="true" parent="lavaEntityComponentFormAction"
+		class="edu.ucsf.lava.crms.controller.CrmsComponentFormAction">
+		<property name="patientContextHandler">
+    		<ref bean="patientContextHandler"/>
+   		</property>
+   		<property name="projectContextHandler">
+    		<ref bean="projectContextHandler"/>
+   		</property>   	
+	</bean>
+	<bean id="crmsListComponentFormAction" abstract="true" parent="lavaListComponentFormAction"
+		class="edu.ucsf.lava.crms.controller.CrmsComponentFormAction">
+		<property name="patientContextHandler">
+    		<ref bean="patientContextHandler"/>
+   		</property>
+   		<property name="projectContextHandler">
+    		<ref bean="projectContextHandler"/>
+   		</property>   	
+	</bean>
+	
+	
+	<!-- in case we need to add anything to all crms handlers define this abstract bean -->	
+	<bean id="crmsHandler" abstract="true" parent="lavaHandler"/>
+
+	<bean id="reloadProjectsController" class="edu.ucsf.lava.crms.project.controller.ReloadProjectsController"/>
+
+
+	<!-- Patient/Project context handlers -->
+	
+	<bean id="patientContextHandler" class="edu.ucsf.lava.crms.ui.controller.PatientContextHandler" parent="crmsHandler"/>
+	<bean id="projectContextHandler" class="edu.ucsf.lava.crms.ui.controller.ProjectContextHandler" parent="crmsHandler"/>
+
+	
+
+
+</beans>

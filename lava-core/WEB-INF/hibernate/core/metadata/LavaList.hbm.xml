@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.list.model.LavaList" table="list">
+		
+		<id name="id" type="long">
+			<column name="ListID" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+		    <timestamp name="modified" column="modified"/>
+		
+		<property name="listName" type="string" column="ListName" not-null="true"/>
+		<property name="numericKey" type="boolean" column="NumericKey" not-null="true"/>
+		
+		<!-- map the relationship between List and ListValues as a collection of value type instances, 
+		     rather than a one-to-many association, given that List and ListValues are so tightly bound
+		     per Hibernate guidelines (i.e. a ListValue can not exist on its own, without a List, and
+		     a ListValue can not be shared among different List instances)
+		     
+		     the mapping is not used for its sorting, order-by or fetching configuration (i.e. lazy,
+		     and outer-join settings), as Hibernate is not used in any way to automatically fetch the
+		     ListValues for a given List (e.g. no eager fetching or lazy initialization is done).
+		     the mapping is used purely to allow the use of HQL to join the two tables in report queries.
+		     note: p.150 HIA, "keep in mind that eager fetching strategies declared in the mapping
+		           metadata are effective only if you use retrieval by identifier, use the criteria
+		           API, or navigate through the object graph manually. Any HQL query may specify its
+		           own fetching strategy at runtime, thus ignoring the mapping defaults"
+		     		     
+		     the type of the mapping does not need to support ordering, as again, the collection is 
+		     not fetched by Hibernate (eagerly or lazily), so the type of the mapping for the purpose 
+		     of Hibernate fetching is not a determining factor (the report queries may have an order 
+		     by, in which case the List returned by the Query maintains this ordering)
+		     
+		     one determining factor for the mapping is the type used in the class for the Collection. but
+		     since instances of the List class are not used for anything in practice, this does not matter
+		     
+		     the determining factor in this case is the fact that the database schema already exists,
+		     so a mapping which supports this legacy schema must be used
+		     
+		     use <idbag> because it offers a surrogate collection key, and our legacy ListValues table 
+		     has a surrogate key, ID. this amounts to an unordered collection that allows duplicates, 
+		     and as mentioned above, given that this association is not used for ordering, this is 
+		     fine. with an <idbag> the List class should use a java.util.List (or Collection) as the 
+		     data type of its collection of ListValue elements.
+		     the surrogate collection key is the "ID" column which is generated via the sequence id generator.
+		     the foreign key in the ListValues table is the ListID column, which references the "ListID" 
+		     column of the List table.
+
+		     this only needs to be a uni-directional association, i.e. a list needs to fetch 
+		     all its list values but a list value never needs to get its list.
+		     
+		     note: this serves as the class mapping for the ListValue class so there is no 
+		           ListValue.hbm.xml mapping file
+		     -->
+	    
+		<idbag name="listValues" table="listvalues">
+			<collection-id type="long" column="ID">
+				<generator class="identity"/>
+			</collection-id>
+			<key column="ListID"/>
+			<composite-element class="edu.ucsf.lava.core.list.model.ListValue">
+				<property name="valueKey" column="ValueKey"/>
+				<property name="valueDesc" column="ValueDesc"/>
+				<property name="orderIndex" column="OrderID"/>
+			</composite-element>
+		</idbag>			
+				
+		
+		<!-- alternatively, map this as a one-to-many association instead of a collection
+		     of value type instances. in this case, the ListValue class has its own
+		     mapping file, and the contents are at the bottom of this file. as described
+		     above, this mapping approach does not make as much sense as a collection
+		     of value type mappings, so this approach was not used. -->
+		<!-- 
+		<set name="listValues" lazy="true">
+			<key column="ListID"/>
+			<one-to-many class="edu.ucsf.memory.lava.model.ListValue"/>
+		</set>
+		-->
+		
+	</class>
+	
+	<query name="GenericListValueQuery"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueKey, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = :listName
+	]]></query>
+
+	<!-- this is an alternative to the above query, where the valueKey fields represent
+	     decimal values. the values that come out of the database are in some cases
+	     not correct string representations of decimal values, so the special LabelValue 
+	     constructor reconverts the fields to proper string representations of decimals -->
+	<query name="GenericListValueQueryDecimal"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueKey, 1.0) 
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = :listName
+	]]></query>
+
+	<!-- temp query for CDR care field that does not have 0.5 in list. eventually should 
+	     create this list in the db -->
+	<query name="ListValueQueryDecimalCDRScaleNoPoint5"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueKey, 1.0) 
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = :listName and lv.valueKey <> '.5'
+	]]></query>
+
+	<!-- this query is used for lists where the ListValues ValueDesc column is null, and
+	     where the ListValues orderID column is used to order the results
+	     note: some lists also order by the ValueKey column, and some do not, but it does not hurt 
+	           those that do not to also order by this column -->
+	<query name="GenericListValueQueryNullDesc"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueKey, lv.valueKey, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = :listName
+		order by lv.orderIndex, lv.valueKey
+	]]></query>
+	
+	<query name="NumericRange"><![CDATA[
+		select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueKey)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = 'NumericRange'
+		order by cast(lv.valueKey as int)
+	]]></query>
+	
+	<query name="DecimalRange"><![CDATA[
+		select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueKey)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = 'DecimalRange'
+		order by cast(lv.valueKey as float)
+	]]></query>
+	
+	
+</hibernate-mapping>
+	
+	
+<!-- contents of the ListValue.hbm.xml file if the relationship between List and ListValue
+     was mapped as a one-to-many association instead of as a collection of value types.
+     this would go into a file called ListValue.hbm.xml. as described above, a collection
+     of value types is a better approach, so this approach is not used.
+
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.memory.lava.model.ListValue" table="ListValues">
+		
+		<id name="id" type="long">
+			<column name="ID" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+		<property name="listId" type="long" column="ListID" not-null="true"/>
+		<property name="valueKey" type="string" column="ValueKey" not-null="true"/>
+		<property name="valueDesc" type="string" column="ValueDesc"/>
+		<property name="orderIndex" type="integer" column="OrderID" not-null="true"/>
+		
+	</class>
+	
+</hibernate-mapping>
+-->

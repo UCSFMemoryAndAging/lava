@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   
+   <!-- Patient/Project context handlers -->
+	
+	<bean id="patientContextHandler" class="edu.ucsf.lava.crms.ui.controller.PatientContextHandler" parent="lavaHandler"/>
+	<bean id="projectContextHandler" class="edu.ucsf.lava.crms.ui.controller.ProjectContextHandler" parent="lavaHandler"/>
+
+	
+	<!--  actions -->
+		<bean id="lava.crms.people.patient.patient" parent="crmsEntityFlowAction">
+  					<property name="patientModuleDefault" value="true"/>
+  					<property name="patientSectionDefault" value="true"/>
+  					<property name="moduleDefault" value="true"/>
+  					<property name="sectionDefault" value="true"/>
+  					<property name="parentFlows"><list>
+  						<value>lava.crms.people.patient.projectPatients</value>
+  						<value>lava.crms.enrollment.status.projectEnrollmentStatus</value>
+  					</list></property>
+  				</bean>
+  				
+		 		<bean id="lava.crms.people.patient.addPatient" parent="crmsEntityFlowAction">
+  			    	<property name="parentFlows"><list>
+  						<value>lava.crms.people.patient.projectPatients</value>
+  						<value>lava.crms.enrollment.status.projectEnrollmentStatus</value>
+  					</list></property>
+  				</bean>
+  				
+				<bean id="lava.crms.people.patient.projectPatients" parent="crmsModuleListAction"/>
+				
+				<bean id="lava.crms.people.contactLog.contactLog" parent="crmsEntityFlowAction">
+					<property name="parentFlows"><list>
+						<value>lava.crms.people.contactLog.patientContactLog</value>
+						<value>lava.crms.people.contactLog.projectContactLog</value>
+					</list></property>
+				</bean>	
+				<bean id="lava.crms.people.contactLog.patientContactLog" parent="crmsPatientSectionListAction"/>
+				<bean id="lava.crms.people.contactLog.projectContactLog" parent="crmsSectionListAction"/>
+	
+				<bean id="lava.crms.people.contactInfo.contactInfo" parent="crmsEntityFlowAction">
+					<property name="parentFlows"><list>
+						<value>lava.crms.people.contactInfo.patientContactInfo</value>
+						<value>lava.crms.people.contactInfo.projectContactInfo</value>
+					</list></property>
+				</bean>	
+				<bean id="lava.crms.people.contactInfo.patientContactInfo" parent="crmsPatientSectionListAction"/>
+				<bean id="lava.crms.people.contactInfo.projectContactInfo" parent="crmsSectionListAction"/>	
+			
+				<bean id="lava.crms.people.doctor.doctor" parent="crmsEntityFlowAction">
+					<property name="parentFlows"><list>
+						<value>lava.crms.people.doctor.allDoctors</value>
+					</list></property>
+				</bean>
+				<bean id="lava.crms.people.doctor.patientDoctor" parent="crmsEntityFlowAction">
+					<property name="parentFlows"><list>
+						<value>lava.crms.people.doctor.patientDoctors</value>
+					</list></property>
+				</bean>		
+				<bean id="lava.crms.people.doctor.patientDoctors" parent="crmsPatientSectionListAction"/>
+				<bean id="lava.crms.people.doctor.allDoctors" parent="crmsSectionListAction"/>
+				<!-- this is the patient doctor relationship, not a list -->
+				
+				<bean id="lava.crms.people.caregiver.caregiver" parent="crmsEntityFlowAction">
+					<property name="parentFlows"><list>
+						<value>lava.crms.people.caregiver.patientCaregivers</value>
+						<value>lava.crms.people.caregiver.projectCaregivers</value>
+					</list></property>
+				</bean>	
+				<bean id="lava.crms.people.caregiver.patientCaregivers" parent="crmsPatientSectionListAction"/>
+				<bean id="lava.crms.people.caregiver.projectCaregivers" parent="crmsSectionListAction"/>
+				
+				<bean id="lava.crms.people.task.task" parent="crmsEntityFlowAction">
+					<property name="parentFlows"><list>
+						<value>lava.crms.people.task.patientTasks</value>
+						<value>lava.crms.people.task.projectTasks</value>
+					</list></property>
+				</bean>	
+				<bean id="lava.crms.people.task.patientTasks" parent="crmsPatientSectionListAction"/>
+				<bean id="lava.crms.people.task.projectTasks" parent="crmsSectionListAction"/>
+
+		
+			
+
+	<!-- form action definitions -->
+	
+	<bean id="patientFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.PatientHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+	
+	
+	<bean id="addPatientFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.AddPatientHandler" parent="crmsHandler"/>
+		<bean class="edu.ucsf.lava.crms.people.controller.AddPatientLookupHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+	
+	<bean id="projectPatientsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.ProjectPatientsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+	
+	
+	<bean id="contactInfoFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.ContactInfoHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+    
+	<bean id="patientContactInfoFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.PatientContactInfoHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+     
+	<bean id="projectContactInfoFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.ProjectContactInfoHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+     
+	<bean id="caregiverFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.CaregiverHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+   
+	<bean id="patientCaregiversFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.PatientCaregiversHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+
+	<bean id="projectCaregiversFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+	<bean class="edu.ucsf.lava.crms.people.controller.ProjectCaregiversHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+    
+	<bean id="contactLogFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.ContactLogHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+    
+	<bean id="patientContactLogFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.PatientContactLogHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+     
+	<bean id="projectContactLogFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.ProjectContactLogHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+  
+	<bean id="patientDoctorsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.PatientDoctorsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+    
+	<bean id="doctorFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+			<bean class="edu.ucsf.lava.crms.people.controller.DoctorHandler" parent="crmsHandler"/>
+			<bean class="edu.ucsf.lava.crms.people.controller.DoctorPatientsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+   
+	<bean id="allDoctorsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.AllDoctorsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	   
+
+	<bean id="patientDoctorFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.PatientDoctorHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+	
+	<bean id="taskFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.TaskHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+    
+	<bean id="patientTasksFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.PatientTasksHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+     
+	<bean id="projectTasksFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.ProjectTasksHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+        
+   
+</beans>

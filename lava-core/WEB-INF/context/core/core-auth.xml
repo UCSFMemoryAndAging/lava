@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+<!--  the auth manager bean -->
+<bean id="authManager" class="edu.ucsf.lava.core.auth.AuthManager" />
+
+<bean id="coreAuthorizationDelegate" parent="baseScopeAuthorizationDelegate" class="edu.ucsf.lava.core.auth.CoreAuthorizationDelegate"/>
+
+<bean id="coreAuthUserContextFilter" class="edu.ucsf.lava.core.auth.AuthUserContextFilter"/>
+
+
+<!-- actions -->
+
+	<bean id="lava.core.admin.auth.authUsers" parent="coreSectionListAction"/>
+				
+	<bean id="lava.core.admin.auth.authUser" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+  			<value>lava.core.admin.auth.authUsers</value>
+  		</list></property>
+	</bean>	
+			
+	<bean id="lava.core.admin.auth.authGroups" parent="coreListFlowAction"/>
+			
+	<bean id="lava.core.admin.auth.authGroup" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+  			<value>lava.core.admin.auth.authGroups</value>
+  		</list></property>
+	</bean>	
+				
+	<bean id="lava.core.admin.auth.authUserGroup" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.admin.auth.authUser</value>
+			<value>lava.core.admin.auth.authGroup</value>
+		</list></property>
+	</bean>	
+				
+	<bean id="lava.core.admin.auth.authRoles" parent="coreListFlowAction"/>
+	
+	<bean id="lava.core.admin.auth.authUserRole" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.admin.auth.authUser</value>
+			<value>lava.core.admin.auth.authGroup</value>
+ 			<value>lava.core.admin.auth.authRole</value>
+  		</list></property>
+	</bean>	
+	
+	<bean id="lava.core.admin.auth.authRole" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+  			<value>lava.core.admin.auth.authRoles</value>
+  			<value>lava.core.admin.auth.authGroup</value>
+  			<value>lava.core.admin.auth.authUser</value>
+  			<value>lava.core.admin.auth.authPermissions</value>
+  		</list></property>
+	</bean>	
+	
+	<bean id="lava.core.admin.auth.authPermission" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+  			<value>lava.core.admin.auth.authRole</value>
+  			<value>lava.core.admin.auth.authPermissions</value>
+  		</list></property>
+	</bean>	
+	
+	<bean id="lava.core.admin.auth.authPermissions" parent="coreListFlowAction"/>
+
+<!--  form action definitions  -->
+
+	<bean id="reloadAuthController" class="edu.ucsf.lava.core.auth.controller.ReloadAuthController"/>
+	
+	<bean id="authUserFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthUserHandler" parent="coreHandler"/>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthUserAuthUserGroupsHandler" parent="coreHandler"/>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthUserAuthUserRolesHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+	
+   <bean id="authUsersFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.auth.controller.AuthUsersHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+	
+	<bean id="authGroupFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthGroupHandler" parent="coreHandler"/>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthGroupAuthUserRolesHandler" parent="coreHandler"/>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthGroupAuthUsersHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+	
+   <bean id="authGroupsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.auth.controller.AuthGroupsHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+	
+	<bean id="authUserGroupFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthUserGroupHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+	
+	 <bean id="authRolesFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+	 	<bean class="edu.ucsf.lava.core.auth.controller.AuthRolesHandler" parent="coreHandler"/>
+	 </list></constructor-arg></bean>
+	
+	
+	<bean id="authRoleFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthRoleHandler" parent="coreHandler"/>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthRoleAuthGroupsHandler" parent="coreHandler"/>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthRoleAuthUsersHandler" parent="coreHandler"/>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthRoleAuthPermissionsHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+	
+	<bean id="authUserRoleFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthUserRoleHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+	
+	<bean id="authPermissionFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthPermissionHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+	
+	<bean id="authPermissionsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthPermissionsHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+			 
+
+</beans>

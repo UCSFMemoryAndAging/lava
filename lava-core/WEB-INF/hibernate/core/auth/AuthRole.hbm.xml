@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.auth.model.AuthRole" table="authrole" select-before-update="true">
+		
+		<id name="id" type="long">
+			<column name="RoleID" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+		<timestamp name="modified" column="modified"/>
+		<property name="roleName" column="RoleName" type="string" length="25" not-null="true"/>
+       <property name="notes" column="Notes" type="string" length="255"/>
+	
+	
+	 <set name="users" inverse="true" cascade="delete" lazy="true">
+			<key column="RoleID"/>
+			<one-to-many class="edu.ucsf.lava.core.auth.model.AuthUserRole"/>
+	 </set>	
+	 <set name="permissions" inverse="true" cascade="delete" lazy="true">
+			<key column="RoleID"/>
+			<one-to-many class="edu.ucsf.lava.core.auth.model.AuthPermission"/>
+	 </set>	
+	</class>
+	
+	<query name="list.authRole.roles"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(roleName, id)
+			from AuthRole order by roleName
+	]]></query>
+	
+	
+</hibernate-mapping>

@@ -1,0 +1,47 @@
+package edu.ucsf.lava.core.webflow.builder;
+
+import org.springframework.binding.mapping.DefaultAttributeMapper;
+import org.springframework.binding.mapping.Mapping;
+import org.springframework.webflow.engine.builder.FlowBuilderException;
+import org.springframework.webflow.execution.Action;
+
+import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
+
+/**
+ * Java-based flow builder that builds the download entity flow, parameterized
+ * for a specific entity type.
+ * <p>
+ * This encapsulates the page flow of downloading a file (e.g. a PDF or MRI from the entity).
+ * 
+ */
+class EntityDownloadFlowBuilder extends BaseFlowBuilder {
+	
+
+	public EntityDownloadFlowBuilder(LavaFlowRegistrar registry, String actionId) {
+    	super(registry, actionId);
+    	setFlowEvent("download");
+    }
+    
+    public void buildInputMapper() throws FlowBuilderException {
+     	Mapping idMapping = mapping().source("id").target("flowScope.id").value();
+    	getFlow().setInputMapper(new DefaultAttributeMapper().addMapping(idMapping));
+    }
+
+
+    public void buildEventStates() throws FlowBuilderException {
+    	
+    	
+    	
+    	addViewState(getFlowEvent(), 
+    			null, 
+    			null, //no view selector because we will be returning a byte stream and mimietype to the browser
+    			// 
+    			new Action[]{invoke("prepareDownload",formAction)},
+    			null,null, null, null);
+
+    	
+    	}
+}
+
+
+

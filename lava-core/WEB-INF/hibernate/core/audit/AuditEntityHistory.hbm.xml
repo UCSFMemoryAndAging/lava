@@ -1,0 +1,42 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<class name="edu.ucsf.lava.core.audit.model.AuditEntityHistory" table="audit_entity" mutable="false">
+
+		<id name="id" type="long">
+			<column name="audit_entity_id" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+	   
+	   <timestamp name="modified" column="modified"/>
+	   
+       <many-to-one name="auditEvent" column="audit_event_id" class="edu.ucsf.lava.core.audit.model.AuditEventHistory" not-null="true"/>
+       <property name="entityId" column="entity_id" type="long" not-null="true"/>
+       <property name="entity" column="entity" type="string" length="100" not-null="true"/>
+       <property name="entityType" column="entity_type" type="string" length="100" not-null="true"/>
+       <property name="auditType" column="audit_type" type="string" length="10" not-null="true"/>
+     
+	<!-- associations -->
+	<set name="auditProperties" inverse="true" cascade="none" lazy="false">
+			<key column="audit_entity_id"/>
+			<one-to-many class="edu.ucsf.lava.core.audit.model.AuditPropertyHistory"/>
+	</set>
+	<!-- filters -->
+        
+
+</class>
+
+
+         <!-- queries  -->
+
+
+
+</hibernate-mapping>
+
+
+

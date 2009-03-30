@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+ <hibernate-mapping>
+
+<class name="edu.ucsf.lava.crms.people.model.Patient" table="patient" select-before-update="true">
+		    <id name="id" type="long">
+			<column name="PIDN" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+			
+		<timestamp name="modified" column="modified"/>
+
+		
+		<property name="lastName" column="LName" type="string" not-null="true" length="25"/>
+		<property name="middleInitial" column="MInitial" type="character"/> 
+		<property name="firstName" column="FName" type="string" length="25"/>
+		<property name="suffix" column="Suffix" type="string" length="15"/>
+		<property name="degree" column="Degree" type="string" length="15"/>
+		<property name="birthDate" column="DOB" type="timestamp"/>
+		<property name="age" column="AGE" type="integer"/>
+		<property name="gender" column="Gender" type="byte"/>
+		<property name="hand" column="Hand" type="string" length="25"/>
+		<property name="deceased" column="Deceased" type="boolean"/>
+		<property name="deathDate" column="DOD" type="timestamp"/>
+		<property name="primaryLanguage" column="PrimaryLanguage" type="string" length="25"/>
+		<property name="testingLanguage" column="TestingLanguage" type="string" length="25"/>
+		<property name="transNeeded" column="TransNeeded" type="boolean"/>
+		<property name="transLanguage" column="TransLanguage" type="string" length="25"/>
+		<property name="enterBy" column="EnterBy" type="string" length="25"/>
+		<property name="dupNameFlag" column="DupNameFlag" type="boolean"/>
+		<property name="fullNameRev" column="FullNameRev" type="string" length="100"/>
+		<property name="fullName" column="FullName" type="string" length="100" />
+		<property name="fullNameRevNoSuffix" column="FullNameRevNoSuffix" type="string" length="100"/>
+		<property name="fullNameNoSuffix" column="FullNameNoSuffix" type="string" length="100"/>
+		
+		<!-- these associations are solely to support the cascade delete of related objects on a patient delete. 
+			any relationship that should be cascade deleted should be associated here.
+			The model class is implemented with private getters and setters to enforce this
+			at the programatic access level.
+			-->
+		<set name="doctors"  inverse="true" cascade="delete" lazy="true">
+			<key column="PIDN"/>
+			<one-to-many class="edu.ucsf.lava.crms.people.model.PatientDoctor"/>
+		</set>
+		<set name="enrollmentStatus" inverse="true"  cascade="delete" lazy="true">
+			<key column="PIDN"/>
+			<one-to-many class="edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus"/>
+		</set>
+		<set name="caregivers"  inverse="true"  cascade="delete" lazy="true">
+			<key column="PIDN"/>
+			<one-to-many class="edu.ucsf.lava.crms.people.model.Caregiver"/>
+		</set>
+		<set name="contactInfo"  inverse="true" cascade="delete" lazy="true">
+			<key column="PIDN"/>
+			<one-to-many class="edu.ucsf.lava.crms.people.model.ContactInfo"/>
+		</set>
+		<set name="contactLog"  inverse="true" cascade="delete" lazy="true">
+			<key column="PIDN"/>
+			<one-to-many class="edu.ucsf.lava.crms.people.model.ContactLog"/>
+		</set>
+		<set name="consent"  inverse="true" cascade="delete" lazy="true">
+			<key column="PIDN"/>
+			<one-to-many class="edu.ucsf.lava.crms.enrollment.model.Consent"/>
+		</set>
+		
+		<set name="tasks"  inverse="true" cascade="delete" lazy="true">
+			<key column="PIDN"/>
+			<one-to-many class="edu.ucsf.lava.crms.people.model.Task"/>
+		</set>	
+	
+	
+		<filter name="patientAuth"/> 
+		<filter name="validPatient"/> 
+		<filter name="projectContext" condition="PIDN IN (select p.PIDN from EnrollmentStatus p where PIDN=p.PIDN and p.projName=:projectContext)"/>
+	    <filter name="patient" condition=":patientId=PIDN"/>	
+		
+		
+</class>
+	
+	<query name="patient.searchByNameRev"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(p.fullNameRev ||' (' || cast(p.id as string) || ')',p.id)
+		from Patient p
+		where p.fullNameRevNoSuffix like :search || '%'
+		order by fullNameRevNoSuffix
+	]]></query>
+	<query name="patient.searchByName"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(p.fullName||'|'||cast(p.id as string),p.id)
+		from Patient p
+		where fullNameNoSuffix like :search || '%' 
+		order by fullNameNoSuffix
+	]]></query>
+	<query name="patient.searchByPatientIdFuzzy"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean( ''||cast(p.id as string) || '|' || p.fullNameRev, p.id )
+		from Patient p
+		where cast (PIDN as string) like :search || '%'
+		order by PIDN
+	]]></query>
+	<query name="patient.allPatients"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(p.fullNameRevNoSuffix ||' (' || cast(p.id as string) || ')',p.id)
+		from Patient p
+		order by fullNameRevNoSuffix
+	]]></query>
+	<query name="patient.addPatientLookup"><![CDATA[
+	    select p from Patient p
+		where (FName=:firstName and LName=:lastName) or 
+			 (FName=:firstName and DOB=:birthDate) or 
+			 (LName=:lastName and DOB=:birthDate and :lastName <> 'DE-IDENTIFIED')
+		order by fullNameRev
+	]]></query>
+</hibernate-mapping>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			

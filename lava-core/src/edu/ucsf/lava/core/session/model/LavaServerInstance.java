@@ -1,0 +1,82 @@
+package edu.ucsf.lava.core.session.model;
+
+import java.util.Date;
+
+import edu.ucsf.lava.core.model.EntityBase;
+import edu.ucsf.lava.core.model.EntityManager;
+
+
+public class LavaServerInstance extends EntityBase {
+
+	public static EntityManager MANAGER = new EntityBase.Manager(LavaServerInstance.class);
+
+	private String serverDescription;
+	private Date createTime;
+	private Date disconnectTime;
+	private Long disconnectWarningMinutes;
+	private String disconnectMessage;
+	private int hibernateVersion;
+	
+	public LavaServerInstance() {
+		super();
+		this.setAudited(false);
+		createTime = new Date();
+	}
+	public Date getCreateTime() {
+		return createTime;
+	}
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+	
+	public String getServerDescription() {
+		return serverDescription;
+	}
+	public void setServerDescription(String serverDescription) {
+		this.serverDescription = serverDescription;
+	}
+	
+	public String toString(){
+		StringBuffer buffer = new StringBuffer(super.toString()).append("{");
+		if (id != null){buffer.append(" serverInstanceId=").append(id.toString());}
+		if (serverDescription != null){buffer.append(" serverDescription=").append(serverDescription);}
+		if (createTime != null){buffer.append(" createTime=").append(createTime.toString());}
+		buffer.append("}");
+		return buffer.toString();
+	
+	}
+	
+
+
+	public int getHibernateVersion() {
+		return hibernateVersion;
+	}
+
+
+
+
+	public void setHibernateVersion(int hibernateVersion) {
+		this.hibernateVersion = hibernateVersion;
+	}
+	public String getDisconnectMessage() {
+		return disconnectMessage;
+	}
+	public void setDisconnectMessage(String disconnectMessage) {
+		this.disconnectMessage = disconnectMessage;
+	}
+	public Long getDisconnectWarningMinutes() {
+		return disconnectWarningMinutes;
+	}
+	public void setDisconnectWarningMinutes(Long disconnectMinutes) {
+		this.disconnectWarningMinutes = disconnectMinutes;
+	}
+	public Date getDisconnectTime() {
+		return disconnectTime;
+	}
+	public void setDisconnectTime(Date disconnectTime) {
+		this.disconnectTime = disconnectTime;
+	}
+	
+
+	
+}

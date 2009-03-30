@@ -1,0 +1,44 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<class name="edu.ucsf.lava.crms.people.model.Task" table="tasks" select-before-update="true">
+
+		<id name="id" type="long">
+			<column name="TaskID" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+		  <timestamp name="modified" column="modified"/>
+		
+       <many-to-one name="patient" column="PIDN" class="edu.ucsf.lava.crms.people.model.Patient" not-null="true"/>
+       <property name="projName" column="ProjName" type="string" length="75"/>
+       <property name="openedDate" column="OpenedDate" type="timestamp"/>
+       <property name="openedBy" column="OpenedBy" type="string" length="25"/>
+       <property name="taskType" column="TaskType" type="string" length="25"/>
+       <property name="taskDesc" column="TaskDesc" type="string" length="255"/>
+       <property name="dueDate" column="DueDate" type="timestamp"/>
+       <property name="taskStatus" column="TaskStatus" type="string" length="50"/>
+       <property name="assignedTo" column="AssignedTo" type="string" length="25"/>
+       <property name="workingNotes" column="WorkingNotes" type="string" length="255"/>
+       <property name="closedDate" column="ClosedDate" type="timestamp"/>
+	<!-- associations -->
+      
+
+
+	<!-- filters -->
+	<filter name="patientAuth"/> 
+    <filter name="validPatient"/>  
+	<filter name="patient" condition=":patientId=PIDN"/>
+	<filter name="projectContext" condition="projName=:projectContext OR (projName IS NULL AND PIDN IN (select p.PIDN from EnrollmentStatus p where PIDN=p.PIDN and  p.projName=:projectContext))"/>
+ 
+
+</class>
+
+
+      
+
+</hibernate-mapping>

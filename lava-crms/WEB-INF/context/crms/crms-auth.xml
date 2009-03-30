@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	 
+	<!-- note this needs to be configured into web.xml -->
+	<bean id="crmsAuthUserContextFilter" class="edu.ucsf.lava.crms.auth.CrmsAuthUserContextFilter"/>
+	
+	<bean id="crmsAuthorizationDelegate" parent="baseScopeAuthorizationDelegate" class="edu.ucsf.lava.crms.auth.CrmsAuthorizationDelegate"/>
+	
+	
+	
+	<!-- action definitions -->
+	
+    <bean id="lava.crms.admin.auth.crmsAuthRole" parent="crmsEntityFlowAction">
+    	<property name="customizedFlow" value="lava.core.admin.auth.authRole"/>
+    </bean>
+    
+    
+    <bean id="lava.crms.admin.auth.crmsAuthUserRole" parent="crmsEntityFlowAction">
+    	<property name="customizedFlow" value="lava.core.admin.auth.authUserRole"/>
+    </bean>
+	
+	
+	<!-- form actions -->
+	<bean id="crmsAuthRoleFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.auth.controller.CrmsAuthRoleHandler" parent="crmsHandler"/>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthRoleAuthGroupsHandler" parent="crmsHandler"/>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthRoleAuthUsersHandler" parent="crmsHandler"/>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthRoleAuthPermissionsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+	
+	<bean id="crmsAuthUserRoleFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.auth.controller.CrmsAuthUserRoleHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+</beans>

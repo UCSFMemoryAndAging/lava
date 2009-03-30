@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+<joined-subclass name="edu.ucsf.lava.crms.auth.model.CrmsAuthUser" table="crmsauthuser" extends="edu.ucsf.lava.core.auth.model.AuthUser" select-before-update="true">
+
+	   <key column="UID"/>		
+    
+</joined-subclass>
+	
+	
+</hibernate-mapping>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<!-- note that core-reports.xml is not included by core-context.xml, but is loaded into
+	 coreReportViewResolver in [xxx]-reporting.xml -->
+
+<beans>
+
+<!-- Reporting Configuration -->
+<import resource="core-reportsBaseImport.xml"/>
+<import resource="core-reportsImport.xml"/>
+
+
+<!-- report definitons for the core services (e.g. authorization) should be defined here -->
+
+	
+</beans>

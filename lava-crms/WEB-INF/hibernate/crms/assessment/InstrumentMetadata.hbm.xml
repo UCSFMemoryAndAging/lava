@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<!-- this class was mapped to obtain a list of all the instrument types -->
+    
+ 	<class name="edu.ucsf.lava.crms.assessment.model.InstrumentMetadata" table="instrument">
+		
+		<!-- note: despite the column name, InstrID has no relation to the InstrID of the
+		           InstrumentTracking, InstrumentSummary and instrument-specific tables -->
+		<id name="id" type="long">
+			<column name="InstrID" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+		    <timestamp name="modified" column="modified"/>
+		
+		<property name="instrName" type="string" column="InstrName" not-null="true"/>
+		<property name="tableName" type="string" column="TableName" not-null="true"/>
+		<property name="formName" type="string" column="FormName"/>
+		<property name="category" type="string" column="Category"/>
+		<property name="hasVersion" type="boolean" column="HasVersion" not-null="true"/>
+	</class>
+	
+	<query name="list.instrumentMetadata.instrTypes"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(instrMeta.instrName, instrMeta.instrName)
+		from InstrumentMetadata instrMeta
+		order by instrMeta.instrName
+	]]></query>
+
+</hibernate-mapping>
+	    

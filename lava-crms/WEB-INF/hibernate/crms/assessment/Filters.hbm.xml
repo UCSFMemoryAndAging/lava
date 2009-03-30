@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+<!-- authorization-based filters
+note that these filters just ensure that a user has a role in a given projectUnit. additional filtering
+may be needed using the authorizationService to ensure that the user has permissions in a given projectUnit -->
+<filter-def name="projectAuth">
+    <filter-param name="projectList" type="string"/>
+     ProjName in (Select pr_pu.ProjUnitDesc from ProjectUnit pr_pu where pr_pu.ProjUnitDesc=ProjName and (pr_pu.ProjUnitDesc in (:projectList))
+</filter-def>
+<filter-def name="patientAuth">
+    <filter-param name="projectList" type="string"/>
+    PIDN in (select pa_es.PIDN from EnrollmentStatus pa_es inner join ProjectUnit pa_pu on pa_es.ProjName=pa_pu.ProjUnitDesc where pa_es.PIDN=PIDN and pa_pu.ProjUnitDesc in (:projectList))
+</filter-def>
+
+<!-- option here would be to verify that PIDN is in Patient table...but this would obscure orphin records and involve an extra join.. -->
+<filter-def name="validPatient">
+    PIDN > 0
+</filter-def>
+
+<!-- user-defined context filters -->
+<filter-def name="projectContext">
+    <filter-param name="projectContext" type="string"/>
+</filter-def>
+<filter-def name="patient">
+    <filter-param name="patientId" type="long"/>
+</filter-def>
+
+</hibernate-mapping>

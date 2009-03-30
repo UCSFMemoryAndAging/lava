@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.auth.model.AuthGroup" table="authgroup" select-before-update="true">
+		
+		<id name="id" type="long">
+			<column name="GID" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+	   <timestamp name="modified" column="modified"/>
+	   <property name="groupName" column="GroupName" type="string" length="50" not-null="true"/>
+       <property name="effectiveDate" column="EffectiveDate" type="timestamp" not-null="true"/>
+       <property name="expirationDate" column="ExpirationDate" type="timestamp"/>
+       <property name="notes" column="Notes" type="string" length="255"/>
+       	
+       	
+       <set name="users" inverse="true" cascade="delete" lazy="true">
+			<key column="GID"/>
+			<one-to-many class="edu.ucsf.lava.core.auth.model.AuthUserGroup"/>
+	   </set>	
+	</class>
+	
+		<query name="list.authGroup.groups"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(groupName, id)
+			from AuthGroup order by groupName
+	]]></query>
+	
+</hibernate-mapping>

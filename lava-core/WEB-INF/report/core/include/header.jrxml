@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="instrHeader"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="612"
+		 pageHeight="792"
+		 columnWidth="540"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="AllSectionsNoDetail"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+	
+	<template><![CDATA["reportStyles.jrtx"]]></template>
+
+	<parameter name="webappInstance" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="handler" isForPrompting="false" class="edu.ucsf.lava.core.controller.LavaComponentHandler"/>
+	<parameter name="reportTitleKey" isForPrompting="false" class="java.lang.String"/>
+
+	<!-- there are no fields defined because a data source is not used (even though it must be configured 
+		for the subreport). this is because the header data is printed on every page and does not vary
+		from page to page. instead, the header data is passed via parameter. -->
+	
+
+		<pageHeader>
+			<band height="35"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="sourcePageHeader"
+						x="0"
+						y="0"
+						width="540"
+						height="12"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{webappInstance}.equals("mac") ? "UCSF Memory and Aging Center" :
+						($P{webappInstance}.equals("nam53") ? "NAM-53: Memantine/FTD" :
+						($P{webappInstance}.equals("examiner") ? "NINDS: Examiner" : ""))]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="title"
+						x="0"
+						y="13"
+						width="540"
+						height="16"
+						key="textField"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($P{reportTitleKey} != null)]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Left">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{handler}.getMessage($P{reportTitleKey})]]></textFieldExpression>
+				</textField>
+			</band>
+		</pageHeader>
+
+</jasperReport>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	
+	<bean id="coreReportViewResolver" class="org.springframework.web.servlet.view.XmlViewResolver">
+		<!-- must be ordered to come before jspViewResolver defined in core-mapping.xml, 
+			because InternalResourceViewResolver does not report non-existing views and 
+			therefore the next view resolver in the chain will not be tried,
+			i.e. when chaining view resolvers, InternalResourceViewResolver must be last -->
+		<property name="order" value="500"/>
+		<property name="location"><value>/WEB-INF/context/core/core-reports.xml</value></property>
+	</bean>
+   
+	
+	
+	<!-- actions -->
+	
+	<bean id="coreReportFlowAction" abstract="true" parent="coreAction">
+		<property name="flowTypeBuilder"> <ref bean="coreReportFlowTypeBuilder"/></property>
+		<property name="parentFlows">
+			<list>
+				<value>lava.core.reporting.reports.reportLauncher</value>
+			</list>
+		</property>	
+	</bean>
+	
+	<bean id="coreReportLauncherFlowAction" abstract="true" parent="coreAction">
+		<property name="flowTypeBuilder"><ref bean="coreReportLauncherFlowTypeBuilder"/></property>
+	</bean>
+
+    
+    <bean id="lava.core.reporting.reports.reportLauncher" parent="coreReportLauncherFlowAction">
+  					<property name="moduleDefault" value="true"/>
+  					<property name="sectionDefault" value="true"/>
+  					<!-- parentFlows are not defined because the baseAction automatically configures 
+  					     the report launcher subflow as a subflow for every flow, so a report
+  					     can be launched from anywhere -->
+	</bean>
+				
+
+	
+	<!--  form action definitions -->
+	<bean id="coreReportComponentHandler" abstract="true" parent="coreHandler" class="edu.ucsf.lava.core.reporting.controller.ReportComponentHandler"/>
+
+	<bean id="reportLauncherFormAction" parent="lavaEntityComponentFormAction"><constructor-arg><list>
+		<bean id="reportLauncherHandler" class="edu.ucsf.lava.core.reporting.controller.ReportLauncherComponentHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>		
+
+	<!-- reports can specify any of the following four beans as parent based on what criteria is used. 
+	 	if a report has additional criteria, it should define its own handler class that subclasses 
+	 	BaseReportComponentHandler, and it can still define "date" and/or "project" criteria properties -->
+	<bean id="coreNoCriteriaReportHandler" abstract="true" parent="coreReportComponentHandler"/>
+	
+	<bean id="coreDateCriteriaReportHandler" abstract="true"  parent="coreReportComponentHandler">
+		<property name="dateCriteria"><value>true</value></property>
+	</bean>
+
+	
+
+	
+
+	
+</beans>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	<!-- Jasper will first look for the "reportDataSource" in the model, and if not present will use
+	 	the jdbcDataSource in conjunction with a SQL query -->
+	<!-- for development to recompile each time 
+	<bean id="baseReport" class="edu.ucsf.lava.core.reporting.controller.RecompilingLavaJasperReportsMultiFormatView" abstract="true">
+	-->
+	<bean id="baseReport" class="edu.ucsf.lava.core.reporting.controller.LavaJasperReportsMultiFormatView" abstract="true">
+		<property name="jdbcDataSource">
+			<ref bean="localDataSource"/>
+		</property>
+		<property name="subReportUrls">
+			<map>
+				<entry key="headerSubreport" value="/WEB-INF/report/core/include/header.jrxml"/>
+				<entry key="footerSubreport" value="/WEB-INF/report/core/include/footer.jrxml"/>
+				<entry key="footerWideSubreport" value="/WEB-INF/report/core/include/footerWide.jrxml"/>			
+			</map>
+		</property>		
+		<property name="headers">
+			<map>
+				<entry key="Content-Disposition" value="inline;filename=report.pdf"/>
+				<entry key="Content-Type" value="application/pdf"/>		
+			</map>
+		</property>	
+	</bean>	 	
+	
+</beans>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- The visit manager bean -->
+	<bean id="visitManager"  class="edu.ucsf.lava.crms.scheduling.VisitManager" >
+		<property name="visitPrototypes">
+			<bean class="edu.ucsf.lava.core.spring.MapMerger">
+   				<constructor-arg><map>
+   						<entry key="crmsVisitPrototypes"><ref bean="crmsVisitPrototypes"/></entry>
+	     				<entry key="localVisitPrototypes"><ref bean="localVisitPrototypes"/></entry>
+		     	</map></constructor-arg>
+			</bean>
+		</property>    
+	</bean>
+
+
+	<!-- refactor into self-registering bean collection -->
+  <!--  a ProjectName-Visittype:Visit bean map injected into the schedulingService -->
+   	<bean id="crmsVisitPrototypes" class="java.util.LinkedHashMap">
+		<constructor-arg><map>	
+		</map></constructor-arg>
+	</bean>	
+
+	<!-- actions -->
+	
+	
+
+				
+				
+   	<bean id="lava.crms.scheduling.visit.visit" parent="crmsEntityFlowAction">
+  			    	 <property name="parentFlows"><list>
+						<value>lava.crms.scheduling.patientCalendar.patientVisits</value>
+						<value>lava.crms.scheduling.projectCalendar.projectVisits</value>
+					</list></property>
+				</bean>
+
+				<bean id="lava.crms.scheduling.visit.visitInstruments" parent="crmsInstrumentListFlowAction"/>
+
+				<bean id="lava.crms.scheduling.patientCalendar.patientVisits" parent="crmsPatientModuleListAction"/>
+
+				<bean id="lava.crms.scheduling.projectCalendar.projectVisits" parent="crmsModuleListAction">
+					<property name="patientSectionDefault" value="true"/>
+				</bean>
+				
+			
+
+	<!-- form action definitions -->
+   <bean id="visitFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.crms.scheduling.controller.VisitHandler" parent="crmsHandler"/>
+   		<bean class="edu.ucsf.lava.crms.scheduling.controller.PatientVisitsHandler" parent="crmsHandler"/>
+   	</list></constructor-arg></bean>
+    
+	<bean id="patientVisitsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+    		<bean class="edu.ucsf.lava.crms.scheduling.controller.PatientCalendarHandler" parent="crmsHandler"/>
+   	</list></constructor-arg></bean>  
+
+	<bean id="projectVisitsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+    		<bean class="edu.ucsf.lava.crms.scheduling.controller.ProjectCalendarHandler" parent="crmsHandler"/>
+   	</list></constructor-arg></bean>  
+    
+	<bean id="researchVisitsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.crms.scheduling.controller.ResearchCalendarHandler" parent="crmsHandler"/>
+   	</list></constructor-arg></bean>  
+    
+	<bean id="myVisitsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+    		<bean class="edu.ucsf.lava.crms.mylava.controller.MyCalendarHandler" parent="crmsHandler"/>
+   	</list></constructor-arg></bean>  
+    
+    
+
+</beans>

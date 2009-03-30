@@ -1,0 +1,51 @@
+		<id name="id" type="long">
+			<column name="InstrID" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+			
+		    <timestamp name="modified" column="modified"/>
+
+		<!-- note that visit and patient are mapped as associations so the instrument
+		      instance will have references to them, as follows:
+		     when this instrument is loaded, eager fetching will also load the associated
+		      Visit and Patient instances, while lazy loading will not load them and
+		      Hibernate proxies will be used to represent them if initialize
+		      is called to initialize the proxies (their id fields will be available
+		      without having to load them).
+		     the default for Hibernate3 is lazy fetching for these single-valued
+		      associations (as it is for collections). -->
+		 
+	    <many-to-one name="visit" column="VID" class="edu.ucsf.lava.crms.scheduling.model.Visit" not-null="true"/>
+	    <property name="projName" type="string" column="ProjName" not-null="true"/>
+	    <many-to-one name="patient" column="PIDN" class="edu.ucsf.lava.crms.people.model.Patient" not-null="true"/>
+	    <property name="instrType" type="string" column="InstrType" not-null="true"/>
+	    <property name="instrVer" type="string" column="InstrVer"/>
+	    <property name="dcDate" type="timestamp" column="DCDate" not-null="true"/>
+	    <property name="dcBy" column="DCBy" type="string"/>
+	    <property name="dcStatus" type="string" column="DCStatus" not-null="true"/>
+	    <property name="dcNotes" column="DCNotes" type="string"/>
+	    <property name="researchStatus" column="ResearchStatus" type="string"/>
+	    <property name="qualityIssue" column="QualityIssue" type="string"/>
+	    <property name="qualityIssue2" column="QualityIssue2" type="string"/>
+	    <property name="qualityIssue3" column="QualityIssue3" type="string"/>
+	    <property name="qualityNotes" column="QualityNotes" type="string"/>
+	    <property name="deDate" column="DEDate" type="timestamp"/>
+	    <property name="deBy" column="DEBy" type="string"/>
+	    <property name="deStatus" column="DEStatus" type="string"/>
+	    <property name="deNotes" column="DENotes" type="string"/>
+	    <property name="dvDate" column="DVDate" type="timestamp"/>
+	    <property name="dvBy" column="DVBy" type="string"/>
+	    <property name="dvStatus" column="DVStatus" type="string"/>
+	    <property name="dvNotes" column="DVNotes" type="string"/>
+	    <property name="latestFlag" type="boolean" insert="false" update="false">
+	    	<column name="latestFlag" not-null="true"/>
+    	</property>
+	    <property name="ageAtDC" column="AgeAtDC" type="short"/>
+		<!-- map collection of value type notes -->	    
+	    <map name="notes" lazy="true" table="InstrumentNotes">
+	    	<key column="InstrID"/>
+	    	<index column="Section" type="string"/>
+	    	<element column="Note" type="string"/>
+	    </map>
+
+	   

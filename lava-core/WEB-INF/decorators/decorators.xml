@@ -1,0 +1,25 @@
+<decorators defaultdir="/WEB-INF/decorators">
+  
+  <decorator name="main" page="main.jsp">
+    <pattern>/*</pattern>
+  </decorator>
+  <decorator name="panel.mostRecent" page="panel/mostRecent.jsp"/>
+  <decorator name="panel.patientContext" page="panel/patientContext.jsp"/>
+  <decorator name="panel.projectContext" page="panel/projectContext.jsp"/>
+  <decorator name="panel.actions" page="panel/actions.jsp"/>
+  <decorator name="panel.actionsSection" page="panel/actionsSection.jsp"/>
+  <decorator name="panel.reports" page="panel/reports.jsp"/>
+  <decorator name="panel.reportsSection" page="panel/reportsSection.jsp"/>
+  <decorator name="modal" page="modal.jsp"/>
+  <decorator name="feedback" page="feedback.jsp"/>
+  <decorator name="component.content" page="component/content.jsp"/>
+  <decorator name="component.list.content" page="component/list/content.jsp"/>
+  <decorator name="component.entity.content" page="component/entity/content.jsp"/>
+  <decorator name="component.entity.section" page="component/entity/section.jsp"/>
+  <decorator name="component.group.content" page="component/group/content.jsp"/>  
+  <decorator name="component.instrument.content" page="component/instrument/content.jsp"/>
+  <!-- note that instruments use the same section decorator as entities -->
+  <decorator name="component.instrument.section" page="component/entity/section.jsp"/>
+  <decorator name="component.report.content" page="component/report/content.jsp"/>
+</decorators>
+

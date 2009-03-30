@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    
+
+<!-- refactor this out... -->
+	  
+
+    <bean id="appControllerUrlMappings" class="java.util.LinkedHashMap">
+     	<constructor-arg><map>
+             <entry key="**/assessment/instrument/calc.lava"><ref bean="instrCalcController"/></entry>
+     	     <entry key="**/admin/reload/projects.lava"><ref bean="reloadProjectsController"/></entry>
+        </map></constructor-arg>
+     </bean>
+    
+    <bean id="appFlowControllerUrlMappings" class="java.util.LinkedHashMap">
+     	<constructor-arg><map>
+     	     <entry key="**/assessment/**/*.lava"><ref bean="flowController"/></entry>
+             <entry key="**/scheduling/**/*.lava"><ref bean="flowController"/></entry>
+             <entry key="**/enrollment/**/*.lava"><ref bean="flowController"/></entry>
+             <entry key="**/people/**/*.lava"><ref bean="flowController"/></entry>
+     		 <entry key="**/mylava/**/*.lava"><ref bean="flowController"/></entry>
+        	</map></constructor-arg>
+     </bean>
+     
+
+
+
+</beans>

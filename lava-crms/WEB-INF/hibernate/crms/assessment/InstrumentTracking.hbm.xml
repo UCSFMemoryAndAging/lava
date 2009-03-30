@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"
+    [<!ENTITY instrInclude SYSTEM "resource://WEB-INF/hibernate/crms/assessment/instrInclude.xml" >
+     <!ENTITY instrInclude2 SYSTEM "resource://WEB-INF/hibernate/crms/assessment/instrInclude2.xml" >]>
+    
+<!-- Map the InstrumentTracking class, which is a lightweight instrument class containing only
+     the data in the InstrumentTracking table for a given instrument.
+
+	 This mapping is useful when the instrument as a whole is not needed, e.g. the listing
+     of all instruments for a given visit only needs to be a list of InstrumentTracking
+     objects, distinguished by the InstrType column. Also, when retrieving an instrument to
+     set the instrument context or retrieving an unimplemented instrument (to delete it).
+     
+	The reason it is used instead of Instrument is so that polymorphic queries are avoided,
+	because there are no subclasses of InstrumentTracking. In contrast, Instrument is the 
+	superclass of the instrument hierarchy, so mapping Instrument and querying on it would
+	result in a polymorphic query, joining to every subclass, e.g. in the case of a list
+	of instruments, returning instances of all the instrument specific classes in the list. 
+	Given the number of instruments in the Instrument class hierarchy, the number of joins
+	involved would be prohibitive.
+ -->
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.crms.assessment.model.InstrumentTracking" table="instrumenttracking" select-before-update="true">
+
+		&instrInclude;
+		
+		&instrInclude2;
+		
+	</class>		
+		
+	<query name="instrument.versions"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
+		from LavaList list
+		join list.listValues lv
+		where list.listName = 'InstrumentVersions' and lv.valueKey = :instrument 
+		order by lv.orderIndex, lv.valueDesc
+	]]></query>
+		
+</hibernate-mapping>
+
+
+

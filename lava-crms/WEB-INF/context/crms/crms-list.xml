@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+<import resource="lists/lists-assessment.xml"/>
+<import resource="lists/lists-auth.xml"/>
+<import resource="lists/lists-codes.xml"/>
+<import resource="lists/lists-enrollment.xml"/>
+<import resource="lists/lists-people.xml"/>
+<import resource="lists/lists-project.xml"/>
+<import resource="lists/lists-scheduling.xml"/>
+<import resource="lists/lists-instrument.xml"/>
+
+
+</beans>

@@ -1,0 +1,48 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<class name="edu.ucsf.lava.core.metadata.model.HibernateProperty" table="hibernateproperty" select-before-update="true">
+
+		<id name="id" type="long">
+			<column name="id" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+
+    <timestamp name="modified" column="modified"/>
+
+       <property name="scope" column="scope" type="string" length="100" not-null="true"/>
+       <property name="entity" column="entity" type="string" length="100" not-null="true"/>
+       <property name="property" column="property" type="string" length="100" not-null="true"/>
+       <property name="dbTable" column="dbTable" type="string" length="50" not-null="true"/>
+       <property name="dbColumn" column="dbColumn" type="string" length="50" not-null="true"/>
+       <property name="dbType" column="dbType" type="string" length="50"/>
+       <property name="dbLength" column="dbLength" type="short"/>
+       <property name="dbPrecision" column="dbPrecision" type="short"/>
+       <property name="dbScale" column="dbScale" type="short"/>
+       <property name="dbOrder" column="dbOrder" type="short"/>
+       <property name="hibernateProperty" column="hibernateProperty" type="string" length="50"/>
+       <property name="hibernateType" column="hibernateType" type="string" length="50"/>
+       <property name="hibernateClass" column="hibernateClass" type="string" length="250"/>
+       <property name="hibernateNotNull" column="hibernateNotNull" type="string" length="50"/>
+
+
+
+	<!-- associations -->
+
+
+
+	<!-- filters -->
+
+</class>
+
+
+         <!-- queries  -->
+
+
+
+</hibernate-mapping>

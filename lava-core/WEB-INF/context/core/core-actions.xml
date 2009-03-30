@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	
+	<!-- This post processor assigns the bean name to the id property if id is not set-->
+	<bean id="actionBeanPostProcessor" class="edu.ucsf.lava.core.action.model.ActionBeanPostProcessor"/>
+	
+	<!-- The action manager bean -->
+	<bean id="actionManager" class="edu.ucsf.lava.core.action.ActionManager">
+			<property name="actionDefinitions">
+				<ref bean="actionDefinitions"/>
+			</property>
+	</bean>
+	
+	<!-- The action delegate bean for all core scope actions.  -->
+	<bean id="coreActionDelegate" parent="baseScopeActionDelegate" class="edu.ucsf.lava.core.action.CoreActionDelegate"/>
+	
+	<!-- A container bean that all action beans self-register with.  Injected into the actionManager -->
+	<bean id="actionDefinitions" class="edu.ucsf.lava.core.action.ActionDefinitions"/>
+
+
+
+	<!-- Base action bean.  All Action beans definitions must inherit from this bean. -->
+	<bean id="baseAction" abstract="true" class="edu.ucsf.lava.core.action.model.BaseAction">
+		<property name="actionDefinitions"><ref bean="actionDefinitions"/></property>
+		<property name="sectionDefault" value="false"/>
+		<property name="moduleDefault" value="false"/>
+		<property name="subFlows">
+			<list>
+				<value>lava.core.reporting.reports.reportLauncher</value>
+				<value>lava.crms.reporting.reports.crmsReportLauncher</value>
+			</list>
+		</property>	
+	</bean>	
+
+	
+	
+	<!-- base core scope action bean - all core actions inherit from this bean -->
+	<bean id="coreAction" abstract="true" parent="baseAction" class="edu.ucsf.lava.core.action.model.CoreAction"/>
+
+	<bean id="coreEntityFlowAction" abstract="true" parent="coreAction">
+		<property name="flowTypeBuilder"><ref bean="coreEntityFlowTypeBuilder"/></property>
+	</bean>
+	<bean id="coreListFlowAction" abstract="true" parent="coreAction">
+		<property name="flowTypeBuilder"><ref bean="coreListFlowTypeBuilder"/></property>
+	</bean>	
+
+	<bean id="coreSectionListAction" abstract="true" parent="coreListFlowAction">
+			<property name="sectionDefault" value="true"/>
+	</bean>
+	
+	<bean id="coreModuleListAction" abstract="true" parent="coreListFlowAction">
+			<property name="moduleDefault" value="true"/>
+			<property name="sectionDefault" value="true"/>
+	</bean>
+			
+	
+</beans>

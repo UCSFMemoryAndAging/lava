@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- note that crms-reportsImport.xml is not included by crms-context.xml, but is 
+	loaded into crmsReportViewResolver in crms-reporting.xml -->
+
+<beans>
+
+
+	<!-- for entity and list reports", bean names must match view names, which include the '/' character, so 
+		define beans using the "name" attribute, not "id" attribute -->	     
+	<!-- entity and list reports -->     
+
+	<!-- common definition for entity report designs, which may or may not have subReports (i.e. master with details) -->
+	<bean id="crmsEntityBaseReport" class="edu.ucsf.lava.core.reporting.controller.LavaJasperReportsMultiFormatView" abstract="true">
+		<property name="reportDataKey" value="entityReportDataSource"/>
+	</bean>
+	<!--  For developement - to recompile each time 
+	<bean id="crmsEntityBaseReport" class="edu.ucsf.lava.core.reporting.controller.RecompilingLavaJasperReportsMultiFormatView" abstract="true">
+		<property name="reportDataKey" value="entityReportDataSource"/>
+	</bean>	
+	-->
+	
+	<!-- common definition for list report designs, for printing the list on a page  -->
+	<bean id="crmsListBaseReport" class="edu.ucsf.lava.core.reporting.controller.LavaJasperReportsMultiFormatView" abstract="true">
+		<property name="reportDataKey" value="listReportDataSource"/>
+	</bean>
+	<!--  for development to recompile each time
+	<bean id="crmsListBaseReport" class="edu.ucsf.lava.core.reporting.controller.RecompilingLavaJasperReportsMultiFormatView" abstract="true">
+		<property name="reportDataKey" value="listReportDataSource"/>
+	</bean>
+	-->
+
+	<bean id="crmsInstrumentBaseReport" parent="crmsEntityBaseReport" abstract="true">
+		<property name="subReportUrls">
+			<map>
+				<entry key="instrStatusSubreport" value="/WEB-INF/report/crms/assessment/instrument/instrStatus.jrxml"/>
+				<entry key="instrHeaderSubreport" value="/WEB-INF/report/crms/assessment/instrument/instrHeader.jrxml"/>
+				<entry key="instrFooterSubreport" value="/WEB-INF/report/crms/assessment/instrument/instrFooter.jrxml"/>
+				<entry key="instrHeaderWideSubreport" value="/WEB-INF/report/crms/assessment/instrument/instrHeaderWide.jrxml"/>			
+			</map>
+		</property>
+		<property name="subReportDataKeys" value="instrTrackingDataSource"/>
+	</bean>
+	
+	
+</beans>

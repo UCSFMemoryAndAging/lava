@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+
+	<bean id="list.instrument.dcStatus" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="DataCollectionStatus"/>
+	</bean>	
+	
+	<bean id="list.instrument.deStatus" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="DataEntryStatus"/>
+	</bean>	
+				
+	<!-- as of 2.9.0, verify only applies to Double Entry and the only valid statuses are
+		     "Defer" and "Verified - Double Entry". However, leave the others in this list so that
+		     they show up in legacy data (i.e. not setting the verify fields to null on existing instruments
+		     where double entry did not apply, but going forward they will be null for all such instruments) -->
+	<bean id="list.instrument.dvStatus" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Defer"/><constructor-arg value="Defer"/></bean>
+			<bean parent="list.data"><constructor-arg value="Skip"/><constructor-arg value="Skip"/></bean>
+			<bean parent="list.data"><constructor-arg value="Verified - Double Entry"/><constructor-arg value="Verified - Double Entry"/></bean>
+			<bean parent="list.data"><constructor-arg value="Verified - Other"/><constructor-arg value="Verified - Other"/></bean>
+			<bean parent="list.data"><constructor-arg value="Verified - Review"/><constructor-arg value="Verified - Review"/></bean>
+		</list></property>
+	</bean>
+	
+	<bean id="list.instrument.researchStatus" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="InstrumentResearchStatus"/>
+	</bean>	
+				
+	<bean id="list.ref.instrument.qualityIssue" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="InstrumentQualityIssue"/>
+	</bean>	
+				
+	<bean id="list.instrument.qualityIssue" parent="list.combination">
+		<property name="staticReferenceLists"><list>
+			<ref bean="list.ref.instrument.qualityIssue"/>
+		</list></property>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="NONE, DATA ARE VALID"/>
+									<constructor-arg value="NONE, DATA ARE VALID"/>
+									<constructor-arg value="1"/>
+			</bean>
+		</list></property>
+			
+	</bean>	
+	
+	<bean id="list.instrument.qualityIssue2" parent="list.combination">
+		<property name="staticReferenceLists"><list>
+			<ref bean="list.ref.instrument.qualityIssue"/>
+		</list></property>
+	</bean>
+	
+	<bean id="list.instrument.qualityIssue3" parent="list.combination">
+		<property name="staticReferenceLists"><list>
+			<ref bean="list.ref.instrument.qualityIssue"/>
+		</list></property>
+	</bean>
+
+	<bean id="list.instrumentMetadata.instrTypes" parent="list.standard">
+		<property name="query" value="list.instrumentMetadata.instrTypes"/>
+	</bean>
+		
+	<bean id="list.medications.drugLookup" parent="list.dynamic">
+		<property name="query" value="list.medications.drugLookup"/>
+		<property name="defaultSort" value="none"/>
+		<property name="data"><list>
+		<bean parent="list.data"><constructor-arg value="00000 - clear selection|00000 - clear selection|00000"/>
+									<constructor-arg value="0"/>
+									<constructor-arg value="0"/>
+			</bean>
+		</list></property>
+	</bean>
+</beans>

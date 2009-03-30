@@ -1,0 +1,118 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<class name="edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus" table="enrollmentstatus" select-before-update="true">
+
+		<id name="id" type="long">
+			<column name="EnrollStatID" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+		
+	   <timestamp name="modified" column="modified"/>
+
+
+       <many-to-one name="patient" column="PIDN" class="edu.ucsf.lava.crms.people.model.Patient" not-null="true"/>
+       <property name="projName" column="ProjName" type="string" length="25" not-null="true"/>
+       <property name="subjectStudyId" column="SubjectStudyID" type="string" length="10"/>
+       <property name="referralSource" column="ReferralSource" type="string" length="75"/>
+       <property name="latestDesc" column="LatestDesc" type="string" length="25"/>
+       <property name="latestDate" column="LatestDate" type="timestamp"/>
+       <property name="latestNote" column="LatestNote" type="string" length="100"/>
+       <property name="referredDesc" column="ReferredDesc" type="string" length="25"/>
+       <property name="referredDate" column="ReferredDate" type="timestamp"/>
+       <property name="referredNote" column="ReferredNote" type="string" length="100"/>
+       <property name="deferredDesc" column="DeferredDesc" type="string" length="25"/>
+       <property name="deferredDate" column="DeferredDate" type="timestamp"/>
+       <property name="deferredNote" column="DeferredNote" type="string" length="100"/>
+       <property name="eligibleDesc" column="EligibleDesc" type="string" length="25"/>
+       <property name="eligibleDate" column="EligibleDate" type="timestamp"/>
+       <property name="eligibleNote" column="EligibleNote" type="string" length="100"/>
+       <property name="ineligibleDesc" column="IneligibleDesc" type="string" length="25"/>
+       <property name="ineligibleDate" column="IneligibleDate" type="timestamp"/>
+       <property name="ineligibleNote" column="IneligibleNote" type="string" length="100"/>
+       <property name="declinedDesc" column="DeclinedDesc" type="string" length="25"/>
+       <property name="declinedDate" column="DeclinedDate" type="timestamp"/>
+       <property name="declinedNote" column="DeclinedNote" type="string" length="100"/>
+       <property name="enrolledDesc" column="EnrolledDesc" type="string" length="25"/>
+       <property name="enrolledDate" column="EnrolledDate" type="timestamp"/>
+       <property name="enrolledNote" column="EnrolledNote" type="string" length="100"/>
+       <property name="excludedDesc" column="ExcludedDesc" type="string" length="25"/>
+       <property name="excludedDate" column="ExcludedDate" type="timestamp"/>
+       <property name="excludedNote" column="ExcludedNote" type="string" length="100"/>
+       <property name="withdrewDesc" column="WithdrewDesc" type="string" length="25"/>
+       <property name="withdrewDate" column="WithdrewDate" type="timestamp"/>
+       <property name="withdrewNote" column="WithdrewNote" type="string" length="100"/>
+       <property name="inactiveDesc" column="InactiveDesc" type="string" length="25"/>
+       <property name="inactiveDate" column="InactiveDate" type="timestamp"/>
+       <property name="inactiveNote" column="InactiveNote" type="string" length="100"/>
+       <property name="deceasedDesc" column="DeceasedDesc" type="string" length="25"/>
+       <property name="deceasedDate" column="DeceasedDate" type="timestamp"/>
+       <property name="deceasedNote" column="DeceasedNote" type="string" length="100"/>
+       <property name="autopsyDesc" column="AutopsyDesc" type="string" length="25"/>
+       <property name="autopsyDate" column="AutopsyDate" type="timestamp"/>
+       <property name="autopsyNote" column="AutopsyNote" type="string" length="100"/>
+       <property name="closedDesc" column="ClosedDesc" type="string" length="25"/>
+       <property name="closedDate" column="ClosedDate" type="timestamp"/>
+       <property name="closedNote" column="ClosedNote" type="string" length="100"/>
+       <property name="enrollmentNotes" column="EnrollmentNotes" type="string" length="500"/>
+
+	
+
+	<!-- filters -->
+	<filter name="patientAuth"/> 
+	<filter name="validPatient"/>  
+	<filter name="projectAuth"/>
+	<filter name="projectContext" condition=":projectContext=projName"/>
+	<filter name="patient" condition=":patientId=PIDN"/>
+</class>
+
+
+         <!-- queries  -->
+<query name="list.enrollmentStatus.projectStatus"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = 'ProjectStatus' and (lv.valueKey = :projectName)
+		group by lv.valueDesc, lv.orderIndex
+		order by lv.orderIndex, lv.valueDesc
+	]]></query>
+
+
+<query name="list.enrollmentStatus.referralSource"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = 'ReferralSources' and (lv.valueKey =:projectName or lv.valueKey ='GENERAL')
+		group by lv.valueDesc,lv.orderIndex order by lv.valueDesc
+		union select new edu.ucsf.lava.core.list.model.LabelValueBean(:projectName,:projectName, 0)
+
+	]]></query>
+
+	
+	<query name="list.enrollmentStatus.patientProjects"><![CDATA[
+	    select distinct new edu.ucsf.lava.core.list.model.LabelValueBean(p.projName, p.projName)
+		from EnrollmentStatus p
+		where PIDN = :patientId 
+		order by p.projName
+		
+	]]></query>
+
+
+	<!-- this query determines which projects a patient has not been assigned to. 
+	     for projects with units, a patient who is enrolled in one of the project's units can not be 
+	     enrolled in any of the other units of that project. this is why there are two nested 
+	     subqueries: the first nested subquery translates enrollment in a project's unit (from the second
+	     nested subquery) to enrollment in the project and thus prevents further enrollment in any of 
+	     that project's other units -->
+	<query name="list.enrollmentStatus.patientUnassignedProjects"><![CDATA[
+	    select distinct new edu.ucsf.lava.core.list.model.LabelValueBean(p.projUnitDesc, p.projUnitDesc)
+		from Project p where NOT p.project IN (SELECT project from Project where projUnitDesc IN (SELECT es.projName from EnrollmentStatus es where es.patient.id = :patientId ))
+		order by p.projUnitDesc
+		
+	]]></query>
+</hibernate-mapping>

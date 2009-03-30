@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+<!-- The list manager bean.  Coordinates all list configuration and generation activity -->
+<bean id="listManager" class="edu.ucsf.lava.core.list.ListManager" >
+			<property name="staticListDefinitions">
+				<ref bean="staticListDefinitions"/>
+			</property>
+			<property name="dynamicListDefinitions">
+				<ref bean="dynamicListDefinitions"/>
+			</property>
+</bean>
+
+
+
+
+<bean id="staticListDefinitions" class="edu.ucsf.lava.core.list.ListDefinitions"/>
+
+<bean id="dynamicListDefinitions" class="edu.ucsf.lava.core.list.ListDefinitions"/>
+
+
+
+
+
+<!-- strips the "list." from the beginning of list config bean names and 
+	registers them with the listDefinitions collection injected into the list config bean-->
+<bean id="listConfigPostProcessor" class="edu.ucsf.lava.core.list.model.ListConfigPostProcessor"/>
+	
+<bean id="list.base" abstract="true" class="edu.ucsf.lava.core.list.model.DefaultListConfig">
+	<property name="listDefinitions"><ref bean="staticListDefinitions"/></property>
+	<property name="defaultFormat" value="label"/>
+	<property name="defaultSort" value="label"/>
+	<property name="defaultCodes"><ref bean="list.noCodes"/></property>
+
+</bean>
+
+<bean id="list.dynamic" abstract="true" class="edu.ucsf.lava.core.list.model.DefaultListConfig">
+	<property name="listDefinitions"><ref bean="dynamicListDefinitions"/></property>
+	<property name="dynamic" value="true"/>
+</bean>
+
+
+<bean id="list.dynamicCombination" abstract="true" parent="list.dynamic"/>
+
+<bean id="list.dynamicSortValue" abstract="true" parent="list.dynamic">
+	<property name="listDefinitions"><ref bean="dynamicListDefinitions"/></property>
+	<property name="dynamic" value="true"/>
+	<property name="defaultSort" value="value"/>
+</bean>
+
+<bean id="list.noCodes" class="edu.ucsf.lava.core.list.model.NoCodesListConfig">
+	<property name="listDefinitions"><ref bean="staticListDefinitions"/></property>
+</bean>	
+
+<bean id="list.dataOnly" abstract="true" parent="list.base"/>
+
+
+<bean id="list.combination" abstract="true" parent="list.base"/>
+
+
+
+<bean id="list.data" abstract="true" class="edu.ucsf.lava.core.list.model.LabelValueBean"/>
+
+<bean id="list.standard" abstract="true" parent="list.base">
+	<property name="query" value="GenericListValueQuery"/>
+</bean>
+
+<bean id="list.standardDecimal" abstract="true" parent="list.standard">
+	<property name="query" value="GenericListValueQueryDecimal"/>
+</bean>
+
+
+
+<bean id="list.standardNumericValue" abstract="true" parent="list.standard">
+	<property name="defaultSort" value="valueNumeric"/>
+</bean>
+
+<bean id="list.standardValueIsLabel" abstract="true" parent="list.standard">
+	<property name="defaultSort" value="value"/>
+	<property name="defaultFormat" value="valueIsLabel"/>
+</bean>
+
+<bean id="list.standardValueNoLabel" abstract="true" parent="list.standard">
+	<property name="query" value="GenericListValueQueryNullDesc"/>
+	<property name="defaultSort" value="value"/>
+	<property name="defaultFormat" value="valueIsLabel"/>
+</bean>
+
+
+<bean id="list.numericRange" abstract="true" parent="list.base" class="edu.ucsf.lava.core.list.model.NumericRangeListConfig">
+	<property name="defaultSort" value="valueNumeric"/>
+</bean>
+
+<bean id="list.decimalRange" abstract="true" parent="list.base" class="edu.ucsf.lava.core.list.model.DecimalRangeListConfig">
+	<property name="defaultSort" value="valueDecimal"/>
+</bean>
+
+
+<!-- specific list configuration files -->
+
+<import resource="lists/lists-auth.xml"/>
+<import resource="lists/lists-common.xml"/>
+<import resource="lists/lists-session.xml"/>
+</beans>

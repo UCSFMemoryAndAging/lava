@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	
+	
+	<bean id="crmsSessionAttributeHandler" parent="baseScopeSessionAttributeHandler" class="edu.ucsf.lava.crms.session.CrmsSessionAttributeHandler"/>
+
+	<!-- refactor out into a self-registering bean collection -->
+	<bean id="appSessionPolicyHandlers" class="java.util.ArrayList">
+		 <constructor-arg><list>
+  			
+		</list></constructor-arg>
+	</bean>
+	
+	
+
+	
+</beans>

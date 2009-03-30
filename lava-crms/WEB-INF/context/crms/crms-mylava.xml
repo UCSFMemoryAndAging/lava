@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- actions -->
+	
+			
+	<bean id="lava.crms.mylava.welcome.welcome" parent="welcomeFlowAction"/>
+	     	
+	
+	
+	<bean id="lava.crms.mylava.myCalendar.myVisits" parent="crmsPatientSectionListAction">
+		<!-- use a subflow here to make sure the subflow / parent flow integration works using visit entitiy-->
+		<property name="subFlow" value="lava.crms.scheduling.visit.visit"/>
+		<property name="sectionDefault" value="true"/>
+	</bean>
+				
+				
+   			
+
+	<!-- form action definitions -->
+    
+    
+
+	<bean id="welcomeFormAction" parent="crmsEntityComponentFormAction">
+		<constructor-arg><list><bean class="edu.ucsf.lava.crms.mylava.controller.WelcomeHandler" parent="crmsHandler"/></list></constructor-arg>
+	</bean>
+       
+	<bean id="myVisitsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+    		<bean class="edu.ucsf.lava.crms.mylava.controller.MyCalendarHandler" parent="crmsHandler"/>
+   	</list></constructor-arg></bean>  
+    
+    
+
+</beans>

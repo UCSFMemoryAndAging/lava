@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.crms.scheduling.model.Visit" table="visit"  select-before-update="true">		
+		<id name="id" type="long">
+			<column name="VID" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+		
+		<timestamp name="modified" column="modified"/>
+		
+		
+  		<!-- default to lazy initialization -->
+		<many-to-one name="patient" column="PIDN" class="edu.ucsf.lava.crms.people.model.Patient" not-null="true"/>
+		<property name="projName" type="string" column="ProjName" not-null="true"/>
+		<property name="visitLocation" type="string" column="VLocation" not-null="true"/> 
+		<property name="visitType" type="string" column="VType" not-null="true"/> 
+		<property name="visitWith" type="string" column="VWith"/> 
+		<property name="visitDate" type="timestamp" column="VDate" not-null="true"/> 
+		<property name="visitStatus" type="string" column="VStatus" not-null="true"/> 
+		<property name="visitNote" type="string" column="VNotes"/> 
+		<property name="followUpMonth" type="string" column="FUMonth"/>
+		<property name="followUpYear" type="string" column="FUYear"/>
+		<property name="followUpNote" type="string" column="FUNote"/>
+		<property name="waitList" type="string" column="WList"/>
+		<property name="waitListNote" type="string" column="WListNote"/>
+		<property name="waitListDate" type="timestamp" column="WListDate"/>
+		<property name="visitDescrip" type="string" column="VShortDesc" length="255" not-null="true"/>
+		<property name="ageAtVisit" type="short" column="AgeAtVisit"/>
+		
+		<filter name="patientAuth"/> 
+		<filter name="validPatient"/>  
+		<filter name="projectAuth"/> 		
+		<filter name="projectContext" condition=":projectContext=ProjName"/>
+	    <filter name="patient" condition=":patientId=PIDN"/>	
+	</class>
+	
+	<!-- join fetch eagerly fetches Patient associations -->
+	<query name="visit.listDescending"><![CDATA[
+	    select v
+		from Visit v
+		join fetch v.patient p
+		order by v.visitDate DESC
+	]]></query>
+	<query name="visit.searchByDateRange"><![CDATA[
+	    select v
+		from Visit v
+		join fetch v.patient p
+		where v.visitDate >= :beginDate and v.visitDate < :endDate
+		order by v.visitDate DESC
+	]]></query>
+
+	<query name="list.visit.visitTypes"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = 'VisitType' and (lv.valueKey = :projectName or lv.valueKey = 'GENERAL' or lv.valueKey IN 
+			(SELECT p.project from Project p where p.projUnitDesc = :projectName))
+		order by lv.orderIndex, lv.valueDesc
+	]]></query>
+	<query name="list.visit.visitLocations"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = 'VisitLocations' and (lv.valueKey = :projectName or lv.valueKey = 'GENERAL' or lv.valueKey IN 
+			(SELECT p.project from Project p where p.projUnitDesc = :projectName))
+		order by lv.valueDesc
+	]]></query>
+
+	<!-- ORIGINAL SQL SELECT year(Vdate)+1 from dbo.visit with(NOLOCK) GROUP BY year(vdate)+1 order by year(Vdate)+1 desc -->
+	<query name="list.visit.followUpYears"><![CDATA[
+	    select distinct new edu.ucsf.lava.core.list.model.LabelValueBean(str(year(VDate)+1), str(year(VDate)+1), year(VDate)+1)
+		from Visit v
+		order by year(VDate)+1
+	]]></query>
+
+	<query name="list.visit.patientVisits"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(v.visitDescrip, v.id)
+		from Visit v 
+		where v.patient.id = :patientId
+		order by v.visitDate desc
+	]]></query>
+	
+	<query name="list.visit.patientProjectVisits"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(v.visitDescrip, v.id)
+		from Visit v 
+		where v.patient.id = :patientId and
+			v.projName = :projectName
+		order by v.visitDate desc
+	]]></query>
+
+</hibernate-mapping>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			

@@ -1,0 +1,215 @@
+<?xml version="1.0"?>
+<!DOCTYPE jasperTemplate
+  PUBLIC "-//JasperReports//DTD Template//EN"
+  "http://jasperreports.sourceforge.net/dtds/jaspertemplate.dtd">
+  
+<jasperTemplate>
+
+	<style 
+		name="title"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="11"
+		pdfFontName="Helvetica-Bold"
+	/>
+	<!-- used to identify the source of the report, e.g. "UCSF Memory and Aging Center" -->
+	<style 
+		name="sourcePageHeader"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="8"
+		pdfFontName="Helvetica-BoldOblique"
+		isBlankWhenNull="true"
+	/>
+	<!-- this is for page header text within borders, e.g. instrHeader.jrxml -->
+	<style 
+		name="enclosedPageHeader"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="7"
+		pdfFontName="Helvetica"
+		isBlankWhenNull="true"
+	/>
+	<style 
+		name="firstGroupHeader"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="9"
+		pdfFontName="Helvetica-Bold"
+		isBlankWhenNull="true"
+	/>
+	<style 
+		name="secondGroupHeader"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="7"
+		pdfFontName="Helvetica-Bold"
+		isBlankWhenNull="true"
+	/>
+	<!-- this is for plain column headers with no background color and no borders (horizontal and vertical
+		lines typically are drawn above and below the column header -->
+	<style 
+		name="listColHeader"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="7"
+		pdfFontName="Helvetica-Bold"
+		isBlankWhenNull="true"
+	/>
+	<!-- this is for column headers that are shaded cells with borders all around -->
+	<style 
+		name="listCellColHeader"
+		style="listColHeader"
+		mode="Opaque" 
+		backcolor="#D3D3D3" 
+		border="Thin"
+		leftPadding="3"
+		topPadding="1"
+		bottomPadding="1"
+	/>
+	<!-- this is for list values with no borders (horizontal and vertical lines typically are drawn above 
+		and below the each row of values) -->
+	<style 
+		name="listValue"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="7"
+		pdfFontName="Helvetica"
+		isBlankWhenNull="true"
+	/>
+	<!-- this is used for data only formats, e.g. CSV. the fontSize is made very small to help guarantee that
+		each data value will fall within its assigned width, and thus be correct in the data format, e.g. 
+		within the comma in CSV format -->
+	<style 
+		name="dataOnlyListValue"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="1"
+		isBlankWhenNull="true"
+	/>
+ 	<!-- this is for list values that are cell-like in that they have borders.
+ 	     each cell draws left and top border, and then the last cell in the row must have an explicit <box rightBorder="Thin"/>
+ 	     and the bottom border is taken care of by a horizontal line.
+ 	     TODO: ideally want borders all around for the general case (border="Thin"), but for some reason that is 
+ 	     creating thicker borders in some cases, e.g. a cell's right border and the following cell's left border 
+ 	     do not exactly overlap. so set it up so there are no overlapping borders between cells.
+ 	     meanwhile, border="Thin" is working for listCellColHeader style, even though e.g. in the medicationsDetail.jrxml 
+ 	     subreport, the x-coords/width used for the column headers are exactly the same as the x-coords/widths used for 
+ 	     the column values. can not explain this.
+ 	-->
+	<style 
+		name="listCellValue"
+		style="listValue"
+		topBorder="Thin"
+		rightBorder="None"
+		bottomBorder="None"
+		leftBorder="Thin"
+		topPadding="3"
+		rightPadding="0"
+		bottomPadding="6"
+		leftPadding="3"
+	/>
+	
+	<style 
+		name="section"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="9"
+		isBold="true"
+		isUnderline="true"
+		pdfFontName="Helvetica-Bold"
+		isBlankWhenNull="true"
+	/>
+	<style 
+		name="subsection"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="9"
+		isBold="true"
+		pdfFontName="Helvetica-Bold"
+		isBlankWhenNull="true"
+	/>
+	<style 
+		name="instruction"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="9"
+		isBlankWhenNull="true"
+	/>
+	<style 
+		name="label"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="9"
+		pdfFontName="Helvetica"
+		isBlankWhenNull="true"
+	/>
+	<style 
+		name="value"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="9"
+		isUnderline="true"
+		pdfFontName="Helvetica"
+		isBlankWhenNull="true"
+	/>
+	<style 
+		name="note"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="9"
+		isUnderline="true"
+		pdfFontName="Helvetica"
+		isBlankWhenNull="true"
+	/>
+	<style 
+		name="instrStatusHeading"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="7"
+		pdfFontName="Helvetica"
+		isBlankWhenNull="true"
+	/>
+	<style 
+		name="instrStatusValue"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="7"
+		pdfFontName="Helvetica"
+		isBlankWhenNull="true"
+	/>
+	
+	<style 
+		name="pageFooter"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="5"
+		pdfFontName="Helvetica"
+		isBlankWhenNull="true"
+	/>
+	<style 
+		name="pageFooterWide"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="6"
+		pdfFontName="Helvetica"
+		isBlankWhenNull="true"
+	/>
+	<style 
+		name="pageNumber"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="7"
+		pdfFontName="Helvetica"
+	/>
+	<style 
+		name="pageNumberWide"
+		isDefault="false"
+		fontName="SansSerif"
+		fontSize="8"
+		pdfFontName="Helvetica"
+	/>
+
+</jasperTemplate>
+
+	

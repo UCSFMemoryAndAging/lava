@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+ 	<bean id="metadataManager" class="edu.ucsf.lava.core.metadata.MetadataManager" >
+     	<property name="messageSource">
+     		<ref bean="messageSource"/>
+     	</property>
+ 	</bean>
+ 
+	<!-- this custom MessageSource accesses resource bundles stored in the database, and data can be reloaded 
+	via /lava/admin/reload/metadata.lava -->
+	<bean id="messageSource" class="edu.ucsf.lava.core.metadata.ViewPropertyMessageSource">
+		<property name="parentMessageSource"><ref bean="propertiesMessageSource"/></property>
+	</bean>
+	
+	<!-- define i18n resource bundles -->
+	<!-- define resource bundles for various purposes. they will be searched in order they are defined in the
+         basenames attribute 
+         note: these are reloadable resource bundles and cacheSeconds = 0 will check the last-modified
+               timestamp of the file on every message access. do NOT use this setting in production. 
+               in Production, use -1, meaning cache forever -->
+	<bean id="propertiesMessageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames"><value>WEB-INF/i18n/custom,WEB-INF/i18n/metadata,WEB-INF/i18n/messages,WEB-INF/i18n/mvc</value></property>
+		<!-- <property name="parentMessageSource"><ref bean="baseMessageSource"/></property> -->
+    	<property name="cacheSeconds"><value>-1</value></property>
+	</bean>
+
+	<!-- actions -->
+	
+	<!-- form action definitions -->
+
+	<!--  standard controller (not web flow) This needs to be refactored into an admin screen function.-->
+	<bean id="reloadMetadataController" class="edu.ucsf.lava.core.metadata.controller.ReloadMetadataController"/>
+
+</beans>

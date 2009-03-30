@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="instrStatus"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="612"
+		 pageHeight="792"
+		 columnWidth="540"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="AllSectionsNoDetail"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+	
+	<template>"reportStyles.jrtx"</template>
+
+	<parameter name="handler" isForPrompting="false" class="edu.ucsf.lava.core.controller.LavaComponentHandler"/>
+
+	<field name="id" class="java.lang.Long"/>
+	<field name="projName" class="java.lang.String"/>
+	<field name="instrType" class="java.lang.String"/>
+	<field name="instrVer" class="java.lang.String"/>
+	<field name="dcDate" class="java.util.Date"/>
+	<field name="dcBy" class="java.lang.String"/>
+	<field name="dcStatus" class="java.lang.String"/>
+	<field name="dcNotes" class="java.lang.String"/>
+	<field name="researchStatus" class="java.lang.String"/>
+	<field name="qualityIssue" class="java.lang.String"/>
+	<field name="qualityIssue2" class="java.lang.String"/>
+	<field name="qualityIssue3" class="java.lang.String"/>
+	<field name="qualityNotes" class="java.lang.String"/>
+	<field name="deDate" class="java.util.Date"/>
+	<field name="deBy" class="java.lang.String"/>
+	<field name="deStatus" class="java.lang.String"/>
+	<field name="deNotes" class="java.lang.String"/>
+	<field name="dvDate" class="java.util.Date"/>
+	<field name="dvBy" class="java.lang.String"/>
+	<field name="dvStatus" class="java.lang.String"/>
+	<field name="dvNotes" class="java.lang.String"/>
+	
+	<group name="status">
+		<groupExpression>$V{REPORT_COUNT}</groupExpression>
+		<groupHeader>
+			<band height="114" isSplitAllowed="true">
+				<rectangle>
+					<reportElement x="0" y="0" width="540" height="114"/>
+					<graphicElement pen="Thin" stretchType="RelativeToBandHeight"/>
+				</rectangle>
+				<line direction="TopDown">
+					<reportElement x="180" y="0" width="0" height="114"/>
+					<graphicElement pen="Thin" stretchType="RelativeToBandHeight"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement x="360" y="0" width="0" height="114"/>
+					<graphicElement pen="Thin" stretchType="RelativeToBandHeight"/>
+				</line>
+
+				<rectangle>
+					<reportElement x="0" y="0" width="540" height="12"  backcolor="#D3D3D3"/>
+				</rectangle>
+
+
+				<textField>
+					<reportElement x="2" y="0" width="170" height="12" style="instrStatusHeading"/>		
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{handler}.getSectionName("instrument.dc")]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="182" y="0" width="170" height="12" style="instrStatusHeading"/>		
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{handler}.getSectionName("instrument.de")]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="362" y="0" width="170" height="12" style="instrStatusHeading"/>		
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{handler}.getSectionName("instrument.dv")]]></textFieldExpression>
+				</textField>
+
+
+				<textField isBlankWhenNull="true">
+					<reportElement x="2" y="12" width="170" height="10" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{dcStatus}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="182" y="12" width="170" height="10" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{deStatus}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="362" y="12" width="170" height="10" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{dvStatus}]]></textFieldExpression>
+				</textField>
+
+
+				<textField isBlankWhenNull="true">
+					<reportElement x="2" y="22" width="170" height="10" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{dcBy}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="182" y="22" width="170" height="10" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{deBy}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="362" y="22" width="170" height="10" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{dvBy}]]></textFieldExpression>
+				</textField>
+
+
+				<textField isBlankWhenNull="true">
+					<reportElement x="2" y="32" width="170" height="10" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("MM/dd/yyyy").format($F{dcDate}).toString()]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="182" y="32" width="170" height="10" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("MM/dd/yyyy").format($F{deDate}).toString()]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="362" y="32" width="170" height="10" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("MM/dd/yyyy").format($F{dvDate}).toString()]]></textFieldExpression>
+				</textField>
+
+
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true">
+					<reportElement x="2" y="47" width="170" height="10" style="instrStatusHeading"/>		
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{handler}.getPropLabel("instrument.sectionNote")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true">
+					<reportElement x="182" y="47" width="170" height="10" style="instrStatusHeading"/>		
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{handler}.getPropLabel("instrument.sectionNote")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true">
+					<reportElement x="362" y="47" width="170" height="10" style="instrStatusHeading"/>		
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{handler}.getPropLabel("instrument.sectionNote")]]></textFieldExpression>
+				</textField>
+
+				<frame>
+					<reportElement x="0" y="57" width="540" height="10" positionType="Float"/>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement x="2" y="0" width="170" height="10" style="instrStatusValue"/>
+						<textFieldExpression class="java.lang.String"><![CDATA[$F{dcNotes}]]></textFieldExpression>
+					</textField>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement x="182" y="0" width="170" height="10" style="instrStatusValue"/>
+						<textFieldExpression class="java.lang.String"><![CDATA[$F{deNotes}]]></textFieldExpression>
+					</textField>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement x="362" y="0" width="170" height="10" style="instrStatusValue"/>
+						<textFieldExpression class="java.lang.String"><![CDATA[$F{dvNotes}]]></textFieldExpression>
+					</textField>
+				</frame>
+
+				<rectangle>
+					<reportElement x="0" y="72" width="540" height="12" positionType="Float" backcolor="#D3D3D3"/>
+				</rectangle>
+
+				<textField>
+					<reportElement x="2" y="72" width="170" height="12" positionType="Float" style="instrStatusHeading"/>		
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{handler}.getPropLabel("instrument.researchStatus")]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="182" y="72" width="170" height="12" positionType="Float" style="instrStatusHeading"/>		
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{handler}.getPropLabel("instrument.qualityIssue")]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="362" y="72" width="170" height="12" positionType="Float" style="instrStatusHeading"/>		
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{handler}.getPropLabel("instrument.qualityNotes")]]></textFieldExpression>
+				</textField>
+
+				<textField isBlankWhenNull="true">
+					<reportElement x="2" y="84" width="170" height="10" positionType="Float" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{researchStatus}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="182" y="84" width="170" height="10" positionType="Float" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{qualityIssue}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="362" y="84" width="170" height="10" positionType="Float" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{qualityNotes}]]></textFieldExpression>
+				</textField>
+
+
+				<textField isBlankWhenNull="true">
+					<reportElement x="182" y="94" width="170" height="10" positionType="Float" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{qualityIssue2}]]></textFieldExpression>
+				</textField>
+
+				<textField isBlankWhenNull="true">
+					<reportElement x="182" y="104" width="170" height="10" positionType="Float" style="instrStatusValue"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{qualityIssue3}]]></textFieldExpression>
+				</textField>
+
+
+			</band>
+		</groupHeader>			
+	</group>
+
+</jasperReport>
+	

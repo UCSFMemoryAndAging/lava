@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- note that crms-reports.xml is not included by crms-context.xml, but is specified in the
+appReportViewResolver XmlViewResolver in crms-reporting.xml -->
+
+<beans>
+
+
+<!-- Reporting Configuration -->
+<import resource="../core/core-reportsBaseImport.xml"/>
+<import resource="crms-reportsImport.xml"/>
+	
+	
+
+
+
+	<bean name="crms/scheduling/patientCalendar/patientVisitsReport" parent="crmsListBaseReport">
+		<property name="url" value="/WEB-INF/report/crms/scheduling/patientCalendar/patientVisits.jrxml"/>
+	</bean>
+
+
+	<!-- instrument entity reports -->
+	
+	<!-- note: instruments that derive from entityBaseReport instead of instrumentBaseReport have not yet
+		been refactored to the shared status/header/footer report design (unless the instrument already
+		had its own subreports (e.g. medications) in which case it should derive from entityBaseReport).
+		these reports were modified in iReports subsequent to report generation, so because of this
+		custom modification they have not been refactored. -->
+	
+
+
+	<!-- Reports -->
+	
+	<bean name="crms/reporting/reports/projectPatientStatusReport" parent="baseReport">
+		<property name="url" value="/WEB-INF/report/crms/reporting/reports/projectPatientStatus.jrxml"/>
+	</bean>
+	
+	<bean name="crms/reporting/reports/projectVisitListByDateReport" parent="baseReport">
+		<property name="url" value="/WEB-INF/report/crms/reporting/reports/projectVisitListByDate.jrxml"/>
+	</bean>
+	<bean name="crms/reporting/reports/researchVisitListByDateReport" parent="baseReport">
+		<property name="url" value="/WEB-INF/report/crms/reporting/reports/researchVisitListByDate.jrxml"/>
+	</bean>
+	<bean name="crms/reporting/reports/researchVisitListByPatientReport" parent="baseReport">
+		<property name="url" value="/WEB-INF/report/crms/reporting/reports/researchVisitListByPatient.jrxml"/>
+	</bean>
+		
+	<bean name="crms/reporting/reports/projectVisitListByPatientReport" parent="baseReport">
+		<property name="url" value="/WEB-INF/report/crms/reporting/reports/projectVisitListByPatient.jrxml"/>
+	</bean>
+
+	
+	
+</beans>

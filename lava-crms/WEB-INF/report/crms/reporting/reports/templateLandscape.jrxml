@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with util_LavaWeb_JasperEntityReport on Dec 17 2007 12:42PM -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="_NAME_OF_REPORT_"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="792"
+		 pageHeight="612"
+		 columnWidth="702"
+		 columnSpacing="0"
+		 leftMargin="45"
+		 rightMargin="45"
+		 topMargin="25"
+		 bottomMargin="25"
+		 whenNoDataType="AllSectionsNoDetail"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+	
+	<template>"reportStyles.jrtx"</template>
+	
+	<parameter name="headerSubreport" class="net.sf.jasperreports.engine.JasperReport"/>
+	<parameter name="footerWideSubreport" class="net.sf.jasperreports.engine.JasperReport"/>
+	<parameter name="handler" isForPrompting="false" class="edu.ucsf.lava.core.controller.LavaComponentHandler"/>
+	<parameter name="webappInstance" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="userId" isForPrompting="false" class="java.lang.Long"/>
+	<parameter name="dateStart" isForPrompting="false" class="java.util.Date"/>
+	<parameter name="dateEnd" isForPrompting="false" class="java.util.Date"/>
+	<parameter name="projectList" isForPrompting="false" class="java.util.List"/>
+	<parameter name="authAllPatientAccess" isForPrompting="false" class="java.lang.Boolean"/>
+	<parameter name="authPatientProjectAccessList" isForPrompting="false" class="java.util.List"/>
+	<parameter name="authPatientAllUnitsProjectList" isForPrompting="false" class="java.util.List"/>
+	<parameter name="authAllProjectAccess" isForPrompting="false" class="java.lang.Boolean"/>
+	<parameter name="authProjectAccessList" isForPrompting="false" class="java.util.List"/>
+	<parameter name="authAllUnitsProjectList" isForPrompting="false" class="java.util.List"/>
+	
+	<queryString><![CDATA[_SQL_STATEMENT_]]></queryString>
+
+	<field name="_COLUMN_NAME_" class="_JAVA_CLASS_"/>
+   	...
+
+
+
+
+
+
+
+	<!-- group(s) are next. see existing reports and copy & paste group section(s) if this is a landscape orientation
+		report, make sure to copy & paste from another landscape orientation report to use the correct widths. -->
+	
+	<!-- note: the last group also contains the column headers after the group header, because if use columnHeader section
+	 	instead, the column headers would be above the group header -->
+
+
+
+
+
+	<pageHeader>
+		<band height="12" isSplitAllowed="true" >
+			<subreport>
+				<reportElement x="0" y="0" width="702" height="12" positionType="Float"/>
+				<subreportParameter name="webappInstance">
+					<subreportParameterExpression><![CDATA[$P{webappInstance}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="handler">
+					<subreportParameterExpression><![CDATA[$P{handler}]]></subreportParameterExpression>
+				</subreportParameter>
+				
+				<!-- the reportTitleKey is optional as in some cases the group header by itself suffices -->
+				<subreportParameter name="reportTitleKey">
+					<subreportParameterExpression><![CDATA["_REPORT_TITLE_MSG_KEY_"]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{headerSubreport}]]></subreportExpression>
+			</subreport>
+		</band>
+	</pageHeader>
+
+	<columnHeader>
+		<band height="0"  isSplitAllowed="true" >
+			<!-- not using because want column headers below the groupHeaders, so put the column header elements
+				in the last groupHeader below its groupHeader elements -->			
+		</band>
+	</columnHeader>
+	
+	<detail>
+		<band height="12"  isSplitAllowed="true">
+			<!-- print the line below the column labels only once; on the first record of the last, innermost group,
+ 				(append the group name with "_COUNT") or if no groups, use $V{REPORT_COUNT}  -->
+			<line direction="TopDown">
+				<reportElement x="0" y="0" width="702"	height="0" key="line" positionType="Float">
+					<printWhenExpression><![CDATA[new Boolean($V{_LAST_GROUP_NAME_COUNT}.intValue() == 1)]]></printWhenExpression>
+				</reportElement>
+				<graphicElement stretchType="NoStretch" pen="Thin"/>
+			</line>
+		
+			<frame>
+				<reportElement x="0" y="1" width="702" height="10" positionType="Float" stretchType="RelativeToTallestObject"/>
+				
+				
+
+				<!-- TODO: textField elements for each column of data -->
+				
+
+
+			</frame>				
+			
+			<line direction="TopDown">
+				<reportElement x="0" y="11" width="702"	height="0" key="line" positionType="Float"/>
+				<graphicElement stretchType="NoStretch" pen="Thin"/>
+			</line>
+		</band>
+	</detail>
+
+	<pageFooter>
+		<band height="22" isSplitAllowed="true" >
+			<subreport>
+				<reportElement x="0" y="0" width="702" height="22" positionType="Float"/>
+				<subreportParameter name="webappInstance">
+					<subreportParameterExpression><![CDATA[$P{webappInstance}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="handler">
+					<subreportParameterExpression><![CDATA[$P{handler}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{footerWideSubreport}]]></subreportExpression>
+			</subreport>
+			
+			<!-- note: page numbering can not be part of the footer because the Jasper evaluation time
+				calculations for the built-in PAGE_NUMBER variable will calculate values based on the subreport
+				which are not the correct page number values for the main report. thus, these calculations must
+				take place in the main report -->
+			<rectangle>
+				<reportElement x="622" y="0" width="80" height="22"/>
+				<graphicElement pen="Thin" stretchType="NoStretch"/>
+			</rectangle>
+			<textField evaluationTime="Now">
+				<reportElement x="627" y="6" width="54" height="15" style="pageNumberWide"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["Page " + $V{PAGE_NUMBER} + " of "]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="673" y="6" width="21" height="15" key="textField" style="pageNumberWide"/>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+
+</jasperReport>

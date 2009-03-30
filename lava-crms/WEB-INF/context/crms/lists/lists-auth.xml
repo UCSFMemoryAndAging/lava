@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+
+
+	<bean id="list.project.projectStaffList" parent="list.dynamicCombination">
+		<property name="dynamicReferenceLists"><list>
+			<ref bean="list.authUserRole.projectUnitUserStaff"/>
+			<ref bean="list.authUserRole.projectUnitGroupStaff"/>
+			<ref bean="list.authUserRole.projectUnitStaffListValues"/>
+		</list></property>
+	</bean>
+	
+	<bean id="list.patient.patientStaffList" parent="list.dynamicCombination">
+		<property name="dynamicReferenceLists"><list>
+				<ref bean="list.authUserRole.patientUserStaff"/>
+				<ref bean="list.authUserRole.patientGroupStaff"/>
+				<ref bean="list.authUserRole.patientStaffListValues"/>
+		</list></property>
+	</bean>	
+
+	<bean id="list.authUserRole.projectUnitUserStaff" parent="list.dynamic">
+		<property name="query" value="list.authUserRole.projectUnitUserStaff"/>
+	</bean>	   
+		
+	<bean id="list.authUserRole.projectUnitGroupStaff" parent="list.dynamic">
+		<property name="query" value="list.authUserRole.projectUnitGroupStaff"/>
+	</bean>	   
+
+	<bean id="list.authUserRole.projectUnitStaffListValues" parent="list.dynamic">
+		<property name="query" value="list.authUserRole.projectUnitStaffListValues"/>
+	</bean>	   
+
+
+	<bean id="list.authUserRole.patientUserStaff" parent="list.dynamic">
+		<property name="query" value="list.authUserRole.patientUserStaff"/>
+	</bean>	   
+
+	<bean id="list.authUserRole.patientGroupStaff" parent="list.dynamic">
+		<property name="query" value="list.authUserRole.patientGroupStaff"/>
+	</bean>	   
+
+	<bean id="list.authUserRole.patientStaffListValues" parent="list.dynamic">
+		<property name="query" value="list.authUserRole.patientStaffListValues"/>
+	</bean>	   
+
+</beans>

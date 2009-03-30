@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+     
+    <!-- The scope manager.  Primarily responsible for serving as an organizing entity for
+    	scope specific customization of the framework through collections of delegates and
+    	handlers.   -->
+	<bean id="scopeManager" class="edu.ucsf.lava.core.scope.ScopeManager" >
+		<property name="actionDelegates"><ref bean="scopeActionDelegates"/></property>
+		<property name="authorizationDelegates"><ref bean="scopeAuthorizationDelegates"/></property>		
+		<property name="sessionAttributeHandlers"><ref bean="scopeSessionAttributeHandlers"/></property>		
+		</bean>
+     
+    
+    <!-- A collection bean that needs to be injected into each ScopeActionDelegate bean -->
+    <bean id="scopeActionDelegates" class="edu.ucsf.lava.core.scope.ScopeActionDelegates"/>
+    
+    <!-- A collection bean that needs to be injected into each ScopeAuthorizationDelegate -->
+	<bean id="scopeAuthorizationDelegates" class="edu.ucsf.lava.core.scope.ScopeAuthorizationDelegates"/>
+    
+    <!-- A Collection bean that needs to be injected into each ScopeSessionAttributeHandler -->
+    <bean id="scopeSessionAttributeHandlers" class="edu.ucsf.lava.core.scope.ScopeSessionAttributeHandlers"/>
+    
+	
+	<!-- Abstract parent beans for the scope delegate and handler beans to inherit from -->
+	<bean id="baseScopeActionDelegate" abstract="true" class="edu.lava.core.scope.AbstractScopeActionDelegate">
+		<property name="scopeActionDelegates"><ref bean="scopeActionDelegates"/></property>
+	</bean>
+	
+	<bean id="baseScopeAuthorizationDelegate" abstract="true" class="edu.lava.core.scope.AbstractScopeAuthorizationDelegate">
+		<property name="scopeAuthorizationDelegates"><ref bean="scopeAuthorizationDelegates"/></property>
+	</bean>
+	
+	<bean id="baseScopeSessionAttributeHandler" abstract="true" class="edu.lava.core.scope.AbstractScopeSessionAttributeHandler">
+		<property name="scopeSessionAttributeHandlers"><ref bean="scopeSessionAttributeHandlers"/></property>
+	</bean>
+	
+	
+	
+</beans>
+	

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- note that core-reportsImport.xml is not included by core-context.xml, but is included
+	in [xxx]-reports.xml files that are loaded into coreReportViewResolver in [xxx]-reporting.xml -->
+
+<beans>
+	<!-- for reports that essentially print a view, e.g. an entity view or a list view, the suffix "Report" is added 
+		 to the view name by CustomReportSelector (called during the flow).
+	     this is matched against a bean name in this file.
+	     this suffix is appended so that views that have both a jsp file and report design file will be resolved differently. 
+	     for reasons related to Spring, the reportViewResolver must be in the view resolver chain before the jspViewResolver.
+	     so for jsp views, since they will not have "Report" appended, they will not be resolved by any beans in this 
+	     file, and will be passed on to the jspViewResolver -->
+
+	<!--TODO: create separate core-reports.xml files for production and development:
+	
+		the development version will refer to the source report design files (.jrxml) in the WEB-INF/report directory tree.
+		note that edu.ucsf.lava.crms.reporting.controller.CustomJasperReportsMultiFormatView used below overrides the Spring
+		JasperReportsMultiFormatView class, and compiles the report .jrxml file every time it is accessed.
+		
+		the production version will refer to the compiled report design files (.jasper) stored in a different directory tree,
+		which must be pre-compiled (see Jasper docs for precompiling reports). the production version can be used in development
+		when not working on reports so that all the reports are not compiled every time the webapp is deployed. -->
+		
+
+	<!-- entity and list reports -->     
+
+	<!-- common definition for entity report designs, which may or may not have subReports (i.e. master with details) -->
+	<bean id="coreEntityBaseReport" class="edu.ucsf.lava.core.reporting.controller.LavaJasperReportsMultiFormatView" abstract="true">
+		<property name="reportDataKey" value="entityReportDataSource"/>
+	</bean>
+	<!--  For developement - to recompile each time 
+	<bean id="coreEntityBaseReport" class="edu.ucsf.lava.core.reporting.controller.RecompilingLavaJasperReportsMultiFormatView" abstract="true">
+		<property name="reportDataKey" value="entityReportDataSource"/>
+	</bean>	
+	-->
+	
+	<!-- common definition for list report designs, for printing the list on a page  -->
+	<bean id="coreListBaseReport" class="edu.ucsf.lava.core.reporting.controller.LavaJasperReportsMultiFormatView" abstract="true">
+		<property name="reportDataKey" value="listReportDataSource"/>
+	</bean>
+	<!--  for development to recompile each time
+	<bean id="coreListBaseReport" class="edu.ucsf.lava.core.reporting.controller.RecompilingLavaJasperReportsMultiFormatView" abstract="true">
+		<property name="reportDataKey" value="listReportDataSource"/>
+	</bean>
+	-->
+
+
+
+</beans>

@@ -1,0 +1,45 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<class name="edu.ucsf.lava.core.session.model.LavaSession" table="lavasession" select-before-update="true">
+
+		<id name="id" type="long">
+			<column name="LavaSessionID" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+ 	   <timestamp name="modified" column="modified"/>
+	   <property name="serverInstanceId" column="ServerInstanceID" type="long" not-null="true"/>
+       <property name="createTime" column="CreateTime" type="timestamp" not-null="true"/>
+       <property name="accessTime" column="AccessTime" type="timestamp" not-null="true"/>
+       <property name="expireTime" column="ExpireTime" type="timestamp" not-null="true"/>
+       <property name="currentStatus" column="currentStatus" type="string" length="25" not-null="true"/>
+       <property name="userId" column="UserID" type="long"/>
+       <property name="username" column="Username" type="string" length="50"/>
+       <property name="hostname" column="Hostname" type="string" length="50"/>
+       <property name="httpSessionId" column="HttpSessionId" type="string" length="100"/>
+       <property name="disconnectTime" column="DisconnectTime" type="timestamp"/>
+       <property name="disconnectMessage" column="DisconnectMessage" type="string" length="255"/>
+       <property name="notes" column="Notes" type="string" length="255"/>
+	  
+	   
+	<!-- associations -->
+
+
+
+	<!-- filters -->
+               <!--define or remove these standard filters-->
+   
+
+</class>
+
+
+         <!-- queries  -->
+
+
+
+</hibernate-mapping>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+		
+  
+ <!-- the view resolver -->
+    <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass"><value>org.springframework.web.servlet.view.JstlView</value></property>
+        <property name="prefix"><value>/WEB-INF/jsp/</value></property>
+        <property name="suffix"><value>.jsp</value></property>
+	    <property name="order" value="1000"/>
+    </bean>
+
+ 
+    <!-- the Primary URL mapping bean -->
+    
+    <!-- with Spring Web Flow, all module URL's map to the web flow flowController. therefore nothing needs
+         to be added for new URL's within existing modules (the flowController then matches the URL to an
+         action in lava-actions.xml to determine which formAction/handler should be used) -->
+    
+    <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+        <property name="urlMap">
+           <bean class="edu.ucsf.lava.core.spring.MapMerger">
+				<constructor-arg><map>
+						<entry key="controllerUrlMapping"><ref bean="controllerUrlMapping"/></entry>
+						<entry key="flowControllerUrlMapping"><ref bean="flowControllerUrlMapping"/></entry>	
+				</map></constructor-arg>
+			</bean>
+		</property>
+	</bean>		
+    
+    <bean id="controllerUrlMapping" class="edu.ucsf.lava.core.spring.MapMerger">
+    	<constructor-arg><map>
+     		<entry key="localControllerUrlMappings"><ref bean="localControllerUrlMappings"/></entry>	
+			<entry key="appControllerUrlMappings"><ref bean="appControllerUrlMappings"/></entry>	
+			<entry key="lavaControllerUrlMappings"><ref bean="lavaControllerUrlMappings"/></entry>
+      	</map></constructor-arg>
+     </bean>
+     
+    <bean id="flowControllerUrlMapping" class="edu.ucsf.lava.core.spring.MapMerger">
+    	<constructor-arg><map>
+     		<entry key="localFlowControllerUrlMappings"><ref bean="localFlowControllerUrlMappings"/></entry>	
+			<entry key="appFlowControllerUrlMappings"><ref bean="appFlowControllerUrlMappings"/></entry>	
+			<entry key="lavaFlowControllerUrlMappings"><ref bean="lavaFlowControllerUrlMappings"/></entry>
+      	</map></constructor-arg>
+     </bean>
+     
+     
+     <bean id="lavaControllerUrlMappings" class="java.util.LinkedHashMap">
+     	<constructor-arg><map>
+             <entry key="/security/logout.lava"><ref bean="logoutController"/></entry>
+             <entry key="**/admin/reload/metadata.lava"><ref bean="reloadMetadataController"/></entry>
+     	     <entry key="**/admin/reload/auth.lava"><ref bean="reloadAuthController"/></entry>
+        </map></constructor-arg>
+     </bean>
+    
+    <bean id="lavaFlowControllerUrlMappings" class="java.util.LinkedHashMap">
+     	<constructor-arg><map>
+     		 <entry key="**/admin/session/*.lava"><ref bean="flowController"/></entry>
+        	 <entry key="**/admin/auth/*.lava"><ref bean="flowController"/></entry>
+        	 <entry key="**/*.lava"><ref bean="flowController"/></entry>
+        	 <entry key=""><ref bean="flowController"/></entry>
+     	</map></constructor-arg>
+     </bean>
+     
+     
+     
+
+
+	<!-- this is being phased out as all uncaught exceptions should be handled by the CustomFlowExceptionHandler
+	     configured for each flow definition -->
+    <bean id="exceptionResolver" class="edu.ucsf.lava.core.controller.CustomExceptionResolver"/>
+   	
+	<!-- needed to support multipart requests using commons file upload -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- <property name="maxUploadSize" value="100000"/> -->
+	</bean>
+	
+    
+	
+	
+</beans>

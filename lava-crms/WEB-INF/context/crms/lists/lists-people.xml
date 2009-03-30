@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	
+	<bean id="list.generic.gender" parent="list.standardNumericValue">
+		<property name="dbListName" value="Gender"/>
+	</bean>
+
+	<bean id="list.patient.handedness" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="Handedness"/>
+	</bean>
+				
+	<bean id="list.patient.allPatients" parent="list.dynamic">
+		<property name="query" value="patient.allPatients"/>
+	</bean>
+				
+	<bean id="list.patient.caregivers" parent="list.dynamicSortValue">
+		<property name="query" value="patient.caregivers"/>
+	</bean>
+	
+	<bean id="list.patient.contactInfo" parent="list.dynamicSortValue">
+		<property name="query" value="list.patient.contactInfo"/>
+	</bean>
+				
+	<!-- Caregiver Lists -->
+		
+		
+	<bean id="list.caregiver.contactRelations" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="ContactRelations"/>
+	</bean>		
+
+	<!-- contact info lists -->
+	<bean id="list.generic.state" parent="list.standardValueIsLabel">
+		<property name="dbListName" value="States"/>
+	</bean>		
+
+	<bean id="list.generic.phoneType" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="PhoneType"/>
+	</bean>		
+
+	<bean id="list.contactInfo.city" parent="list.dynamic">
+		<property name="query" value="list.contactInfo.city"/>
+	</bean>	
+	
+	<!-- Doctor lists -->			
+	<bean id="list.doctor.allDoctors" parent="list.dynamic">
+		<property name="query" value="list.doctor.allDoctors"/>
+	</bean>
+	
+	<bean id="list.doctor.city" parent="list.dynamic">
+		<property name="query" value="list.doctor.city"/>
+	</bean>
+				
+	<bean id="list.doctor.doctorStatus" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="DoctorStatus"/>
+	</bean>		
+						
+	<!-- Contact Log Lists -->
+	<bean id="list.contactLog.contactMethod" parent="list.standardValueIsLabel">
+		<property name="dbListName" value="ContactMethods"/>
+	</bean>		
+	
+				
+	<!-- Task Lists -->
+	<bean id="list.task.taskType" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="TaskType"/>
+	</bean>		
+				
+	<bean id="list.task.taskStatus" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="TaskStatus"/>
+	</bean>		
+							
+				
+			
+</beans>

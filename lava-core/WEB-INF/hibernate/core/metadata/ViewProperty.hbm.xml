@@ -1,0 +1,55 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<class name="edu.ucsf.lava.core.metadata.model.ViewProperty" table="viewproperty" select-before-update="true">
+
+		<id name="id" type="long">
+			<column name="id" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+
+    <timestamp name="modified" column="modified"/>
+
+       <property name="messageCode" column="messageCode" type="string" not-null="true" length="255"/>
+       <property name="locale" column="locale" type="string" length="10" not-null="true"/>
+       <property name="instance" column="instance" type="string" length="25" not-null="true"/>
+       <property name="scope" column="scope" type="string" length="25" not-null="true"/>
+       <property name="prefix" column="prefix" type="string" length="50"/>
+       <property name="entity" column="entity" type="string" length="100" not-null="true"/>
+       <property name="property" column="property" type="string" length="100" not-null="true"/>
+       <property name="section" column="section" type="string" length="50"/>
+       <property name="context" column="context" type="string" length="10"/>
+       <property name="style" column="style" type="string" length="25"/>
+       <property name="required" column="required" type="string" length="10"/>
+       <property name="label" column="label" type="string" length="500"/>
+       <property name="maxLength" column="maxLength" type="short"/>
+       <property name="size" column="size" type="short"/>
+       <property name="indentLevel" column="indentLevel" type="short"/>
+       <property name="attributes" column="attributes" type="string" length="100"/>
+       <property name="list" column="list" type="string" length="50"/>
+       <property name="listAttributes" column="listAttributes" type="string" length="100"/>
+       <property name="propOrder" column="propOrder" type="integer"/>    
+       <property name="quickHelp" column="quickHelp" type="string" length="500"/>
+   
+	<!-- associations -->
+
+
+
+	<!-- filters -->
+
+     
+ 
+
+</class>
+
+
+         <!-- queries  -->
+
+
+
+</hibernate-mapping>

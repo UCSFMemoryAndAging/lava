@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+<!-- Audit Manager -->
+     <bean id="auditManager" class="edu.ucsf.lava.core.audit.AuditManager"/>
+	
+
+<!-- actions -->
+<!-- 
+	<bean id="lava.core.admin.audit.auditEvents" parent="coreSectionListAction"/>
+				
+	<bean id="lava.core.admin.audit.auditEvent" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+  			<value>lava.core.admin.audit.auditEvents</value>
+  		</list></property>
+	</bean>	
+			
+	<bean id="lava.core.admin.audit.auditEntities" parent="coreListFlowAction"/>
+			
+	<bean id="lava.core.admin.audit.auditEntity" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+  			<value>lava.core.admin.audit.auditEntities</value>
+  			<value>lava.core.admin.audit.auditEvent</value>
+  		</list></property>
+	</bean>	
+	
+	<bean id="lava.core.admin.audit.auditProperties" parent="coreListFlowAction"/>
+				
+	<bean id="lava.core.admin.audit.auditProperty" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.admin.audit.auditProperties</value>
+			<value>lava.core.admin.audit.auditEntity</value>
+			<value>lava.core.admin.audit.auditEvent</value>
+		</list></property>
+	</bean>	
+	-->		
+	
+						
+	
+<!--  form action definitions  -->
+
+	<!-- 
+	<bean id="auditEventFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.audit.controller.AuditEventHandler" parent="coreHandler"/>
+		<bean class="edu.ucsf.lava.core.audit.controller.AuditEventAuditEntitiesHandler" parent="coreHandler"/>
+		<bean class="edu.ucsf.lava.core.audit.controller.AuditEventAuditPropertiesHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+	
+   <bean id="auditEventsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.audit.controller.AuditEventsHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+	
+	<bean id="auditEntityFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.audit.controller.AuditEntityHandler" parent="coreHandler"/>
+		<bean class="edu.ucsf.lava.core.audit.controller.AuditEntityAuditPropertiesHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+	
+	<bean id="auditEntitiesFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.audit.controller.AuditEntitiesHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+	
+	<bean id="auditPropertyFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.audit.controller.AuditPropertyHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+	
+   <bean id="auditPropertiesFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.audit.controller.AuditPropertiesHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+		-->		 
+
+</beans>

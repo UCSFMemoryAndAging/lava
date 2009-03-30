@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+
+	<bean id="list.instrument.informants" parent="list.dynamicSortValue">
+		<property name="query" value="patient.caregivers"/>
+		<property name="defaultCodes"><ref bean="list.ref.stdErrorCodes"/></property>
+	</bean>
+		
+	<bean id="list.instrument.versions" parent="list.dynamic">
+		<property name="query" value="instrument.versions"/>
+	</bean>
+		
+		
+			
+		
+</beans>

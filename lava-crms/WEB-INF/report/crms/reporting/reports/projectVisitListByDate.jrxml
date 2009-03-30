@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="projectVisitListByDate"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="792"
+		 pageHeight="612"
+		 columnWidth="702"
+		 columnSpacing="0"
+		 leftMargin="45"
+		 rightMargin="45"
+		 topMargin="25"
+		 bottomMargin="25"
+		 whenNoDataType="AllSectionsNoDetail"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+	<template><![CDATA["reportStyles.jrtx"]]></template>
+
+
+	<parameter name="headerSubreport" isForPrompting="true" class="net.sf.jasperreports.engine.JasperReport"/>
+	<parameter name="footerWideSubreport" isForPrompting="true" class="net.sf.jasperreports.engine.JasperReport"/>
+	<parameter name="handler" isForPrompting="false" class="edu.ucsf.lava.core.controller.LavaComponentHandler"/>
+	<parameter name="webappInstance" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="userId" isForPrompting="false" class="java.lang.Long"/>
+	<parameter name="dateStart" isForPrompting="false" class="java.util.Date"/>
+	<parameter name="dateEnd" isForPrompting="false" class="java.util.Date"/>
+	<parameter name="projectList" isForPrompting="false" class="java.util.List"/>
+	<parameter name="authAllPatientAccess" isForPrompting="false" class="java.lang.Boolean"/>
+	<parameter name="authPatientProjectAccessList" isForPrompting="false" class="java.util.List"/>
+	<parameter name="authPatientAllUnitsProjectList" isForPrompting="false" class="java.util.List"/>
+	<parameter name="authAllProjectAccess" isForPrompting="false" class="java.lang.Boolean"/>
+	<parameter name="authProjectAccessList" isForPrompting="false" class="java.util.List"/>
+	<parameter name="authAllUnitsProjectList" isForPrompting="false" class="java.util.List"/>
+	<queryString><![CDATA[SELECT * FROM vwrptprojectvisitlist WHERE (VDate BETWEEN $P{dateStart} AND $P{dateEnd}) AND $X{IN, ProjName, projectList}
+					 AND ($P{authAllPatientAccess}=1 OR ProjName IN (SELECT ProjUnitDesc from ProjectUnit WHERE
+					 		 $X{IN, Project, authPatientAllUnitsProjectList} OR $X{IN, ProjUnitDesc, authPatientProjectAccessList})) 
+			 ORDER BY ProjName, VDateNoTime, VDate]]></queryString>
+
+	<field name="PIDN" class="java.lang.Long"/>
+	<field name="FullNameRev" class="java.lang.String"/>
+	<field name="TransLanguage" class="java.lang.String"/>
+	<field name="Gender" class="java.lang.Byte"/>
+	<field name="AGE" class="java.lang.Integer"/>
+	<field name="VLocation" class="java.lang.String"/>
+	<field name="VType" class="java.lang.String"/>
+	<field name="VWith" class="java.lang.String"/>
+	<field name="VDate" class="java.util.Date"/>
+	<field name="VStatus" class="java.lang.String"/>
+	<field name="ProjName" class="java.lang.String"/>
+	<field name="VNotes" class="java.lang.String"/>
+	<field name="VDateNoTime" class="java.lang.String"/>
+
+
+		<group  name="ProjName" isStartNewPage="true" isReprintHeaderOnEachPage="true" >
+			<groupExpression><![CDATA[$F{ProjName}]]></groupExpression>
+			<groupHeader>
+			<band height="22"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="firstGroupHeader"
+						x="0"
+						y="3"
+						width="702"
+						height="13"
+						key="textField">
+							<printWhenExpression><![CDATA[new Boolean($F{ProjName} != null)]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ProjName} + " Patient Visits (By Date) (" + new java.text.SimpleDateFormat("MM/dd/yyyy").format($P{dateStart}) + " - " +  new java.text.SimpleDateFormat("MM/dd/yyyy").format($P{dateEnd}) + ")"]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupFooter>
+		</group>
+		<group  name="VDateNoTime" isReprintHeaderOnEachPage="true" minHeightToStartNewPage="70" >
+			<groupExpression><![CDATA[$F{VDateNoTime}]]></groupExpression>
+			<groupHeader>
+			<band height="36"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="secondGroupHeader"
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="702"
+						height="13"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[new java.text.SimpleDateFormat("EEEE, MMMM d, yyyy").format($F{VDate})]]></textFieldExpression>
+				</textField>
+				<frame>					<reportElement
+						x="0"
+						y="19"
+						width="702"
+						height="13"
+						key="frame"
+						stretchType="RelativeToTallestObject"
+						positionType="Float"/>
+					<box></box>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listColHeader"
+						x="0"
+						y="0"
+						width="120"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{handler}.getMessage("report.patientName")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listColHeader"
+						x="120"
+						y="0"
+						width="100"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{handler}.getMessage("report.visitDate")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listColHeader"
+						x="220"
+						y="0"
+						width="100"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{handler}.getMessage("report.visitType")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listColHeader"
+						x="320"
+						y="0"
+						width="110"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{handler}.getMessage("report.visitLocation")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listColHeader"
+						x="430"
+						y="0"
+						width="60"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{handler}.getMessage("report.visitStatus")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listColHeader"
+						x="490"
+						y="0"
+						width="100"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{handler}.getMessage("report.visitApptWith")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listColHeader"
+						x="590"
+						y="0"
+						width="112"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{handler}.getMessage("report.visitNotes")]]></textFieldExpression>
+				</textField>
+				</frame>				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="33"
+						width="702"
+						height="0"
+						key="line"
+						positionType="Float"/>
+					<graphicElement stretchType="NoStretch">
+					<pen lineWidth="0.25" lineStyle="Solid"/>
+</graphicElement>
+				</line>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="15"  isSplitAllowed="true" >
+			</band>
+			</groupFooter>
+		</group>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="35"  isSplitAllowed="true" >
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="0"
+						y="0"
+						width="702"
+						height="35"
+						key="subreport"
+						positionType="Float"/>
+					<subreportParameter  name="webappInstance">
+						<subreportParameterExpression><![CDATA[$P{webappInstance}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="handler">
+						<subreportParameterExpression><![CDATA[$P{handler}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="reportTitleKey">
+						<subreportParameterExpression><![CDATA["projectVisitListByDate.pageTitle"]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportExpression  class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{headerSubreport}]]></subreportExpression>
+				</subreport>
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="16"  isSplitAllowed="true" >
+				<frame>					<reportElement
+						x="0"
+						y="1"
+						width="702"
+						height="15"
+						key="frame"
+						stretchType="RelativeToTallestObject"
+						positionType="Float"/>
+					<box></box>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listValue"
+						x="0"
+						y="0"
+						width="120"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{FullNameRev}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listValue"
+						x="120"
+						y="0"
+						width="100"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[new java.text.SimpleDateFormat("MM/dd/yyyy hh:mm a").format($F{VDate})]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listValue"
+						x="220"
+						y="0"
+						width="100"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VType}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listValue"
+						x="320"
+						y="0"
+						width="110"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VLocation}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listValue"
+						x="430"
+						y="0"
+						width="60"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VStatus}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listValue"
+						x="490"
+						y="0"
+						width="100"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VWith}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="listValue"
+						x="590"
+						y="0"
+						width="112"
+						height="13"
+						key="textField"
+						positionType="Float"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VNotes}]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="14"
+						width="702"
+						height="0"
+						key="line-1"
+						positionType="Float"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				</frame>			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="22"  isSplitAllowed="true" >
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="0"
+						y="0"
+						width="702"
+						height="22"
+						key="subreport"
+						positionType="Float"/>
+					<subreportParameter  name="webappInstance">
+						<subreportParameterExpression><![CDATA[$P{webappInstance}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter  name="handler">
+						<subreportParameterExpression><![CDATA[$P{handler}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportExpression  class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{footerWideSubreport}]]></subreportExpression>
+				</subreport>
+				<rectangle>
+					<reportElement
+						x="622"
+						y="0"
+						width="80"
+						height="22"
+						key="rectangle"/>
+					<graphicElement stretchType="NoStretch">
+					<pen lineWidth="0.25" lineStyle="Solid"/>
+</graphicElement>
+				</rectangle>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="pageNumberWide"
+						x="627"
+						y="6"
+						width="54"
+						height="15"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Page " + $V{PAGE_NUMBER} + " of "]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Report" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="pageNumberWide"
+						x="673"
+						y="6"
+						width="21"
+						height="15"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

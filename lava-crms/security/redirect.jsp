@@ -1,0 +1,1 @@
+<jsp:forward page="/crms/mylava/welcome/welcome.lava"/>

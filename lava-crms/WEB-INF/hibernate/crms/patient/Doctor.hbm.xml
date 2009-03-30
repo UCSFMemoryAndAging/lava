@@ -1,0 +1,68 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<class name="edu.ucsf.lava.crms.people.model.Doctor" table="doctor" select-before-update="true">
+
+		<id name="id" type="long">
+			<column name="DocID" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+
+  		<timestamp name="modified" column="modified"/>
+
+       <property name="lastName" column="LName" type="string" length="25" not-null="true"/>
+       <property name="middleInitial" column="MInitial" type="character" length="1"/>
+       <property name="firstName" column="FName" type="string" length="25" not-null="true"/>
+       <property name="address" column="Address" type="string" length="100"/>
+       <property name="city" column="City" type="string" length="50"/>
+       <property name="state" column="State" type="string" length="2"/>
+       <property name="zip" column="Zip" type="string" length="10"/>
+       <property name="phone1" column="Phone1" type="string" length="25"/>
+       <property name="phoneType1" column="PhoneType1" type="string" length="10"/>
+       <property name="phone2" column="Phone2" type="string" length="25"/>
+       <property name="phoneType2" column="PhoneType2" type="string" length="10"/>
+       <property name="phone3" column="Phone3" type="string" length="25"/>
+       <property name="phoneType3" column="PhoneType3" type="string" length="10"/>
+       <property name="email" column="Email" type="string" length="100"/>
+       <property name="docType" column="DocType" type="string" length="50"/>
+       <property name="fullNameRev" column="FullNameRev" type="string" length="100"/>
+       <property name="fullName" column="FullName" type="string" length="100"/>
+
+
+	    
+	<!-- associations -->
+		<set name="patients" inverse="true" cascade="delete" lazy="false">
+			<key column="PIDN"/>
+			<one-to-many class="edu.ucsf.lava.crms.people.model.PatientDoctor"/>
+		</set>
+
+
+	<!-- filters -->
+               <filter name="patient" condition="DocID IN (select pd.DocID from PatientDoctors pd where pd.PIDN=:patientId)"/>
+ 
+
+</class>
+
+
+         <!-- queries  -->
+
+	<query name="list.doctor.city"><![CDATA[
+		select new edu.ucsf.lava.core.list.model.LabelValueBean(d.city, d.city)
+		from Doctor d 
+		group by city having count(city)>=2 order by city
+	]]></query>
+	
+	<query name="list.doctor.allDoctors"><![CDATA[
+	   select new edu.ucsf.lava.core.list.model.LabelValueBean(coalesce(d.fullNameRev,'') + ' - ' + coalesce(d.address,'') + ',' + coalesce(d.city,'') + ',' + coalesce(d.state,''), d.id)
+	    from Doctor d
+	    where d.lastName != '' and d.lastName is not null
+		order by d.fullNameRev
+	]]></query>
+	
+
+</hibernate-mapping>

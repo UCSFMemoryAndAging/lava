@@ -1,0 +1,2047 @@
+/******
+Main style sheet for Lava
+
+*******/ 
+
+/* color conversion  
+
+You can search are replace for these values to change the element colors described.  We have 
+carefully used comments after the color assignments to allow you to replace colors at a finer
+level of control that just each color value.  So search and replace for the whole text value, e.g. 
+replace '#ddddaa;/*Table Header'  with '#newcolorcode/*Table Header' 
+
+As much as possible, colors are listed from top to bottom in terms of page rendering
+
+#000000;/*Default Text Color
+#ffffff;/*Page Background
+#ddddaa;/*Page Lines
+
+#003366;/*Links
+#003366;/*Links Visited
+#003366;/*Links Hover
+
+#ddeeee;/*Context Box 
+#cceeee;/*Context Box Border
+#003366;/*Context Box Text
+
+#ddddaa;/*Tab Enabled Color
+#003366;/*Tab Enabled Text
+#77aaaa;/*Tab Selected Color
+#ffffff;/*Tab Selected Text
+#003366;/*Tab Hover Color
+#ffffff;/*Tab Hover Text 
+#ddddaa;/*Tab Disabled Color
+#eeeedd;/*Tab Disabled Text
+
+#77aaaa;/*Tab Bar Color
+#ffffff;/*Tab Bar Selected Text
+#003366;/*Tab Bar Enabled Text
+#ddeeee;/*Tab Bar Disabled Text
+
+#ddeeee;/*Left Nav
+#003366;/*Left Nav Header Text
+
+
+#ddeeee;/*Filter Box
+#cceeee;/*Filter Box Border
+
+
+#ddddaa;/*Table Control Box
+#eeeedd;/*Table Control Box Border
+
+#003366;/*Table Header Text
+#ddddaa;/*Table Header
+#eeeedd;/*Table Row    Note: The color of the row is the border of the header and vise versa.
+#000000;/*Table Row Text
+
+#003366;/*Heading Text
+
+
+#ddddaa/*Table header
+
+#990000;/*Error
+#000000;/*Error Details
+
+#000000;/*Info Message
+
+#000000;/*Button Text
+
+*/
+
+
+
+/* 2-column and 3-column layouts with header and footer are based on the following design:
+http://www.shadow-fox.net/tutorial/3-Column-All-CSS-Layout-With-Fluid-Center-and-Two-Columns
+ referenced in the css-discuss.org Wiki
+*/
+	/* NOTE: when IE6 and Firefox 1.x/2 require different styling, use the IE "hack" selector
+         to apply a rule only to IE6 (typically, this will include overrides of a prior
+         style declaration that should apply to Firefox, or additional declarations that
+         are only applicable to IE and would mess Firefox up).
+         these selectors begin with what is known as the "StarHtmlHack":
+         
+         * html
+         
+         Since html is the root element of a page, this selector should not match anything.
+         However, IE (5 and 6) ignores the * and matches this selector. Apparently IE7
+         will not match this, but then again, IE7 is supposed to fix the bugs such that
+         IE-specific styling will not be necessary, so then "* html" selectors will become
+         a way of identifying IE5/6 vs. IE7 as well as Firefox.
+         
+  NOTE: the design is for 1000px width page. leftNav (if present) is 200px (making the center
+        area 800px minus margins between center and leftNav. rightNav (if present) is 200px,
+        so if both leftNav and rightNav, center is 600px minus margins between center and navs.
+        
+        px values are hard-coded in many areas, so if the above values change, be careful to
+        change all of the dependent px values that follow.         
+*/
+
+
+* {
+	margin: 0px;
+	padding: 0px;
+}
+
+body { /* MSIE 5 doesn't center based on auto left/right margins, 
+	 but 'text-align:center' does center top-level divs: */
+	text-align: center;
+	/* Specify a min-width for the body as wide as the 'wrapper'
+	 element itself. This prevents negative (i.e. inaccessible)
+	 left-margins in narrow browser windows when using 
+	 Navigator 6+/Mozilla on Win32: */
+	min-width: 1000px;
+	font: normal normal normal 10pt/ 12pt Arial, Helvetica, Geneva,
+		sans-serif;
+	/* longhand:
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	font-size: 10pt;
+	line-height: 12pt;
+	font-family: Arial, Helvetica, Geneva, sans-serif;
+	*/
+	color: #000000;/*Default Text Color*/
+	background-color: #ffffff;/*Page Background*/
+}
+
+/* note: width on wrapper could be a % ??  see p. 184, Separating...,
+     for a wrapper called content, set margin-top, margin-bottom ?
+*/
+#centeringAndSizingWrapper {
+	/* Reset alignment to compensate for 'text-align:center': */
+	text-align: left;
+	/* Specify the width of the element. This should be the same
+	  as 'body min-width': */
+	width: 1000px;
+	/* WARNING: if this is changed, need to change centerLeftNav, 
+	                           contentColumnLeftModal, contentColumnRightModal... */
+	/* Set left and right margins to auto, thus centering the 
+	  element in the containing (body) tag: */
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* anchor (link) rules */
+a:link {
+	color: #003366;/*Links*/
+	text-decoration: none;
+}
+a:visited {
+	color: #003366;/*Links Visited*/
+	text-decoration: none;
+}
+
+a:hover {
+	color: #003366;/*Links Hover*/
+	text-decoration: underline;
+}
+
+/* 2-column or 3-column layout rules */
+#header {
+	/* must be relative so elements can be absolutely positioned within it */
+	position: relative;
+	background-color: #ffffff;/*Page Background*/
+	padding: 0;
+	height: 90px;
+}
+
+#leftNav {
+	margin-top: 2px;
+	float: left;
+	width: 200px;
+	padding: 0;
+	background-color: #ddeeee;/*Left Nav*/
+	height: 500px;
+}
+
+
+/* 2 column layout (left nav, center) */
+#centerLeftNav {
+	margin: 0 0 0 215px;
+	/* NOTE: wanted to set padding in here, instead of having to set margins on all of the containing
+	         block elements, but this created cross-browser positioning problems for two column 
+	         content display. so each box in the center content area sets its margins (typically, they
+	         will all have the same margin-left). specifically, in IE, setting padding and adjusting
+	         the width value accordingly here does not work as expected, so the center width is not
+	         the same size as the width of the header above it, so looks bad. could fudge values 
+	         until it works in IE, but then it looks bad in Firefox, which computes correctly. */
+	padding: 0;
+	background-color: #ffffff;/*Page Background*/
+	/* hard-coding width here helps when positioning blocks within, especially side by side blocks for
+	   two column effect. have 785px available between left nav and right side, and take left and right
+	   margins,padding,borders into account (if any), and compute according to the box model. however, 
+	   IE computes a few pixels more for some reason and flows this block below the left nav bottom, so 
+	   take off a few pixels and it works in IE. */
+	width: 782px;
+	/* WARNING: if this is changed, probably need to change contentColumnLeftLeftNav,
+	                contentColumnRightLeftNav,...table.listing, etc. */
+}
+
+/* 1 column layout, i.e. no left nav or right nav */
+#centerModal {
+	padding: 0 0 0 0;
+	background-color: #ffffff;/*Page Background*/
+}
+
+#footer {
+	clear: both;
+	background-color: #ffffff;/*Page Background*/
+	padding: 6px;
+	margin-top: 10px;
+	text-align: center;
+}
+
+#copyright {
+	text-align: center;
+}
+
+/* HEADER */
+#logoLava {
+	position: absolute;
+	top: 25%;
+	left: 0;
+}
+
+#logoMAC {
+	position: absolute;
+	top: 8px;
+	left: 0;
+}
+
+/* Global filters   */
+#globalFilters {
+	position: absolute;
+	width: 650px;
+	top: 5px;
+	height: 35px;
+	right: 0;
+	background-color: #ddeeee;/*Context Box*/
+	border: 1px solid #cceeee;/*Context Box Border*/
+}
+
+* html #globalFilters {
+	top: 0px;
+}
+
+#patientContext {
+	position: relative;
+	height: 25px;
+	left: 0px;
+	top: 2px;
+	width: 450px;
+}
+
+form div.patientContextField input.patientContext,span.patientContext {
+	font-size: 13px;
+	font-weight: bold;
+	color: #003366;
+	margin-top: 0px;
+	padding-top: 0px;
+	width: 340px;
+}
+
+* html form div.patientContextField input.patientContext,span.patientContext
+	{
+	font-size: 12px;
+	height: 17px;
+	margin-bottom: 0px;
+	padding-bottom: 0px;
+}
+
+#patientContextLabel,#modalPatientContextLabel,a.patientContextLabel,a.patientContextLabel:link,a.patientContextLabel:visited
+	{
+	color: #003366;/*Context Box Text*/
+	font-weight: normal;
+	font-size: 11px;
+	display: inline;
+	padding-bottom: 0;
+	margin-bottom: 0;
+	line-height: 80%;
+	text-decoration: none;
+	margin-left: 10px;
+}
+
+a.patientContextLabel:hover {
+	text-decoration: underline;
+}
+
+* html #patientContextLabel {
+	margin-left: 20px;
+}
+
+#projectContext {
+	position: absolute;
+	height: 25px;
+	right: 8px;
+	width: 230px;
+	top: 2px;
+}
+
+form div.projectContextField input.projectContext,span.projectContext {
+	width: 180px;
+	font-size: 13px;
+	font-weight: bold;
+	margin-top: 0px;
+	padding-top: 0px;
+	color: #003366;
+}
+
+* html form div.projectContextField input.projectContext,span.projectContext
+	{
+	font-size: 12px;
+	height: 17px;
+	margin-bottom: 0px;
+	padding-bottom: 0px;
+}
+
+#projectContextLabel,#modalProjectContextLabel,a.projectContextLabel:link,a.projectContextLabel:visited
+	{
+	color: #003366;/*Context Box Text*/
+	font-weight: normal;
+	font-size: 11px;
+	padding: 0;
+	padding-bottom: 0;
+	margin-bottom: 0;
+	line-height: 80%;
+	text-decoration: none;
+	margin-left: 10px;
+	display: inline;
+}
+
+a.projectContextLabel:hover {
+	text-decoration: underline;
+}
+
+* html #projectContextLabel {
+	margin-left: 20px;
+}
+
+#loginInfo {
+	position: absolute;
+	left: -200px;
+	font-size: 9pt;
+	color: #ffffff;/*Tab Bar Selected Text*/
+}
+
+#tabBar {
+	position: absolute;
+	top: 49%;
+	right: 0;
+}
+
+#tabBar ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	margin-left: 200px;
+	width: 800px;
+}
+
+#tabBar ul li {
+	list-style-type: none;
+	margin: 0;
+	padding: 2px 0 0 0;
+	float: left;
+	margin-right: 3px;
+	text-align: center;
+}
+
+#tabBar ul a {
+	float: left;
+	width: 7em;
+	padding: 4px 0;
+	text-decoration: none;
+	font-weight: normal;
+	font-size: 10pt;
+}
+
+#tabBar ul li.selected a,#tabBar ul li.selected a:hover {
+	background: #77aaaa;/*Tab Selected Color */
+	color: #ffffff;/*Tab Selected Text */
+	font-weight: bold;
+}
+
+#tabBar ul li.enabled a {
+	background: #ddddaa;/*Tab Enabled Color */
+	color: #003366; /*Tab Enabled Text */
+}
+
+#tabBar ul li.enabled a:hover {
+	background: #003366; /*Tab Hover Color */
+	color: #ffffff;/*Tab Hover Text */
+}
+
+#tabBar ul li.disabled a,#tabBar ul li.disabled a:hover {
+	background: #ddddaa;/*Tab Disabled Color*/
+	color: #eeeedd;/*Tab Disabled Text */
+}
+
+#tabBarSpacer {
+	position: absolute;
+	top: 75%;
+	left: 0;
+	width: 100%;
+	height: 25%;
+	background-color:#77aaaa;/*Tab Bar Color*/
+	padding: 0px;
+	color: #ffffff;/*Tab Bar Selected Text*/
+	text-align: left;
+	text-indent: 210px;
+	padding-top: 3px;
+}
+
+/* style quicklink hyperlink text colors differently because of dark grey background */
+.nav2Selected:link,.nav2Selected:hover,.nav2Selected:visited {
+	color: #ffffff;/*Tab Bar Selected Text*/
+	font-weight: bold;
+	font-size: 10pt;
+	text-decoration: none;
+}
+
+.nav2Enabled:link,.nav2Enabled:visited {
+	color: #003366;/*Tab Bar Enabled Text*/
+	font-weight: normal;
+	font-size: 9pt;
+	text-decoration: none;
+}
+
+.nav2Enabled:hover {
+	color: #003366;/*Tab Bar Enabled Text*/
+	font-weight: normal;
+	font-size: 9pt;
+	text-decoration: underline;
+}
+
+.nav2Disabled:link,.nav2Disabled:visited,nav2Disabled:hover {
+	color: #ddeeee;/*Tab Bar Disabled Text*/
+	font-weight: normal;
+	font-size: 9pt;
+	text-decoration: none;
+}
+
+#pageHeading {
+	padding-top: 10px;
+	line-height: 90%;
+	height: 25px;
+	left: 10px;
+	top: 8px;
+	width: 100%;
+	font-size: 18px;
+	color: #003366;
+	background-color: #ffffff;/*Page background*/
+	border-bottom: 1px solid #ddddaa;/*Page Lines */
+	font-weight: normal;
+}
+
+/* LEFT NAV */ /* panels */
+	/* note: these styles override some of the styles in the form section below, because of the specificity of
+         the rules (using #leftNav). see the styles in the form section below for property values that are not
+         defined here */
+#leftNav div.leftNavSectionHeader {
+	margin: 0 0 0 0;
+	padding: 3px 0px 1px 5px;
+	color: #003366;/*Left Nav Header Text*/
+	font-size: 13px;
+	font-weight: bold;
+}
+
+#leftNav div.leftNavSection {
+	margin: 0 0 10px 0;
+	padding: 3px 0 5px 5px;
+	/* padding around the body content as a whole, not each element */
+	font-size: 12px;
+	font-weight: normal;
+}
+
+#leftNav div.panelBody div.field {
+	margin: 0 0 5px 0;
+}
+
+#leftNav div.panelBody label.top {
+	margin-bottom: 3px;
+}
+
+#leftNav div.panelBody label {
+	font-size: 9pt;
+}
+
+#leftNav div.panelBody .readonlyData {
+	font-size: 8pt;
+	font-weight: bold;
+}
+
+
+
+/* CENTER */
+	/* do not use this until IE 7 which will include child selector support (Mozilla
+   already does). after that, can set left and right margin here, instead of on 
+   each individual box below (by convention, these style names all end in "Box")
+
+ * set any styles which apply to all center boxes, i.e. div blocks that are 
+   immediate children of the center div block 
+   
+ * note: use padding instead of margin so background color of the block shows thru 
+ 
+ * note: listContentBox will override this because no padding needed for list content blocks. 
+         see more comments below 
+*/ /* common padding for all center block elements */
+#quicklinksBox,#messageBox,#contextualInfoBox,#contentBox,#skiBox {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+/* buttons look better if they line up at the edges */
+#pageLevelActionNavButtonTopBox,#pageLevelActionNavButtonBottomBox {
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+#quicklinksBox {
+	padding-top: 5px;
+	padding-bottom: 5px;
+	background-color: #ffffff;/*Page Background*/
+	color: #000000;
+}
+
+.quicklinkDownIconLink {
+	margin-right: 2px;
+}
+
+.quicklinkDownLink {
+	margin-right: 15px;
+}
+
+/* style quicklink hyperlink text colors differently because of dark grey background */
+.quicklinkDownLink:link {
+	color: #003366;/*Links*/
+}
+
+.quicklinkDownLink:visited{
+	color: #003366;/*Links Visited*/
+}
+
+/* hover trumps visited because of document order priority */
+.quicklinkDownLink:hover {
+	color: #003366;/*Links Hover*/
+	text-decoration: underline;
+}
+
+/* position the section quicklinks relatively to get them above the fieldset border, even
+   with the fieldset legend, right adjusted. 
+   note: originally did with float:right, but IE places the links too high and looks bad, while
+          Mozilla places them on top of the fieldset border.*/
+#centerModal .quicklinkUpIconLink {
+	position: relative;
+	left: 880px; /* modal width dependent */
+	/* if get image/text link separation worked out, use 87% */
+	top: 3px;
+}
+
+#centerModal .quicklinkUpLink {
+	position: relative;
+	/* use same left as icon strangely enough. prob. because of icon image characteristics */
+	left: 880px; /* modal width dependent */
+	/* if get image/text link separation worked out, use 88% */
+	top: 3px;
+}
+
+#centerLeftNav .quicklinkUpIconLink {
+	position: relative;
+	left: 660px; /* modal width dependent */
+	/* if get image/text link separation worked out, use 87% */
+	top: 3px;
+}
+
+#centerLeftNav .quicklinkUpLink {
+	position: relative;
+	/* use same left as icon strangely enough. prob. because of icon image characteristics */
+	left: 660px; /* modal width dependent */
+	/* if get image/text link separation worked out, use 88% */
+	top: 3px;
+}
+
+/* joe added these for multicolumns */
+#centerModal div.colLeft2Col5050 .quicklinkUpIconLink {
+	position: relative;
+	left: 385px;
+	top: 0px;
+}
+
+#centerModal div.colLeft2Col5050 .quicklinkUpLink {
+	position: relative;
+	left: 385px;
+	top: 0px;
+}
+
+#centerLeftNav div.colLeft2Col5050 .quicklinkUpIconLink {
+	position: relative;
+	left: 270px;
+	top: 0px;
+}
+
+#centerLeftNav div.colLeft2Col5050 .quicklinkUpLink {
+	position: relative;
+	left: 270px;
+	top: 0px;
+}
+
+#centerModal div.colRight2Col5050 .quicklinkUpIconLink {
+	position: relative;
+	left: 385px;
+	top: 0px;
+}
+
+#centerModal div.colRight2Col5050 .quicklinkUpLink {
+	position: relative;
+	left: 385px;
+	top: 0px;
+}
+
+#centerLeftNav div.colRight2Col5050 .quicklinkUpIconLink {
+	position: relative;
+	left: 270px;
+	top: 0px;
+}
+
+#centerLeftNav div.colRight2Col5050 .quicklinkUpLink {
+	position: relative;
+	left: 270px;
+	top: 0px;
+}
+
+/* end of joe addition for multicolumn quicklinks*/
+	/* style quicklink hyperlink text colors differently because of dark grey background */
+.quicklinkUpLink:link {
+	color: #003366;/*Links*/
+	text-decoration: none;
+}
+
+.quicklinkUpLink:visited {
+	color: #003366;/*Links Visited*/
+	text-decoration: none;
+}
+
+/* hover trumps visited because of document order priority */
+.quicklinkUpLink:hover {
+	color: #003366;/*Links Hover*/
+	text-decoration: underline;
+}
+
+/* only one message box on any given page */
+#messageBox {
+	margin: 3px 0 15px 0;
+	background-color: #ffffff;/*Page Background*/
+}
+
+.errorIcon {
+	padding-top: 10px;
+	padding-left: 10px;
+}
+
+/* header for error message only */
+.errorHeaderText {
+	color: #990000;/*Error*/
+	font-size: 16pt;
+	padding-left: 7px;
+}
+
+/* line under error header */
+div.errorHeaderLine {
+	margin-top: 2px;
+	border-top: 1px solid #990000;/*Error*/
+}
+
+/* numbered list in red text within message box for list of error messages */
+	/* cross-platform IE/Mozilla issue is that the left border of the list includes labels in Mozilla
+   but not in IE for a default list-style-position:outside list, so use inside instead, because
+   the browsers seem to treat that the same way, and because we are trying to line
+   the list up with the error header above it */
+.errorList {
+	list-style-position: inside;
+	list-style-type: disc;
+	margin: 0 0 0 20px;
+	padding: 0;
+}
+
+/* error messages within error message boxes */
+.errorListItem {
+	color: #990000;/*Error*/
+	padding-top: 3px;
+}
+
+/* prompt after the error list item error message */
+.errorListItem .errorListItemPrompt {
+	color: #000000;/*Error Details*/
+	margin-left: 3px;
+}
+
+/* select box within an error list item (after the prompt) */
+.errorListItem select {
+	color: #000000;/*Error Details*/
+	margin-left: 3px;
+}
+
+/* anchor tag within an error list item (after the prompt/selectbox) */
+.errorListItem a {
+	color: #000000;/*Error Details*/
+	margin-left: 3px;
+}
+
+/* javascript error message text */
+.errorJavascriptMsg {
+	border: 0px;
+	width: 750px
+}
+
+.infoMsgIcon {
+	padding-top: 10px;
+	padding-left: 10px;
+}
+
+/* header for info message only */
+.infoMsgHeaderText {
+	color: #000000;/*Info Message*/
+	font-size: 16pt;
+	padding-left: 7px;
+}
+
+/* line under info messages header */
+div.infoMsgHeaderLine {
+	margin-top: 2px;
+	border-top: 1px solid #000000;/*Info Message*/
+}
+
+/* numbered list within message box for list of info messages */
+	/* cross-platform IE/Mozilla issue is that the left border of the list includes labels in Mozilla
+   but not in IE for a default list-style-position:outside list, so use inside instead, because
+   the browsers seem to treat that the same way, and because we are trying to line
+   the list up with the error header above it */
+.infoMsgList {
+	list-style-type: disc;
+	list-style-position: inside;
+	margin: 0 0 0 20px;
+	padding: 0;
+}
+
+/* info messages within info message boxes */
+.infoMsgListItem {
+	color: #000000;/*Info Message*/
+	padding-top: 3px;
+}
+
+/* javascript info message text */
+.infoJavascriptMsg {
+	border: 0px;
+	width: 750px
+}
+
+#pageLevelActionNavButtonTopBox {
+	color: #000000;/*Default Text Color*/
+	/* TODO: need to figure out good color and/or font for instruction text to differentiate it */
+	margin: 2px 0 2px 0;
+	/* must give a height for two reasons, in case there are no left buttons or any other content within this
+           box that is not floating: 1) links in Firefox/Windows do not work because the
+	    buttons are floating so are out of the flow and do not have any real space. 2) if there is
+	    no content to the left (i.e. instruction text/contextual info), because the buttons are
+	    floating and do not have any real height, they will protrude into the space occupied by 
+	    the following box unless they are given an explicit height */
+	height: 20px;
+}
+
+#pageLevelActionNavButtonBottomBox {
+	height: 25px;
+	/* in case box only contains floating elements, this gives it space for the background color to show */
+	margin: 2px 0 2px 0;
+}
+
+a.eventButtonSmall {
+	border: none;
+	font-size: 9pt;
+	color: #000000;/*Button Text*/
+	font-weight: normal;
+	text-align: center;
+	text-decoration: none;
+	background: url('../images/BUTT_small.png') no-repeat center center;
+	padding: 3px 20px;
+}
+
+a.eventButtonSmall:hover {
+	background: url('../images/BUTT_small_over.png') no-repeat center center;
+}
+
+a.eventButtonMedium {
+	border: none;
+	font-size: 9pt;
+	color: #000000;/*Button Text*/
+	font-weight: normal;
+	text-align: center;
+	text-decoration: none;
+	background: url('../images/BUTT_medium.png') no-repeat center center;
+	padding: 3px 25px;
+}
+
+a.eventButtonMedium:hover {
+	background: url('../images/BUTT_medium_over.png') no-repeat center center;
+}
+
+a.eventButtonLarge {
+	border: none;
+	font-size: 9pt;
+	color: #000000;/*Button Text*/
+	font-weight: normal;
+	text-align: center;
+	text-decoration: none;
+	background: url('../images/BUTT_large.png') no-repeat center center;
+	padding: 3px 25px;
+	/* this provides the separation if multiple buttons */
+}
+
+a.eventButtonLarge:hover {
+	background: url('../images/BUTT_large_over.png') no-repeat center center;
+}
+
+a.eventButtonXLarge {
+	border: none;
+	font-size: 9pt;
+	color: #000000;/*Button Text*/
+	font-weight: normal;
+	text-align: center;
+	text-decoration: none;
+	background: url('../images/BUTT_xlarge.png') no-repeat center center;
+	padding: 3px 25px;
+	/* this provides the separation if multiple buttons */
+}
+
+a.eventButtonXLarge:hover {
+	background: url('../images/BUTT_xlarge_over.png') no-repeat center
+		center;
+}
+
+/* for page-level action/navigation buttons that should go to the right, use float.
+   note: all action/navigation buttons are image anchor links, not input buttons */
+a.pageLevelRightButton {
+	float: right;
+}
+
+a.pageLevelRightmostButton {
+	float: right;
+}
+
+a.pageLevelLeftButton {
+	
+}
+
+a.pageLevelLeftmostButton {
+	
+}
+
+/* contextualInfoBox is a fieldset not a div, because it contains fields, and since
+   div.field is a float:left, the contextualInfoBox as a div would not contain any of its
+   content since it is all float, but making it a fieldset makes it contain its content,
+   and since it is still a block element, it ends the line and following content starts
+   on the next line */
+#contextualInfoBox {
+	margin: 6px 0 0 0;
+	padding-top: 3px;
+	padding-bottom: 5px;
+	background-color: #ffffff;/*Page Background*/
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	border-bottom: 1px solid #ddddaa;/*Page Lines*/
+}
+
+#contextualInfoBox div.field {
+	margin-top: 5px;
+}
+
+/* div block around the content which gives it the same padding as the other center boxes 
+   (see padding rule applied in bulk above). all boxes contained in the center box
+   have padding for the text in the content. */
+#contentBox {
+	margin: 10px 0 0 0;
+}
+
+/* since list content (i.e. control bars and table) look fine when aligned to the left edge 
+   they do not need the left padding, so they have their own content box style. */
+#listContentBox {
+	padding: 0;
+	/* should this have margin top of 10px, ala contentBox ? */
+}
+
+#skiBox {
+	margin: 5px 0 0 0;
+	border-bottom: 1px solid #ddddaa;/*Page Lines*/
+}
+
+/* Form styles */
+	/* note: at this point, the terminology shifts from the BLAF notion of a "section" to the HTML
+         element "fieldset" which groups a set of fields within a form, if in fact there are sections.
+         forms may equally exist without any sections/fieldsets */
+	/* on IE form tag appears to have default margins or padding, so explicitly set to 0 */
+form {
+	margin: 0;
+	padding: 0;
+}
+
+/* Multi-Column Content Layout
+
+   The solution is to put each column in a div block, float one column left and 
+   have a position:static column which sits to the right. Since a float block 
+   is taken out of the normal flow, the right column would normally sit against
+   the left margin, so make the margin-left for the right column large enough to
+   clear the floated left column, and a little bit larger to leave a gap between
+   columns.
+   
+   There are several scenarios for the containing block of the two columns:
+   - the two columns may be within a fieldset, resulting in a two column section
+   - muliple fieldsets could be within each column, resulting in two columns of
+     sections
+   - there may not be any fieldset involved, in which case there are simply
+     two columns of fields
+   
+  notes:
+   - floats is how to get two blocks to be side by side. having both columns float
+     is another possibility, but then the containing block does not have any 
+     content within the normal flow and is an empty block so the background color
+     does not show. putting a clearing div at the end is not a solution, because
+     this div will also clear the floating left nav (and floating right nav, if
+     present).
+     update: if the columns are contained in a fieldset (which is now being done)
+             the clearing problem would be solved
+     
+   - would ideally like to use percentages for width and margin-left below, but
+     IE does not compute the right column block percentage as one would expect
+     so it does not work (the larger the value of margin-left, the more screwed
+     up IE computation of width gets). thus, have to use absolute width values, 
+     which means need to have separate content column style classes for each center 
+     width (e.g. centerLeftNav, centerModal). this also requires changing these
+     widths if the width of the center ever changes. unfortunately, IE is known
+     for not handling percentages correctly, so not much can be done here. IE 7
+     promises to fix some of its quirky percentage behavior
+*/
+	/* the purpose of this wrapper is to solve the classic clearing space beneath floated
+   columns problem, which occurs when the left float column content is longer than the
+   right non-float column content, such that float content extends beyond the bottom
+   of a standard div. but with a fieldset, the float content is included. 
+   this is a fix for Mozilla.
+   with IE6, this fix is not needed, because an IE6 bug erroneously includes all
+   content within a div (assuming the div has a width or height dimension, which
+   the column divs do) 
+   note: because this is not a float element, if it follows a float element such as a div.field,
+   it will be placed to the right of the div.field off of the page. the solution would be to
+   add clear:left, but then on pages with left nav it clears the left nav. so unfortunately,
+   can not have individual fields preceding two columns within the same section. if want to
+   highlight a single piece of data prior to the two columns, either put it above the section
+   or incorporate it into the section heading (i.e. the fieldset legend) */
+form fieldset.colWrapper {
+	border: none;
+	padding: 0;
+	margin: 0;
+}
+
+#centerLeftNav form div.colLeft2Col5050 {
+	float: left;
+	width: 373px;
+	/* width:46%; works fine for left column, but not right column in IE */
+	/* 373 */ /* do not set margin-left. see notes above */
+	padding: 0;
+	/* kludge to fix problem where Firefox 1.0 starts the floating left column lower on the page than
+	   the adjacent right column. draw a border, but use the same color as the background so it is
+	   not visible */
+	border: 1px solid #ffffff;/*Page Background*/
+}
+
+/* for the columns in a list filter bar -- hide the border */
+#centerLeftNav form div.listFilterBar div.colLeft2Col5050 {
+	border: 1px solid #ddeeee;/*Filter Box*/
+}
+
+#centerLeftNav form div.listFilterBar div.colRight2Col5050 {
+	border: 1px solid #ddeeee;/*Filter Box*/
+}
+
+#centerLeftNav form div.colRight2Col5050 {
+	padding: 0;
+	/* to cover the portion of space used by the left float column, plus a margin between */
+	margin-left: 383px;
+	/* 48% works fine, but percentage for width below does not work */
+	/* 383 */
+	width: 373px;
+	/* width:48% works fine in Firefox, but IE computes strange width */
+	/* 373 */
+	border: 1px solid #ffffff;/*Page Background   see kludge note above */
+}
+
+* html #centerLeftNav form div.colRight2Col5050 {
+	width: 372px;
+	/* IE6 needs to be just a hair smaller to have room next to colLeft2Col5050 or shifts down */
+}
+
+#centerModal form div.colLeft2Col5050 {
+	float: left;
+	width: 480px;
+	/* do not set margin-left. see notes above */
+	padding: 0;
+	border: 1px solid #ffffff;/*Page Background   see kludge note above */
+}
+
+#centerModal form div.colRight2Col5050 {
+	padding: 0;
+	margin-left: 490px;
+	width: 480px;
+	border: 1px solid #ffffff;/*Page Background   see kludge note above */
+}
+
+/* end of content two-column specific styles */
+form fieldset {
+	/* the contentBox margin top provides space before first fieldset. the margin bottom
+	   here provides space between subsequent fieldsets. by avoiding putting the margin top
+	   on the fieldset itself, facilitates a two column layout with a fieldset in one column
+	   and no fieldset in the other column, where they start at the same horizontal level
+	   because neither has a margin top. */
+	margin: 10px 0 10px 0;
+	padding: 0 0 5px 0;
+	border-top: 1px solid #ddddaa;/*Page Lines*/
+	border-bottom: 1px solid #ddddaa;/*Page Lines*/
+	border-left: none;
+	border-right: none;
+}
+
+/* used to enclose fields in a section that do not belong to a section. enclosing all fields
+   in a fieldset solves the "clearing space beneath floats" problem in Mozilla (IE6 solves
+   this unintentionlly with its own bug) */
+form fieldset.anonymous {
+	border: none; /* no border */
+	padding-top: 5px; /* no legend, so need this padding */
+}
+
+form fieldset legend {
+	font-size: 13px;
+	font-weight: bold;
+	padding-bottom: 5px;
+	color: #003366;/*Heading Text*/
+	/* IE uses arbitrary color unless explicity specified */
+}
+
+form fieldset div.sectionInstructions {
+	margin: 10px 10px 10px 20px;
+	clear: left;
+}
+
+form fieldset div.deleteWarning {
+	margin: 10px 10px 10px 20px;
+	clear: left;
+	color: #990000;/*Error*/
+	font-weight: bold;
+	font-size: 16px;
+}
+
+form div.field {
+	/* float:left is the Mozilla solution to the classic "clearing space beneath floated elements"
+	   problem that occurs when long float labels extend beyond the regular div boundary. if a 
+	   container element is a float, it will enclose all floated content. thus, following content
+	   will not shift to the right of the extended float content, because there is no extended
+	   float content */
+	float: left;
+	width: 100%;
+	/* smaller and autocomplete wraps on some browser/platform combinations */
+	display: block;
+	position: relative;
+	margin-left: 10px;
+	margin-bottom: 10px;
+}
+
+form div.fieldComboRadioSelectInList {
+	/* special case of the above when using comboRadioSelect inside of a list cell. the dropdown
+		does not work because of the float for some reason, so just take out the float:left */
+	width: 100%;
+	/* smaller and autocomplete wraps on some browser/platform combinations */
+	display: block;
+	position: relative;
+	margin-left: 10px;
+	margin-bottom: 10px;
+}
+
+* html div.field {
+	/* IE5/6 do not need to solve the "clearing space beneath floated elements" problem because an
+	   IE bug erroneously solves the  problem. in IE, containing blocks that have a dimension 
+	   specified mistakenly enclose all floated content. this is why height is specified below,
+	   to give this block a dimention so that the IE bug will work its magic */
+	float: none;
+	width: auto;
+	height: 1%;
+}
+
+div.panelBody div.field {
+	width: 100%;
+	/* prevents Mozilla from separating autocomplete input box from drop down arrow */
+}
+
+form div.indentField {
+	margin-left: 30px;
+	/* override 10px margin-left to result in 20px indent */
+}
+
+/* so that the autoComplete and autoCompleteSuggest div containing the hidden select
+   does not take up vertical space, set the font-size and line-height very small */
+form div.field .acsHiddenBlock {
+	font-size: 1px;
+	line-height: 1px; /* needed for IE */
+	display: inline;
+}
+
+/* form field labels */
+	/* note: in the below rule selectors, label.top/right/left refers to all data elements
+   except for radiobutton/checkbox group labels, where use the selector 
+   div.cr p.top/right/left */
+	/* 'none' field labels that are for when there is no label and we want positioning to work better*/
+form div label.none,form div.cr p.none {
+	float: none;
+	display: none;
+	width: 0px;
+}
+
+/* 'top' field labels that are on top of the corresponding data element. 
+
+   this includes group labels for radio buttons  (which are within a <p> 
+   tag, because the individual options are within <label> tags, so the group label 
+   should not be) */
+form div label.top,form div.cr p.top {
+	float: none;
+	display: block;
+	margin-bottom: 5px;
+}
+
+/* 'right' field labels that are to the right of the corresponding data element. 
+
+   the standard technique is to float the label to the right of the data element. 
+   the width determines the left edge of the label, because text is left-aligned. 
+   this is difficult, because want to make enough room for the data element on the left, 
+   so need to know about the width of the containing element, which is why there is
+   a separate set of selectors with different width declarations for labels within
+   multi-column layouts.
+   
+   note: the same widths work when within centerModal and centerLeftNav, so do need
+         to differentiate and hence do not have selectors for these 
+         
+   note: div.field is float:left and has specified width, and the result of positioning
+         div.field differs in Mozilla and IE6, such that IE6 seems to ignore the width
+         and use all the available space within the containing block. because of this,
+         Mozilla and IE6 have different width values for right labels */
+form label.right,form div.cr p.right {
+	float: right;
+	text-align: left;
+	margin-left: 12px;
+	padding-top: 0px; /* on IE, horizontally aligns label with values */
+	width: 770px;
+}
+
+* html form label.right,* html div.cr p.right {
+	width: 780px;
+}
+
+form div.indentField label.right,form div.indentField p.right {
+	width: 750px;
+	/* override width of right labels for indented fields to give data element more space */
+}
+
+* html form div.indentField label.right,* html form div.indentField p.right
+	{
+	width: 760px;
+}
+
+/* short right labels, e.g. for instrument where two fields and one label, all horizontal across page,
+   or, instrument with field whose textBoxSize 50 characters instead of the default of 20, i.e. pass
+   labelStyle="shortRight" textBoxSize="50" into createField
+   labels with "shortRight" style also have "right", so pick up attributes above and override width
+   note: the term shortRight may be misleading. it means the space for the label to the right is 
+   shorter, making the space for the input field on the left larger */
+form label.shortRight,form div.cr p.shortRight {
+	width: 590px;
+}
+
+* html form label.shortRight,* html form div.cr p.shortRight {
+	width: 640px;
+}
+
+form div.indentField label.shortRight,form div.indentField p.shortRight
+	{
+	width: 570px;
+	/* override width of right labels for indented fields to give data element more space */
+}
+
+* html form div.indentField label.shortRight,* html form div.indentField lp.shortRight
+	{
+	width: 620px;
+}
+
+/* override width of right labels when within 2Col5050 multi-column content layout, 
+   since percentages translate to smaller widths 
+   note: no need to do this for shortRight because when 2 columns not enough room for
+         a field that wide */
+form div.colLeft2Col5050 label.right,form div.colLeft2Col5050 div.cr p.right,form div.colRight2Col5050 label.right,form div.colRight2Col5050 div.cr p.right
+	{
+	width: 275px; /* from right edge of column block, since float right */
+}
+
+form div.colLeft2Col5050 div.indentField label.right,form div.colRight2Col5050 div.indentField p.right
+	{
+	width: 255px;
+}
+
+/* tight right labels ...these reduce the space between the data element and the beggining of the label by 
+	increasing the size of the label.   The assumption is that the data that might be present in the field
+	will never be so wide as to overlap the labels...we will see about that. */
+form label.tightRight,form div.cr p.tightRight {
+	width: 860px;
+}
+
+* html form label.tightRight,* html form div.cr p.tightRight {
+	width: 870px;
+}
+
+form div.indentField label.tightRight,form div.indentField p.tightRight
+	{
+	width: 850px;
+	/* override width of right labels for indented fields to give data element more space */
+}
+
+* html form div.indentField label.tightRight,* html form div.indentField lp.tightRight
+	{
+	width: 860px;
+}
+
+form div.colLeft2Col5050 div.field label.tightRight,form div.colLeft2Col5050 div.field div.cr p.tightRight,form div.colRight2Col5050 div.field label.tightRight,form div.colRight2Col5050 div.field div.cr p.tightRight
+	{
+	width: 365px; /* from right edge of column block, since float right */
+}
+
+form div.colLeft2Col5050 div.indentField label.tightRight,form div.colRight2Col5050 div.indentField p.tightRight
+	{
+	width: 355px;
+}
+
+/* 'left' field labels that are to the left of the corresponding data element. 
+
+   this also includes group labels for radio button groups and checkbox groups. the 
+   standard technique is to float the label to the left of the data element. 
+   
+   floats require a width, so could make the width a percentage of the containing block, 
+   but since the containing block could be part of a content single column layout or a 
+   content two column layout, there is not a good percentage value that applies to both 
+   layouts, so use an absolute width instead. 
+   
+   within the specified width, the label can be aligned as desired. the BLAF aligns right,
+   but align left seems to work better here. the margin-right gives some separation
+   between the floating label and the data element to the right of it. note that the label
+   and data element are inline elements, so things are not handled like content two column 
+   layout where the first column floats left and both columns are block-level elements. in 
+   that situation, the right column block is given a margin-left larger than the width
+   of the floating left column block, and that is how the gap is created betwee the two 
+   columns. in this case, the data element does not have any margin or width styles; it
+   just flows to the right of the float.  
+   
+   for group labels for radio button groups, this rule works in conjunction with
+   the following rule. since the individual elements for radio buttons use 
+   the <label> tag, the label for the group does not use the <label> tag, so instead uses 
+   a <p> tag 
+   
+   NOTE: if widths of left, longLeft labels below are changed, also need to change the
+          corresponding width of readonlyLeft, readonlyLongLeft below */
+	/* style declarations common to left labels */
+form div label.left,form div.cr p.left,form div label.longLeft {
+	float: left;
+	text-align: left;
+	margin-right: 10px;
+	/* this is the gap between label and data element */
+}
+
+/* for 'standard' labels */
+form div label.left,form div.cr p.left {
+	width: 125px;
+	/* this should match margin-left on groupLeftVertical ! */
+}
+
+/* for 'standard' labels, indented */
+	/* since form div.indentField has a margin-left that is larger than form div.field,
+   need a special label that is the same amount shorter in width (20px), so that 
+   content to the right will line up regardless of whether the field is indented or not */
+form div.indentField label.left,form div.indentField p.left {
+	width: 105px;
+	/* this should match margin-left on groupLeftVertical ! */
+}
+
+/* for long labels, e.g. instrument questions when to the left. used for 'vw' mode,
+    so do not need a corresponding longLeft style for radio buttons 
+   note: do not have column-specific versions because long labels are currently
+         only applicable to the full centerModal layout */
+form div label.longLeft {
+	width: 450px;
+}
+
+/* since form div.indentField has a margin-left that is larger than form div.field,
+   need a special label that is the same amount shorter in width (20px), so that 
+   content to the right will line up regardless of whether the field is indented or not */
+form div.indentField label.longLeft {
+	width: 430px;
+}
+
+/* this and the default sized autocomplete data element fit within the column width */
+form div.colLeft2Col5050 label.longLeft,form div.colRight2Col5050 label.longLeft
+	{
+	width: 250px;
+}
+
+/* this is currently the only place longLongLeft is defined, i.e. it is only used within
+the col...2Col5050 div. this only works with a data element that has been restricted by
+the "size" metadata attribute enough so that the label and data element fit on one line */
+form div.colLeft2Col5050 label.longLongLeft,form div.colRight2Col5050 label.longLongLeft
+	{
+	width: 325px;
+}
+
+/* note: checkbox labels are not given a style, because the natural flow works best for our
+         application where checkboxes do not need to be lined up with other properties; they
+         typically exist alone. 
+         the label is output, and then the checkbox is output, flowing after the label. this
+         works well because the length of the label is unknown, and the width of a checkbox
+         is so small that there could be a big gap between label and checkbox if label is
+         small, and we attempted to style the checkbox label choosing some width.
+         all checkboxes are handled the same, regardless of where they are, i.e. all checkboxes
+         have left labels with the checkbox immediately following. */
+	/* radio button individual labels */
+	/* for radio button individual labels that stack vertically, where the group label (handled by 
+   the rule above) is to the left. the margin-left here should match the width of the above rule */
+form div.cr label.groupLeftVertical {
+	display: block; /* block so they stack vertically */
+	text-align: left;
+	margin-left: 125px;
+	/* should be at least as large as the width of left label */
+	margin-bottom: 3px;
+}
+
+/* for radiobutton individual labels that align vertically, where the group label is on top */
+form div.cr label.groupTopVertical {
+	display: block;
+	margin-bottom: 3px;
+}
+
+/* for radiobutton labels that align horizontally. this rule applies both for group labels on 
+   top or to the left */
+form div.cr label.horizontal {
+	display: inline;
+	/* ideally, nowrap should be specified, to prevent individual radio button labels from 
+	   breaking across lines. 
+	   however, in IE this causes no wrapping whatsoever, across all radio buttons, so in
+	   two-column content situation, the text in the left column overflows into the right
+	   column, and the right content is pushed down, starting below the end of the left
+	   content which looks really bad.
+	   so, although nowrap gives the ideal solution in Firefox, it can not be used, because
+	   IE will be screwed up. */ /*	white-space:pre-wrap; */
+	margin-right: 10px;
+}
+
+/* Data Element Appearance */
+	/* make readonlyData a block-level element because if the data is long enough to
+   wrap, in order to wrap underneath itself, rather than all the way left under
+   the label. this works in conjunction with readonlyLeft, readonlyLongLeft styling below,
+   as for now, those are the only labels used for readonlyData that may wrap to 
+   the next line.
+   note: do not need to worry about inputData/inputDataNumeric wrapping, as those 
+         are data input elements which are atomic and can not wrap. 
+   note: data elements within table cells override the display:block in the table listing
+         section below, because they need to be inline */
+.readonlyData {
+	display: block;
+	font-weight: bold;
+}
+
+/* these classes are used only in conjunction with readonlyData */
+	/* note: within a 2Col5050, longLeft treated as left, since longLeft would not fit */
+.readonlyLeft,form div.colLeft2Col5050 label.longLeft .readonlyLeft,form div.colRight2Col5050 label.longLeft .readonlyLeft
+	{
+	margin-left: 135px;
+	/* width of left label (125px) + left label's margin-right (10px) */
+}
+
+div.indentField .readonlyLeft {
+	margin-left: 115px;
+	/* width of left label indented (105px) + left label't margin-right (10px) */
+}
+
+.readonlyLongLeft {
+	margin-left: 460px;
+	/* width of longLeft label (450px) + left label's margin-right (10px) */
+}
+
+div.indentField .readonlyLongLeft {
+	margin-left: 440px;
+	/* width of longLeft label indented (430px) + left label's margin-right (10px) */
+}
+
+/* make this block-level so the elements will line up with readonlyData, not because they will wrap
+   as it is doubtful numeric data would be long enough to wrap.
+   it is questionable whether this class is needed since it does the same thing as readonlyData for
+   now, but it was added originally to allow numeric data to be right-adjusted
+   note: data elements within table cells override the display:block in the table listing
+         section below, because they need to be inline */
+.readonlyDataNumeric { /* text-align:right; */
+	/* for now, not right-adjusting numbers until see what makes sense */
+	display: block;
+	font-weight: bold;
+}
+
+/* as noted earlier, do not need to worry about wrapping text when format is numeric, so do not need 
+   all the margin-left rules above like readonlyData needs */
+	/* multiple readonly data elements that appear together with a single label (e.g. month / year) should not 
+   wrap so they will flow naturally horizontally, so make them inline, not block */
+.inlineData {
+	display: inline;
+	margin-left: 0;
+}
+
+/* input data elements */
+	/* text boxes (used by autocompletes) are rendered by the browser to acommodate approximately
+   20 characters of text for the font family and size assigned to the element. this can be
+   overridden with either HTML "size" property which is in characters, or the stylesheet width
+   property */
+.inputData { /* width: */
+	
+}
+
+.inputDataNumeric {
+	text-align: right;
+}
+
+.instrNote {
+	width: 95%;
+	height: 50px;
+}
+
+/* input, select */
+input,select,textarea {
+	
+}
+
+/* radio buttons, checkboxes */
+div.cr label input {
+	
+}
+
+/* field errors */
+.fieldErrorList {
+	list-style-type: none;
+	color: #990000;/*Error*/
+}
+
+/* free standing text (see outputText.tag) */
+div.outputText {
+	/* give same width and bottom and left margins as div.field, so that it fits into the flow with fields as
+	   outputText is used above and below fields (or next to fields, in which case the output text
+	   is inline and this style does not apply) */
+	width: 90%;
+	margin-bottom: 10px;
+	margin-left: 10px;
+}
+
+div.hangingIndentOutputText {
+	/* TODO: this is not working yet. do a search to see where it is used. maybe try wrapping this div
+	         in yet another div to get it to work. give the wrapper div 20px padding-left and then here
+	         text-indent -10px (see outputText.tag) */
+	/* instead of giving same margin-left as div.field, facilitate a hanging indent where the margin-left
+	   will end up in the same place as div.field, since it may be desireable to have a hanging indent */
+	/* margin-left:20px; */ /* text-indent:-10px; */
+	
+}
+
+div.associatedOutputText {
+	/* in Mozilla, this solves the problem of outputting the text immediately below the
+	               previous block, which, if it is div.field, is a float:left itself */
+	/* note: can not get it to work with negative margin-top alone. presumably because div.field is a 
+ 	         float, and the clearance is computed for div.outputText to clear the preceding div.field 
+ 	         and clearance can not be overridden (see outputText.tag) */
+	float: left;
+	margin-top: -10px;
+}
+
+* html div.associatedOutputText {
+	float: none;
+	margin-top: -10px;
+	/* this works in IE6, since it does not use float for div.field */
+}
+
+div.indentOutputText {
+	margin-left: 30px;
+}
+
+/* to use this, just use <div class="verticalSpace30">&nbsp;</div> */
+div.verticalSpace30 {
+	line-height: 30px;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.smallLabel {
+	font-size: 7pt;
+	font-variant: small-caps;
+}
+
+.normalLabel {
+	font-size: 10pt;
+	font-variant: small-caps;
+}
+
+.italic {
+	font-style: italic;
+}
+
+/* invisible fields (entire field div block), labels, data elements (or anything else) */
+.invisible {
+	display: none;
+}
+
+/* hidden fields. the difference between invisible and hidden is that hidden elements take up space
+   on the page, while invisible elements do not */
+.hidden {
+	visibility: hidden;
+}
+
+/* List styles (i.e. table styles) */
+	/* NOTE: on a list view, all center blocks are enclosed in a listCenterWrapperBox to give a dark gray
+         background around all elements
+         
+         all list content, i.e. control bars and the table itself, are enclosed in a listContentBox
+         which does not have left margin or padding so that the control bars and table can align
+         to the left edge of the centerLeftNav block, since they do not need the gap that
+         detail page blocks need (detail page content is within contentBox) */
+	/*Title on a list component*/
+#listTitle {
+	height: 20px;
+	color: #003366;/*Heading Text */
+	left: 10px;
+	top: 0px;
+	font-size: 16px;
+	font-weight: bold;
+}
+
+/* used for control bars that have custom action buttons and possibly floating nav elements */
+div.listControlBar {
+	/* Mozilla fix for when control bar block only contains floated content such that it will
+	   not take up any space, and background will not show through. overflow:auto causes control
+	   bar to enclose all floated content, thereby extending its background and border down
+	   past that floated content 
+	   note: this technique does not work for fields. had lots of weirdness, such as field data
+	         in table cells being shifted right, and field div being considered a data element, not
+	         just the data element it contained, resulting sometimes in vertical scrollbars. but,
+	         it looks like this technique works for listControlBar, which is good because not
+	         practical so solve the "clearing space beneath floated elements" by enclosing in 
+	         a fieldset, as was done for div.field, and can not using the clearer solution, because
+	         will clear the leftNav as well, and can not use the float:left solution, because 
+	         following content (i.e. the table) will then need to clear, and it will clear the
+	         leftNav */
+	overflow: auto;
+	margin: 5px 0 5px 0;
+	background-color: #ddddaa;/*Table Control Box*/
+	padding: 5px;
+	border: solid 1px #eeeedd;/*Table Control Box Border*/
+
+}
+
+* html div.listControlBar {
+	/* IE5/6 fix for listControlBar clearing space beneath floated elements problem. the fix is
+	   actually an IE bug, where block erroneously encloses all floats if it has a dimension. */
+	height: 1%;
+}
+
+div.listFilterBar {
+	/* Mozilla fix for when control bar block only contains floated content such that it will
+	   not take up any space, and background will not show through. overflow:auto causes control
+	   bar to enclose all floated content, thereby extending its background and border down
+	   past that floated content 
+	   note: this technique does not work for fields. had lots of weirdness, such as field data
+	         in table cells being shifted right, and field div being considered a data element, not
+	         just the data element it contained, resulting sometimes in vertical scrollbars. but,
+	         it looks like this technique works for listControlBar, which is good because not
+	         practical so solve the "clearing space beneath floated elements" by enclosing in 
+	         a fieldset, as was done for div.field, and can not using the clearer solution, because
+	         will clear the leftNav as well, and can not use the float:left solution, because 
+	         following content (i.e. the table) will then need to clear, and it will clear the
+	         leftNav */
+	overflow: auto;
+	margin: 5px 0 5px 0;
+	background-color: #ddeeee;/*Filter Box*/
+	padding: 5px;
+	border: solid 1px #cceeee;/*Filter Box Border*/
+}
+
+* html div.listFilterBar {
+	/* IE5/6 fix for listControlBar clearing space beneath floated elements problem. the fix is
+	   actually an IE bug, where block erroneously encloses all floats if it has a dimension. */
+	height: 1%;
+}
+
+/* for select boxes that are used for action, navigation */
+input.listControlBarActionNavButtonLeft {
+	margin-left: 7px;
+	font-size: 10pt;
+	/*color*/ /*background-color*/
+}
+
+select.listControlBarActionNavButtonLeft {
+	margin-left: 7px;
+	font-size: 10pt;
+}
+
+/* using floats for buttons facilitates having text at the same horizontal level */
+	/* NOTE: floating buttons right mean that buttons must be in reverse order in HTML */
+input.listControlBarActionNavButtonRight {
+	float: right;
+	margin-left: 7px;
+	font-size: 10pt;
+	/*color*/ /*background-color*/
+}
+
+select.listControlBarPageSelector {
+	float: right;
+	width: 140px;
+	margin-left: 7px;
+	font-size: 10pt;
+	/*color*/ /*background-color*/
+}
+
+select.listControlBarPageSizeSelector {
+	float: right;
+	width: 85px;
+	margin-left: 30px;
+	font-size: 10pt;
+	/*color*/ /*background-color*/
+}
+
+/* used for the next and previous anchors*/
+a.listControlBarPageAction {
+	float: right;
+	margin-left: 7px;
+	font-size: 10pt;
+	font-weight: normal;
+	/*color*/ /*background-color*/
+}
+
+/* used for the calendar actions*/
+a.listControlBarCalendarAction {
+	font-size: 9pt;
+	font-weight: normal;
+	/*color*/ /*background-color*/
+}
+
+a.listControlBarCalendarActionCurrent {
+	font-size: 10pt;
+	font-weight: bold;
+	/*color*/ /*background-color*/
+}
+
+.listControlBarCalendarDisplayRange {
+	font-size: 12pt;
+	font-weight: normal;
+}
+
+.listControlBarCalendarLabels {
+	font-size: 10pt;
+	font-weight: bold;
+}
+
+/* for select boxes that are used for action, navigation */
+select.listControlBarActionNavButtonRight {
+	float: right;
+	margin-left: 7px;
+	font-size: 10pt;
+}
+
+/* table sizing: if the width is auto and margins are 0, the table will NOT automatically size
+   to fill its containing block, like other block-level elements 
+   
+   table-layout:fixed is based on a CSS specification algorithm
+   table-layout:auto is browser specific   
+
+   in general, width=auto is browser specific, but if table-layout:fixed and width:auto,
+   then the table is the size of its containing block minus margins
+   
+   if table width has a value and table-layout:fixed, then this value is the minimum width
+   of the table. the table width is computed from the widths of the columns of the first
+   row (or col elements, if used) and if that is greater than the table width, it is used,
+   otherwise the table width is used and extra space is divided among the columns
+
+   specifying width on column does not take padding into account, so width of cell is
+   width of column minus padding minus border width. if specifying width on cell, then
+   should take padding and border into account. HOWEVER, not doing this,  i.e. just
+   having widths on columns add up to 100%, along with specifying width in pixels, and
+   do not get an overflow (if did get an overflow, alternative would be to use the
+   HTML <col> element to specify table width, as this element takes padding,borders
+   into account)
+*/
+	/* tables have margins but not padding, cells have padding but not margins */
+	/* cross-browser sizing,position solutions: */
+	/* note: the following seem to always work on IE, but for Firefox, oddly enough they
+         only work on tables where a wrap is involved, i.e. at leastone column heading and/or 
+         column data wraps to the next line to fit into a cell */
+	/* to extend table to full boundaries of content area, width:auto, margins 0 */
+	/* to center table horizontally within content area, width:auto, set margin-left,margin-right same */
+	/* to align table along right edge of content area, width:auto, margin-right:0, set margin-left */
+	/* note: width as percentage does not work right in IE, so abandoned that. could probably
+         get width as fixed length to work cross-browser  */
+	/* thus, best solution (again) is to use a fixed pixel width for width of the table, and 
+   then use percentages for widths of the columns, which only need to be specified on the columns
+   in the first row (i.e. the column headers) */
+table.listing,table.wideListing,table.veryWideListing {
+	table-layout: fixed;
+	/* may result in faster table calculation by browser. width of table
+	                       based on table width property and first row cell width properties */
+	margin-left: 0;
+	margin-right: 0;
+	margin-top: 5px;
+	/* separated borders model (default) - can be gaps between cells - rows,cols,row groups, col groups can
+	   not have borders */
+	/* collapsing borders model (new improved) - no gaps between cells - conflict resolution - rows, cols
+	   row groups, column groups can have borders */
+	/* note: border-spacing only applies to the separated borders model and can only be set
+	         on the table element. can set different values for vertical and horizontal border spacing */
+	/* note: empty-cells only applies to separated borders model, which distinguishes between
+	         empty cells and non-empty cells */
+	border-collapse: collapse;
+	text-align: center;
+}
+
+/* table widths */
+#centerLeftNav table.listing {
+	width: 782px;
+	/* width:785px which is how much room there is (1000 px - 215 margin-left for left nav) 
+                     causes top of table to drop down parallel to bottom of left nav for some reason.
+                     going a few pixels less than this will bring the table back up, which can leave
+                     a very small gap on the right since the width is not 785px, but that is ok. 
+                     using auto does not work in Firefox when there is no wrapping of the text in at least
+                     one cell, so not using auto. 
+                     note: on Firefox, using fixed pixel width can cause text to overflow columns, while 
+                           auto seems to correctly wrap the text (i.e. correctly sizes the columns). 
+                           monitor this */
+}
+
+#centerModal table.listing {
+	width: 997px;
+}
+
+#centerLeftNav div.inlineTable table.listing {
+	width: 750px;
+	margin-left: 5px;
+}
+
+#centerModal div.inlineTable table.listing {
+	width: 965px;
+	margin-left: 5px;
+}
+
+/* Wider tables.  As per BLAF guidelines, when horizontally scrolling tables are unavoidable 
+				the table content if the only part that should scroll off the page.  The table controls should
+				remain limited to the width of the standard screen.*/
+#centerLeftNav table.wideListing {
+	width: 2000px;
+}
+
+#centerModal table.wideListing {
+	width: 2000px;
+}
+
+#centerLeftNav div.inlineTable table.wideListing {
+	width: 2000px;
+	margin-left: 5px;
+}
+
+#centerModal div.inlineTable table.wideListing {
+	width: 2000px;
+	margin-left: 5px;
+}
+
+#centerLeftNav table.veryWideListing {
+	width: 3000px;
+}
+
+#centerModal table.veryWideListing {
+	width: 3000px;
+}
+
+#centerLeftNav div.inlineTable table.veryWideListing {
+	width: 3000px;
+	margin-left: 5px;
+}
+
+#centerModal div.inlineTable table.veryWideListing {
+	width: 3000px;
+	margin-left: 5px;
+}
+
+/* column headings */
+table.listing th,table.wideListing th,table.veryWideListing th {
+	font-size: 10pt;
+	font-weight: bold; /* defaults to bold */
+	font-family: Arial, Helvetica, Geneva, sans-serif;
+	/* font-size, font-weight, font-family */ /* defaults to bold */
+	vertical-align: top; /* or baseline ? */
+	padding: 2px;
+	padding-left: 4px;
+	color: #003366;/*Table Header Text*/
+	background-color: #ddddaa;/*Table Header*/
+	/* need to figure out how to make the outside border of the table #ddeeee while keeping the grid lines of the table header ddddaa */
+	border: 1px solid #eeeedd;/*Table Row  the border of the header is the color of the rows and vise versa */
+	/* border-style, border-width, border-color */
+	text-align: left; /* defaults to center */
+}
+
+/* table data */
+table.listing td,table.wideListing td,table.veryWideListing td {
+	background-color: #eeeedd;/*Table Row*/
+	/* SET TO MATCH BACKGROUND OF ACTION BUTTON IMAGES, OR MAYBE JUST THAT COLUMN ? */
+	font-size: 9pt;
+	font-family: Arial, Helvetica, Geneva, sans-serif;
+	padding: 2px;
+	padding-left: 4px;
+	text-align: left;
+	vertical-align: top; /* or baseline ? */
+	color: #000000;/*Table Row Text*/
+	border: 1px solid #ddddaa;/*Table Header  the border of the row is the header background and vise versa */
+}
+
+table.listing td.actionButton,table.wideListing td.actionButton,table.veryWideListing td.actionButton
+	{
+	text-align: center;
+	vertical-align: middle;
+}
+
+/* override the div.field declarations that do not apply when the field is within a table cell */
+table.listing div.field,table.wideListing div.field,table.veryWideListing div.field
+	{
+	float: none;
+	/* table cell data is within div block (put there by createField tag), but since field is within
+	   a table cell rather on an edit form, set margins to 0 and let the table cell padding control space
+	   around cell data */
+	margin: 0;
+	/* field blocks within table cells should be inline so that if there are multiple fields within
+	   the cell they are not on different lines. ok to make inline since no labeling involved with cell
+	   fields (columm label serves as the label) */
+	display: inline;
+}
+
+/* all labels that are within a table.tableForm cell are made left labels, regardless of
+   what the metadata says, as visually this is sensible. treat longLeft as left, and ignore
+   indented labels when dealing with labels within table cells. */
+	/* note: typically, data elements in table cells do not have labels, but if they do, they
+         must be short to work, and need to manipulate column sizes of individual tables so 
+         that can use a "one size fits all" width here */
+form table.tableForm div label.top,form table.tableForm div.cr p.top,form table.tableForm label.right,form table.tableForm div.cr p.right,form table.tableForm div label.left,form table.tableForm div label.longLeft,form table.tableForm div.cr p.left,form table.tableForm div.cr p.longLeft
+	{
+	float: left;
+	text-align: left;
+	margin-right: 10px;
+	/* this is the gap between label and data element */
+	margin-left: 0; /* override non-table cell label.right,p.right */
+	margin-bottom: 0; /* override non-table cell label.top,p.top */
+	width: 5%;
+}
+
+* html form table.tableForm div label.top,* html form table.tableForm div.cr p.top,* html form table.tableForm label.right,* html form table.tableForm div.cr p.right,* html form table.tableForm div label.left,* html form table.tableForm div.cr p.left
+	{
+	width: 3%;
+}
+
+form table.tableForm td.mediumLabels div label.top,form table.tableForm td.mediumLabels div.cr p.top,form table.tableForm td.mediumLabels label.right,form table.tableForm td.mediumLabels div.cr p.right,form table.tableForm td.mediumLabels div label.left,form table.tableForm td.mediumLabels div.cr p.left,form table.tableForm td.mediumLabels div label.longLeft,form table.tableForm td.mediumLabels div.cr p.longLeft
+	{
+	width: 25%;
+}
+
+* html form table.tableForm td.mediumLabels div label.top,* html form table.tableForm td.mediumLabels div.cr p.top,* html form table.tableForm td.mediumLabels label.right,* html form table.tableForm td.mediumLabels div.cr p.right,* html form table.tableForm td.mediumLabels div label.left,* html form table.tableForm td.mediumLabels div.cr p.left,* html form table.tableForm td.mediumLabels div label.longLeft,* html form table.tableForm td.mediumLabels div.cr p.longLeft
+	{
+	width: 30%; /* 30% for Data Entry */
+}
+
+form table.tableForm td.mediumLabels div.comboRadioSelect {
+	margin-left: 25%;
+}
+
+* html form table.tableForm td.mediumLabels div.comboRadioSelect {
+	margin-left: 20%; /* 20% for Data Entry */
+}
+
+form table.tableForm .fieldErrorList {
+	float: left;
+	text-align: left;
+}
+
+form table.tableForm .errorListItem {
+	float: left;
+	text-align: left;
+}
+
+form table.tableForm td.wideLabels div label.top,form table.tableForm td.wideLabels div.cr p.top,form table.tableForm td.wideLabels label.right,form table.tableForm td.wideLabels div.cr p.right,form table.tableForm td.wideLabels div label.left,form table.tableForm td.wideLabels div label.longLeft,form table.tableForm td.wideLabels div.cr p.left,form table.tableForm td.wideLabels div.cr p.longLeft
+	{
+	float: left;
+	text-align: left;
+	margin-right: 10px;
+	/* this is the gap between label and data element */
+	margin-left: 0; /* override non-table cell label.right,p.right */
+	margin-bottom: 0; /* override non-table cell label.top,p.top */
+	width: 50%;
+}
+
+* html form table.tableForm td.wideLabels div label.top,* html form table.tableForm td.wideLabels div.cr p.top,* html form table.tableForm td.wideLabels label.right,* html form table.tableForm td.wideLabels div.cr p.right,* html form table.tableForm td.wideLabels div label.left,* html form table.tableForm td.wideLabels div label.longLeft,* html form table.tableForm td.wideLabels div.cr p.left,* html form table.tableForm td.wideLabels div.cr p.longLeft
+	{
+	float: left;
+	text-align: left;
+	margin-right: 10px;
+	/* this is the gap between label and data element */
+	margin-left: 0; /* override non-table cell label.right,p.right */
+	margin-bottom: 0; /* override non-table cell label.top,p.top */
+	width: 50%;
+}
+
+form table.tableForm td.wideLabels div.comboRadioSelect {
+	margin-left: 50%;
+}
+
+* html form table.tableForm td.wideLabels div.comboRadioSelect {
+	margin-left: 35%;
+}
+
+/* override the display declaration, because data elements within tables should not be block as that
+   will mess up formatting, and also, wrapping will be taken care of by the cell */
+table.listing td .readonlyData,table.listing td .readonlyDataNumeric {
+	display: inline;
+}
+
+table.tableForm td .readonlyData,table.tableForm td .readonlyDataNumeric
+	{
+	margin-left: 6%; /* label width of 5% plus 1% for margin */
+}
+
+* html table.tableForm td .readonlyData,* html table.tableForm td .readonlyDataNumeric
+	{
+	margin-left: 4%; /* label width of 3% plus 1% for margin */
+}
+
+table.tableForm td.mediumLabels .readonlyData,table.tableForm td.mediumLabels .readonlyDataNumeric
+	{
+	margin-left: 26%; /* label width of 25% plus 1% for margin */
+}
+
+* html table.tableForm td.mediumLabels .readonlyData,* html table.tableForm td.mediumLabels .readonlyDataNumeric
+	{
+	margin-left: 24%; /* label width of 23% plus 1% for margin */
+}
+
+table.tableForm td.wideLabels .readonlyData,table.tableForm td.wideLabels .readonlyDataNumeric
+	{
+	margin-left: 51%; /* label width of 50% plus 1% for margin */
+}
+
+* html table.tableForm td.wideLabels .readonlyData,* html table.tableForm td.wideLabels .readonlyDataNumeric
+	{
+	margin-left: 45%; /* label width of 44% plus 1% for margin */
+}
+
+/*calendar popup styles*/
+.cpYearNavigation,.cpMonthNavigation {
+	background-color: #C0C0C0;
+	text-align: center;
+	vertical-align: middle;
+	text-decoration: none;
+	color: #000000;
+	font-weight: bold;
+}
+
+.cpDayColumnHeader,.cpYearNavigation,.cpMonthNavigation,.cpCurrentMonthDate,.cpCurrentMonthDateDisabled,.cpOtherMonthDate,.cpOtherMonthDateDisabled,.cpCurrentDate,.cpCurrentDateDisabled,.cpTodayText,.cpTodayTextDisabled,.cpText
+	{
+	font-family: arial;;
+	font-size: 8pt;
+}
+
+TD.cpDayColumnHeader {
+	text-align: right;;
+	border: solid thin #C0C0C0;;
+	border-width: 0px 0px 1px 0px;
+}
+
+.cpCurrentMonthDate,.cpOtherMonthDate,.cpCurrentDate {
+	text-align: right;;
+	text-decoration: none;
+}
+
+.cpCurrentMonthDateDisabled,.cpOtherMonthDateDisabled,.cpCurrentDateDisabled
+	{
+	color: #D0D0D0;;
+	text-align: right;;
+	text-decoration: line-through;
+}
+
+.cpCurrentMonthDate,.cpCurrentDate {
+	color: #000000;
+}
+
+a.cpOtherMonthDate {
+	color: #808080;
+}
+
+.cpOtherMonthDate {
+	color: #808080;
+}
+
+TD.cpCurrentDate {
+	color: white;;
+	background-color: #C0C0C0;;
+	border-width: 1px;;
+	border: solid thin #800000;
+}
+
+TD.cpCurrentDateDisabled {
+	border-width: 1px;;
+	border: solid thin #FFAAAA;
+}
+
+TD.cpTodayText,TD.cpTodayTextDisabled {
+	border: solid thin #C0C0C0;;
+	border-width: 1px 0px 0px 0px;
+}
+
+A.cpTodayText,SPAN.cpTodayTextDisabled {
+	height: 20px;
+}
+
+A.cpTodayText {
+	color: black;
+}
+
+.cpTodayTextDisabled {
+	color: #D0D0D0;
+}
+
+.cpBorder {
+	border: solid thin #808080;
+}

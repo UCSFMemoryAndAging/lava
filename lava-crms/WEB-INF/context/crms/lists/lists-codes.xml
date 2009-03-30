@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+
+	<bean id="list.ref.stdErrorCodes" parent="list.standard">
+		<property name="dbListName" value="StandardErrorCodes"/>
+	</bean>
+
+	<bean id="list.ref.stdErrorCodesDecimal" parent="list.standardDecimal">
+		<property name="dbListName" value="StandardErrorCodes"/>
+	</bean>
+	
+	<bean id="list.ref.skipErrorCodes" parent="list.standard">
+		<property name="dbListName" value="SkipErrorCodes"/>
+	</bean>
+	
+	<bean id="list.ref.skipErrorCodesDecimal" parent="list.standardDecimal">
+		<property name="dbListName" value="SkipErrorCodes"/>
+	</bean>			
+	
+	<bean id="list.ref.totalErrorCode" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Cannot Total"/><constructor-arg value="-5"/></bean>
+		</list></property>
+	</bean>	
+	
+	
+					
+</beans>

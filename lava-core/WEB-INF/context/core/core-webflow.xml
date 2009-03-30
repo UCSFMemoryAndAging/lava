@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:flow="http://www.springframework.org/schema/webflow-config"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/webflow-config
+           http://www.springframework.org/schema/webflow-config/spring-webflow-config-1.0.xsd">
+           
+		<!-- in lava-mappings.xml all URL's are mapped to the "flowController" bean defined in 
+			lava-servlet.xml. this bean maps the URL to a flow id (via the FlowIdCreator class)
+			and Spring Web Flow begins execution of a root flow. when events that transition to subflows
+			are returned, Spring Web Flow suspends the parent flow and begins execution of the
+			subflow -->           
+           
+       <!-- Launches new flow executions and resumes existing executions. -->
+	<flow:executor id="flowExecutor" registry-ref="flowRegistry">
+		<!-- TODO: ? limit max-conversations -->
+		<flow:repository type="continuation" max-conversations="-1" max-continuations="30"/>
+	       <!-- note: the alwaysRedirectOnPause execution attribute (which defaults true) is completely
+	       	ignored, because using CustomViewSelector to determine views, rather than the standard
+	       	ApplicationViewSelector (so that project/instance specific actions/views will work).
+	       	CustomViewSelector is implemented as though alwaysRedirectOnPause is on. -->
+	       <flow:execution-attributes></flow:execution-attributes>	
+	        	
+	    <!-- set the FlowListener to listen to executions for all flows -->	
+		<flow:execution-listeners>
+	    	<flow:listener ref="flowListener" criteria="*"/>
+		</flow:execution-listeners>
+	</flow:executor>			
+		
+	<bean id="flowListener" class="edu.ucsf.lava.core.webflow.FlowListener" />
+		
+   
+   
+   	<bean name="flowIdCreator" class="edu.ucsf.lava.core.webflow.FlowIdCreator"/>
+   		   		
+	
+	<!-- request URL's are mapped to this flow controller bean (see core-mappings.xml), which in
+		turn uses the flowIdCreator bean to map the URL to a flow id. Spring Web Flow then begins
+		executing the flow -->
+	<bean name="flowController" class="org.springframework.webflow.executor.mvc.FlowController">
+		<property name="flowExecutor" ref="flowExecutor"/>
+		<property name="argumentHandler">
+       		<ref bean="flowIdCreator"/>
+        </property>     
+	</bean>
+
+	<!-- provides custom technique for selecting views in a flow definition -->
+	<bean name="customViewSelector" class="edu.ucsf.lava.core.webflow.CustomViewSelector"/>
+  
+	<bean name="customReportSelector" class="edu.ucsf.lava.core.webflow.CustomReportSelector"/>
+  
+  	<bean name="defaultActionViewSelector" class="edu.ucsf.lava.core.webflow.DefaultActionViewSelector"/>
+	
+	
+	<!-- Webflow Manager -->
+	<bean id="webflowManager" class="edu.ucsf.lava.core.webflow.WebflowManager" />
+	
+    <!-- Creates the registry of Java-based flow definitions for this application -->
+	<bean id="flowRegistry" class="edu.ucsf.lava.core.webflow.FlowRegistryFactoryBean" depends-on="webflowManager,actionManager"/> 
+
+        
+    <bean id="coreEntityFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.EntityFlowTypeBuilder"/>
+    <bean id="coreListFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.ListFlowTypeBuilder"/>
+  	<bean id="coreReportFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.ReportFlowTypeBuilder"/>
+  	<bean id="coreReportLauncherFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.ReportLauncherFlowTypeBuilder"/>	 	
+</beans>
+

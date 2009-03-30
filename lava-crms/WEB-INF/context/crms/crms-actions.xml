@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	
+	<bean id="crmsActionDelegate" parent="baseScopeActionDelegate" class="edu.ucsf.lava.crms.action.CrmsActionDelegate"/>
+	
+	
+	<!-- Parent beans that define core actions -->
+
+	<bean id="crmsAction" abstract="true" parent="baseAction" class="edu.ucsf.lava.crms.action.model.CrmsAction">
+		<property name="patientSectionDefault" value="false"/>
+		<property name="patientModuleDefault" value="false"/>
+	</bean>	
+
+
+	<bean id="welcomeFlowAction" abstract="true" parent="crmsAction">
+		<property name="flowTypeBuilder"><ref bean="crmsWelcomeFlowTypeBuilder"/></property>
+		<property name="patientSectionDefault" value="true"/>
+		<property name="patientModuleDefault" value="true"/>
+		<property name="sectionDefault" value="true"/>
+		<property name="moduleDefault" value="true"/>
+		<property name="homeDefault" value="true"/>
+	</bean>
+	
+	<bean id="crmsEntityFlowAction" abstract="true" parent="crmsAction">
+		<property name="flowTypeBuilder"><ref bean="crmsEntityFlowTypeBuilder"/></property>
+		<property name="patientSectionDefault" value="false"/>
+		<property name="patientModuleDefault" value="false"/>
+	</bean>
+	<bean id="crmsListFlowAction" abstract="true" parent="crmsAction">
+		<property name="flowTypeBuilder"><ref bean="crmsListFlowTypeBuilder"/></property>
+		<property name="patientSectionDefault" value="false"/>
+		<property name="patientModuleDefault" value="false"/>
+	</bean>	
+
+	<bean id="crmsPatientSectionListAction" abstract="true" parent="crmsListFlowAction">
+			<property name="patientSectionDefault" value="true"/>
+	</bean>
+
+	<bean id="crmsPatientModuleListAction" abstract="true" parent="crmsListFlowAction">
+			<property name="patientModuleDefault" value="true"/>
+			<property name="patientSectionDefault" value="true"/>
+	</bean>
+
+	<bean id="crmsSectionListAction" abstract="true" parent="crmsListFlowAction">
+			<property name="sectionDefault" value="true"/>
+	</bean>
+
+	<bean id="crmsModuleListAction" abstract="true" parent="crmsListFlowAction">
+			<property name="moduleDefault" value="true"/>
+			<property name="sectionDefault" value="true"/>
+	</bean>
+	
+	
+</beans>

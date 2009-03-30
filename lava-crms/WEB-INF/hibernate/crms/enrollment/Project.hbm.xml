@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.crms.project.model.Project" table="projectunit">
+		<id name="id" type="long">
+			<column name="ProjUnitID" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+		
+		<timestamp name="modified" column="modified"/>
+		
+		
+		<property name="project" type="string" column="Project" length="25" not-null="true"/>
+		<property name="unit" type="string" column="Unit" length="25"/>
+		<property name="status" type="string" column="Status" not-null="true" length="25"/>
+		<property name="effectiveDate" column="EffDate" type="timestamp"/>
+		<property name="expirationDate" column="ExpDate" type="timestamp"/>
+		<property name="projUnitDesc" column="ProjUnitDesc" type="string" length="75"/>
+
+		<!-- override projectAuth filter default condition because column name (ProjUnitDesc) differs 
+			from that used in default which is used by all other entities (ProjName) -->
+		<filter name="projectAuth">
+		    ProjUnitDesc in (Select pr_pu.ProjUnitDesc from ProjectUnit pr_pu where pr_pu.ProjUnitDesc=ProjUnitDesc and (pr_pu.ProjUnitDesc in (:projectList)))
+		</filter>
+	</class>
+
+	<query name="project.findByUrlEncodedName"><![CDATA[
+	    from Project p 
+		where urlEncoded = :urlEncoded
+	]]></query>
+	
+	<query name="list.project.allProjects"><![CDATA[
+       select new edu.ucsf.lava.core.list.model.LabelValueBean(p.projUnitDesc, p.projUnitDesc)
+       from Project p 
+	   order by p.projUnitDesc
+	]]></query>
+	
+
+	
+	<query name="list.projectUnit.projects"><![CDATA[
+       select new edu.ucsf.lava.core.list.model.LabelValueBean(p.project, p.project)
+       from Project p group by p.project
+	   order by p.project
+	]]></query>
+	
+	<query name="list.projectUnit.units"><![CDATA[
+       select new edu.ucsf.lava.core.list.model.LabelValueBean(p.unit, p.unit)
+       from Project p where not unit is null group by p.unit 
+	   order by p.unit
+	]]></query>
+	
+</hibernate-mapping>
+
+			

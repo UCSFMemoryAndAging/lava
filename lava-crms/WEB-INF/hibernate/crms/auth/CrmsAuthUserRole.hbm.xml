@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+<joined-subclass name="edu.ucsf.lava.crms.auth.model.CrmsAuthUserRole" table="crmsauthuserrole" extends="edu.ucsf.lava.core.auth.model.AuthUserRole" select-before-update="true">
+
+	   <key column="URID"/>		
+        <property name="project" column="Project" type="string" length="25"/>
+       <property name="unit" column="Unit" type="string" length="25"/>
+   	 
+</joined-subclass>
+			
+	
+	  <!-- queries  -->
+	<query name="list.authUserRole.projectUnitUserStaff"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(apr.user.shortUserNameRev, apr.user.shortUserNameRev, 0)
+			from AuthUserRole apr where :projectName IN 
+				(SELECT pu.projUnitDesc from Project pu where apr.project=case when apr.project='*' then '*' else pu.project end and
+								 	(apr.unit is null or apr.unit=case when apr.unit='*' then '*' else pu.unit end))
+		order by apr.user.shortUserNameRev
+	]]></query>
+
+	<query name="list.authUserRole.projectUnitGroupStaff"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(u.shortUserNameRev,u.shortUserNameRev, 0)
+			from AuthUserRole apr join apr.group g join g.users gu join gu.user u where :projectName IN 
+				(SELECT pu.projUnitDesc from Project pu where apr.project=case when apr.project='*' then '*' else pu.project end and
+								 	(apr.unit is null or apr.unit=case when apr.unit='*' then '*' else pu.unit end))
+		order by u.shortUserNameRev
+	]]></query>
+	
+	<query name="list.authUserRole.projectUnitStaffListValues"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = 'StaffList' and (lv.valueKey = :projectName or lv.valueKey = 'GENERAL' or lv.valueKey IN 
+			(SELECT p.project from Project p where p.projUnitDesc = :projectName))
+		order by lv.valueDesc
+	]]></query>
+	
+	
+
+	
+	<query name="list.authUserRole.patientUserStaff"><![CDATA[
+	   	SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(apr.user.shortUserNameRev, apr.user.shortUserNameRev, 0)
+		from AuthUserRole apr where :patientId IN (Select es.patient.id from EnrollmentStatus es 
+					where :patientId =es.patient.id and es.projName IN 
+					(SELECT pu.projUnitDesc from Project pu where apr.project=case when apr.project='*' then '*' else pu.project end and
+								 	(apr.unit is null or apr.unit=case when apr.unit='*' then '*' else pu.unit end)))
+		order by apr.user.shortUserNameRev
+	]]></query>
+	
+	<query name="list.authUserRole.patientGroupStaff"><![CDATA[
+	   	SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(u.shortUserNameRev, u.shortUserNameRev, 0)
+		from AuthUserRole apr join apr.group g join g.users gu join gu.user u where :patientId IN (Select es.patient.id from EnrollmentStatus es 
+					where :patientId =es.patient.id and es.projName IN 
+					(SELECT pu.projUnitDesc from Project pu where apr.project=case when apr.project='*' then '*' else pu.project end and
+								 	(apr.unit is null or apr.unit=case when apr.unit='*' then '*' else pu.unit end)))
+		order by u.shortUserNameRev
+	]]></query>
+	
+	<query name="list.authUserRole.patientStaffListValues"><![CDATA[
+	   	select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = 'StaffList' and 
+			((lv.valueKey IN(SELECT es.projName from EnrollmentStatus es where es.patient.id = :patientId)) or 
+				(lv.valueKey = 'GENERAL') or 
+				(lv.valueKey IN(SELECT project from Project where projUnitDesc IN (SELECT es.projName from EnrollmentStatus es where es.patient.id = :patientId ))))
+		order by lv.valueDesc
+	]]></query>
+	
+</hibernate-mapping>

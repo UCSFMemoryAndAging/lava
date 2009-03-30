@@ -1,0 +1,44 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<class name="edu.ucsf.lava.crms.people.model.PatientDoctor" table="patientdoctors" select-before-update="true">
+
+		<id name="id" type="long">
+			<column name="PIDNDocID" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+		  <timestamp name="modified" column="modified"/>
+		
+ 		<many-to-one name="doctor" column="DocID" class="edu.ucsf.lava.crms.people.model.Doctor" not-null="true" lazy="false"/>
+        <many-to-one name="patient" column="PIDN" class="edu.ucsf.lava.crms.people.model.Patient" not-null="true" lazy="false"/>
+        <property name="docStat" column="DocStat" type="string" length="25"/>
+        <property name="docNote" column="DocNote" type="string" length="100"/>
+
+	<!-- associations -->
+      
+
+
+	<!-- filters -->
+	<filter name="patientAuth"/> 
+    <filter name="validPatient"/>  
+	<filter name="patient" condition=":patientId=PIDN"/>
+ 
+
+</class>
+
+
+         <!-- queries  -->
+
+                <!-- example query  
+		<query name="patient.searchByNameRev"><![CDATA[
+             	       select p from Patient p
+           	       where p.fullNameRevNoSuffix like :name + '%'
+                       order by fullNameRevNoSuffix
+            	]]></query> -->
+
+</hibernate-mapping>

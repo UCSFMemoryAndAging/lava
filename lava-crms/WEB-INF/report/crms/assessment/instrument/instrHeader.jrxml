@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="instrHeader"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="612"
+		 pageHeight="792"
+		 columnWidth="540"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="AllSectionsNoDetail"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+	
+	<template>"reportStyles.jrtx"</template>
+
+	<parameter name="currentPatient" isForPrompting="false" class="edu.ucsf.lava.crms.people.model.Patient"/>
+	<parameter name="currentVisit" isForPrompting="false" class="edu.ucsf.lava.crms.scheduling.model.Visit"/>
+	<parameter name="handler" isForPrompting="false" class="edu.ucsf.lava.core.controller.LavaComponentHandler"/>
+	<parameter name="webappInstance" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="dcDate" isForPrompting="false" class="java.util.Date"/>
+	<parameter name="dcBy" isForPrompting="false" class="java.lang.String"/>
+	
+	<!-- there are no fields defined because a data source is not used (even though it must be configured 
+		for the subreport). this is because although there is only one record in the data source (the 
+		instrument being reported) the header is output for every page, and the report engine would attempt 
+		to iterate to the next record in the data source for each page to print the fields in the next 
+		record. so the workaround is to not reference fields, but to instead have the header data passed
+		as parameters -->
+		
+	<group name="header">
+	<groupExpression>$V{REPORT_COUNT}</groupExpression>
+	<groupHeader>
+			<band height="30" isSplitAllowed="true">
+				<rectangle>
+					<reportElement x="0" y="0" width="540" height="11" backcolor="#D3D3D3"/>
+					<graphicElement pen="Thin" stretchType="NoStretch"/>
+				</rectangle>
+	
+				<textField isBlankWhenNull="true">
+	                                <reportElement x="2" y="0" width="179" height="11" style="enclosedPageHeader"/>
+	                                <textFieldExpression class="java.lang.String"><![CDATA[$P{webappInstance}.equals("mac") ? "UCSF Memory and Aging Center" :
+	                                        ($P{webappInstance}.equals("nam53") ? "NAM-53: Memantine/FTD" :
+	                                         ($P{webappInstance}.equals("examiner") ? "NINDS: Examiner" : ""))]]></textFieldExpression>
+	                        </textField>
+	
+				<line direction="TopDown">
+					<reportElement x="215" y="0" width="0" height="11"/>
+					<graphicElement pen="Thin" stretchType="NoStretch"/>
+				</line>
+	
+				<textField isBlankWhenNull="true">
+					<reportElement x="218" y="0" width="20" height="11" style="enclosedPageHeader"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{handler}.getMessage("report.visit.visitDescrip")+":"]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="240" y="0" width="300" height="11" style="enclosedPageHeader"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{currentVisit}.getVisitDescrip()]]></textFieldExpression>
+				</textField>
+	
+	
+				<rectangle>
+					<reportElement x="0" y="10" width="540" height="11"/>
+					<graphicElement pen="Thin" stretchType="NoStretch"/>
+				</rectangle>
+	
+				<textField isBlankWhenNull="true">
+					<reportElement x="2" y="10" width="35" height="11" style="enclosedPageHeader"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{handler}.getPropLabel("instrument.patient.fullName") + ":"]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="37" y="10" width="160" height="11" style="enclosedPageHeader"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{currentPatient}.getFullNameRev() +" ("+$P{currentPatient}.getId()+")"]]></textFieldExpression>
+				</textField>
+	
+				<line direction="TopDown">
+					<reportElement x="215" y="10" width="0" height="11"/>
+					<graphicElement pen="Thin" stretchType="NoStretch"/>
+				</line>
+	
+				<textField isBlankWhenNull="true">
+					<reportElement x="218" y="10" width="80" height="11" style="enclosedPageHeader"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{handler}.getPropLabel("instrument.dcDate")+":"]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="280" y="10" width="50" height="11" style="enclosedPageHeader"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("MM/dd/yyyy").format($P{dcDate}).toString()]]></textFieldExpression>
+				</textField>
+	
+	
+				<line direction="TopDown">
+					<reportElement x="335" y="10" width="0" height="11"/>
+					<graphicElement pen="Thin" stretchType="NoStretch"/>
+				</line>
+	
+				<textField isBlankWhenNull="true">
+					<reportElement x="338" y="10" width="70" height="11" style="enclosedPageHeader"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{handler}.getPropLabel("instrument.dcBy")+":"]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="390" y="10" width="135" height="11" style="enclosedPageHeader"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{dcBy}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>			
+	</group>
+
+</jasperReport>
+
+			

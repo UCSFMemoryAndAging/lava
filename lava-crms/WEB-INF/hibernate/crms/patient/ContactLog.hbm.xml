@@ -1,0 +1,39 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<class name="edu.ucsf.lava.crms.people.model.ContactLog" table="contactlog" select-before-update="true">
+
+		<id name="id" type="long">
+			<column name="LogID" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+  	   <timestamp name="modified" column="modified"/>
+
+       <many-to-one name="patient" column="PIDN" class="edu.ucsf.lava.crms.people.model.Patient" not-null="true"/>
+       <property name="projName" column="ProjName" type="string" length="25"/>
+       <property name="logDate" column="LogDate" type="timestamp"/>
+       <property name="method" column="Method" type="string" length="25" not-null="true"/>
+       <property name="staffInit" column="StaffInit" type="short" not-null="true"/>
+       <property name="staff" column="Staff" type="string" length="50"/>
+       <property name="contact" column="Contact" type="string" length="50"/>
+       <property name="note" column="Note" type="text"/>
+
+	<!-- filters -->
+	<filter name="patientAuth"/> 
+	<filter name="validPatient"/>  
+	<filter name="projectAuth"/>                
+	<filter name="projectContext" condition=":projectContext=ProjName"/>
+	<filter name="patient" condition=":patientId=PIDN"/>
+</class>
+
+
+         <!-- queries  -->
+
+         
+
+</hibernate-mapping>

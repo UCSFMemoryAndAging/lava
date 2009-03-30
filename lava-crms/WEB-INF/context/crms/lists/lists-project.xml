@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	
+	
+	<bean id="list.context.projectList" parent="list.dynamic">
+		<property name="query" value="list.project.allProjects"/>
+	</bean>
+	
+	<bean id="list.projectUnit.projects" parent="list.dynamic">
+		<property name="query" value="list.projectUnit.projects"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="*"/><constructor-arg value="*"/></bean>
+		</list></property>
+	</bean>
+	
+	
+	<bean id="list.projectUnit.units" parent="list.dynamic">
+		<property name="query" value="list.projectUnit.units"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="*"/><constructor-arg value="*"/></bean>
+		</list></property>
+	</bean>	   			
+				
+
+
+</beans>

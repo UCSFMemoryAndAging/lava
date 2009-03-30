@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+
+	
+	<bean id="list.visit.status" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="VisitStatus"/>
+	</bean>
+	
+	<bean id="list.visit.patientProjectVisits" parent="list.dynamic">
+		<property name="query" value="list.visit.patientProjectVisits"/>
+	</bean>
+	
+	<bean id="list.visit.patientVisits" parent="list.dynamic">
+		<property name="query" value="list.visit.patientVisits"/>
+	</bean>
+	
+	<bean id="list.visit.visitTypes" parent="list.dynamic">
+		<property name="query" value="list.visit.visitTypes"/>
+		<property name="defaultSort" value="orderIndexValue"/>
+	</bean>
+	
+	<bean id="list.visit.visitLocations" parent="list.dynamic">
+		<property name="query" value="list.visit.visitLocations"/>
+	</bean>
+			
+			
+				
+</beans>  	

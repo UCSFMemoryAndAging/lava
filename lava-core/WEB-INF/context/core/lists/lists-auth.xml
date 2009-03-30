@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	<bean id="list.authPermission.permitDeny" parent="list.dataOnly">
+			<property name="data"><list>	
+				<bean parent="list.data"><constructor-arg value="DENY"/><constructor-arg value="DENY"/></bean>
+				<bean parent="list.data"><constructor-arg value="PERMIT"/><constructor-arg value="PERMIT"/></bean>
+			</list></property>
+	</bean>
+	
+	
+	<bean id="list.auth.users" parent="list.dynamic">
+		<property name="query" value="list.authUser.users"/>
+	</bean>  
+	
+	
+	<bean id="list.auth.groups" parent="list.dynamic">
+		<property name="query" value="list.authGroup.groups"/>
+	</bean>
+	
+	
+	<bean id="list.auth.roles" parent="list.dynamic">
+		<property name="query" value="list.authRole.roles"/>
+	</bean>	   
+		
+
+	
+</beans>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+
+	<bean id="list.enrollmentStatus.projectStatus" parent="list.dynamicSortValue">
+		<property name="query" value="list.enrollmentStatus.projectStatus"/>
+	</bean>
+	
+	<bean id="list.enrollmentStatus.referralSource" parent="list.dynamicSortValue">
+		<property name="query" value="list.enrollmentStatus.referralSource"/>
+	</bean>
+	
+	<bean id="list.enrollmentStatus.patientProjects" parent="list.dynamicSortValue">
+		<property name="query" value="list.enrollmentStatus.patientProjects"/>
+	</bean>
+	
+	<bean id="list.enrollmentStatus.patientUnassignedProjects" parent="list.dynamicSortValue">
+		<property name="query" value="list.enrollmentStatus.patientUnassignedProjects"/>
+	</bean>
+	
+	<bean id="list.consent.consentTypes" parent="list.dynamicSortValue">
+		<property name="query" value="list.consent.consentTypes"/>
+	</bean>
+	
+				
+</beans>

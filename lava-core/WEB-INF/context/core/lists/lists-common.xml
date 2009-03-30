@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="list.navigation.listPageSize" parent="list.standardNumericValue">
+			<property name="dbListName" value="NavigationListPageSize"/>
+	</bean>
+
+	<bean id="list.generic.yesNo" parent="list.standardNumericValue">
+		<property name="dbListName" value="YesNo"/>
+	</bean>
+
+	<bean id="list.generic.yesNoDK" parent="list.standardNumericValue">
+		<property name="dbListName" value="yesNoDK"/>
+	</bean>
+	
+	<bean id="list.generic.yesNoZero" parent="list.standardNumericValue">
+		<property name="dbListName" value="yesNo_Zero"/>
+	</bean>
+
+	<bean id="list.generic.yesNoDKZero" parent="list.standardNumericValue">
+		<property name="dbListName" value="YesNoDK_Zero"/>
+	</bean>
+	
+	<bean id="list.generic.yesNoUnknown" parent="list.standardNumericValue">
+		<property name="dbListName" value="YesNoUnknown"/>
+	</bean>
+	
+
+	<bean id="list.generic.textYesNo" parent="list.standardValueIsLabel">
+		<property name="dbListName" value="TextYesNo"/>
+	</bean>
+	
+	<bean id="list.generic.textYesNoNA" parent="list.standardValueIsLabel">
+		<property name="dbListName" value="TextYesNoNA"/>
+	</bean>
+	
+	<bean id="list.generic.textYesNoDK" parent="list.standardValueIsLabel">
+		<property name="dbListName" value="TextYesNoDK"/>
+	</bean>
+	
+	<bean id="list.reportSetup.format" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="PDF"/><constructor-arg value="pdf"/></bean>
+		</list></property>
+	</bean>
+				
+	<bean id="list.reportSetup.formatCsv" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="CVS"/><constructor-arg value="cvs"/></bean>
+		</list></property>
+	</bean>
+					
+</beans>
+			

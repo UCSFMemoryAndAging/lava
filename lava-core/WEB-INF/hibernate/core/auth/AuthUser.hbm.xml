@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.auth.model.AuthUser" table="authuser" select-before-update="true">
+		
+		<id name="id" type="long">
+			<column name="UID" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+		<timestamp name="modified" column="modified"/>
+		 <property name="userName" column="UserName" type="string" length="50" not-null="true"/>
+       <property name="login" column="Login" type="string" length="100"/>
+      <!-- <property name="hashedPassword" column="hashedPassword" type="string" length="100"/>
+       <property name="email" column="email" type="string" length="100"/>
+       <property name="phone" column="phone" type="string" length="25"/>
+      -->
+       <property name="accessAgreementDate" column="AccessAgreementDate" type="timestamp"/>
+       <property name="shortUserName" column="ShortUserName" type="string" length="50" />
+       <property name="shortUserNameRev" column="ShortUserNameRev" type="string" length="50" />
+       <property name="effectiveDate" column="EffectiveDate" type="timestamp" not-null="true"/>
+       <property name="expirationDate" column="ExpirationDate" type="timestamp"/>
+       <property name="notes" column="Notes" type="string" length="255"/>
+
+	
+	
+	<set name="groups" inverse="true" cascade="delete" lazy="true">
+			<key column="UID"/>
+			<one-to-many class="edu.ucsf.lava.core.auth.model.AuthUserGroup"/>
+	</set>	
+	<set name="roles" inverse="true" cascade="delete" lazy="true">
+			<key column="UID"/>
+			<one-to-many class="edu.ucsf.lava.core.auth.model.AuthUserRole"/>
+	</set>	
+	
+	
+	
+	</class>
+	
+	<query name="list.authUser.users"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(shortUserNameRev, id)
+			from AuthUser order by shortUserNameRev
+	]]></query>
+</hibernate-mapping>

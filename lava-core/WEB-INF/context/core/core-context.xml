@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<!-- this context file is referenced by WEB-INF/context/context.xml and loaded into the application context -->
+<beans>
+
+
+<!-- this beans definitions configures the lavaBeanUtils class with a static reference to the application context.
+     this can be used to lookup beans from the application context using LavaBeanUtils.get(beanId) -->
+<bean id="lavaBeanUtils" class="edu.ucsf.lava.core.spring.LavaBeanUtils"/>
+
+
+<import resource="core-actions.xml"/>
+<import resource="core-audit.xml"/>
+<import resource="core-auth.xml"/>
+<import resource="core-controller.xml"/>
+<import resource="core-dao.xml"/>
+<import resource="core-list.xml"/>
+<import resource="core-managers.xml"/>
+<import resource="core-mappings.xml"/>
+<import resource="core-metadata.xml"/>
+<import resource="core-reporting.xml"/>
+<import resource="core-security.xml"/>
+<import resource="core-session.xml"/>
+<import resource="core-scope.xml"/>
+<import resource="core-webflow.xml"/>
+
+
+
+
+
+
+</beans>
+

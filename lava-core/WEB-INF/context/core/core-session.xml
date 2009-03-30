@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- the session manager bean -->
+    <bean id="sessionManager" class="edu.ucsf.lava.core.session.SessionManager">
+				<property name="policyHandlers">
+					<bean class="edu.ucsf.lava.core.spring.ListMerger">
+						<!-- specified in reverse order..this indicates that local policies take precidence over
+							app policies takes precidence over lava policies..-->
+						<constructor-arg><list>
+							<ref bean="localSessionPolicyHandlers"/>
+							<ref bean="appSessionPolicyHandlers"/>
+							<ref bean="coreSessionPolicyHandlers"/>
+						</list></constructor-arg>
+					</bean>		
+				</property>
+	</bean>
+
+	<bean id="jbossLavaServerInstanceDelegate" class="edu.ucsf.lava.core.session.JBossLavaServerInstanceDelegate">
+		<property name="sessionManager"><ref bean="sessionManager"/></property>
+	</bean>
+
+	<bean id="coreSessionAttributeHandler" parent="baseScopeSessionAttributeHandler" class="edu.ucsf.lava.core.session.CoreSessionAttributeHandler"/>
+
+	
+	<!-- refactor this to use a handlers collection that is injected into policy handlers that use an order id for sequencing -->
+    <bean id="coreSessionPolicyHandlers" class="java.util.ArrayList">
+		 <constructor-arg><list>
+  			<bean id="defaultLavaSessionPolicyHandler" class="edu.ucsf.lava.core.session.LavaSessionPolicyHandler">
+				<property name="expireMinutes" value="90"/>
+				<property name="warningMinutes" value="5"/>
+			</bean>
+		</list></constructor-arg>
+	</bean>
+	
+	
+	<!-- A filter that enables the LavaSession management (an abstraction layer on top of http sessions) -->
+	<bean id="sessionMonitoringFilter" 	class="edu.ucsf.lava.core.session.SessionMonitoringFilter"/>
+	
+	
+	
+	<!-- Actions -->
+	
+	<bean id="lava.core.admin.session.currentLavaSessions" parent="coreModuleListAction"/>
+
+	<bean id="lava.core.admin.session.lavaSessions" parent="coreListFlowAction"/>
+
+	<bean id="lava.core.admin.session.lavaSession" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.admin.session.currentLavaSessions</value>
+			<value>lava.core.admin.session.lavaSessions</value>
+		</list></property>
+	</bean>	
+	
+	
+	<!--  form action definitions -->
+	<bean id="lavaSessionFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+			<bean class="edu.ucsf.lava.core.session.controller.LavaSessionHandler" parent="coreHandler"/>
+		</list></constructor-arg>
+	</bean>
+	
+   <bean id="currentLavaSessionsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.session.controller.CurrentLavaSessionsHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+	
+	<bean id="lavaSessionsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.session.controller.LavaSessionsHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+	
+</beans>

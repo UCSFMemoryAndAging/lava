@@ -1,0 +1,65 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<class name="edu.ucsf.lava.crms.people.model.ContactInfo" table="contactinfo" select-before-update="true">
+
+		<id name="id" type="long">
+			<column name="CInfoID" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+  	   <timestamp name="modified" column="modified"/>
+
+       <many-to-one name="patient" column="PIDN" class="edu.ucsf.lava.crms.people.model.Patient" not-null="true"/>
+       <property name="caregiverId" column="CareID" type="long" not-null="false"/>
+       <property name="contactPatient" column="ContactPT" type="short"/>
+       <property name="isPatientResidence" column="IsPTResidence" type="short"/>
+       <property name="optOutMac" column="OptOutMAC" type="short"/>
+       <property name="optOutAffiliates" column="OptOutAffiliates" type="short"/>
+       <property name="active" column="ActiveFlag" type="short"/>
+       <property name="address" column="Address" type="string" length="100"/>
+       <property name="address2" column="Address2" type="string" length="100"/>
+       <property name="city" column="City" type="string" length="50"/>
+       <property name="state" column="State" type="string" length="10"/>
+       <property name="zip" column="Zip" type="string" length="10"/>
+       <property name="country" column="Country" type="string" length="50"/>
+       <property name="phone1" column="Phone1" type="string" length="25"/>
+       <property name="phoneType1" column="PhoneType1" type="string" length="10"/>
+       <property name="phone2" column="Phone2" type="string" length="25"/>
+       <property name="phoneType2" column="PhoneType2" type="string" length="10"/>
+       <property name="phone3" column="Phone3" type="string" length="25"/>
+       <property name="phoneType3" column="PhoneType3" type="string" length="10"/>
+       <property name="email" column="Email" type="string" length="100"/>
+       <property name="notes" column="Notes" type="string" length="250"/>
+       <property name="contactNameRev" column="ContactNameRev" type="string" length="100"/>
+       <property name="contactDesc" column="ContactDesc" type="string" length="100"/>
+
+	
+	<!-- filters -->
+	<filter name="patientAuth"/> 
+	<filter name="validPatient"/>  
+	<filter name="projectContext" condition="PIDN IN (select p.PIDN from EnrollmentStatus p where PIDN=p.PIDN and  p.projName=:projectContext)"/>
+	<filter name="patient" condition=":patientId=PIDN"/>	
+</class>
+
+
+         <!-- queries  -->
+              <query name="list.contactInfo.city"><![CDATA[
+		select new edu.ucsf.lava.core.list.model.LabelValueBean(ci.city, ci.city)
+		from edu.ucsf.lava.crms.people.model.ContactInfo ci 
+		group by city having count(city)>=2 order by city
+	]]></query>
+
+	<query name="list.patient.contactInfo"><![CDATA[
+		select new edu.ucsf.lava.core.list.model.LabelValueBean(coalesce(ci.contactNameRev,'') + ' : ' +
+					 coalesce(ci.address,'[address]') + ', ' + coalesce(ci.city,'[city]') + ' ' + coalesce(trim(ci.state),'[state]') + ' ' + 
+					 coalesce(ci.zip,'[zip]'), ci.id)
+		from edu.ucsf.lava.crms.people.model.ContactInfo ci 
+		where ci.patient.id = :patientId
+	]]></query>
+</hibernate-mapping>
+

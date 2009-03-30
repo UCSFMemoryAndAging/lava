@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- the enrollment manager bean -->
+	<bean id="enrollmentManager" class="edu.ucsf.lava.crms.enrollment.EnrollmentManager" >
+			<property name="enrollmentStatusPrototypes">
+				<bean class="edu.ucsf.lava.core.spring.MapMerger">
+    				<constructor-arg><map>
+    					<entry key="crmsEnrollmentStatusPrototypes"><ref bean="crmsEnrollmentStatusPrototypes"/></entry>
+	    				<entry key="localEnrollmentStatusPrototypes"><ref bean="localEnrollmentStatusPrototypes"/></entry>
+		     	</map></constructor-arg>
+				</bean>
+			</property>     		
+	</bean>
+	
+	<!-- refactor to using a self-registering bean collection -->
+	 <!--  a Project Name:EnrollmentStatus bean map injected into the enrollmentService -->
+   	<bean id="crmsEnrollmentStatusPrototypes" class="java.util.LinkedHashMap">
+		<constructor-arg><map>	
+		</map></constructor-arg>
+	</bean>	
+	
+	
+<!-- actions -->
+
+	
+	<bean id="lava.crms.enrollment.status.enrollmentStatus" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.enrollment.status.patientEnrollmentStatus</value>
+			<value>lava.crms.enrollment.status.projectEnrollmentStatus</value>
+		</list></property>
+	</bean>
+				
+	<bean id="lava.crms.enrollment.status.addEnrollmentStatus" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.enrollment.status.patientEnrollmentStatus</value>
+			<value>lava.crms.enrollment.status.projectEnrollmentStatus</value>
+		</list></property>
+	</bean>
+	
+	<bean id="lava.crms.enrollment.status.patientEnrollmentStatus" parent="crmsPatientModuleListAction"/>
+	
+	<bean id="lava.crms.enrollment.status.projectEnrollmentStatus" parent="crmsModuleListAction"/>
+
+	<bean id="lava.crms.enrollment.consent.consent" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.enrollment.consent.patientConsents</value>
+			<value>lava.crms.enrollment.consent.projectConsents</value>
+		</list></property>
+	</bean>
+	
+	<bean id="lava.crms.enrollment.consent.patientConsents" parent="crmsPatientSectionListAction"/>
+	
+	<bean id="lava.crms.enrollment.consent.projectConsents" parent="crmsSectionListAction"/>
+	
+<!-- form action definitions -->
+	<bean id="enrollmentStatusFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.enrollment.controller.EnrollmentStatusHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+	
+	<bean id="addEnrollmentStatusFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+			<bean class="edu.ucsf.lava.crms.enrollment.controller.AddEnrollmentStatusHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+	
+	<bean id="patientEnrollmentStatusFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.enrollment.controller.PatientEnrollmentStatusHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+	
+	<bean id="projectEnrollmentStatusFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.enrollment.controller.ProjectEnrollmentStatusHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+	
+	<bean id="consentFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.enrollment.controller.ConsentHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+	
+	<bean id="patientConsentsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.enrollment.controller.PatientConsentsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+	
+	<bean id="projectConsentsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.enrollment.controller.ProjectConsentsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+		
+			
+</beans>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+
+	<!-- base FormAction and Handler configurations -->
+	
+	<bean id="lavaComponentFormAction" abstract="true" class="edu.ucsf.lava.core.controller.LavaComponentFormAction">
+		<property name="customViewSelector">
+   			<ref bean="customViewSelector"/>
+		</property>	 
+   		<property name="customReportSelector">
+   			<ref bean="customReportSelector"/>
+		</property>	
+   		<property name="defaultActionViewSelector">
+   			<ref bean="defaultActionViewSelector"/>
+		</property>	
+	</bean>
+
+	<!-- entity form objects are stored in flow scope so that different entities in the
+		same conversation exist in their individual flow's scope. e.g. view doctor with doctor
+		patients list, edit patient would entail both doctor and patient in scope at the
+		same time, and since both handlers use "command", they can not be in the same scope,
+		i.e. conversation scope, so they must be in flow scope of their different flows.
+		conversation scope would only be possible if each entity had its own form object name, 
+		rather than using "command" for all form objects -->
+	<bean id="lavaEntityComponentFormAction" abstract="true" parent="lavaComponentFormAction">
+		<property name="formObjectName" value="command"/>
+		<property name="formObjectClass" value="edu.ucsf.lava.core.controller.ComponentCommand"/>
+		<property name="formObjectScope" value="FLOW"/>
+	</bean>
+
+	<!-- lists are stored in flow scope as that is all is needed since lists not used across 
+		subflows, and storing them in flow scope takes advantage of continuations -->
+	<bean id="lavaListComponentFormAction" abstract="true" parent="lavaComponentFormAction">
+		<property name="formObjectName" value="command"/>
+		<property name="formObjectClass" value="edu.ucsf.lava.core.controller.ComponentCommand"/>
+		<property name="formObjectScope" value="FLOW"/>
+	</bean>
+		
+	<bean id="lavaHandler" abstract="true" class="edu.ucsf.lava.core.controller.LavaComponentHandler"/>
+	
+<!-- core controllers (in case we need to inject anything at the core level for all inheriting beans-->
+	<bean id="coreComponentFormAction" abstract="true" parent="lavaComponentFormAction" class="edu.ucsf.lava.core.controller.LavaComponentFormAction">
+	</bean>
+
+	<bean id="coreEntityComponentFormAction" abstract="true" parent="lavaEntityComponentFormAction">
+	</bean>
+
+	<bean id="coreListComponentFormAction" abstract="true" parent="lavaListComponentFormAction">
+	</bean>
+		
+	<bean id="coreHandler" abstract="true" parent="lavaHandler">
+	</bean>
+
+	<!-- handles the logout..convert this to a webflow handled form action controller... -->
+	<bean id="logoutController" class="edu.ucsf.lava.core.session.controller.LogoutController"/>
+				 
+		
+
+
+
+</beans>

@@ -1,0 +1,25 @@
+<join table="InstrumentSummary">
+	<key column="InstrID"/>		
+	<property name="summary" column="Summary" type="string"/>
+</join>	
+
+<!-- set optional="true" to outer-join this table, since only instruments that upload files use it -->
+<join table="UploadedFiles" optional="true">
+	<key column="InstrID"/>
+	<!-- note that because this table is joined using option="true", at least one property 
+		must be not null for a row to be inserted when an instrument row is inserted. thus,
+		each instrument class that does file upload typically sets the filename to the empty string
+		in its constructor -->
+	<property name="filename" column="FileName" type="string"/>
+	<!-- initially used "clob" for fileContents, but when retrieved it is always null, resulting in: 
+		java.lang.illegalStateException:Clob can not be accessed after serialization
+		changed to "string" and works. java.lang.String and SQL Server "text" can both hold 2^31-1 bytes, so should be fine -->
+	<property name="fileContents" column="FileContents" type="string"/>
+	</join>	
+
+<filter name="patientAuth"/> 
+<filter name="projectAuth"/> 
+<filter name="validPatient"/> 
+<filter name="projectContext" condition=":projectContext=ProjName"/>
+<filter name="patient" condition=":patientId=PIDN"/>	
+
