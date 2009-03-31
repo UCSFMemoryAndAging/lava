@@ -14,7 +14,7 @@
 		<property name="parentMessageSource"><ref bean="propertiesMessageSource"/></property>
 	</bean>
 	
-	<!-- define i18n resource bundles -->
+ 	<!-- define i18n resource bundles -->
 	<!-- define resource bundles for various purposes. they will be searched in order they are defined in the
          basenames attribute 
          note: these are reloadable resource bundles and cacheSeconds = 0 will check the last-modified
