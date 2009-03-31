@@ -29,9 +29,7 @@ public class AuthUserGroup extends EntityBase {
 	}
 
 
-	public boolean getPatientAuth() {
-		return false;
-	}
+	
 	
 	
 	public AuthGroup getGroup() {
