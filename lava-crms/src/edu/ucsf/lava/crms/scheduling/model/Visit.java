@@ -170,7 +170,7 @@ public class Visit extends CrmsEntity {
 		buffer.append(" (");
 		String project = getProjName();
 		if(project != null){
-			buffer.append(" (").append(project).append("-");
+			buffer.append(project).append("-");
 		}
 		String type = getVisitType();
 		if(type!=null){
