@@ -1,10 +1,10 @@
-<join table="InstrumentSummary">
+<join table="instrumentsummary">
 	<key column="InstrID"/>		
 	<property name="summary" column="Summary" type="string"/>
 </join>	
 
 <!-- set optional="true" to outer-join this table, since only instruments that upload files use it -->
-<join table="UploadedFiles" optional="true">
+<join table="uploadedfiles" optional="true">
 	<key column="InstrID"/>
 	<!-- note that because this table is joined using option="true", at least one property 
 		must be not null for a row to be inserted when an instrument row is inserted. thus,
