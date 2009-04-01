@@ -602,6 +602,8 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
 		((BaseListSourceProvider)plh.getSourceProvider()).setListHandler(this);
 		try {
+			// note that changing the pageSize may require changing page, if the new pageSize 
+			// results in fewer pages than the current value of page. this happens in initPageList.
 			plh.initPageList();
 			//need to rebuild the navigation because the page size has changes
 			plh.getRecordNavigation(true);
