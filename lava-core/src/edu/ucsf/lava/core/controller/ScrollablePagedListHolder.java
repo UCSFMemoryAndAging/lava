@@ -38,6 +38,8 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 	
 	public ScrollablePagedListHolder() {
 		super();
+		// init pageSizeHolder in case setPageSize not called when creating the list
+		setPageSizeHolder(this.getPageSize());
 	}
 
 	public Object getMaster() {
@@ -61,14 +63,10 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 	}
 
 	//Checks to make sure all the items in the list are initialized
-	
-	//note: this used to be getPageList and returned super.getPageList, but had
-	//to separate the code that calls loadElements, because the handler must call
-	//this while the sourceProvider has a valid listHandler field, which it does
-	//not when the jsp calls getPageList because of deserialization and listHandler
-	//being a transient field
 	public void initPageList() {
-		
+		// note that changing the pageSize may require changing the page number, if the new pageSize 
+		// results in fewer pages than the current value of page. this happens when getPage
+		// is called (it is invoked indirectly here)
 		if(currentPageContainsNotLoadedElements()){
 			LavaDaoFilter filter = (LavaDaoFilter)this.getFilter();
 			int firstElement = this.getFirstElementOnPage();
@@ -279,7 +277,7 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 		else {
 			int i=0;
 			for (Object entity : loadedElements){
-				newSourceList.add(i++, new ListItem(((LavaEntity)entity).getId(), (LavaEntity) entity, Boolean.FALSE));
+				newSourceList.add(i++, new ListItem(((LavaEntity)entity).getId(), entity, Boolean.FALSE));
 			}
 		}
 		
