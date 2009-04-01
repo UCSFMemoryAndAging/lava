@@ -147,14 +147,18 @@ ${listFilters}
 
 <%-- output buttons before actions, since they float --%>
 <%-- NOTE: since buttons float right, put them in the opposite order that they should appear --%>
+
+<%-- need to create variable because does not evaluate inline, maybe because of '#' char --%>
+<c:set var="onChangeUrl">#${component}</c:set>
+
 <c:if test="${command.components[component].nrOfElements > 5}">
-<tags:singleSelect property="command.components[${component}].pageSizeHolder" fieldId="pageSize" list="${lists['navigation.listPageSize']}" attributesText="onChange=&quot;document.${pageName}.action='#${component}';submitForm(document.${pageName},'${component}__pageSize')&quot; " styleClass="listControlBarPageSizeSelector"/> 
+<tags:singleSelect property="command.components[${component}].pageSizeHolder" fieldId="pageSize" list="${lists['navigation.listPageSize']}" attributesText="onChange=&quot;document.${pageName}.action='${onChangeUrl}';submitForm(document.${pageName},'${component}__pageSize')&quot; " styleClass="listControlBarPageSizeSelector"/> 
 </c:if>
 <c:if test="${command.components[component].nrOfElements > command.components[component].pageSizeHolder}">
 	<c:if test="${command.components[component].lastPage != true}">
 		<tags:eventLink linkText="Next" action="nextPage" component="${component}" pageName="${pageName}" className="listControlBarPageAction"/>
 	</c:if>		
-	<tags:singleSelect property="command.components[${component}].pageHolder" fieldId="page" list="${command.components[component].recordNavigation}"attributesText="onChange=&quot;document.${pageName}.action='#${component}';submitForm(document.${pageName},'${component}__recordNav')&quot; " styleClass="listControlBarPageSelector"/> 
+	<tags:singleSelect property="command.components[${component}].pageHolder" fieldId="page" list="${command.components[component].recordNavigation}"attributesText="onChange=&quot;document.${pageName}.action='${onChangeUrl}';submitForm(document.${pageName},'${component}__recordNav')&quot; " styleClass="listControlBarPageSelector"/> 
 	<c:if test="${command.components[component].firstPage != true}">		
 				<tags:eventLink linkText="Previous" action="prevPage" component="${component}" pageName="${pageName}" className="listControlBarPageAction"/>
 	</c:if>		
@@ -206,13 +210,13 @@ ${customActions}
 <div class="listControlBar">
 	<%-- NOTE: since buttons float right, put them in the opposite order that they should appear --%>
 <c:if test="${command.components[component].nrOfElements > 5}">
-	<tags:singleSelectNoBind property="bottomPageSize" propertyValue="${command.components[component].pageSizeHolder}" fieldId="bottomPageSize" list="${lists['navigation.listPageSize']}" attributesText="onChange=&quot;document.${pageName}.action='#${component}';submitForm(document.${pageName},'${component}__pageSize','',bottomRecordNavSetPageSize)&quot;" styleClass="listControlBarPageSizeSelector"/> 
+	<tags:singleSelectNoBind property="bottomPageSize" propertyValue="${command.components[component].pageSizeHolder}" fieldId="bottomPageSize" list="${lists['navigation.listPageSize']}" attributesText="onChange=&quot;document.${pageName}.action='${onChangeUrl}';submitForm(document.${pageName},'${component}__pageSize','',bottomRecordNavSetPageSize)&quot;" styleClass="listControlBarPageSizeSelector"/> 
 </c:if>
 <c:if test="${command.components[component].nrOfElements > command.components[component].pageSizeHolder}">
 	<c:if test="${command.components[component].lastPage != true}">
 		<tags:eventLink linkText="Next" action="nextPage" component="${component}" pageName="${pageName}" className="listControlBarPageAction"/>
 	</c:if>		
-	<tags:singleSelectNoBind property="bottomRecordNav" propertyValue="${command.components[component].pageHolder}" fieldId="bottomRecordNav" list="${command.components[component].recordNavigation}" attributesText="onChange=&quot;document.${pageName}.action='#${component}';submitForm(document.${pageName},'${component}__pageSize','',bottomRecordNavSetPage)&quot;" styleClass="listControlBarPageSelector"/> 
+	<tags:singleSelectNoBind property="bottomRecordNav" propertyValue="${command.components[component].pageHolder}" fieldId="bottomRecordNav" list="${command.components[component].recordNavigation}" attributesText="onChange=&quot;document.${pageName}.action='${onChangeUrl}';submitForm(document.${pageName},'${component}__pageSize','',bottomRecordNavSetPage)&quot;" styleClass="listControlBarPageSelector"/> 
 	<c:if test="${command.components[component].firstPage != true}">		
 		<tags:eventLink linkText="Previous" action="prevPage" component="${component}" pageName="${pageName}" className="listControlBarPageAction"/>
 	</c:if>	
