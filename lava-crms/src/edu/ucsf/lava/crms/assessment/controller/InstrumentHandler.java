@@ -292,7 +292,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 				//  sorting, still need a ScrollablePagedListHolder vs. PagedListHolder to support the record set
 				//  navigation, e.g. "1-10 of 121"
 				ScrollablePagedListHolder detailRecordsListHolder = new ScrollablePagedListHolder();
-				detailRecordsListHolder.setSource(instrument.getDetails());
+				detailRecordsListHolder.setSourceFromEntityList(instrument.getDetails());
 				backingObjects.put(INSTRUMENT_DETAILS, detailRecordsListHolder);
 			}
 		}
@@ -1085,6 +1085,18 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		}
 
 		// infer status values, specific to the "enter" flow 
+		imputeEnterStatusValues(context, instrument);
+		
+		// save takes place at every state in the flow
+		return this.doSave(context,command,errors);
+	}
+
+
+	// when data entry is saved (via Save or Verify (Double Enter), impute any status values that
+	// can be imputed
+	private void imputeEnterStatusValues(RequestContext context, Instrument instrument) {
+		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
+		// infer status values, specific to the "enter" flow 
 		
 		// ** never ** overwrite status properties that already have a value
 		
@@ -1098,7 +1110,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		if (instrument.getDcStatus() == null || instrument.getDcStatus().equals("Scheduled")) {
 			instrument.setDcStatus("Complete - Paper Collect");
 		}
-
+	
 		// the data entry fields are whoever is logged in and now			
 		if (instrument.getDeBy()==null) instrument.setDeBy(userName);
 		if (instrument.getDeDate()==null) instrument.setDeDate(new Date());
@@ -1106,12 +1118,9 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		// are required, and even if "Incomplete" entered for an individual field, the overall
 		// data entry status for the instrument is "Complete"
 		if (instrument.getDeStatus()==null) instrument.setDeStatus("Complete");
-		
-		
-		// save takes place at every state in the flow
-		return this.doSave(context,command,errors);
 	}
-
+	
+	
 	/**
 	 * "enter" flow, "enter" state. user has chosen to verify. save the data entry transition to the 
 	 * "doubleEnter" state (this event is only possible if the instrument is configured to support verify (the default)) 
@@ -1123,6 +1132,10 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 	protected Event doEnterVerifyEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
 		// note: upon transitioning to the double entry page, the componentView will have been set to
 		// "doubleEnter" in prepareToRender, which is how the view knows to use the COMPARE_INSTRUMENT component
+
+		// infer status values, specific to the "enter" flow 
+		Instrument instrument = (Instrument) ((ComponentCommand)command).getComponents().get(INSTRUMENT);
+		imputeEnterStatusValues(context, instrument);
 		
 		// save data entry
 		return this.doSave(context,command,errors);
@@ -1582,10 +1595,12 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 	protected Event doPrevPage(RequestContext context, Object command, BindingResult errors, String component) throws Exception{
 		ComponentCommand componentCommand = (ComponentCommand) command;
 		ScrollablePagedListHolder plh = (ScrollablePagedListHolder) componentCommand.getComponents().get(component);
+
 		// the plh does not have a sourceProvider; instead, the source has been set to a List. so there
 		// is no database interaction to retrieved items in the list, and thus no need to initPageList here
 		// or catch exceptions
 		plh.previousPage();
+		plh.setPageHolder(plh.getPage()); // keep the holder in sync				
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
 
@@ -1598,6 +1613,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		ComponentCommand componentCommand = (ComponentCommand) command;
 		ScrollablePagedListHolder plh = (ScrollablePagedListHolder) componentCommand.getComponents().get(component);
 		plh.nextPage();
+		plh.setPageHolder(plh.getPage()); // keep the holder in sync		
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
 	
@@ -1607,6 +1623,13 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 							
 	//The default record navigationnext page action
 	protected Event doRecordNav(RequestContext context, Object command, BindingResult errors, String component) throws Exception{
+		ComponentCommand componentCommand = (ComponentCommand) command;
+		ScrollablePagedListHolder plh = (ScrollablePagedListHolder) componentCommand.getComponents().get(component);
+
+        // the pageHolder must be assigned to the page now. this is so that the page value is                                        
+        // not changed until after binding, because if binding editable list items that are in                                       
+        // pageList, binding could fail if the size of pageList changes                
+		plh.setPage(plh.getPageHolder());
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
 
@@ -1616,6 +1639,17 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 							
 	//The default page size action
 	protected Event doPageSize(RequestContext context, Object command, BindingResult errors, String component) throws Exception{
+		ComponentCommand componentCommand = (ComponentCommand) command;
+		ScrollablePagedListHolder plh = (ScrollablePagedListHolder) componentCommand.getComponents().get(component);
+
+        // the pageSizeHolder must be assigned to the pageSize now. this is so that the pageSize                                     
+        // value is not changed until after binding, because if binding editable list items that                                     
+		// are in pageList, binding could fail if the size of pageList changes                     
+		plh.setPageSize(plh.getPageSizeHolder());
+		// this is a bit tricky. getPage() actually sets the correct page number based on the pageSize,
+		// so it must be called so set the page. then set pageHolder so the view will display the correct page
+		plh.setPageHolder(plh.getPage());
+		
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
 
