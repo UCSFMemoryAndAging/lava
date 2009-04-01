@@ -88,7 +88,7 @@ public class InstrumentGroupHandler extends CrmsGroupComponentHandler {
 		String prototypeProject = context.getFlowScope().getString(PROTOTYPE_PROJ_NAME);
 		String prototypeVisitType = context.getFlowScope().getString(PROTOTYPE_VISIT_TYPE);
 		List<String> prototypeList = this.getGroupPrototype(prototypeProject, prototypeVisitType);
-		if (prototypeList != null) {
+		if (prototypeList != null && prototypeList.size() > 0) {
 			model.put(GROUP_PROTOTYPE, getMessage("instrumentGroup.groupTitle", new String[]{prototypeProject, prototypeVisitType}));
 		}
 		return super.addReferenceData(context, command, errors, model);
