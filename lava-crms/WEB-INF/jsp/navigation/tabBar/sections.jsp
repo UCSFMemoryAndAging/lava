@@ -26,6 +26,6 @@
     
    	<tags:crmsNavSection module="reporting" section="reports" textCode="section.reports" lastSection="true"/>
     
-    <tags:coreNavSection module="admin" section="session" textCode="section.session" />
-    <tags:coreNavSection module="admin" section="auth" textCode="section.auth" lastSection="true"/>
+    <tags:coreNavSection module="admin" section="auth" textCode="section.auth" />
+    <tags:coreNavSection module="admin" section="session" textCode="section.session" lastSection="true"/>
     

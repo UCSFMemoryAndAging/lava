@@ -1,0 +1,215 @@
+package edu.ucsf.lava.core.util;
+
+
+import java.util.Date;
+
+/**
+ * Utility class for dealing with ascending date ranges 
+ * 
+ *  (Didn't use an existing datarange class because of 
+ *  licensing implications)
+ * 
+ * @author jhesse
+ *
+ */
+public class DateRange {
+	
+	protected Date start;
+	protected Date end;
+	
+	public DateRange(){
+		
+	}
+	public DateRange(Date start, Date end){
+		this.start = start;
+		this.end = end;
+	}
+	public Date getEnd() {
+		return end;
+	}
+	public void setEnd(Date end) {
+		this.end = end;
+	}
+	public Date getStart() {
+		return start;
+	}
+	public void setStart(Date start) {
+		this.start = start;
+	}
+	
+	/**
+	 * has a start date
+	 * @return
+	 */
+	public boolean hasStart(){
+		return !(start==null);
+	}
+	
+	/**
+	 * has an end date
+	 * @return
+	 */
+	public boolean hasEnd(){
+		return !(end==null);
+	}
+	
+	/**
+	 * has both a start date and an end date and is 
+	 * ascending (start before end)
+	 * @return
+	 */
+	public boolean hasRange(){
+		return hasStart() && hasEnd() && getStart().before(getEnd());
+		
+	}
+	
+	/**
+	 * True if the date passed in is between start and end date
+	 * inclusive of end points.
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public boolean contains(Date date){
+		if(date==null || !hasRange()){return false;}
+		if (date.after(getStart()) && date.before(getEnd())){return true;}
+		if (date.equals(getStart()) || date.equals(getEnd())){return true;}
+		
+		
+		return false;
+	}
+	
+		
+	/**
+	 * If this range and the range passed in have valid ranges that overlap then return true.
+	 * Overlapping is defined as a start date or end date of one range that is within the other range. 
+	 * There is also a check to see if the overlap is simply that one range follows the other
+	 * with the end time of one range = to the start time of the other (contiguous). 
+	 * Contiguous ranges are not considered overlapping. 
+	 * @param rangeIn
+	 * @return
+	 */
+	public boolean overlaps(DateRange rangeIn){
+		if(rangeIn==null || !rangeIn.hasRange() || !this.hasRange()) {return false;}
+		
+		if(this.contains(rangeIn.getStart())|| this.contains(rangeIn.getEnd())||
+			rangeIn.contains(this.getEnd()) || rangeIn.contains(this.getStart())){
+			
+			if(!isContiguous(rangeIn)){
+				return true;
+			}
+		}
+		return false;
+	}
+		
+	/**
+	 * returns true if start and end are null
+	 * @return
+	 */
+	public boolean isEmpty(){
+		return (getStart()==null && getEnd()==null);
+	}
+	
+	/**
+	 * returns true if both ranges are empty or if
+	 * both ranges have valid ranges with the same start and end dates
+	 * @param rangeIn
+	 * @return
+	 */
+	public boolean equals(DateRange rangeIn){
+		if(rangeIn==null || rangeIn.isEmpty()){
+			if(this.isEmpty()){
+				return true;
+			}else{
+				return false;
+			}
+		}
+		if(rangeIn.hasRange()&& this.hasRange()){
+			if(this.getStart().equals(rangeIn.getStart()) &&
+				this.getEnd().equals(rangeIn.getEnd())){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns true if this range and the rangeIn share a start/end date
+	 * @param rangeIn
+	 * @return
+	 */
+	public boolean isContiguous(DateRange rangeIn){
+		if(rangeIn!=null && rangeIn.hasRange() && this.hasRange()){
+			if((this.getStart().equals(rangeIn.getEnd())) ||
+			  (this.getEnd().equals(rangeIn.getStart()))){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Return the length of the date range converted to minutes
+	 * @return
+	 */
+	public Long getRangeInMinutes(){
+		return getRangeInMillis() / (60 * 1000);
+	}
+	
+	/**
+	 * Return the length of the date range in milliseconds
+	 * @return
+	 */
+	public Long getRangeInMillis(){
+		if(this.hasRange()){
+			return new Long(getEnd().getTime() - getStart().getTime());
+		}else{
+			return new Long(0);
+		}
+	}
+	
+	/**
+	 * returns a new daterange with the overlapping range of this
+	 * range and the rangeIn
+	 * @param rangeIn
+	 * @return the overlapping range or an empty range if no overlap
+	 */
+	public DateRange getOverlap(DateRange rangeIn){
+		DateRange overlap = new DateRange();
+		
+		if(!overlaps(rangeIn)){return overlap;}
+		
+		if(this.contains(rangeIn.getStart())){
+			overlap.setStart(rangeIn.getStart());
+		}else{
+			overlap.setStart(this.getStart());
+		}
+		
+		if(this.contains(rangeIn.getEnd())){
+			overlap.setEnd(rangeIn.getEnd());
+		}else{
+			overlap.setEnd(this.getEnd());
+		}
+		return overlap;
+			
+	}
+	
+	/**
+	 * Return the overlap between the range and the rangeIn in minutes.
+	 * @param rangeIn
+	 * @return 0 if no overlap
+	 */
+	public Long getOverlapInMinutes(DateRange rangeIn){
+		return getOverlap(rangeIn).getRangeInMinutes();
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+}

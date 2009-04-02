@@ -25,6 +25,6 @@
     
    	<tags:crmsNavSection module="reporting" section="reports" textCode="section.reports" lastSection="true" disabled="true" />
     
-    <tags:coreNavSection module="admin" section="session" textCode="section.session" disabled="true" />
-    <tags:coreNavSection module="admin" section="auth" textCode="section.auth" lastSection="true" disabled="true" />
+    <tags:coreNavSection module="admin" section="auth" textCode="section.auth"  disabled="true" />
+    <tags:coreNavSection module="admin" section="session" textCode="section.session" lastSection="true" disabled="true" />
     

@@ -13,7 +13,7 @@
 
 <!-- actions -->
 
-	<bean id="lava.core.admin.auth.authUsers" parent="coreSectionListAction"/>
+	<bean id="lava.core.admin.auth.authUsers" parent="coreModuleListAction"/>
 				
 	<bean id="lava.core.admin.auth.authUser" parent="coreEntityFlowAction">
 		<property name="parentFlows"><list>

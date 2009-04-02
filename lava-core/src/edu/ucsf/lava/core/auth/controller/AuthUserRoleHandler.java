@@ -24,7 +24,7 @@ public class AuthUserRoleHandler extends BaseEntityComponentHandler {
 		super();
 		setHandledEntity("authUserRole", AuthUserRole.class);
 		this.setRequiredFields(new String[]{
-				"roleId","scope"});
+				"roleId"});
 	}
 
 	

@@ -43,7 +43,7 @@
 	
 	<!-- Actions -->
 	
-	<bean id="lava.core.admin.session.currentLavaSessions" parent="coreModuleListAction"/>
+	<bean id="lava.core.admin.session.currentLavaSessions" parent="coreSectionListAction"/>
 
 	<bean id="lava.core.admin.session.lavaSessions" parent="coreListFlowAction"/>
 

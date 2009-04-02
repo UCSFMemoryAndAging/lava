@@ -11,10 +11,10 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 
+import edu.ucsf.lava.core.auth.AuthDaoUtils;
 import edu.ucsf.lava.core.auth.AuthUserPermissionCache;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
-import edu.ucsf.lava.core.utils.AuthUtils;
 
 public class AuthUser extends EntityBase implements UserDetails {
 	
@@ -298,7 +298,7 @@ public class AuthUser extends EntityBase implements UserDetails {
 		filter.setOuterAlias("group", "group");
 		filter.setOuterAlias("group.users", "groupUsers");
 		filter.setOuterAlias("groupUsers.user", "groupUser");
-		filter.addDaoParam(AuthUtils.getEffectiveDaoParam("group",filter));
+		filter.addDaoParam(AuthDaoUtils.getEffectiveDaoParam("group",filter));
 		filter.addDaoParam(
 				filter.daoOr(
 					filter.daoEqualityParam("user.id", this.getId()),
@@ -410,7 +410,7 @@ public class AuthUser extends EntityBase implements UserDetails {
 		public AuthUser getByLogin(String username) {
 			LavaDaoFilter filter = newFilterInstance();
 			filter.addDaoParam(filter.daoEqualityParam("login", username));
-			filter.addDaoParam(AuthUtils.getEffectiveDaoParam(filter));
+			filter.addDaoParam(AuthDaoUtils.getEffectiveDaoParam(filter));
 			filter.addDaoParam(filter.daoLessThanOrEqualParam("accessAgreementDate", new Date()));
 			return (AuthUser)getOne(AuthUser.class,filter);
 		}
