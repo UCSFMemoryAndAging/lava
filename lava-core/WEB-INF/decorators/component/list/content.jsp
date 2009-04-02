@@ -6,6 +6,7 @@
     external javascript (specifying src= ) --%>
 <script language="javascript" type="text/javascript">
 <%@ include file="/javascript/pagedList/pagedList.js" %>
+<%@ include file="/javascript/pagedList/selectListItems.js" %>
 </script>
 
 <c:set var="component">
@@ -224,7 +225,21 @@ ${customActions}
 </div> <!--  end bottom listControlBar -->
 
 </div> <!-- end contentBox -->
+
 	
+<%-- if the list can have items selected, this code supports selecting all of the
+items on the page and updating the display of the number of items selected without
+the need for an HTTP request. this code must come after the decorator body is
+included, since that is where the HTML div element within which to display the count
+of selected items is created --%>	
+<script language="javascript" type="text/javascript">
+<!--
+var firstElement = ${command.components[component].firstElementOnPage};
+var lastElement = ${command.components[component].lastElementOnPage};
+var numSelected = ${command.components[component].numSelected};
+updateNumSelectedDisplay();
+//-->
+</script>
 
 
 <!-- PAGE LEVEL ACTION/NAVIGATION BUTTONS -->
