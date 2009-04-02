@@ -42,7 +42,7 @@
     	</property>
 	    <property name="ageAtDC" column="AgeAtDC" type="short"/>
 		<!-- map collection of value type notes -->	    
-	    <map name="notes" lazy="true" table="InstrumentNotes">
+	    <map name="notes" lazy="true" table="instrumentnotes">
 	    	<key column="InstrID"/>
 	    	<index column="Section" type="string"/>
 	    	<element column="Note" type="string"/>
