@@ -1,6 +1,9 @@
 package edu.ucsf.lava.core.util;
 
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -13,6 +16,7 @@ import java.util.Date;
  *
  */
 public class DateRange {
+	
 	
 	protected Date start;
 	protected Date end;
@@ -147,7 +151,33 @@ public class DateRange {
 		}
 		return false;
 	}
+	/**
+	 * returns true if the date range is within a single calendar day
+	 * This is true if the end date is less than or equal to 12 Mindnight of
+	 * day represented by start date. 
+	 * 
+	 * @return
+	 */
+	public boolean isWithinOneDay(){
+		if (!hasRange()){return false;}
+		
+		Date midnight = getMidnightOfDate(getStart());
+		if(getEnd().before(midnight) || getEnd().equals(midnight)){
+			return true;
+		}
+		return false;
+	}
 	
+	
+	public static Date getMidnightOfDate(Date date){
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.add(Calendar.DAY_OF_MONTH,1);
+		calendar.set(Calendar.HOUR_OF_DAY,00);
+		calendar.set(Calendar.MINUTE,00);
+		calendar.set(Calendar.SECOND,00);
+		return calendar.getTime();
+	}
 	/**
 	 * Return the length of the date range converted to minutes
 	 * @return
@@ -194,6 +224,7 @@ public class DateRange {
 			
 	}
 	
+	
 	/**
 	 * Return the overlap between the range and the rangeIn in minutes.
 	 * @param rangeIn
@@ -204,11 +235,79 @@ public class DateRange {
 	}
 	
 	
+	/* Convenience Formatting Methods */
 	
+	protected String getStartDesc(DateFormat format){
+		StringBuffer rangeDesc = new StringBuffer();
+		if(hasStart()){
+			rangeDesc.append(format.format(getStart()));
+		}
+		return rangeDesc.toString();
+	}
 	
+	protected String getEndDesc(DateFormat format){
+		StringBuffer rangeDesc = new StringBuffer();
+		if(hasEnd()){
+			rangeDesc.append(format.format(getEnd()));
+		}
+		return rangeDesc.toString();
+	}
 	
+	protected String getRangeDesc(DateFormat dateFormat, DateFormat timeFormat, String separator){
+		StringBuffer rangeDesc = new StringBuffer();
+		if(hasStart()){
+			if(dateFormat!=null){
+				rangeDesc.append(dateFormat.format(getStart()));
+			}
+			if(timeFormat!=null){
+				rangeDesc.append(timeFormat.format(getStart()));
+			}
+		}
+		if(hasEnd()){
+			rangeDesc.append(separator);
+			
+			if(dateFormat!=null && !isWithinOneDay()){
+				rangeDesc.append(dateFormat.format(getEnd()));
+			}
+			if(timeFormat!=null){
+				rangeDesc.append(timeFormat.format(getEnd()));
+			}
+		}
+		return rangeDesc.toString();
+	}
 	
+	public String getShortRangeDesc(){
+		return getRangeDesc(new SimpleDateFormat("MM/dd/yyyy "),new SimpleDateFormat("h:mma")," - ");
+		
+	}
 	
+	public String getShortTimeDesc(){
+		return getRangeDesc(null,new SimpleDateFormat("h:mma")," - ");
+		
+	}
+	
+	/*
+	<c:choose>
+	<c:when test="${range == 'All'}">
+		All Dates
+ 	</c:when>
+	<c:when test="${range == 'Day' && empty shortFormat}">
+		<fmt:formatDate value="${beginDate}" pattern="EEEE  MMMM d yyyy"/>
+ 	</c:when>
+	<c:when test="${range == 'Day' && not empty shortFormat}">
+		<fmt:formatDate value="${beginDate}" pattern="MMM dd, yyyy"/>
+ 	</c:when>
+ 	<c:when test="${(range == 'Week' || range == 'Custom') && empty shortFormat}">
+ 	    <fmt:formatDate value="${beginDate}" pattern="EEEE  MMMM d yyyy"/> to <fmt:formatDate value="${endDate}" pattern="EEEE  MMMM d yyyy"/>
+    </c:when>
+ 	<c:when test="${(range == 'Week' || range == 'Custom') && not empty shortFormat}">
+ 	    <fmt:formatDate value="${beginDate}" pattern="MMM dd, yyyy"/> - <fmt:formatDate value="${endDate}" pattern="MMM dd, yyyy"/>
+    </c:when>
+    <c:when test="${range == 'Month'}">
+    	<fmt:formatDate value="${beginDate}" pattern="MMMM yyyy"/>
+    </c:when>
+</c:choose>        		
+	*/
 	
 	
 	
