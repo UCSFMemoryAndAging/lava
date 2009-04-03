@@ -25,7 +25,7 @@ public class MyCalendarHandler extends CrmsCalendarComponentHandler {
 		this.setEntityForStandardSourceProvider(Visit.class);
 	}
 	
-	public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter) {
+	public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		filter.setParam("visitWith", CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request).getShortUserNameRev());
 		filter.setAlias("patient","patient");

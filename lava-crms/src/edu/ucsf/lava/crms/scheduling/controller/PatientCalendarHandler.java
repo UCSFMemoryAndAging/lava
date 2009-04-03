@@ -26,7 +26,7 @@ public class PatientCalendarHandler extends CrmsCalendarComponentHandler{
 
 
 	
-	public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter) {
+	public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		//TODO: undo this kludge ---keeps it from exploding when no patient in context
 		if (CrmsSessionUtils.getCurrentPatient(sessionManager,request)==null){

@@ -23,7 +23,7 @@ public class ProjectCalendarHandler extends CrmsCalendarComponentHandler {
 		this.setEntityForStandardSourceProvider(Visit.class);
 	}
 
-	public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter) {
+	public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		filter.setAlias("patient", "patient");
 		filter.addDefaultSort("visitDate", false);

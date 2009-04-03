@@ -48,13 +48,13 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 		filter.addParamHandler(new LavaIgnoreParamHandler(DISPLAY_RANGE_PARAM));
 		filter.addParamHandler(new LavaIgnoreParamHandler(CUSTOM_DATE_FILTER_START_PARAM));
 		filter.addParamHandler(new LavaIgnoreParamHandler(CUSTOM_DATE_FILTER_END_PARAM));
-		filter = prepareFilter(context,filter);
+		filter = prepareFilter(context,filter,components);
 		return this.setDateFilterParams(context,filter);
 	}
 	
 	//override in subclass to do additional Filter initialization
 	// e.g. adding custom param handlers or default sorts. 
-	public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter){
+	public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter, Map components){
 		return filter;
 	}
 	
