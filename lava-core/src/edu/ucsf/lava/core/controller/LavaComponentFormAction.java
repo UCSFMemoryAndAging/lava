@@ -17,6 +17,7 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.propertyeditors.CharacterEditor;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomCollectionEditor;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.validation.BindingResult;
@@ -31,6 +32,13 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.action.ActionUtils;
+import edu.ucsf.lava.core.util.CustomDatePartEditor;
+import edu.ucsf.lava.core.util.CustomDateTimeEditor;
+
+import edu.ucsf.lava.core.util.CustomTimePartEditor;
+import edu.ucsf.lava.core.util.DatePart;
+import edu.ucsf.lava.core.util.DateTime;
+import edu.ucsf.lava.core.util.TimePart;
 import edu.ucsf.lava.core.webflow.CustomReportSelector;
 import edu.ucsf.lava.core.webflow.CustomViewSelector;
 
@@ -130,9 +138,14 @@ public class LavaComponentFormAction extends BaseComponentFormAction {
 		//  registry.registerCustomEditor(Date.class, "components[visit].visitDate", new CustomDateEditor(dateFormat, true));
 		// not
 		//  registry.registerCustomEditor(Date.class, "components['visit'].visitDate", new CustomDateEditor(dateFormat, true));
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-		registry.registerCustomEditor(Date.class, new LavaCustomDateEditor(dateFormat, true));
-		
+		SimpleDateFormat datePartFormat = new SimpleDateFormat("MM/dd/yyyy");
+		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MM/dd/yyyy h:mma");
+		SimpleDateFormat timePartFormat = new SimpleDateFormat("h:mma");
+		registry.registerCustomEditor(Date.class, new LavaCustomDateEditor(datePartFormat, true));
+		registry.registerCustomEditor(DatePart.class, new CustomDatePartEditor(datePartFormat, true));
+		registry.registerCustomEditor(DateTime.class, new CustomDateTimeEditor(dateTimeFormat, true));
+		registry.registerCustomEditor(TimePart.class, new CustomTimePartEditor(timePartFormat, true));
+			
 		registry.registerCustomEditor(Long.class, new CustomNumberEditor(Long.class,true));
 		
 		//	this will set all Short fields to all null when empty string ("") is submitted
