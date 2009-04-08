@@ -44,7 +44,7 @@
 					  mdd.PredictedNeuropathology, v.VNotes, CAST(CONVERT(varchar(10), v.vdate, 101) AS smalldatetime) AS VDateNoTime,
 					  $P{dateStart} as Startdate, $P{dateEnd} as Enddate FROM Patient p 
 					  INNER JOIN Visit v ON p.PIDN = v.PIDN 
-					  INNER JOIN ProjectUnit pu on v.ProjName=pu.ProjUnitDesc 
+					  INNER JOIN projectunit pu on v.ProjName=pu.ProjUnitDesc 
 					  LEFT JOIN vwLatestDiagnosis ld on ld.pidn=p.pidn 
 					  LEFT JOIN vwMacDiagnosisDisplay mdd on ld.InstrID=mdd.InstrID
 					  WHERE ( v.vdate Between $P{dateStart} and $P{dateEnd}) AND (v.VStatus NOT LIKE '%CANC%') AND 

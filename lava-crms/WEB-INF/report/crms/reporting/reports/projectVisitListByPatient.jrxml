@@ -40,7 +40,7 @@
 	<parameter name="authProjectAccessList" isForPrompting="false" class="java.util.List"/>
 	<parameter name="authAllUnitsProjectList" isForPrompting="false" class="java.util.List"/>
 	<queryString><![CDATA[SELECT * FROM vwrptprojectvisitlist WHERE (VDate BETWEEN $P{dateStart} AND $P{dateEnd}) AND $X{IN, ProjName, projectList}
-					 AND ($P{authAllPatientAccess}=1 OR ProjName IN (SELECT ProjUnitDesc from ProjectUnit WHERE
+					 AND ($P{authAllPatientAccess}=1 OR ProjName IN (SELECT ProjUnitDesc from projectunit WHERE
 					 		 $X{IN, Project, authPatientAllUnitsProjectList} OR $X{IN, ProjUnitDesc, authPatientProjectAccessList})) 
 	                 ORDER BY ProjName, FullNameRev, VDateNoTime, VDate]]></queryString>
 
