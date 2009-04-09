@@ -16,10 +16,6 @@ public class InstrumentConfig {
 	Boolean collectFlow = false;
 	Boolean uploadFlow = false; 
 	Boolean crudReport; // temporary, until all instruments have CRUD reports
-	// this flags whether an instrument uses the shared instrument flows (lava.assessment.instrument.instrument.*)
-	// or has its own flows. this is not configured in the *-dao.xml file but is determined from the *-action.xml
-	// flow configuration by the AssessmentService.
-	Boolean hasOwnFlows;
 	Boolean details = false; // does the instrument have detail records 
 	Boolean verify = true; // can the instrument be verified (via double entry) 
 	String currentVersionAlias;
@@ -83,8 +79,12 @@ public class InstrumentConfig {
 			}
 		}
 /**		
-		if (this.enterFlow && this.enterReviewFlow) {
-			throw new RuntimeException("Can NOT define both 'enter' and 'enterReview' flow for " + className);
+  		int editLikeFlows = 0;
+  		if (this.enterFlow) {editLikeFlows++;};
+  		if (this.enterReviewFlow) {editLikeFlows++;};
+  		if (this.uploadFlow) {editLikeFlows++;};
+		if (editLikeFlows > 1) {
+			throw new RuntimeException("Can NOT define more than one edit-like flow for " + className);
 		}
 **/		
 	}
@@ -148,14 +148,6 @@ public class InstrumentConfig {
 	
 	public Boolean getCrudReport() {
 		return this.crudReport;
-	}
-
-	public void setHasOwnFlows(Boolean hasOwnFlows) {
-		this.hasOwnFlows = hasOwnFlows;
-	}
-	
-	public Boolean getHasOwnFlows() {
-		return this.hasOwnFlows;
 	}
 
 	public void setDetails(Boolean details) {
