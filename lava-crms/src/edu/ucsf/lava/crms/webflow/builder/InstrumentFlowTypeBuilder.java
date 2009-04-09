@@ -93,6 +93,7 @@ public class InstrumentFlowTypeBuilder extends BaseFlowTypeBuilder {
 			subFlowInfo.add(new FlowInfo(subFlowActionId,"view"));
 			subFlowInfo.add(new FlowInfo(subFlowActionId,"enter"));
 			subFlowInfo.add(new FlowInfo(subFlowActionId,"enterReview"));
+			subFlowInfo.add(new FlowInfo(subFlowActionId,"upload"));
 			subFlowInfo.add(new FlowInfo(subFlowActionId,"status"));
 			subFlowInfo.add(new FlowInfo(subFlowActionId,"delete"));
 		}
