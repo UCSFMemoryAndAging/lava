@@ -1,26 +1,19 @@
 package edu.ucsf.lava.crms.assessment;
 
-import static edu.ucsf.lava.core.action.ActionUtils.LAVA_INSTANCE_IDENTIFIER;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import edu.ucsf.lava.core.action.ActionManager;
-import edu.ucsf.lava.core.action.model.Action;
-import edu.ucsf.lava.core.manager.LavaManager;
 import edu.ucsf.lava.core.manager.CoreManagerUtils;
+import edu.ucsf.lava.core.manager.LavaManager;
 import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentConfig;
 
-
-
 public class InstrumentManager extends LavaManager {
 	
 	public static String INSTRUMENT_MANAGER_NAME = "instrumentManager";
-	private boolean configHasOwnFlows = false;
-
 	public static final String ANY_PROJECT_KEY="ANY";
 	public static final String ANY_VISIT_KEY="ANY";
 	protected Map<String,List<Instrument>> instrumentPrototypes;
@@ -39,7 +32,7 @@ public class InstrumentManager extends LavaManager {
 	 * it has its own flows or shares the core instrument flows, etc.
 	 * The key value is the instrument type encoded, as defined in the Instrument class. 
 	 */
-		public Map<String,InstrumentConfig> getInstrumentConfig() 
+	public Map<String,InstrumentConfig> getInstrumentConfig() 
 	{
 		// instrument configuration data for all implemented instruments. the key to the map is
 		// instrTypeEncoded. this map is also used to determine which instruments have been implemented
@@ -52,57 +45,9 @@ public class InstrumentManager extends LavaManager {
 		
 		// iterate over the actions, and when the action matches the instrument, determine
 		// whether it has its own flow or not via its action's flowType
-		if (!configHasOwnFlows) {configureHasOwnFlows();}
 		return instrumentDefinitions.getDefinitions();
 	}
-		
-	protected void configureHasOwnFlows(){
-		configHasOwnFlows = true;
-		
-		for (Map.Entry<String, InstrumentConfig> instrConfigEntry : instrumentDefinitions.getDefinitions().entrySet()) {
-			
-			// do not consider aliases since the alias may not match an action, and jsp's will
-			// never use the alias to reference hasOwnFlows
-			if (instrConfigEntry.getValue().getCurrentVersionAlias() != null 
-					&& instrConfigEntry.getKey().equals(instrConfigEntry.getValue().getCurrentVersionAlias())) {
-				continue;
-			}
-			
-			String instrTypeEncoded = instrConfigEntry.getKey();
-			InstrumentConfig instrConfig = instrConfigEntry.getValue();
-			
-			// all MAC Diagnosis versions have their own flows because they have a custom handler, MacdiagnosisHandler
-			if (instrTypeEncoded.startsWith("macdiagnosis")) {
-				instrConfig.setHasOwnFlows(true);
-				continue;
-			}
-			
-			Action instrAction = null;
-			
-			// first see if there is a core action for the instrument
-			StringBuffer coreActionId = new StringBuffer(LAVA_INSTANCE_IDENTIFIER).append(".crms.assessment.instrument.")
-				.append(instrTypeEncoded);
-			if ((instrAction = actionManager.getActionRegistry().getAction(coreActionId.toString())) != null) {
-				// any flow type other than "instrumentCommon" means the instrument has its own flows
-				if (!instrAction.getFlowType().equals("instrumentCommon")) {
-					instrConfig.setHasOwnFlows(true);
-					continue;
-				}
-			}
-			
-			// if there is no core action, see if there is an instance specific action
-			StringBuffer instanceActionId = new StringBuffer(actionManager.webappInstanceName).append(".crms.assessment.instrument.")
-				.append(instrTypeEncoded);
-			if ((instrAction = actionManager.getActionRegistry().getAction(instanceActionId.toString())) != null) {
-				if (!instrAction.getFlowType().equals("instrumentCommon")) {
-					instrConfig.setHasOwnFlows(true);
-					continue;
-				}
-			}
-				
-			instrConfig.setHasOwnFlows(false);
-		}
-	}
+
 	
 	public Class getInstrumentClass(String instrTypeEncoded) {
 		if (instrumentDefinitions.get(instrTypeEncoded) == null) {
@@ -112,22 +57,6 @@ public class InstrumentManager extends LavaManager {
 			return instrumentDefinitions.get(instrTypeEncoded).getClazz();
 		}
 	}
-
-	
-	
-
-	
-	
-
-	
-	
-
-	
-	
-
-
-	
-	
 	
 	
 	/* 
@@ -224,10 +153,6 @@ public class InstrumentManager extends LavaManager {
 		super.updateManagers(managers);
 		actionManager = CoreManagerUtils.getActionManager(managers);
 	}
-
-	
-	
-	
 
 	
 }
