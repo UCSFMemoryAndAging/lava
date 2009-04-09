@@ -56,7 +56,7 @@ public class GroupFlowBuilder extends BaseFlowBuilder {
     	//returned by the Action (i.e. invoke) or, until the list of Actions is exhausted
     	addActionState("iterate", null,
        			new Action[]{
-       				// returns String matching subflow transition or "deleteAll", "groupError" or "finish"
+       				// returns String matching subflow transition or "missing", "groupError" or "finish"
     				// this is a wizard-like flow which automates the processing of the next entity in the list,
     				// so there are no explicit user events. therefore, in order to funnel preparing the next entity
     				// thru handleFlowEvent, set an eventOverride to simulate an event
