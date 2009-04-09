@@ -21,7 +21,7 @@
 
 <content tag="groupActions">
 <tags:listInstrumentPrototypeGroupRow groupPrototype="${groupPrototype}" groupComponent="instrumentGroup" pageName="${component}"/>
-<tags:listSelectedItemsGroupRow listComponent="${component}" groupComponent="instrumentGroup" pageName="${component}" selectedCountMsgKey="instrument.selectedCount"/>
+<tags:listSelectedItemsGroupRow listComponent="${component}" groupComponent="instrumentGroup" pageName="${component}" selectedCountMsgKey="instrumentGroup.selectedCount"/>
 </content>
 
 <content tag="listColumns">
