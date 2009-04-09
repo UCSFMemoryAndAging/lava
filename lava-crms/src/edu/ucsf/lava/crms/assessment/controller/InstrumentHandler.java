@@ -228,9 +228,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			backingObjects.put(getDefaultObjectName(), initializeNewCommandInstance(context,InstrumentTracking.MANAGER.create()));
 		}else{
 			Action currentAction = CoreSessionUtils.getCurrentAction(sessionManager,request);
-			// each instrument entity flow has the instrTypeEncoded mapped into its flow scope (the
-			// input map is set in the FlowExecutionListener when the flow is starting)
-			String instrTypeEncoded = context.getFlowScope().getString("instrTypeEncoded");
+			String instrTypeEncoded = currentAction.getTarget();
 			//get backing object based on id
 			// the "id" parameter is stored in flow scope by the flow definition
 			String id = context.getFlowScope().getString("id");
