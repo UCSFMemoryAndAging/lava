@@ -105,40 +105,34 @@ public class FlowRegistrar implements LavaFlowRegistrar {
     	}
     	//recurse through subFlows building them when needed...
     	for (String subFlowActionId: action.getSubFlows()){
-  
-    		// CAN UNCOMMENT ONCE PUT in code in onReloadActionDefinitions such that an instance
-    		// action inherits the relationships (parentFlows, subFlows) of the default action.
-    		// also, if a default action that is a subFlow has a corresponding instance action, only 
-    		// the instance action should be in the subFlows list of the parent. currently this causes
-    		// building of the parent flow to bomb because buildSubFlowStates tries to create two
-    		// subFlow states with the same stateId
-
-    		// if(actionManager.shouldBuildFlowsForAction(subFlowActionId)){
+    		// do NOT call shouldBuildFlowForAction on the subFlowActionId at this point, because
+    		// if it is a default action which has an instance action defined then should continue
+    		// on to getEffectiveAction and then recursively call buildFlow on subFlowActionId so that 
+    		// the instance subFlow is built before the parent flow which references it
     			
-    			Action subFlowAction = actionManager.getEffectiveAction(subFlowActionId);
-    			logger.debug("Subflow actionId: "+subFlowAction.getId()+" found for actionId: "+action.getId());
-    			
-    			//need to obtain the subflows that will be built for this subflow...if there are none then we don't want to recurse and
-    			//build this subflow.
-    			List<FlowInfo> subFlowInfoList = subFlowAction.getFlowTypeBuilder().getSubFlowInfo(actionId, 
-           							action.getFlowType(), subFlowAction.getId(), this.actions); 
-           	
-    			// must put a special conditions here to keep from recursing 
-    			// forever if a flow is a subflow of itself..e.g. self join model
-    			if(!subFlowAction.getId().equalsIgnoreCase(actionId) && 
-    	    			//we also should not recure if the subflow is the same as the subflow that
-    					//this action customizes...that would also put us in an infinite loop
-    					!subFlowAction.getId().equalsIgnoreCase(action.getCustomizedFlow()) &&
-    	    			// also, if the subFlows would not result in any subFlowStates being built, then
-    					// do not recurse (e.g. reportLauncher is subflow of every flow, individual reports
-    					// are subflows of reportLauncher, reportLauncher is subflow of individual reports (because
-    					// it is a subflow of every flow) but the ReportLauncherFlowTypeBuilder does not
-    					// build subFlowStates for the individual report flows). 
-    					!subFlowInfoList.isEmpty()) {
-   				
-    				buildFlow(subFlowAction.getId());
-    			}
-   			// 	}
+			Action subFlowAction = actionManager.getEffectiveAction(subFlowActionId);
+			logger.debug("Subflow actionId: "+subFlowAction.getId()+" found for actionId: "+action.getId());
+			
+			//need to obtain the subflows that will be built for this subflow...if there are none then we don't want to recurse and
+			//build this subflow.
+			List<FlowInfo> subFlowInfoList = subFlowAction.getFlowTypeBuilder().getSubFlowInfo(actionId, 
+       							action.getFlowType(), subFlowAction.getId(), this.actions); 
+       	
+			// must put a special conditions here to keep from recursing 
+			// forever if a flow is a subflow of itself..e.g. self join model
+			if(!subFlowAction.getId().equalsIgnoreCase(actionId) && 
+	    			//we also should not recure if the subflow is the same as the subflow that
+					//this action customizes...that would also put us in an infinite loop
+					!subFlowAction.getId().equalsIgnoreCase(action.getCustomizedFlow()) &&
+	    			// also, if the subFlows would not result in any subFlowStates being built, then
+					// do not recurse (e.g. reportLauncher is subflow of every flow, individual reports
+					// are subflows of reportLauncher, reportLauncher is subflow of individual reports (because
+					// it is a subflow of every flow) but the ReportLauncherFlowTypeBuilder does not
+					// build subFlowStates for the individual report flows). 
+					!subFlowInfoList.isEmpty()) {
+			
+				buildFlow(subFlowAction.getId());
+			}
     	}
     	//recurse through customizingFlows
     	for (String customizingFlowId: action.getCustomizingFlows()){
