@@ -26,14 +26,13 @@ so that the secondary handler can create the group --%>
 	</tags:listCell>
 
 	<tags:listCell styleClass="actionButton" width="10%">
-		<%-- append actions with "_group" so event handling will create the group from a project-visit
+		<%-- append actions with "_prototype" so event handling will create the group from a project-visit
 			instrument group prototype instead of user selected items. this is not necessary for deleteAll
 			which only applies to groups created from prototypes --%>
-		<tags:eventActionButton buttonImage="view" component="${groupComponent}" action="view_group" pageName="${pageName}"/>
-		<%-- enter event is used for enter, enterReview and upload flows since different instruments in a group could support
- 			a differernt flow --%>
-		<tags:eventActionButton buttonImage="edit" component="${groupComponent}" action="enter_group" pageName="${pageName}"/>
-		<tags:eventActionButton buttonImage="status" component="${groupComponent}" action="status_group" pageName="${pageName}"/>
+		<tags:eventActionButton buttonImage="view" component="${groupComponent}" action="view_prototype" pageName="${pageName}"/>
+		<%-- edit event represents "enter", "enterReview", "upload", etc. depending upon the instrument --%>
+		<tags:eventActionButton buttonImage="edit" component="${groupComponent}" action="edit_prototype" pageName="${pageName}"/>
+		<tags:eventActionButton buttonImage="status" component="${groupComponent}" action="status_prototype" pageName="${pageName}"/>
 		<tags:eventActionButton buttonImage="delete" component="${groupComponent}" action="deleteAll" pageName="${pageName}"/>
 	</tags:listCell> 
 
