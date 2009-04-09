@@ -33,13 +33,8 @@ class InstrumentDeleteFlowBuilder extends BaseFlowBuilder {
     	// here typically comes from a parent flow input mapper
     	Mapping idMapping = mapping().source("id").target("flowScope.id").value();
 
-    	// put the "instrTypeEncoded" info flowScope where it will be accessed in the InstrumentHandler
-    	// getBackingObjects to determine the class of the instrument to load. the "instrTypeEncoded" 
-    	// is put into the input map for this flow in the FlowListener sessionStarting method  
-    	Mapping instrTypeEncodedMapping = mapping().source("instrTypeEncoded").target("flowScope.instrTypeEncoded").value();
-
     	// set the flow input mapper with the above mappings
-    	getFlow().setInputMapper(new DefaultAttributeMapper().addMapping(idMapping).addMapping(instrTypeEncodedMapping));
+    	getFlow().setInputMapper(new DefaultAttributeMapper().addMapping(idMapping));
     }
     
     public void buildEventStates() throws FlowBuilderException {
