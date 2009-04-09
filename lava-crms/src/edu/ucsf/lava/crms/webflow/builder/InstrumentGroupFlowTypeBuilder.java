@@ -14,32 +14,25 @@ public class InstrumentGroupFlowTypeBuilder extends BaseFlowTypeBuilder {
 		super("instrumentGroup");
 		// the events include all "instrument" FlowType events which can be executed 
 		// on each instrument in an InstrumentGroup
-		setEvents(new String[]{"view", "enter", "status", "delete", "deleteAll"});
+		setEvents(new String[]{"view", "edit", "status", "delete", "deleteAll"});
 	}
 
 	public void RegisterFlowTypeDefinitions(LavaFlowRegistrar registry,String actionId) {
 		
-		//TODO: come up with better solution than redundant flows
-		
 		registry.registerFlowDefinition(assemble(actionId + ".view", 
 				new GroupFlowBuilder(registry,actionId)));
-		registry.registerFlowDefinition(assemble(actionId + ".view_group", 
-				new GroupFlowBuilder(registry,actionId)));
-			
-			
-		registry.registerFlowDefinition(assemble(actionId + ".enter", 
+
+		// the edit action is used to encompass the "enter", "enterReview", "upload" individual
+		// instrument actions, which are assumed to be mutually exclusive for a given instrument.
+		// this way, an edit group flow can iterate thru individual instruments regardless of which
+		// edit-like flow they support
+		registry.registerFlowDefinition(assemble(actionId + ".edit", 
 			new GroupFlowBuilder(registry,actionId)));
-		registry.registerFlowDefinition(assemble(actionId + ".enter_group", 
-				new GroupFlowBuilder(registry,actionId)));
 		
 		registry.registerFlowDefinition(assemble(actionId + ".status", 
 				new GroupFlowBuilder(registry,actionId)));
-		registry.registerFlowDefinition(assemble(actionId + ".status_group", 
-				new GroupFlowBuilder(registry,actionId)));
 			
 		registry.registerFlowDefinition(assemble(actionId + ".delete", 
-				new GroupFlowBuilder(registry,actionId)));
-		registry.registerFlowDefinition(assemble(actionId + ".delete_group", 
 				new GroupFlowBuilder(registry,actionId)));
 		
 		registry.registerFlowDefinition(assemble(actionId + ".deleteAll", 
@@ -50,13 +43,9 @@ public class InstrumentGroupFlowTypeBuilder extends BaseFlowTypeBuilder {
 	public List<FlowInfo> getSubFlowInfo(String actionId, String flowType, String subFlowActionId, Map actions) {
 		List<FlowInfo> subFlowInfo = super.getSubFlowInfo(actionId, flowType, subFlowActionId,	actions);
 		subFlowInfo.add(new FlowInfo(subFlowActionId,"view"));
-		subFlowInfo.add(new FlowInfo(subFlowActionId,"view_group"));
-		subFlowInfo.add(new FlowInfo(subFlowActionId,"enter"));
-		subFlowInfo.add(new FlowInfo(subFlowActionId,"enter_group"));
+		subFlowInfo.add(new FlowInfo(subFlowActionId,"edit"));
 		subFlowInfo.add(new FlowInfo(subFlowActionId,"status"));
-		subFlowInfo.add(new FlowInfo(subFlowActionId,"status_group"));
 		subFlowInfo.add(new FlowInfo(subFlowActionId,"delete"));
-		subFlowInfo.add(new FlowInfo(subFlowActionId,"delete_group"));
 		subFlowInfo.add(new FlowInfo(subFlowActionId,"deleteAll"));
 		return subFlowInfo;
 	}
