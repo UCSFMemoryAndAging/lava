@@ -62,12 +62,12 @@ public class InstrumentGroupHandler extends CrmsGroupComponentHandler {
 		// these action events occur when this handler is used as a secondary handler where
 		// the primary handler is an instrument list flow, which has action buttons for these events
 
-		// (the event could also be appended with "_group" which indicates that the group is to
+		// (the event could also be appended with "_prototype" which indicates that the group is to
 		// be created from a project-visit instrument group prototype, not from user selected 
 		// list items)
 		
-		defaultEvents.addAll(new ArrayList(Arrays.asList(new String[]{"view", "view_group", 
-				"enter", "enter_group", "status", "status_group", "delete", "delete_group"})));
+		defaultEvents.addAll(new ArrayList(Arrays.asList(new String[]{"view", "view_prototype", 
+				"edit", "edit_prototype", "status", "status_prototype", "delete", "delete_prototype"})));
 		return defaultEvents;
 	}
 	
@@ -113,7 +113,7 @@ public class InstrumentGroupHandler extends CrmsGroupComponentHandler {
 		// prototype, or based on user selected list items
 		String event = ActionUtils.getEventName(context);
 		
-		if (event.endsWith("_group")) {
+		if (event.endsWith("_prototype")) {
 			// create the group based on a prototype
 			// NOTE: the assumption is a project-visitType instrument group prototype. if there
 			// may be other prototypes used this code will need to change to accomodate
@@ -127,7 +127,7 @@ public class InstrumentGroupHandler extends CrmsGroupComponentHandler {
 			List<String> prototypeList = this.getGroupPrototype(prototypeProject, prototypeVisitType);
 
 			// do not need to check if the prototype exists as that was already done in 
-			// addReferenceData and the "_group" events could not be generated if the prototype
+			// addReferenceData and the "_prototype" events could not be generated if the prototype
 			// had not existed
 			
 			// iterate thru the prototype. for each instrument in the prototype, iterate thru the 
@@ -215,9 +215,6 @@ public class InstrumentGroupHandler extends CrmsGroupComponentHandler {
 		
 		// get the action to be performed on each instrument in the group, e.g. 'enter', 'delete'
 		String flowMode = ActionUtils.getFlowMode(context.getActiveFlow().getId());
-		if (flowMode.endsWith("_group")) {
-			flowMode = flowMode.substring(0, flowMode.length()-6);
-		}
 		
 		List<LavaEntity> instrumentGroup = (List) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
 		// get the current group index (initialized to 0 in the GroupFlowBuilder)
@@ -244,9 +241,11 @@ public class InstrumentGroupHandler extends CrmsGroupComponentHandler {
 				InstrumentConfig instrumentConfig = instrumentManager.getInstrumentConfig().get(nextInstrument.getInstrTypeEncoded());
 
 				// verify that the instrument supports the flow if it is an optional instrument 
-				// flow, e.g. "enter", "enterReview", "upload"
+				// flow. the "edit" event encompasses the "enter", "enterReview" and "upload" actions
+				// since different instruments in the flow could have different "edit"
 				
-				if (flowMode.equals("enter") && !instrumentConfig.supportsFlow("enter") && !instrumentConfig.supportsFlow("enterReview")) {
+				if (flowMode.equals("edit") && !instrumentConfig.supportsFlow("enter") && !instrumentConfig.supportsFlow("enterReview")
+						&& !instrumentConfig.supportsFlow("upload")) {
 					retEvent = new Event(this, "groupError");
 						
 					// create the error message and put in flow scope
@@ -256,11 +255,18 @@ public class InstrumentGroupHandler extends CrmsGroupComponentHandler {
 					context.getFlowScope().put(GROUP_INDEX, groupIndex + 1);
 				}
 				else {
-					// if the mode for the instrumentGroup action is "enter" then the mode for the subflow could 
-					// either be "enter" or "enterReview" based on the instrument. these are mutually exclusive.
-					if (flowMode.equals("enter")) {
-						if (!instrumentConfig.getEnterFlow()) {
+					// if the mode for the instrumentGroup action is "edit" then the mode for the subflow could 
+					// either be "enter", "enterReview" or "upload" based on the instrument. the key is that these 
+					// are assumed to be mutually exclusive.
+					if (flowMode.equals("edit")) {
+						if (instrumentConfig.getEnterFlow()) {
+							flowMode = "enter";
+						}
+						else if (instrumentConfig.getEnterReviewFlow()) {
 							flowMode = "enterReview";
+						}
+						else if (instrumentConfig.getUploadFlow()) {
+							flowMode = "upload";
 						}
 					}
 
@@ -282,12 +288,7 @@ public class InstrumentGroupHandler extends CrmsGroupComponentHandler {
 					// the event prefix is determined by whether the instrument has its own flows or uses 
 					// the shared instrument flows
 					StringBuffer transitionEvent = new StringBuffer();
-					if (instrumentConfig.getHasOwnFlows()) {
-						transitionEvent.append(instrTypeEncoded);
-					}
-					else {
-						transitionEvent.append("instrument");
-					}
+					transitionEvent.append(instrTypeEncoded);
 					
 					// the event suffix can be obtained from the mode (event) portion of the flow id, as the 
 					// instrumentGroup mode will be the same as the mode of the instrument subflow, e.g.
