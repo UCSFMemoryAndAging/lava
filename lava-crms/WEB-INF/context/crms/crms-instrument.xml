@@ -39,13 +39,20 @@
 	
 	
 	<!-- actions -->
-	<bean id="crmsInstrumentCommonFlowAction" abstract="true" parent="crmsAction">
-		<property name="flowTypeBuilder"><ref bean="crmsInstrumentCommonFlowTypeBuilder"/></property>
-	</bean>
-	
+
+	<!-- TODO: redesign so that actions defined in lava-crms-nacc are configured in that project -->	
 	<bean id="crmsInstrumentFlowAction" abstract="true" parent="crmsAction">
 		<property name="flowTypeBuilder"><ref bean="crmsInstrumentFlowTypeBuilder"/></property>
-		<property name="parentFlow"><value>lava.crms.assessment.instrument.instrumentGroup</value></property>
+		<property name="parentFlows"><list>
+			<value>lava.crms.assessment.instrument.instrumentGroup</value>
+			<value>lava.crms.assessment.summary.patientInstruments</value>
+			<value>lava.crms.assessment.summary.projectInstruments</value>
+			<value>lava.crms.scheduling.visit.visitInstruments</value>
+			<value>lava.crms.assessment.uds.patientUdsInstruments</value>
+			<value>lava.crms.assessment.uds.projectUdsInstruments</value>
+			<value>lava.crms.assessment.uds.patientUdsSubmissions</value>
+			<value>lava.crms.assessment.uds.projectUdsSubmissions</value>
+		</list></property>
 	</bean>
 	
 	<bean id="crmsInstrumentGroupFlowAction" abstract="true" parent="crmsAction">
@@ -55,10 +62,8 @@
 	<bean id="crmsInstrumentListFlowAction" abstract="true" parent="crmsAction">
 		<property name="flowTypeBuilder"><ref bean="crmsInstrumentListFlowTypeBuilder"/></property>
 		<property name="subFlows"><list>
-			<value>lava.crms.assessment.instrument.instrument</value>
-			<value>lava.crms.assessment.instrument.udsmedications2</value>
 			<value>lava.crms.assessment.instrument.instrumentGroup</value>
-		</list></property>		
+		</list></property>
 	</bean>
 	
 	<!-- Parent beans that define default actions for instrument list entities -->
@@ -132,6 +137,7 @@
     	<constructor-arg><list><bean class="edu.ucsf.lava.crms.assessment.controller.ProjectInstrumentsHandler" parent="crmsHandler"/></list></constructor-arg>
 	</bean>  
 
+	<!-- used for adding instruments of any type -->
 	<bean id="instrumentFormAction" parent="crmsInstrumentComponentFormAction">
     	<constructor-arg>
     		<list>
