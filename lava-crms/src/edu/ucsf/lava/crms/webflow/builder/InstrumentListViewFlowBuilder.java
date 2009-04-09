@@ -95,16 +95,31 @@ class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
     	for(String subFlowId : subFlowActionIds){
     		List<FlowInfo> subFlowInfoList = getSubFlowInfo(subFlowId); 
 						
-			for(FlowInfo subFlowInfo: subFlowInfoList){
-				
-		    	if (subFlowInfo.getTarget().equals("instrumentGroup")){
-		    		// for the instrumentGroup subflow the event will be "enter" or "delete" etc. (whatever
-		    		// action is to be performed on each instrument in the group). it will be handled by the
-		    		// InstrumentGroupHandler which is a secondary handler in an instrument list flow
-			    	transitions.add(transition(on(subFlowInfo.getTarget() + "__" + subFlowInfo.getEvent()), to(subFlowInfo.getTarget() + "__" + subFlowInfo.getEvent()), 
+    		for(FlowInfo subFlowInfo: subFlowInfoList){
+    	    	if (subFlowInfo.getTarget().equals("instrumentGroup")){
+		    		// the general problem being solved here is we have variations on an event which should 
+		    		// result in different handling for the event, but all variations on the event should
+		    		// result in the same transition to the same state
+		    		
+		    		// for the instrumentGroup subflow the event will be "view", "edit", "delete" etc. (whatever
+		    		// action is to be performed on each instrument in the group, where "edit" gets translated
+		    		// by the handler to "enter", "enterReview" or "upload" based on the particular instrument
+		    		// it will be handled by the InstrumentGroupHandler which is a secondary handler in an instrument 
+		    		// list flow)
+	
+		    		// however, the event may have a suffix appended, e.g. "_prototype" which indicates to the
+		    		// InstrumentGroupHandler what the group should be created from. e.g. if no suffix create from
+		    		// user selected items, if "_prototype" suffix then create from project-visit group prototype,etc.
+		    		
+		    		// while the event dictates how the group should be created, the event should transition to 
+		    		// the same instrument group subflow state, regardless of whether there is an event suffix or not,
+		    		// because once the group is created, all groups are handled in a standard way. so, use
+		    		// the startsWith method in the transition
+			    	transitions.add(transition(on(new StringBuffer("${lastEvent.id.startsWith('").append(subFlowInfo.getTarget()).append("__").append(subFlowInfo.getEvent()).append("')}").toString()),
+			    			to(subFlowInfo.getTarget() + "__" + subFlowInfo.getEvent()), 
 							   ifReturnedSuccess(new Action[]{invoke("bind", formAction), invoke("handleFlowEvent", formAction)})));
 		    	}
-		    	else {
+	    	else {
 		    		// create standard base transition
 			    	transitions.add(transition(on(subFlowInfo.getTarget() + "__" + subFlowInfo.getEvent()), to(subFlowInfo.getTarget() + "__" + subFlowInfo.getEvent())));
 		    	}
