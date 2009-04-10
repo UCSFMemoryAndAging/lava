@@ -37,7 +37,7 @@
 	    
 	<!-- associations -->
 		<set name="patients" inverse="true" cascade="delete" lazy="false">
-			<key column="PIDN"/>
+			<key column="DocID"/>
 			<one-to-many class="edu.ucsf.lava.crms.people.model.PatientDoctor"/>
 		</set>
 
