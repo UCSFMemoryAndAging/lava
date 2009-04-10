@@ -31,13 +31,11 @@ public class Doctor extends CrmsEntity {
 	private String docType;
 	private String fullNameRev;
 	private String fullName;
-	private Set patients = new HashSet();
-
+	private Set patients;
 	
 	public Doctor(){
 		super();
 		setPatientAuth(false);
-
 	}
 	
 	public Set getPatients() {
