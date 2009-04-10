@@ -29,7 +29,7 @@
    	</bean>
    	
    	<!-- refactor into a self-registering collection bean -->
-      <!--  a ProjectName-Visittype:Visit bean map injected into the assessmentService -->
+      <!--  a ProjectName-Visittype:Instrument bean map injected into the assessmentService -->
    	<bean id="crmsInstrumentPrototypes" class="java.util.LinkedHashMap">
 		<constructor-arg><map>	
 		</map></constructor-arg>
@@ -201,11 +201,11 @@
                                 those instruments that can be printed
                                 
                                 ** "enter" and "enterReview" are mutually exclusive so only one of them can be supported
-                                
-	         "verify" = instrument support verify via double entry (defaults to true)
-	         			note: if an instrument supports verify then a) it will have a "Verify" action button to allow the
-         				user to verify whenever they want, and b) a configured verify rate based upon the project/instrument 
-         				will determine whether the verify is mandatory some percentage of the time
+                 
+			 "verify" = instrument supports verify via double entry (defaults to true)
+	         			note: if an instrument supports verify then a) it will have a verify action button ("Double Entry")
+	         			to allow the user to verify whenever they want, and b) a configured verify rate (configured in the 
+	         			projectInstrumentVerifyRates bean) will determine whether verify is mandatory some percentage of the time
          				
 	         "details" = instrument has a single details collection which is displayed in a ScrollablePagedListHolder.
 	         			 e.g. the CBT instruments, but not medications which displays details as editable controls
