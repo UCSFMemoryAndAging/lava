@@ -32,7 +32,7 @@
 <%@ attribute name="sourceSectionId" 
               description="[optional] for section quicklinks to top. the id of that section to 
                  use to make the hyperlink itself the target for the top quicklinks" %>
-                 
+
 <c:choose>
 	<c:when test="${sectionId == '<br/>'}"> <%-- special handling for wrapping quicklinks --%>
 		${sectionId}
@@ -43,16 +43,20 @@
 	<%-- facilitate using the same name for quicklinks and sections --%>
 	<c:set var="linkTextKey" value="${fn:replace(linkTextKey, '.quicklink', '.section')}"/>
 	<spring:message var="linkText" code="${linkTextKey}" text=""/>
-</c:if>	
+</c:if>
+
+<c:set var="anchorUrl">
+${requestUrl}#${sectionId}
+</c:set>
 	
 <c:if test="${sectionId != 'top'}">
-  <a class="quicklinkDownIconLink" href="<c:url value='${requestUrl}#${sectionId}'/>" onClick="quicklink=true" tabindex="-1"><img src="images/BUTT_down.png" alt="${linkText}" border="0"></a>
-  <a class="quicklinkDownLink" href="<c:url value='${requestUrl}#${sectionId}'/>" onClick="quicklink=true" tabindex="-1">${linkText}</a>
+  <a class="quicklinkDownIconLink" href="<c:url value='${anchorUrl}'/>" onClick="quicklink=true" tabindex="-1"><img src="images/BUTT_down.png" alt="${linkText}" border="0"></a>
+  <a class="quicklinkDownLink" href="<c:url value='${anchorUrl}'/>" onClick="quicklink=true" tabindex="-1">${linkText}</a>
 </c:if>
 
 <c:if test="${sectionId == 'top'}">
-	<a id="${sourceSectionId}" class="quicklinkUpIconLink" href="<c:url value='${requestUrl}#${sectionId}'/>" onClick="quicklink=true" tabindex="-1"><img src="images/BUTT_up.png" alt="Return to Top" border="0"></a>
-	<a class="quicklinkUpLink" href="<c:url value='${requestUrl}#${sectionId}'/>" onClick="quicklink=true" tabindex="-1">${linkText}</a>
+	<a id="${sourceSectionId}" class="quicklinkUpIconLink" href="<c:url value='${anchorUrl}'/>" onClick="quicklink=true" tabindex="-1"><img src="images/BUTT_up.png" alt="Return to Top" border="0"></a>
+	<a class="quicklinkUpLink" href="<c:url value='${anchorUrl}'/>" onClick="quicklink=true" tabindex="-1">${linkText}</a>
 </c:if>
 	</c:otherwise>
 </c:choose>	
