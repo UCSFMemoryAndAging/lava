@@ -415,7 +415,9 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 		// obtained via the PagedListHolder loadList method. such lists may have
 		// objects without an "id" field
 		public ListItem(Object entity) {
+			// this.id == null
 			this.entity = entity;
+			this.selected = Boolean.FALSE;
 		}
 		
 		public Long getId() {
