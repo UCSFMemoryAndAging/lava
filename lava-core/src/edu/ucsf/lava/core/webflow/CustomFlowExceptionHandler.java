@@ -1,5 +1,7 @@
 package edu.ucsf.lava.core.webflow;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
 import org.springframework.webflow.engine.RequestControlContext;
@@ -25,6 +27,8 @@ import edu.ucsf.lava.core.audit.AuditManager;
 
 public class CustomFlowExceptionHandler extends TransitionExecutingStateExceptionHandler{
 	
+	/** Logger for this class and subclasses */
+    protected final Log logger = LogFactory.getLog(getClass());
 	
 	
 	public CustomFlowExceptionHandler() {
@@ -36,6 +40,8 @@ public class CustomFlowExceptionHandler extends TransitionExecutingStateExceptio
 	}
 	
 	public ViewSelection handle(FlowExecutionException exception, RequestControlContext context) {
+		logger.error(exception.getMessage(), exception);
+		
 		// this is **critical**
 		// if there is a transaction in progress, the transaction status must be set to rollbackOnly
 		// so that there is not an attempt to commit the transaction. committing the transaction results
@@ -52,6 +58,8 @@ public class CustomFlowExceptionHandler extends TransitionExecutingStateExceptio
 				status.setRollbackOnly();
 			}
 		}catch(Exception e){
+			logger.error("TransactionStatus null exception within CustomFlowExceptionHandler");
+			
 			//if we cause an exception while trying to rollback the transation then we likely had
 			//no transaction in scope...so ignore...
 		}
