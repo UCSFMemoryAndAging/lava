@@ -74,10 +74,15 @@ public class CustomExceptionResolver implements HandlerExceptionResolver, Manage
 		 // a single transaction), the commit is not done until after the request is processed (i.e. in 
 		 // a servlet filter), so an exception would not preserve the response, i.e. an error view with the
 		 // error message would not get displayed. therefore, the way to prevent this commit from being
-		// attempted so that the response is preserved is to set the transaction status to rollback.		 
-		 TransactionStatus status = TransactionInterceptor.currentTransactionStatus();
-		 if (status != null) {
-			 status.setRollbackOnly();
+ 		 // attempted so that the response is preserved is to set the transaction status to rollback.
+		 try {
+			 TransactionStatus status = TransactionInterceptor.currentTransactionStatus();
+			 if (status != null) {
+				 status.setRollbackOnly();
+			 }
+		 }
+		 catch (Exception ex2) {
+			 logger.error("TransactionStatus null exception within CustomExceptionResolver");
 		 }
 
 		 // TODO:
