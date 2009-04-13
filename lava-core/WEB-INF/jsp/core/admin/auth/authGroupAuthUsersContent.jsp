@@ -42,13 +42,6 @@
 			<tags:listField property="user.login" component="${component}" listIndex="${iterator.index}" entityType="authUserGroup"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="user.disabled" component="${component}" listIndex="${iterator.index}" entityType="authUserGroup"/>
-		</tags:listCell>
-		<tags:listCell>
-			<tags:listField property="effectiveDate" component="${component}" listIndex="${iterator.index}" entityType="authUserGroup"/><br/>
-			<tags:listField property="expirationDate" component="${component}" listIndex="${iterator.index}" entityType="authUserGroup"/><br/>
-		</tags:listCell>
-		<tags:listCell>
 			<tags:listField property="notes" component="${component}" listIndex="${iterator.index}" entityType="authUserGroup"/>
 		</tags:listCell>
 	</tags:listRow>
