@@ -11,7 +11,6 @@
 <%@ include file="/WEB-INF/jsp/includes/base.jsp" %>
 <%@ include file="/WEB-INF/jsp/includes/style.jsp" %>
 <%@ include file="/WEB-INF/jsp/includes/javascript.jsp" %>
-<script type="text/javascript" src="javascript/common/mainNav.js"></script>
 
 <script type="text/javascript">
 // this technique is required to chain onload event handlers because uitags has several onload handlers
