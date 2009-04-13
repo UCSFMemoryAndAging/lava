@@ -134,6 +134,9 @@ public class VisitHandler extends CrmsEntityComponentHandler {
 		
 		
 		Event result = super.doSaveAdd(context, command, errors);
+		//TODO: need to instantiate the actual instrument type instead of Instrument because
+		// other things may need to be done for a newly created instrument, such as calling its
+		// markUnusedFields method
 		List<Instrument> instrumentPrototypes = instrumentManager.getInstrumentPrototypes(visitDaoObj.getProjName(),visitDaoObj.getVisitType());
 		for(Instrument i : instrumentPrototypes){
 			i.setPatient(visitDaoObj.getPatient());
