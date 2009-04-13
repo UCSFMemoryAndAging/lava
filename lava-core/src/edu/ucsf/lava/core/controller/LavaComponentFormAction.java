@@ -205,7 +205,7 @@ public class LavaComponentFormAction extends BaseComponentFormAction {
 	protected Map coreReferenceData(RequestContext context) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		Map<String,Object> model = new HashMap<String,Object>();
-		model.put("flowId", context.getActiveFlow().getId()); // e.g. lava.assessment.instrument.instrument.enter
+		model.put("flowId", context.getActiveFlow().getId()); // e.g. lava.crms.assessment.instrument.cdr.enter
 		model.put("flowMode", ActionUtils.getFlowMode(context.getActiveFlow().getId())); // e.g. enter
 		model.put("flowState", context.getCurrentState().getId()); // e.g. enter
 		model.put("flowEvent", ActionUtils.getEventId(context)); // e.g. continue
@@ -247,6 +247,12 @@ public class LavaComponentFormAction extends BaseComponentFormAction {
 // utility methods	
 	//TODO: put these into a controllers utility class so that handlers are not referencing FormAction methods
 	
+	/**
+	 * If there are required field errors or field format (aka type mismatch) errors, then 
+	 * create a command error to display at the top of the view.
+	 * 
+	 * @param	errors
+	 */
 	// this was separated out into a separate method so the code could be shared by subclasses, such
 	// as InstrumentComponentFormAction, and handlers (which is why it is a static method)
 	public static void createCommandErrorsForFieldErrors(BindingResult errors) throws Exception {

@@ -121,16 +121,29 @@ public class FlowRegistrar implements LavaFlowRegistrar {
 			// must put a special conditions here to keep from recursing 
 			// forever if a flow is a subflow of itself..e.g. self join model
 			if(!subFlowAction.getId().equalsIgnoreCase(actionId) && 
-	    			//we also should not recure if the subflow is the same as the subflow that
+	    			//we also should not recurse if the subflow is the same as the subflow that
 					//this action customizes...that would also put us in an infinite loop
 					!subFlowAction.getId().equalsIgnoreCase(action.getCustomizedFlow()) &&
 	    			// also, if the subFlows would not result in any subFlowStates being built, then
 					// do not recurse (e.g. reportLauncher is subflow of every flow, individual reports
 					// are subflows of reportLauncher, reportLauncher is subflow of individual reports (because
 					// it is a subflow of every flow) but the ReportLauncherFlowTypeBuilder does not
-					// build subFlowStates for the individual report flows). 
+					// build subFlowStates for the individual report flows). to check this, have to obtain 
+		    		// the subflows of this subflow to see if there are any.
 					!subFlowInfoList.isEmpty()) {
 			
+	    		// note that it is impossible for flow A to have flow B as a subflow and flow B to 
+	    		// have flow A as a subflow, because one could not be built without the existence
+	    		// of the other, essentially a deadlock condition. e.g. the training launcher and the
+	    		// report launcher are subflows of all flows, which means they are subflows of each
+	    		// other and would violate this rule. thus it is up to the flow type builders to 
+	    		// exclude a given flow type from being a subflow in its getSubFlowInfo method. in 
+	    		// this example, this is resolved as follows: the report launcher flow type builder 
+	    		// does not allow the report launcher to be a subflow of the training launcher 
+	    		// (because it would not be needed), while the training launcher flow type builder 
+	    		// does allow the training launcher to be a subflow of the report launcher (because it 
+	    		// could be needed)
+				
 				buildFlow(subFlowAction.getId());
 			}
     	}
