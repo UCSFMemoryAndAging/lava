@@ -1,5 +1,6 @@
 package edu.ucsf.lava.crms.assessment.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,74 +20,44 @@ public class StatsUtils {
 	//               entityPropRoot + "A" = mean property
 	//               entityPropRoot + "M" = median property
 	//               entityPropRoot + "S" = std deviation property
-	public static void calcStdSummaryStats(Object summaryEntity, String entityPropRoot, List details, String prop, Class propClass, Map<String,Object> filter) throws Exception {
+	//
+	// includeFilter (optional) a Map of property name/values which must be matched for a given
+	//				detail record to be included in the calculation
+	// excludeFilter (optional) a Map of property name/values which must be matched for a given
+	//				detail record which has been included by the includeFilter to be excluded 
+	// 				from the calculation
+
+	// convenience method when there are no filters, i.e. all detail records should be included in the calculations
+	public static void calcStdSummaryStats(Object summaryEntity, String entityPropRoot, List details, String prop, Class propClass) throws Exception {
+		calcStdSummaryStats(summaryEntity, entityPropRoot, details, prop, propClass, new HashMap<String,Object>(), new HashMap<String,Object>());
+	}
+	
+	public static void calcStdSummaryStats(Object summaryEntity, String entityPropRoot, List details, String prop, Class propClass, Map<String,Object> includeFilter, Map<String, Object> excludeFilter) throws Exception {
 		SynchronizedDescriptiveStatistics stats = new SynchronizedDescriptiveStatistics();
 
 		for (Object detail : details) {
 			
-			// run the current detail thru the filter(s). if any filter does not match, set the
-			// match flag false and exit the loop
-			boolean match = true;
-			for (Map.Entry<String,Object> entry : filter.entrySet()) {
-				String filterProp = entry.getKey();
-				Object filterValue = entry.getValue();
-				
-				if (PropertyUtils.getProperty(detail, filterProp) == null) {
-					match = false;
-					break;
-				}
-				
-				// ** for String, using matches method, so the filter value can be a regular expression 
-				if (filterValue instanceof String) {
-					if (!((String)PropertyUtils.getProperty(detail, filterProp)).matches((String)filterValue)) {
-						match = false;
-						break;
-					}
-				}
-				else if (filterValue instanceof Short) {
-					if (!((Short)filterValue).equals((Short)PropertyUtils.getProperty(detail, filterProp))) {
-						match = false;
-						break;
-					}
+			// process includeFilter (no filter properties means that each detail record should
+			// be included in calculation, and filterMatch returns true in this case) 
+			if (filterMatch(detail, includeFilter)) {
 
-				}
-				else if (filterValue instanceof Long) {
-					if (!((Long)filterValue).equals((Long)PropertyUtils.getProperty(detail, filterProp))) {
-						match = false;
-						break;
+				// first check if there are an excludeFilter properties. if not, do not apply
+				// the filter
+				if (excludeFilter.size() == 0 || !filterMatch(detail, excludeFilter)) {
+					
+					// add the value to the stats structure
+					if (propClass == Short.class) {
+						stats.addValue((Short)PropertyUtils.getProperty(detail, prop));
 					}
-
-				}
-				else if (filterValue instanceof Integer) {
-					if (!((Integer)filterValue).equals((Integer)PropertyUtils.getProperty(detail, filterProp))) {
-						match = false;
-						break;
+					else if (propClass == Integer.class) {
+						stats.addValue((Integer)PropertyUtils.getProperty(detail, prop));
 					}
-
-				}
-				else if (filterValue instanceof Set) {
-					// Set is assumed to be a Set of String, typically used to filter on all possible trial
-					// name values for the "running" variable
-					if (!((Set)filterValue).contains((String)PropertyUtils.getProperty(detail, filterProp))) {
-						match = false;
-						break;
+					else if (propClass == Long.class) {
+						stats.addValue((Long)PropertyUtils.getProperty(detail, prop));
 					}
-				}
-			}
-			
-			if (match) {
-				// add the value to the stats structure
-				if (propClass == Short.class) {
-					stats.addValue((Short)PropertyUtils.getProperty(detail, prop));
-				}
-				else if (propClass == Integer.class) {
-					stats.addValue((Integer)PropertyUtils.getProperty(detail, prop));
-				}
-				else if (propClass == Long.class) {
-					stats.addValue((Long)PropertyUtils.getProperty(detail, prop));
-				}
-				else if (propClass == Float.class) {
-					stats.addValue((Float)PropertyUtils.getProperty(detail, prop));
+					else if (propClass == Float.class) {
+						stats.addValue((Float)PropertyUtils.getProperty(detail, prop));
+					}
 				}
 			}
 		}
@@ -110,62 +81,25 @@ public class StatsUtils {
 	}
 	
 	// count the number of items in a list that match a filter
-	public static void calcCountStats(Object summaryEntity, String entityProperty, List details, Map<String,Object> filter) throws Exception {
+	// detailExcludeSet (optional) is a set of which detail indices should be excluded from the calculations
+	
+	// convenience method when there are no filters, i.e. all detail records should be included in the calculations
+	public static void calcCountStats(Object summaryEntity, String entityProperty, List details) throws Exception {
+		calcCountStats(summaryEntity, entityProperty, details, new HashMap<String, Object>(), new HashMap<String, Object>());
+	}
+	
+	public static void calcCountStats(Object summaryEntity, String entityProperty, List details, Map<String,Object> includeFilter, Map<String, Object> excludeFilter) throws Exception {
 		Short count = 0;
 		for (Object detail : details) {
-			
-			// run the current detail thru the filter(s). if any filter does not match, set the
-			// match flag false and exit the loop
-			boolean match = true;
-			for (Map.Entry<String,Object> entry : filter.entrySet()) {
-				String filterProp = entry.getKey();
-				Object filterValue = entry.getValue();
-				
-				if (PropertyUtils.getProperty(detail, filterProp) == null) {
-					match = false;
-					break;
-				}
-				
-				// ** for String, using matches method, so the filter value can be a regular expression 
-				if (filterValue instanceof String) {
-					if (!((String)PropertyUtils.getProperty(detail, filterProp)).matches((String)filterValue)) {
-						match = false;
-						break;
-					}
-				}
-				else if (filterValue instanceof Short) {
-					if (!((Short)filterValue).equals((Short)PropertyUtils.getProperty(detail, filterProp))) {
-						match = false;
-						break;
-					}
+			// process includeFilter (no filter properties means that each detail record should
+			// be included in calculation, and filterMatch returns true in this case) 
+			if (filterMatch(detail, includeFilter)) {
 
+				// first check if there are an excludeFilter properties. if not, do not apply
+				// the filter
+				if (excludeFilter.size() == 0 || !filterMatch(detail, excludeFilter)) {
+					count++;
 				}
-				else if (filterValue instanceof Long) {
-					if (!((Long)filterValue).equals((Long)PropertyUtils.getProperty(detail, filterProp))) {
-						match = false;
-						break;
-					}
-
-				}
-				else if (filterValue instanceof Integer) {
-					if (!((Integer)filterValue).equals((Integer)PropertyUtils.getProperty(detail, filterProp))) {
-						match = false;
-						break;
-					}
-
-				}
-				else if (filterValue instanceof Set) {
-					// Set is assumed to be a Set of String, typically used to filter on all possible trial
-					// name values for the "running" variable
-					if (!((Set)filterValue).contains((String)PropertyUtils.getProperty(detail, filterProp))) {
-						match = false;
-						break;
-					}
-				}
-			}
-			
-			if (match) {
-				count++;
 			}
 		}
 		
@@ -173,4 +107,73 @@ public class StatsUtils {
 	}
 	
 
+	private static boolean filterMatch(Object detail, Map<String,Object> filter) throws Exception {
+		// set flag true, so as soon as their is a mismatch, set flag false and exit loop
+		boolean match = true;
+		for (Map.Entry<String,Object> entry : filter.entrySet()) {
+			String filterProp = entry.getKey();
+			Object filterValue = entry.getValue();
+
+			// run the current detail thru the filter(s). if any filter does not match, set the
+			// match flag false and exit the loop
+
+			if (PropertyUtils.getProperty(detail, filterProp) == null && filterValue != null) {
+				match = false;
+				break;
+			}
+
+			// ** for String, using matches method, so the filter value can be a regular expression 
+			if (filterValue instanceof String) {
+				if (!((String)PropertyUtils.getProperty(detail, filterProp)).matches((String)filterValue)) {
+					match = false;
+					break;
+				}
+			}
+			else if (filterValue instanceof Short) {
+				if (!((Short)filterValue).equals((Short)PropertyUtils.getProperty(detail, filterProp))) {
+					match = false;
+					break;
+				}
+
+			}
+			else if (filterValue instanceof Long) {
+				if (!((Long)filterValue).equals((Long)PropertyUtils.getProperty(detail, filterProp))) {
+					match = false;
+					break;
+				}
+
+			}
+			else if (filterValue instanceof Integer) {
+				if (!((Integer)filterValue).equals((Integer)PropertyUtils.getProperty(detail, filterProp))) {
+					match = false;
+					break;
+				}
+
+			}
+			else if (filterValue instanceof Set) {
+				Object setMember = ((Set)filterValue).iterator().next();
+				if (setMember != null) {
+					if (setMember instanceof String) {
+						if (!((Set)filterValue).contains((String)PropertyUtils.getProperty(detail, filterProp))) {
+							match = false;
+							break;
+						}
+					}
+					else if (setMember instanceof Short) {
+						if (!((Set)filterValue).contains((Short)PropertyUtils.getProperty(detail, filterProp))) {
+							match = false;
+							break;
+						}
+					}
+				}
+				else {
+					match = false;
+					break;
+				}
+			}
+		}
+		
+		return match;
+	}
+	
 }
