@@ -60,9 +60,26 @@
          "r" = result data, i.e. instrument data
          "h" = hidden field, e.g. a hidden input. 
          
-       note about "r": for some styles, result context is used to determine which input control
-         to use, e.g. for style=scale, autoComplete is used, but in collect mode ('dc'), a comboRadioSelect
-         is used. 
+       notes:
+         - "r": for some styles, result context is used to determine which input control
+           to use, e.g. for style=scale, autoComplete is used, but in collect mode ('dc'), a comboRadioSelect
+           is used.
+         - "r" fields generally correspond to the requiredResultFields list of instrument entity
+         	classes. however, this list is created dynamically in realtime so the actual 
+         	requiredResultFields may be a subset of fields with context "r"
+         - "r" vs. "i" for instrument double entry: subject to the previous note, all "r" 
+         	fields are part of the double entry comparison, whereas "i" fields are not
+         	
+         	however, because of uitags skip logic which may involve "i" and "r" fields, 
+         	"i" fields must still be present on the "doubleEnter" page even though they are 
+         	not compared, and on the "compare" page they must have both the first and
+         	second entries present (again, for uitags purposes) but since they are not
+         	compared, the second entry is hidden, to make things clear to the user
+         	
+         	*** therefore, an "i" field should not be part of an instrument's requiredResultField
+         	list because then would have situation where the field is compared but the field's
+         	second entry on the "compare" page is hidden
+         	 
          additionally, all result context fields have two input fields on the instrument
          "enter" flow, compare page (whereas context "i" fields only have one, i.e. for fields
          that should never be involved in the compare), with the exception of those with the
@@ -87,13 +104,14 @@
                   enforcement of required fields is done in the controllers/handlers and is 
                   completely independent this metadata field.
      - "size"     set the size of widgets that use an HTML text box, i.e. style=string, numeric, date,
-                  datetime, scale, range, suggest
+                  datetime, scale, range, suggest, select, multiple
 		          note: the size of style=text widgets can be set using rows and 
 		          cols in the widgetAttributes (attribues column) metadata, or alternatively, by 
 		          creating a style with sizing and passing it into the dataStyle attribute of this 
 		          tag,  e.g. the "instrNote" style
       - "maxlength" used to set the max length of text in widgets where user can type text, i.e.
-                  style=string, suggest, text
+                  style=string, suggest, text. one exception is select controls, where maxlength
+                  is the number of options to display. 
    
    The tag file attributes are used to construct the key to obtain the value for each metadata
    attribute of a given property.
@@ -454,12 +472,12 @@
 				element HTML tag as well as the "for" attribute of the HTML label tag, to associate the 
 				HTML label with its form input field --%>
 			<c:choose>
-				<%-- when on the instrument compare view, there will be two sets for inputs for the result
+				<%-- when on the instrument compare view, there will be two sets of inputs for the result
 					fields. the first set should bind to the 'instrument' component of the command object,
 					and the second set should bind to 'compareInstrument. note that the component attribute 
 					will have been passed in with value 'instrument' for the instrument compare view. the
 					loop iteration determines which component to use. --%>
-				<c:when test="${component == 'instrument' && componentView == 'compare'}">
+				<c:when test="${componentView == 'compare'}">
 					<c:choose>
 						<%-- there is a special situation for the contextual fields, which only have one set of visual
 							fields (and are readonly). for the 'compareInstrument' component, these fields have not been 
@@ -546,6 +564,13 @@
 				 all context 'r' fields should be displayed with two input fields, with the exception of those with
 				 "disabled" in its widgetAttributes, in which case the field is not editable (e.g. a calculated total)
 				 and should not appear twice.
+
+				 all context 'i' fields are not compared , so to make this clear to the user, make the second input
+				 field invisible. the second input field must still be present  because it may be referenced by 
+				 the uitags javascript. because the second field is invisible, 'i' fields should never be part of an
+				 instrument's model class requiredResultFields list, because then it would be compared and there
+				 would be no second field visible to edit the compare value.
+				 
 				 note that the set of fields that are actually compare is determined by getRequiredResultFields method
 				 in the specific instrument model class. this method may use logic to conditionally set required fields,
 				 e.g. if totalOnly checkbox is checked, it is only necessary to compare the total fields (although in 

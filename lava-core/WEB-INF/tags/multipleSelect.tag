@@ -18,7 +18,8 @@
               description="a Map where entry key is list item value and entry value is list item label" %>
 <%@ attribute name="size"
               description="[optional] width of the select box. multiplied by 10 to compute a pixel width
-              because select box does not have a standard attribute for setting width. defaults to 200"%>
+              because select box does not have a standard attribute for setting width. defaults to 20
+              for a pixel width of 200"%>
 <%@ attribute name="length"
               description="[optional] number of options displayed at once. the maxLength metadata attribute is used
               to set the length of multiple select. defaults to 20"%>
