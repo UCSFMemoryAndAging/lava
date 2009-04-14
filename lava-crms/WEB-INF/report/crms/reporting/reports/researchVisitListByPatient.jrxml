@@ -149,7 +149,7 @@ $F{PredictedNeuropathology}]]></textFieldExpression>
 					<textElement>
 						<font/>
 					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$P{handler}.getMessage("report.patientName")]]></textFieldExpression>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{handler}.getMessage("report.patientNameWithPidn")]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
 					<reportElement
@@ -319,7 +319,7 @@ $F{PredictedNeuropathology}]]></textFieldExpression>
 					<textElement>
 						<font/>
 					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$F{FullNameRev}]]></textFieldExpression>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{FullNameRev} + " (" + $F{PIDN} + ")"]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
 					<reportElement
