@@ -91,7 +91,7 @@ public class AddPatientHandler extends CrmsEntityComponentHandler {
 		//if necessary, change the enrollment status type
 		if(!projectSpecific.getClass().equals(es.getClass())){
 			projectSpecific.setProjName(es.getProjName());
-			apc.setEnrollmentStatus(es);
+			apc.setEnrollmentStatus(projectSpecific);
 		}
 		
 		return super.doReRender(context, command, errors);
