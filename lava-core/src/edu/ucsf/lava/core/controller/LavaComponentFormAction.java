@@ -32,13 +32,13 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.action.ActionUtils;
-import edu.ucsf.lava.core.util.CustomDatePartEditor;
-import edu.ucsf.lava.core.util.CustomDateTimeEditor;
+import edu.ucsf.lava.core.util.CustomLavaDatePartEditor;
+import edu.ucsf.lava.core.util.CustomLavaDateEditor;
 
-import edu.ucsf.lava.core.util.CustomTimePartEditor;
-import edu.ucsf.lava.core.util.DatePart;
-import edu.ucsf.lava.core.util.DateTime;
-import edu.ucsf.lava.core.util.TimePart;
+import edu.ucsf.lava.core.util.CustomLavaTimePartEditor;
+import edu.ucsf.lava.core.util.LavaDatePart;
+import edu.ucsf.lava.core.util.LavaDate;
+import edu.ucsf.lava.core.util.LavaTimePart;
 import edu.ucsf.lava.core.webflow.CustomReportSelector;
 import edu.ucsf.lava.core.webflow.CustomViewSelector;
 
@@ -142,9 +142,9 @@ public class LavaComponentFormAction extends BaseComponentFormAction {
 		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MM/dd/yyyy h:mma");
 		SimpleDateFormat timePartFormat = new SimpleDateFormat("h:mma");
 		registry.registerCustomEditor(Date.class, new LavaCustomDateEditor(datePartFormat, true));
-		registry.registerCustomEditor(DatePart.class, new CustomDatePartEditor(datePartFormat, true));
-		registry.registerCustomEditor(DateTime.class, new CustomDateTimeEditor(dateTimeFormat, true));
-		registry.registerCustomEditor(TimePart.class, new CustomTimePartEditor(timePartFormat, true));
+		registry.registerCustomEditor(LavaDatePart.class, new CustomLavaDatePartEditor(datePartFormat, true));
+		registry.registerCustomEditor(LavaDate.class, new CustomLavaDateEditor(dateTimeFormat, true));
+		registry.registerCustomEditor(LavaTimePart.class, new CustomLavaTimePartEditor(timePartFormat, true));
 			
 		registry.registerCustomEditor(Long.class, new CustomNumberEditor(Long.class,true));
 		

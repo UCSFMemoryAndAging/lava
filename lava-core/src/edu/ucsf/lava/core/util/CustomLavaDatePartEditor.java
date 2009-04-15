@@ -10,7 +10,7 @@ import org.springframework.util.StringUtils;
 /**
  * 
  */
-public class CustomDatePartEditor extends PropertyEditorSupport {
+public class CustomLavaDatePartEditor extends PropertyEditorSupport {
 
 	private final DateFormat dateFormat;
 
@@ -28,7 +28,7 @@ public class CustomDatePartEditor extends PropertyEditorSupport {
 	 * @param dateFormat DateFormat to use for parsing and rendering
 	 * @param allowEmpty if empty strings should be allowed
 	 */
-	public CustomDatePartEditor(DateFormat dateFormat, boolean allowEmpty) {
+	public CustomLavaDatePartEditor(DateFormat dateFormat, boolean allowEmpty) {
 		this.dateFormat = dateFormat;
 		this.allowEmpty = allowEmpty;
 		this.exactDateLength = -1;
@@ -49,7 +49,7 @@ public class CustomDatePartEditor extends PropertyEditorSupport {
 	 * @param allowEmpty if empty strings should be allowed
 	 * @param exactDateLength the exact expected length of the date String
 	 */
-	public CustomDatePartEditor(DateFormat dateFormat, boolean allowEmpty, int exactDateLength) {
+	public CustomLavaDatePartEditor(DateFormat dateFormat, boolean allowEmpty, int exactDateLength) {
 		this.dateFormat = dateFormat;
 		this.allowEmpty = allowEmpty;
 		this.exactDateLength = exactDateLength;
@@ -70,7 +70,7 @@ public class CustomDatePartEditor extends PropertyEditorSupport {
 		}
 		else {
 			try {
-				setValue(new DatePart(this.dateFormat.parse(text).getTime()));
+				setValue(new LavaDatePart(this.dateFormat.parse(text).getTime()));
 			}
 			catch (ParseException ex) {
 				throw new IllegalArgumentException("Could not parse date: " + ex.getMessage());
@@ -82,7 +82,7 @@ public class CustomDatePartEditor extends PropertyEditorSupport {
 	 * Format the Date as String, using the specified DateFormat.
 	 */
 	public String getAsText() {
-		DatePart value = (DatePart) getValue();
+		LavaDatePart value = (LavaDatePart) getValue();
 		return (value != null ? this.dateFormat.format(value.toDate()) : "");
 	}
 
