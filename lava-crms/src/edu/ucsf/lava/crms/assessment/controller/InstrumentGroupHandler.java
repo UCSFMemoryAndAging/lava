@@ -72,7 +72,7 @@ public class InstrumentGroupHandler extends CrmsGroupComponentHandler {
 	}
 	
 	protected List getAuthEvents() {
-		// isAuthEvent maps "deleteAll" event to "delete" for auth purposes		
+		// isAuthEvent maps "bulkDelete" event to "delete" for auth purposes		
 		return new ArrayList(Arrays.asList(new String[]{"enter", "delete"}));
 	}
 
@@ -207,8 +207,8 @@ public class InstrumentGroupHandler extends CrmsGroupComponentHandler {
 		// list flow, and specific events are appended per InstrumentGroupFlowTypeBuilder to create
 		// flow ids, e.g. 
 		// lava.assessment.instrument.instrumentGroup.enter
-		// lava.assessment.instrument.instrumentGroup.deleteAll
-		// the deleteAll event is a special case handled in an initial decisionState in the GroupFlowBuilder
+		// lava.assessment.instrument.instrumentGroup.bulkDelete
+		// the bulkDelete event is a special case handled in an initial decisionState in the GroupFlowBuilder
 		// where all instruments are deleted at once
 		// all other events indicate an action that is to be performed on each instrument in the group
 		// individually, and this method handles each one in succession
@@ -387,7 +387,7 @@ public class InstrumentGroupHandler extends CrmsGroupComponentHandler {
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
 	
-	protected Event doConfirmDeleteAll(RequestContext context, Object command, BindingResult errors) throws Exception {
+	protected Event doConfirmBulkDelete(RequestContext context, Object command, BindingResult errors) throws Exception {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		// iterate thru the entities in the group, deleting each
 		// the group may be contain some or all InstrumentTracking objects (e.g. if created from an instrument list), which if 
@@ -401,7 +401,7 @@ public class InstrumentGroupHandler extends CrmsGroupComponentHandler {
 			specificInstrument.delete();
 		}
 							
-		CoreSessionUtils.addFormError(sessionManager, request, new String[]{"info.instrumentGroup.deleteAllComplete"}, new Object[]{});
+		CoreSessionUtils.addFormError(sessionManager, request, new String[]{"info.instrumentGroup.bulkDeleteComplete"}, new Object[]{});
 		
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}				

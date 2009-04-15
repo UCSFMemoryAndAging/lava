@@ -34,7 +34,7 @@ public class GroupFlowBuilder extends BaseFlowBuilder {
     	
     	addDecisionState("preIterate", null,
     		new Transition[] {
-    			transition(on("${activeFlow.id.endsWith('deleteAll')}"), to("deleteAll")),
+    			transition(on("${activeFlow.id.endsWith('bulkDelete')}"), to("bulkDelete")),
     			transition(on("${@java.lang.Boolean@TRUE}"), to("iterate"),
     					ifReturnedSuccess(new SetAction(settableExpression("groupIndex"), ScopeType.FLOW, expression("0"))))},
     		null, null, null);
@@ -45,8 +45,8 @@ public class GroupFlowBuilder extends BaseFlowBuilder {
 		// target subflow of the same name, i.e. the return Strings match the subflow names that are created as
 		// part of buildSubFlowStates, using transitions created by buildSubFlowTransitions    	
 		// e.g. "instrument__enter" or "medications__delete"
-    	// note the special handing for "deleteAll" where the "preIterate" state above transitions to
-    	// the "deleteAll" state and the "iterate" state is skipped entirely
+    	// note the special handing for "bulkDelete" where the "preIterate" state above transitions to
+    	// the "bulkDelete" state and the "iterate" state is skipped entirely
     	iterateStateTransitions.addAll(this.buildSubFlowTransitions());
         iterateStateTransitions.add(transition(on("missing"), to("missing")));
         iterateStateTransitions.add(transition(on("groupError"), to("groupError")));
@@ -86,13 +86,13 @@ public class GroupFlowBuilder extends BaseFlowBuilder {
     			null,
     			null);
 
-    	addViewState("deleteAll", 
+    	addViewState("bulkDelete", 
     			null, formAction.getCustomViewSelector(),
     			new Action[]{invoke("prepareToRender",formAction)},
     			new Transition[] { 
-                    transition(on(objectName + "__confirmDeleteAll"), to("finish"), 
+                    transition(on(objectName + "__confirmBulkDelete"), to("finish"), 
                     	ifReturnedSuccess(invoke("handleFlowEvent", formAction))),
-                    transition(on(objectName + "__cancelDeleteAll"), to("finish"), 
+                    transition(on(objectName + "__cancelBulkDelete"), to("finish"), 
                     	ifReturnedSuccess(invoke("handleFlowEvent", formAction))),
                     // support a list secondary component for nav events only, since just a reference list
                     buildListNavigationTransitions(getFlowEvent())},

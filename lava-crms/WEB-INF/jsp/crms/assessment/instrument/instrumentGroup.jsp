@@ -16,8 +16,8 @@
 </page:applyDecorator>	
 	</c:when>
 	
-	<c:when test="${flowState == 'deleteAll'}">
-		<c:import url="/WEB-INF/jsp/crms/assessment/instrument/instrumentGroupDeleteAllContent.jsp">
+	<c:when test="${flowState == 'bulkDelete'}">
+		<c:import url="/WEB-INF/jsp/crms/assessment/instrument/instrumentGroupBulkDeleteContent.jsp">
 		</c:import>
 	</c:when>
 	

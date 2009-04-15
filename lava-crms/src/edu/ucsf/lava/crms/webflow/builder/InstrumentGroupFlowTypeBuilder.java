@@ -14,7 +14,7 @@ public class InstrumentGroupFlowTypeBuilder extends BaseFlowTypeBuilder {
 		super("instrumentGroup");
 		// the events include all "instrument" FlowType events which can be executed 
 		// on each instrument in an InstrumentGroup
-		setEvents(new String[]{"view", "edit", "status", "delete", "deleteAll"});
+		setEvents(new String[]{"view", "edit", "status", "delete", "bulkDelete"});
 	}
 
 	public void RegisterFlowTypeDefinitions(LavaFlowRegistrar registry,String actionId) {
@@ -35,7 +35,7 @@ public class InstrumentGroupFlowTypeBuilder extends BaseFlowTypeBuilder {
 		registry.registerFlowDefinition(assemble(actionId + ".delete", 
 				new GroupFlowBuilder(registry,actionId)));
 		
-		registry.registerFlowDefinition(assemble(actionId + ".deleteAll", 
+		registry.registerFlowDefinition(assemble(actionId + ".bulkDelete", 
 				new GroupFlowBuilder(registry,actionId)));
 	}
 
@@ -46,7 +46,7 @@ public class InstrumentGroupFlowTypeBuilder extends BaseFlowTypeBuilder {
 		subFlowInfo.add(new FlowInfo(subFlowActionId,"edit"));
 		subFlowInfo.add(new FlowInfo(subFlowActionId,"status"));
 		subFlowInfo.add(new FlowInfo(subFlowActionId,"delete"));
-		subFlowInfo.add(new FlowInfo(subFlowActionId,"deleteAll"));
+		subFlowInfo.add(new FlowInfo(subFlowActionId,"bulkDelete"));
 		return subFlowInfo;
 	}
 	

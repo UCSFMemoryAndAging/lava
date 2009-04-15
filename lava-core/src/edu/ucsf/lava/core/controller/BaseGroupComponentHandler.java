@@ -66,11 +66,11 @@ public abstract class BaseGroupComponentHandler extends LavaComponentHandler {
 	// entities in the group, e.g. "enter" or "edit", i.e. they should call this base class 
 	// method and then append events to the result
 	protected List getDefaultEvents() {
-		// "deleteAll" is handled when this handler is serving as the secondary handler to a
+		// "bulkDelete" is handled when this handler is serving as the secondary handler to a
 		// primary handler when a group should be created prior to transitioning to a group
 		// subflow, where this handler serves as the primary handler, handling the rest of 
 		// these events
-		return new ArrayList(Arrays.asList(new String[]{"deleteAll", "next", "addMissing","close", "confirmDeleteAll", "cancelDeleteAll"}));
+		return new ArrayList(Arrays.asList(new String[]{"bulkDelete", "next", "addMissing","close", "confirmBulkDelete", "cancelBulkDelete"}));
 	}
 	
 	// subclasses must override to define which authorization events should be checked
@@ -84,7 +84,7 @@ public abstract class BaseGroupComponentHandler extends LavaComponentHandler {
 		// the authorization event for reports is "view"
 
 		
-//TODO: with group flow, authorization falls to the individual entity actions. however, deleteAll
+//TODO: with group flow, authorization falls to the individual entity actions. however, bulkDelete
 //does not have individual entity actions. perhaps the way to handle this is to iterate thru the
 //group, checking the authorization for each entity
 /**		
@@ -110,7 +110,7 @@ public abstract class BaseGroupComponentHandler extends LavaComponentHandler {
 		// mode is stored within the Action, and for flow's the mode is the final part of the flow id 
 		String event = ActionUtils.getFlowMode(context.getActiveFlow().getId());
 		
-		if (event.equals("deleteAll")) {
+		if (event.equals("bulkDelete")) {
 			event = "delete";
 		}
 		
@@ -139,7 +139,7 @@ public abstract class BaseGroupComponentHandler extends LavaComponentHandler {
 		backingObjects.put(this.getDefaultObjectName(), context.getFlowScope().get(GROUP_MAPPING));
 
 		// also put the group in the command object as a PagedListHolder so they can be displayed 
-		// in a navigable list for confirmation purposes (e.g. for "deleteAll")
+		// in a navigable list for confirmation purposes (e.g. for "bulkDelete")
 
 		// put the group items into a ScrollablePagedListHolder and add that to the command components
 		// so that the view can display the entities to be deleted as a paged list on confirmDelete
@@ -147,9 +147,11 @@ public abstract class BaseGroupComponentHandler extends LavaComponentHandler {
 		//  sorting, still need a ScrollablePagedListHolder vs. PagedListHolder to support the record set
 		//  navigation, e.g. "1-10 of 121"
 		List<LavaEntity> group = (List<LavaEntity>) context.getFlowScope().get(GROUP_MAPPING);
-		ScrollablePagedListHolder groupListHolder = new ScrollablePagedListHolder();
-		groupListHolder.setSource(group);
-		backingObjects.put(GROUP_LIST, groupListHolder);
+		if (group != null) {
+			ScrollablePagedListHolder groupListHolder = new ScrollablePagedListHolder();
+			groupListHolder.setSourceFromEntityList(group);
+			backingObjects.put(GROUP_LIST, groupListHolder);
+		}
 		
 		return backingObjects;
 	}
@@ -161,14 +163,14 @@ public abstract class BaseGroupComponentHandler extends LavaComponentHandler {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		String flowMode = ActionUtils.getFlowMode(context.getActiveFlow().getId()); 
 
-		if (flowMode.equals("deleteAll")) {
-			// setting componentView to "deleteAll" will trigger the "Are you sure you want to.."
+		if (flowMode.equals("bulkDelete")) {
+			// setting componentView to "bulkDelete" will trigger the "Are you sure you want to.."
 			// warning via the component content decorator
 			setComponentMode(request, getDefaultObjectName(), "vw");
-			setComponentView(request, getDefaultObjectName(), "deleteAll");
+			setComponentView(request, getDefaultObjectName(), "bulkDelete");
 		}
 		else {
-			// other than deleteAll, the group flow itself only has view states for errors and 
+			// other than bulkDelete, the group flow itself only has view states for errors and 
 			// missing entities. there is no CRUD or persistent model object, so just set view mode
 			setComponentMode(request, getDefaultObjectName(), "vw");
 			setComponentView(request, getDefaultObjectName(), "view");
@@ -214,11 +216,11 @@ public abstract class BaseGroupComponentHandler extends LavaComponentHandler {
 		else if(event.equals("close")){
 			return this.handleCloseEvent(context,command,errors);
 		}	
-		else if(event.equals("confirmDeleteAll")){
-			return this.handleConfirmDeleteAllEvent(context,command,errors);
+		else if(event.equals("confirmBulkDelete")){
+			return this.handleConfirmBulkDeleteEvent(context,command,errors);
 		}	
-		else if(event.equals("cancelDeleteAll")){
-			return this.handleCancelDeleteAllEvent(context,command,errors);
+		else if(event.equals("cancelBulkDelete")){
+			return this.handleCancelBulkDeleteEvent(context,command,errors);
 		}	
 		else {
 			return this.handleCustomEvent(context,command,errors);
@@ -285,12 +287,12 @@ public abstract class BaseGroupComponentHandler extends LavaComponentHandler {
 
 
 	
-	public Event handleConfirmDeleteAllEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
-		return doConfirmDeleteAll(context, command,errors);
+	public Event handleConfirmBulkDeleteEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
+		return doConfirmBulkDelete(context, command,errors);
 	}
 		
 	//Override this in subclass to provide custom close handler 
-	protected Event doConfirmDeleteAll(RequestContext context, Object command, BindingResult errors) throws Exception {
+	protected Event doConfirmBulkDelete(RequestContext context, Object command, BindingResult errors) throws Exception {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 
 		// iterate thru the entities in the group, deleting each
@@ -299,18 +301,18 @@ public abstract class BaseGroupComponentHandler extends LavaComponentHandler {
 			entity.delete();
 		}
 							
-		CoreSessionUtils.addFormError(sessionManager, request, new String[]{"info.group.deleteAllComplete"}, new Object[]{});
+		CoreSessionUtils.addFormError(sessionManager, request, new String[]{"info.group.bulkDeleteComplete"}, new Object[]{});
 
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}				
 
 	
-	public Event handleCancelDeleteAllEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
-		return doCancelDeleteAll(context, command,errors);
+	public Event handleCancelBulkDeleteEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
+		return doCancelBulkDelete(context, command,errors);
 	}
 		
 	//Override this in subclass to provide custom close handler 
-	protected Event doCancelDeleteAll(RequestContext context, Object command, BindingResult errors) throws Exception {
+	protected Event doCancelBulkDelete(RequestContext context, Object command, BindingResult errors) throws Exception {
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
 

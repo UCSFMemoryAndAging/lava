@@ -26,9 +26,14 @@ public class ReportLauncherFlowTypeBuilder extends BaseFlowTypeBuilder {
 		
 		// because the reportLauncher is configured to be a subflow of every flow for convenience of configuration,
 		// it is erroneously a subflow of itself and of each individual report. so do not build report launcher subflows 
-		// for itself and for the individual report flows. preventing this is critical because it prevents recursion 
-		// when building the flows
-		if(!flowType.equals("reportLauncher") && !flowType.equals("report")){
+		// for itself and for the individual report flows (report flows are subflows of the reportLauncher, but not vice
+		// versa). preventing this is critical because it prevents recursion when building the flows
+		
+		// additionally, since the trainingLauncher flow is also a subflow of every flow, there would be a deadlock 
+		// condition during flow building if the reportLauncher flow had a trainingLauncher subflow and vice versa, 
+		// so prevent the reportLauncher from being a subflow of trainingLauncher, which is fine since will not need to 
+		// launch a report from the trainingLauncher flow
+		if(!flowType.equals("reportLauncher") && !flowType.equals("report") && !flowType.equals("trainingLauncher")){
 			String target = ActionUtils.getTarget(subFlowActionId);
 			subFlowInfo.add(new FlowInfo(subFlowActionId,"view"));
 		}

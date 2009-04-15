@@ -6,7 +6,7 @@
 <c:set var="component" value="groupList"/>
 
 <page:applyDecorator name="component.instrument.section">
-  <page:param name="sectionNameKey">instrumentGroup.deleteAll.section</page:param>
+  <page:param name="sectionNameKey">instrumentGroup.bulkDelete.section</page:param>
   <page:param name="view">${componentView}</page:param>
   <page:param name="instructions"> </page:param>
 

@@ -30,12 +30,12 @@
 		<c:set var="rightbutton1_action" value="close"/>
 	</c:when>
 	
-	<c:when test="${flowState == 'deleteAll'}">
+	<c:when test="${flowState == 'bulkDelete'}">
         <c:set var="numRightButtons" value="2"/>
 		<c:set var="rightbutton1_text" value="Cancel"/>
-		<c:set var="rightbutton1_action" value="cancelDeleteAll"/>
+		<c:set var="rightbutton1_action" value="cancelBulkDelete"/>
 		<c:set var="rightbutton2_text" value="Delete"/>
-		<c:set var="rightbutton2_action" value="confirmDeleteAll"/>
+		<c:set var="rightbutton2_action" value="confirmBulkDelete"/>
 	</c:when>
 	
 </c:choose>	

@@ -27,13 +27,13 @@ so that the secondary handler can create the group --%>
 
 	<tags:listCell styleClass="actionButton" width="10%">
 		<%-- append actions with "_prototype" so event handling will create the group from a project-visit
-			instrument group prototype instead of user selected items. this is not necessary for deleteAll
+			instrument group prototype instead of user selected items. this is not necessary for bulkDelete
 			which only applies to groups created from prototypes --%>
 		<tags:eventActionButton buttonImage="view" component="${groupComponent}" action="view_prototype" pageName="${pageName}"/>
 		<%-- edit event represents "enter", "enterReview", "upload", etc. depending upon the instrument --%>
 		<tags:eventActionButton buttonImage="edit" component="${groupComponent}" action="edit_prototype" pageName="${pageName}"/>
 		<tags:eventActionButton buttonImage="status" component="${groupComponent}" action="status_prototype" pageName="${pageName}"/>
-		<tags:eventActionButton buttonImage="delete" component="${groupComponent}" action="deleteAll" pageName="${pageName}"/>
+		<tags:eventActionButton buttonImage="delete" component="${groupComponent}" action="bulkDelete" pageName="${pageName}"/>
 	</tags:listCell> 
 
 	<tags:listCell colspan="5">
