@@ -258,7 +258,8 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 	}
 	
 	public static List createSourceList(List loadedElements,LavaDaoFilter filter){
-		List newSourceList = new ArrayList(filter.getResultsCount());
+		int resultsCount = filter.getResultsCount();
+		List newSourceList = new ArrayList(resultsCount);
 		
 		// want to put an id in each listItem so that metadata can be tied to an
 		// item even if its entity has not been loaded, e.g. item is selected
@@ -278,6 +279,11 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 			int i=0;
 			for (Object entity : loadedElements){
 				newSourceList.add(i++, new ListItem(((LavaEntity)entity).getId(), entity, Boolean.FALSE));
+			}
+			
+			//add empty listItems to the sourcelist. This is equivalent to the empty placeholders before ListItems were used. 
+			for(;i<resultsCount;){
+				newSourceList.add(i++, new ListItem((long)0));
 			}
 		}
 		
