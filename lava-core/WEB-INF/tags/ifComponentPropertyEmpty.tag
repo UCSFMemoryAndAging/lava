@@ -26,10 +26,10 @@
 	<c:otherwise>
 		<c:choose>
 			<c:when test="${empty property2}">
-				<c:set var="theProperty" value="${command.components[component].pageList[listIndex][property]}"/>
+				<c:set var="theProperty" value="${command.components[component].pageList[listIndex].entity[property]}"/>
 			</c:when>
 			<c:otherwise>
-					<c:set var="theProperty" value="${command.components[component].pageList[listIndex][property][property2]}"/>
+					<c:set var="theProperty" value="${command.components[component].pageList[listIndex].entity[property][property2]}"/>
 			</c:otherwise>
 		</c:choose>
 	</c:otherwise>	

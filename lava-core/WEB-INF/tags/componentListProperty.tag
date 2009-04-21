@@ -14,9 +14,9 @@
 
 <c:choose>
 	<c:when test="${empty property2}">
-		${command.components[component].pageList[$listIndex][property]}
+		${command.components[component].pageList[$listIndex].entity[property]}
 	</c:when>
 	<c:otherwise>
-		${command.components[component].pageList[$listIndex][property][property2]}
+		${command.components[component].pageList[$listIndex].entity[property][property2]}
 	</c:otherwise>
 </c:choose>
