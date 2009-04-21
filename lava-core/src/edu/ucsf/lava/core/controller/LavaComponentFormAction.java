@@ -139,8 +139,8 @@ public class LavaComponentFormAction extends BaseComponentFormAction {
 		// not
 		//  registry.registerCustomEditor(Date.class, "components['visit'].visitDate", new CustomDateEditor(dateFormat, true));
 		SimpleDateFormat datePartFormat = new SimpleDateFormat("MM/dd/yyyy");
-		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MM/dd/yyyy h:mm a");
-		SimpleDateFormat timePartFormat = new SimpleDateFormat("h:mm a");
+		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MM/dd/yyyy h:mma");
+		SimpleDateFormat timePartFormat = new SimpleDateFormat("h:mma");
 		registry.registerCustomEditor(Date.class, new LavaCustomDateEditor(datePartFormat, true));
 		registry.registerCustomEditor(LavaDatePart.class, new CustomLavaDatePartEditor(datePartFormat, true));
 		registry.registerCustomEditor(LavaDate.class, new CustomLavaDateEditor(dateTimeFormat, true));
