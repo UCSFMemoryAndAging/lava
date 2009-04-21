@@ -4,40 +4,64 @@ import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import org.hibernate.HibernateException;
 import org.hibernate.usertype.UserType;
 
-public class LavaDateUserType implements UserType {
+public class LavaDateUserType implements UserType, Serializable {
 
 	public Object assemble(Serializable cached, Object owner) throws HibernateException {
-		// TODO Auto-generated method stub
-		return null;
+		return (LavaDate) deepCopy(cached);
+	
 	}
 
+	
 	public Object deepCopy(Object value) throws HibernateException {
-		// TODO Auto-generated method stub
-		return null;
+	
+		if(value==null){return value;}
+		
+		
+		//Not sure if we need to do all this, but I suppose it doesn't hurt. 
+		if(LavaDate.class.isAssignableFrom(value.getClass())){
+			return new LavaDate(((LavaDate)value).getTimestamp());
+		}else if(Date.class.isAssignableFrom(value.getClass())){
+			return new LavaDate(((Date)value).getTime());
+		}else if(java.sql.Date.class.isAssignableFrom(value.getClass())){
+			return new LavaDate(((java.sql.Date)value).getTime());
+		}else if(Timestamp.class.isAssignableFrom(value.getClass())){
+			return new LavaDate(((Timestamp)value).getTime());
+		}else{
+			return null;
+		}
 	}
 
+	
 	public Serializable disassemble(Object value) throws HibernateException {
-		// TODO Auto-generated method stub
-		return null;
+		return (LavaDate) deepCopy(value);
 	}
 
+	/**
+	 * LavaDate equals override checks inner dates for equality
+	 */
 	public boolean equals(Object x, Object y) throws HibernateException {
-		// TODO Auto-generated method stub
+		if(x != null){
+			return x.equals(y);
+		}
 		return false;
 	}
 
 	public int hashCode(Object x) throws HibernateException {
-		// TODO Auto-generated method stub
-		return 0;
+		if(x != null){
+			return x.hashCode();
+		}else{
+			return 0;
+		}
 	}
 
 	public boolean isMutable() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
@@ -54,8 +78,7 @@ public class LavaDateUserType implements UserType {
 	}
 
 	public Object replace(Object original, Object target, Object owner) throws HibernateException {
-		// TODO Auto-generated method stub
-		return null;
+		return (LavaDate) deepCopy(original);
 	}
 
 	public Class returnedClass() {

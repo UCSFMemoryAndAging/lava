@@ -1,8 +1,11 @@
 package edu.ucsf.lava.core.util;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
+
+import edu.ucsf.lava.core.model.LavaEntity;
 import static edu.ucsf.lava.core.util.LavaDateUtils.*;
 /**
  * Extension of the date class that supports distinct properties for 
@@ -20,7 +23,7 @@ import static edu.ucsf.lava.core.util.LavaDateUtils.*;
  * to the database.  
  * 
  */
-public class LavaDate{
+public class LavaDate implements Serializable{
 
 	protected Date wrappedDate;
 	
@@ -50,8 +53,33 @@ public class LavaDate{
 	}
 	
 	
+	/* Equals, etc. */
+	public boolean equals(Object object){
+		if(object == null){return false;}
+		if(!object.getClass().equals(this.getClass())){return false;}
+		return(getDate() != null && getDate().equals(((LavaDate)object).getDate()));
+	}
+
+	public int hashCode() {
+		if(getDate()!=null){
+			return getDate().hashCode();
+		}else{
+			return 0;
+		}
+	}
+
+	public String toString() {
+		// TODO Auto-generated method stub
+		return super.toString();
+	}
+
+
+	
 	/* special null date and time functions */
 	
+	
+	
+
 	/**
 	 * Determines whether the wrapped date property is empty.  Empty is 
 	 * defined as either null or having an empty date part and an empty time part. 

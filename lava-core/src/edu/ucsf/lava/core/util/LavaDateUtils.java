@@ -104,7 +104,7 @@ public class LavaDateUtils {
 		if(isDatePartEmpty(datePart)){
 			dateCal.set(Calendar.MILLISECOND,EMPTY_DATE_PART_FLAG | dateCal.get(Calendar.MILLISECOND));
 		}
-		return date;
+		return dateCal.getTime();
 		
 	}
 	
@@ -125,7 +125,7 @@ public class LavaDateUtils {
 		if(isTimePartEmpty(timePart)){
 			dateCal.set(Calendar.MILLISECOND,EMPTY_TIME_PART_FLAG | dateCal.get(Calendar.MILLISECOND));
 		}
-		return date;
+		return dateCal.getTime();
 		
 	}
 	
