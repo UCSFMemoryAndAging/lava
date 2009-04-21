@@ -133,14 +133,14 @@ public class LavaComponentFormAction extends BaseComponentFormAction {
 		// date portion, so it just uses the default java.util.Date custom editor registered here 
 		// vital: for registering property-specific custom editors, Spring binding requires our syntax to not include the 
 		// single quotes around the component entity name,
-		// e.g. given SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy h:mma");  
+		// e.g. given SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy h:mm a");  
 		// must use:
 		//  registry.registerCustomEditor(Date.class, "components[visit].visitDate", new CustomDateEditor(dateFormat, true));
 		// not
 		//  registry.registerCustomEditor(Date.class, "components['visit'].visitDate", new CustomDateEditor(dateFormat, true));
 		SimpleDateFormat datePartFormat = new SimpleDateFormat("MM/dd/yyyy");
-		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MM/dd/yyyy h:mma");
-		SimpleDateFormat timePartFormat = new SimpleDateFormat("h:mma");
+		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MM/dd/yyyy h:mm a");
+		SimpleDateFormat timePartFormat = new SimpleDateFormat("h:mm a");
 		registry.registerCustomEditor(Date.class, new LavaCustomDateEditor(datePartFormat, true));
 		registry.registerCustomEditor(LavaDatePart.class, new CustomLavaDatePartEditor(datePartFormat, true));
 		registry.registerCustomEditor(LavaDate.class, new CustomLavaDateEditor(dateTimeFormat, true));
