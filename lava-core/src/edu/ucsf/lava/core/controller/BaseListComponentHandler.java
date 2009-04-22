@@ -244,7 +244,7 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 	 	// if entering a Jasper report generated  view state, need to add the list as the report dataSource. since
 		// List is a Collection, it can serve as the dataSource directly
 		if (state.getId().equals("export") || state.getId().equals("print")) {
-			model.put("listReportDataSource", ((ScrollablePagedListHolder)((ComponentCommand)command).getComponents().get(getDefaultObjectName())).getSource());
+			model.put("listReportDataSource", ((ScrollablePagedListHolder)((ComponentCommand)command).getComponents().get(getDefaultObjectName())).getSourceAsEntityList());
 			if (state.getId().equals("export")) {
 				model.put("format", "xls");
 			}			
