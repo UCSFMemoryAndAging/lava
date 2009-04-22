@@ -260,15 +260,18 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 	public static List createSourceList(List loadedElements,LavaDaoFilter filter){
 		int resultsCount = filter.getResultsCount();
 		List newSourceList = new ArrayList(resultsCount);
-		
-		// want to put an id in each listItem so that metadata can be tied to an
-		// item even if its entity has not been loaded, e.g. item is selected
-		
-		// if not all items have been loaded such that the filter idCache is being 
-		// used, get the id's from there. otherwise, all items have been loaded
+		// want to put an id in each listItem so that metadata can be tied to an item even if
+		// its entity has not been loaded, e.g. allowing the user to select all items in a list 
+		// which includes unloaded items
+		// TODO: if the size of the list is larger than the number of initial elements loaded
+		// (DEFAULT_INITIAL_ELEMENTS) but smaller than the threshold to use idCache, then a 
+		// cursor is used which only retrieves those elements needed for the current page. in 
+		// this case, under the current design, the id for unloaded items will not be available 
+		// to store in ListItem, as it is when idCache is used. so the design will have to be 
+		// modified. possible solution is to use idCache whenever there are unloaded elements.  
 		
 		//TODO: look at using the List<ListItem> structure to serve as the idCache,
-		//so that idCache is not needed in LavaDaoFilter anymore
+		//so that idCache is not needed in LavaDaoFilter anymore		
 		if (filter.getIdCache() != null) {
 			int i=0;
 			for (Object id : filter.getIdCache()) {
@@ -332,6 +335,41 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 		this.setSource(listItemList);
 	}
 	
+	/**
+	 * This is the counterpart to setSourceFromEntityList. The internal source list is
+	 * a List<ListItem> and this method converts that to a List of entities. This is
+	 * provided for external use that expects a List of entities, such as List reports.
+	 * 
+	 * @return a List of entities
+	 */
+	public List getSourceAsEntityList() {
+		List entityList = new ArrayList(this.getSource().size());
+		for (ListItem listItem : (List<ListItem>) this.getSource()) {
+			if (listItem.getEntity() != null) {
+				entityList.add(listItem.getEntity());
+			}
+			else {
+				// TODO: this is a big problem for lists with unloaded elements. the client
+				// of such a list, e.g. a List report, will error out on the first list 
+				// element that has not been loaded. solution is to load all list elements
+				// if there are any unloaded list elements. this would be simplified if idCache
+				// were used whenever there were unloaded elements (see createSourceList TODO)
+				entityList.add(null);
+			}
+		}
+		return entityList;
+	}
+	
+	public int getListSize() {
+		List<ListItem> source = (List<ListItem>) this.getSource();
+		if (source == null) {
+			return 0;
+		}
+		else {
+			return source.size();
+		}
+    }
+
 	public int getNumSelected() {
 		int numSelected = 0;
 		List<ListItem> source = (List<ListItem>) this.getSource();
