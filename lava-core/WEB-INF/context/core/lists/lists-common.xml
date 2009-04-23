@@ -52,5 +52,59 @@
 		</list></property>
 	</bean>
 					
+	<bean id="list.datetime.timeInterval30Minute" parent="list.dataOnly">
+		<property name="defaultSort" value="none"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="12:00 AM"/><constructor-arg value="12:00 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="12:30 AM"/><constructor-arg value="12:30 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="1:00 AM"/><constructor-arg value="1:00 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="1:30 AM"/><constructor-arg value="1:30 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="2:00 AM"/><constructor-arg value="2:00 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="2:30 AM"/><constructor-arg value="2:30 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="3:00 AM"/><constructor-arg value="3:00 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="3:30 AM"/><constructor-arg value="3:30 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="4:00 AM"/><constructor-arg value="4:00 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="4:30 AM"/><constructor-arg value="4:30 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="5:00 AM"/><constructor-arg value="5:00 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="5:30 AM"/><constructor-arg value="5:30 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="6:00 AM"/><constructor-arg value="6:00 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="6:30 AM"/><constructor-arg value="6:30 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="7:00 AM"/><constructor-arg value="7:00 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="7:30 AM"/><constructor-arg value="7:30 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="8:00 AM"/><constructor-arg value="8:00 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="8:30 AM"/><constructor-arg value="8:30 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="9:00 AM"/><constructor-arg value="9:00 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="9:30 AM"/><constructor-arg value="9:30 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="10:00 AM"/><constructor-arg value="10:00 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="10:30 AM"/><constructor-arg value="10:30 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="11:00 AM"/><constructor-arg value="11:00 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="11:30 AM"/><constructor-arg value="11:30 AM"/></bean>
+			<bean parent="list.data"><constructor-arg value="12:00 PM"/><constructor-arg value="12:00 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="12:30 PM"/><constructor-arg value="12:30 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="1:00 PM"/><constructor-arg value="1:00 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="1:30 PM"/><constructor-arg value="1:30 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="2:00 PM"/><constructor-arg value="2:00 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="2:30 PM"/><constructor-arg value="2:30 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="3:00 PM"/><constructor-arg value="3:00 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="3:30 PM"/><constructor-arg value="3:30 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="4:00 PM"/><constructor-arg value="4:00 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="4:30 PM"/><constructor-arg value="4:30 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="5:00 PM"/><constructor-arg value="5:00 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="5:30 PM"/><constructor-arg value="5:30 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="6:00 PM"/><constructor-arg value="6:00 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="6:30 PM"/><constructor-arg value="6:30 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="7:00 PM"/><constructor-arg value="7:00 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="7:30 PM"/><constructor-arg value="7:30 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="8:00 PM"/><constructor-arg value="8:00 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="8:30 PM"/><constructor-arg value="8:30 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="9:00 PM"/><constructor-arg value="9:00 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="9:30 PM"/><constructor-arg value="9:30 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="10:00 PM"/><constructor-arg value="10:00 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="10:30 PM"/><constructor-arg value="10:30 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="11:00 PM"/><constructor-arg value="11:00 PM"/></bean>
+			<bean parent="list.data"><constructor-arg value="11:30 PM"/><constructor-arg value="11:30 PM"/></bean>
+		</list></property>
+	</bean>				
+					
 </beans>
 			

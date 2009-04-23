@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/tags/tags-include.jsp" %>
 
-<%-- autocompleteSelect
+<%-- autocompleteTime
 
      
 --%>
@@ -66,6 +66,11 @@
 <script language="javascript" type="text/javascript">
 		var acs_object_${fieldId} = new acselect(document.getElementById("acs_textbox_${fieldId}"),document.getElementById("${fieldId}"));
 		acs_object_${fieldId}.limitToList=0;
+		acs_object_${fieldId}.validateDateOutputFormat = "h:mm a";
+		acs_object_${fieldId}.validateDateParseFormats = new Array('h:mma','h:mm a','h mm a','h mma','h:mm','h mm');
+		acs_object_${fieldId}.validateDateErrorMessage = "The time doesn\'t match any recognized time formats (e.g. 1:30 PM). \n Please correct.";
+	
+		
 </script>
 
 
