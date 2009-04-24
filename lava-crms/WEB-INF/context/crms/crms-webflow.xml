@@ -8,7 +8,6 @@
     
     <bean id="crmsInstrumentListFlowTypeBuilder" class="edu.ucsf.lava.crms.webflow.builder.InstrumentListFlowTypeBuilder"/>
 	<bean id="crmsInstrumentFlowTypeBuilder" class="edu.ucsf.lava.crms.webflow.builder.InstrumentFlowTypeBuilder"/>
-	<bean id="crmsInstrumentCommonFlowTypeBuilder" class="edu.ucsf.lava.crms.webflow.builder.InstrumentCommonFlowTypeBuilder"/>
 	<bean id="crmsInstrumentGroupFlowTypeBuilder" class="edu.ucsf.lava.crms.webflow.builder.InstrumentGroupFlowTypeBuilder"/>
 	<bean id="crmsWelcomeFlowTypeBuilder" class="edu.ucsf.lava.crms.webflow.builder.WelcomeFlowTypeBuilder"/>
 	
