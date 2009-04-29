@@ -446,11 +446,24 @@
 			    	    </c:when>
 					</c:choose>
 				</c:when>
-				<c:when test="${style == 'datetime'}">
+				<c:when test="${style == 'time'}">
 					<c:choose>
 				    	<c:when test="${mode == 'dc' || mode == 'de' || mode == 'le'}">
 				    	    <%-- TODO: create date widget element and tag file --%>
-		        	    	<c:set var="dataElement" value="datetimeTextBox"/>
+		        	    	<c:set var="dataElement" value="timeSuggest"/>
+			    		</c:when>
+				        <c:when test="${mode == 'vw'|| mode == 'lv'}">
+				            <%-- TODO: format the date appropriately. probably need another input element type
+				                       and tag file called readonlyDate --%>
+		        	    	<c:set var="dataElement" value="readonlyText"/>
+			    	    </c:when>
+					</c:choose>
+				</c:when>
+				<c:when test="${style == 'timestamp'}">
+					<c:choose>
+				    	<c:when test="${mode == 'dc' || mode == 'de' || mode == 'le'}">
+				    	    <%-- TODO: create date widget element and tag file --%>
+		        	    	<c:set var="dataElement" value="readonlyText"/>
 			    		</c:when>
 				        <c:when test="${mode == 'vw'|| mode == 'lv'}">
 				            <%-- TODO: format the date appropriately. probably need another input element type
@@ -587,10 +600,10 @@
 			<c:if test="${status.count == 1 || (status.count == 2 && context != 'c')}">
 				<c:choose>	
 					<c:when test="${dataElement == 'readonlyText'}">	
-						<tags:readonlyText property="${bindProperty}" alignment="${alignment}" list="${widgetList}" isDate="${style == 'date' ? 'true' : false}" styleClass="${style == 'numeric' ? 'readonlyDataNumeric' : 'readonlyData'} ${not empty dataStyle ? dataStyle :''}" inlineData="${inlineReadonlyData}"/>
+						<tags:readonlyText property="${bindProperty}" alignment="${alignment}" list="${widgetList}"  styleClass="${style == 'numeric' ? 'readonlyDataNumeric' : 'readonlyData'} ${not empty dataStyle ? dataStyle :''}" inlineData="${inlineReadonlyData}"/>
 					</c:when>
 					<c:when test="${dataElement == 'truncatedReadonlyText'}">	
-						<tags:truncatedReadonlyText property="${bindProperty}" alignment="${alignment}" list="${widgetList}" isDate="${style == 'date' ? 'true' : false}" styleClass="${style == 'numeric' ? 'readonlyDataNumeric' : 'readonlyData'} ${not empty dataStyle ? dataStyle :''}" inlineData="${inlineReadonlyData}"/>
+						<tags:truncatedReadonlyText property="${bindProperty}" alignment="${alignment}" list="${widgetList}"  styleClass="${style == 'numeric' ? 'readonlyDataNumeric' : 'readonlyData'} ${not empty dataStyle ? dataStyle :''}" inlineData="${inlineReadonlyData}"/>
 					</c:when>
 					<c:when test="${dataElement == 'textBox'}">
 			   			<tags:textBox property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}" styleClass="${style == 'numeric' ? 'inputDataNumeric' : 'inputData'} ${not empty dataStyle ? dataStyle :''}" textBoxSize="${textBoxSize}" maxLength="${maxTextLength}"/>
@@ -598,8 +611,8 @@
 					<c:when test="${dataElement == 'dateTextBox'}">
 	   					<tags:dateTextBox property="${bindProperty}"  fieldId="${fieldId}" attributesText="${widgetAttributes}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}" textBoxSize="${textBoxSize}"/>
 					</c:when>
-					<c:when test="${dataElement == 'datetimeTextBox'}">
-	   					<tags:datetimeTextBox property="${bindProperty}"  fieldId="${fieldId}" attributesText="${widgetAttributes}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}" textBoxSize="${textBoxSize}"/>
+					<c:when test="${dataElement == 'timeSuggest'}">
+	   					<tags:timeSuggest property="${bindProperty}"  fieldId="${fieldId}" attributesText="${widgetAttributes}" timeList="${widgetList}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}" textBoxSize="${textBoxSize}"/>
 					</c:when>
 					<c:when test="${dataElement == 'textarea'}">
 	   			    	<tags:textarea property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}${mode == 'vw'? ' readonly':''}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}" maxLength="${maxTextLength}"/>

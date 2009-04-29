@@ -164,6 +164,9 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		// add list navigation list
 	 	this.addListToModel(model, "navigation.listPageSize", listManager.getDefaultStaticList("navigation.listPageSize"));
 	 	
+	 	// add time interval lists
+	 	this.addListToModel(model, "datetime.timeInterval30Minute", listManager.getDefaultStaticList("datetime.timeInterval30Minute"));
+	 	
 		
 		//put a lists object in the model
 		initializeListsInModel(model);

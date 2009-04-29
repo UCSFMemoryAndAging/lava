@@ -1,5 +1,6 @@
 package edu.ucsf.lava.crms.scheduling.model;
 
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -9,6 +10,7 @@ import java.util.List;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
+
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.model.CrmsEntity;
 import edu.ucsf.lava.crms.people.model.Patient;
@@ -22,6 +24,7 @@ public class Visit extends CrmsEntity {
 	private String visitType;
 	private String visitWith;
 	private Date visitDate;
+	private Time visitTime;
 	private String visitStatus;
 	private String visitNote;
 	private String followUpMonth; // 3 char 
@@ -39,6 +42,7 @@ public class Visit extends CrmsEntity {
 	
 	public Visit() {
 		super();
+
 		this.setProjectAuth(true);
 	}
 	public Object[] getAssociationsToInitialize(String method) {
@@ -60,9 +64,21 @@ public class Visit extends CrmsEntity {
 	public String getVisitWith() {return this.visitWith;}
 	public void setVisitWith(String visitWith) {this.visitWith = visitWith;}
 
-	public Date getVisitDate() {return this.visitDate;}
-	public void setVisitDate(Date visitDate) {this.visitDate = visitDate;}
 	
+	
+
+	public Date getVisitDate() {
+		return visitDate;
+	}
+	public void setVisitDate(Date visitDate) {
+		this.visitDate = visitDate;
+	}
+	public Time getVisitTime() {
+		return visitTime;
+	}
+	public void setVisitTime(Time visitTime) {
+		this.visitTime = visitTime;
+	}
 	public int getWeek() {
 		Calendar c = Calendar.getInstance();
 		c.setTime(this.visitDate);
@@ -100,14 +116,14 @@ public class Visit extends CrmsEntity {
 	
 	public int getHour() {
 		Calendar c = Calendar.getInstance();
-		c.setTime(this.visitDate);
+		c.setTime(this.visitTime);
 		//c.computeFields(); // not sure if this is necessary or not here
 		return c.get(Calendar.HOUR_OF_DAY); 
 	}
 	
 	public int getMinute() {
 		Calendar c = Calendar.getInstance();
-		c.setTime(this.visitDate);
+		c.setTime(this.visitTime);
 		//c.computeFields(); // not sure if this is necessary or not here
 		return c.get(Calendar.MINUTE); 
 	}
@@ -194,6 +210,7 @@ public class Visit extends CrmsEntity {
 		visitType = null;
 		visitWith = null;
 		visitDate = null;
+		visitTime = null;
 		visitStatus = null;
 		visitNote = null;
 		followUpMonth = null;
@@ -209,12 +226,14 @@ public class Visit extends CrmsEntity {
 	public static List<Visit> findByDateRange(LavaDaoFilter filter) {
 		filter.setAlias("patient","patient");
 		filter.addDefaultSort("visitDate",false);
+		filter.addDefaultSort("visitTime",false);
 		return MANAGER.get(filter);
 		}
 	
 	public static List<Visit> findByPatient(LavaDaoFilter filter) {
 		filter.setAlias("patient","patient");
 		filter.addDefaultSort("visitDate",false);
+		filter.addDefaultSort("visitTime",false);
 		return MANAGER.get(filter);
 		}
 	

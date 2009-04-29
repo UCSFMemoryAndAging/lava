@@ -1,5 +1,6 @@
 package edu.ucsf.lava.core.audit.model;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +14,7 @@ public class AuditEvent extends EntityBase{
 
 	private String auditUser;
 	private String auditHost;
-	private Date auditTime;
+	private Timestamp auditTimestamp;
 	private String action;
 	private String actionEvent;
 	private String actionIdParam;
@@ -59,11 +60,11 @@ public class AuditEvent extends EntityBase{
 	public void setAuditHost(String auditHost) {
 		this.auditHost = auditHost;
 	}
-	public Date getAuditTime() {
-		return auditTime;
+	public Timestamp getAuditTimestamp() {
+		return auditTimestamp;
 	}
-	public void setAuditTime(Date auditTime) {
-		this.auditTime = auditTime;
+	public void setAuditTimestamp(Timestamp auditTime) {
+		this.auditTimestamp = auditTime;
 	}
 	public String getAuditUser() {
 		return auditUser;

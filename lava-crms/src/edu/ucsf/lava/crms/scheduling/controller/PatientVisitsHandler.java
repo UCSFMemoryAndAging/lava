@@ -31,6 +31,7 @@ public class PatientVisitsHandler extends CrmsListComponentHandler {
 		LavaDaoFilter filter =  CrmsSessionUtils.setFilterPatientContext(sessionManager,request,Visit.newFilterInstance(getCurrentUser(request)));
 		filter.setAlias("patient", "patient");
 		filter.addDefaultSort("visitDate", false);
+		filter.addDefaultSort("visitTime", false);
 		return filter;
 	}
 	

@@ -53,17 +53,7 @@ public class VisitHandler extends CrmsEntityComponentHandler {
 		return command;
 	}
 
-	////public void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) {
-	public void registerPropertyEditors(PropertyEditorRegistry registry) {
-		super.registerPropertyEditors(registry);
-		// register a property-specific custom editor for visitDate since it also requires a time component, so
-		// as not to interfere with the class-specific custom editor for any java.util.Date properties, such as
-		// visit.waitListDate
-		// vital: Spring binding requires our syntax to not include the single quotes around the component entity name,
-		// i.e. must pass in "components[visit].visitDate" and not "components['visit'].visitDate" to registerCustomEditor
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy h:mma");
-		registry.registerCustomEditor(Date.class, "components[visit].visitDate", new CustomDateEditor(dateFormat, true));
-	}
+	
 
 	public Map addReferenceData(RequestContext context, Object command, BindingResult errors, Map model)
 	{
@@ -127,6 +117,7 @@ public class VisitHandler extends CrmsEntityComponentHandler {
 		visitDaoObj.setVisitLocation(visitFormBackingObj.getVisitLocation());
 		visitDaoObj.setVisitWith(visitFormBackingObj.getVisitWith());
 		visitDaoObj.setVisitDate(visitFormBackingObj.getVisitDate());
+		visitDaoObj.setVisitTime(visitFormBackingObj.getVisitTime());
 		visitDaoObj.setVisitStatus(visitFormBackingObj.getVisitStatus());
 
 		// now put it into the command object for the save

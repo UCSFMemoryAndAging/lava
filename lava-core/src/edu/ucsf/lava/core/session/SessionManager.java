@@ -1,6 +1,7 @@
 package edu.ucsf.lava.core.session;
 
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +22,7 @@ import edu.ucsf.lava.core.metadata.MetadataManager;
 import edu.ucsf.lava.core.scope.ScopeManager;
 import edu.ucsf.lava.core.session.model.LavaServerInstance;
 import edu.ucsf.lava.core.session.model.LavaSession;
+import edu.ucsf.lava.core.type.LavaDateUtils;
 
 
 public class SessionManager extends LavaManager{
@@ -168,7 +170,7 @@ public class SessionManager extends LavaManager{
 		
 		public void doSessionExpire(LavaSession session,HttpSession httpSession){
 			if(!session.isExpireTimeBeforeNow()){
-				session.setExpireTime(new Date());
+				session.setExpireTimestamp(new Timestamp(new Date().getTime()));
 			}
 			session.setCurrentStatus(LavaSession.LAVASESSION_STATUS_EXPIRED);
 			session.save();
@@ -178,7 +180,7 @@ public class SessionManager extends LavaManager{
 		
 		public void doSessionLogoff(LavaSession session,HttpSession httpSession){
 				if(session.getCurrentStatus().equals(LavaSession.LAVASESSION_STATUS_ACTIVE)){
-					session.setDisconnectTime(new Date());
+					session.setDisconnectDateTime(new Date());
 					session.setCurrentStatus(LavaSession.LAVASESSION_STATUS_LOGOFF);
 					session.save();
 				}
@@ -188,7 +190,7 @@ public class SessionManager extends LavaManager{
 		
 		public void doSessionDisconnect(LavaSession session,HttpSession httpSession){
 			if(!session.isDisconnectTimeBeforeNow()){
-				session.setDisconnectTime(new Date());
+				session.setDisconnectDateTime(new Date());
 			}
 			session.setCurrentStatus(LavaSession.LAVASESSION_STATUS_DISCONNECTED);
 			session.save();
@@ -199,14 +201,14 @@ public class SessionManager extends LavaManager{
 	
 		
 		public void setSessionAccessTimeToNow(LavaSession session,HttpServletRequest request){
-			session.setAccessTime(new Date());
+			session.setAccessTimestamp(new Timestamp(new Date().getTime()));
 			session.save();
 		}
 		
 		public void updateSessionExpiration(LavaSession session, HttpServletRequest request){
 			for (LavaSessionPolicyHandler handler: policyHandlers){
 				if(handler.handlesSession(session, request)){
-					session.setExpireTime(handler.determineExpireTime(session, request));
+					session.setExpireTimestamp(handler.determineExpireTime(session, request));
 					session.save();
 					updateHttpSessionExpiration(session,request);
 					return;

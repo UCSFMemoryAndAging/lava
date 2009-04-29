@@ -20,8 +20,8 @@
 
 <tags:componentListColumnHeader component="${component}" label="Action" width="6%"/>
 <tags:componentListColumnHeader component="${component}" label="Session ID" width="10%"/>
-<tags:componentListColumnHeader component="${component}" label="Created" width="20%" sort="createTime"/>
-<tags:componentListColumnHeader component="${component}" label="Accessed" width="20%" sort="accessTime"/>
+<tags:componentListColumnHeader component="${component}" label="Created" width="20%" sort="createTimestamp"/>
+<tags:componentListColumnHeader component="${component}" label="Accessed" width="20%" sort="accessTimestamp"/>
 <tags:componentListColumnHeader component="${component}" label="Username" width="13%" sort="username"/>
 <tags:componentListColumnHeader component="${component}" label="Hostname" width="13%" sort="hostname"/>
 <tags:componentListColumnHeader component="${component}" label="Status" width="18%" sort="currentStatus"/>
@@ -42,10 +42,10 @@
 			<tags:listField property="id" component="${component}" listIndex="${iterator.index}" entityType="lavaSession"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="createTime" component="${component}" listIndex="${iterator.index}" entityType="lavaSession"/>
+			<tags:listField property="createTimestamp" component="${component}" listIndex="${iterator.index}" entityType="lavaSession"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="accessTime" component="${component}" listIndex="${iterator.index}" entityType="lavaSession"/>
+			<tags:listField property="accessTimestamp" component="${component}" listIndex="${iterator.index}" entityType="lavaSession"/>
 			</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="username" component="${component}" listIndex="${iterator.index}" entityType="lavaSession"/>

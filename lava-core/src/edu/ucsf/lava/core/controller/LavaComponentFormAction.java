@@ -2,6 +2,8 @@ package edu.ucsf.lava.core.controller;
 
 import static edu.ucsf.lava.core.controller.ComponentHandler.SUCCESS_FLOW_EVENT_ID;
 
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,13 +34,9 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.action.ActionUtils;
-import edu.ucsf.lava.core.util.CustomLavaDatePartEditor;
-import edu.ucsf.lava.core.util.CustomLavaDateEditor;
+import edu.ucsf.lava.core.type.LavaCustomDateEditor;
+import edu.ucsf.lava.core.type.LavaCustomTimeEditor;
 
-import edu.ucsf.lava.core.util.CustomLavaTimePartEditor;
-import edu.ucsf.lava.core.util.LavaDatePart;
-import edu.ucsf.lava.core.util.LavaDate;
-import edu.ucsf.lava.core.util.LavaTimePart;
 import edu.ucsf.lava.core.webflow.CustomReportSelector;
 import edu.ucsf.lava.core.webflow.CustomViewSelector;
 
@@ -138,14 +136,12 @@ public class LavaComponentFormAction extends BaseComponentFormAction {
 		//  registry.registerCustomEditor(Date.class, "components[visit].visitDate", new CustomDateEditor(dateFormat, true));
 		// not
 		//  registry.registerCustomEditor(Date.class, "components['visit'].visitDate", new CustomDateEditor(dateFormat, true));
-		SimpleDateFormat datePartFormat = new SimpleDateFormat("MM/dd/yyyy");
-		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MM/dd/yyyy h:mma");
-		SimpleDateFormat timePartFormat = new SimpleDateFormat("h:mma");
-		registry.registerCustomEditor(Date.class, new LavaCustomDateEditor(datePartFormat, true));
-		registry.registerCustomEditor(LavaDatePart.class, new CustomLavaDatePartEditor(datePartFormat, true));
-		registry.registerCustomEditor(LavaDate.class, new CustomLavaDateEditor(dateTimeFormat, true));
-		registry.registerCustomEditor(LavaTimePart.class, new CustomLavaTimePartEditor(timePartFormat, true));
-			
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		SimpleDateFormat timestampFormat = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
+		SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
+		registry.registerCustomEditor(Date.class, new LavaCustomDateEditor(dateFormat, true));
+		registry.registerCustomEditor(Time.class, new LavaCustomTimeEditor(timeFormat, true));
+		registry.registerCustomEditor(Timestamp.class, new LavaCustomDateEditor(timestampFormat,true));
 		registry.registerCustomEditor(Long.class, new CustomNumberEditor(Long.class,true));
 		
 		//	this will set all Short fields to all null when empty string ("") is submitted

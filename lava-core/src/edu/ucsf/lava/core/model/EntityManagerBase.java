@@ -12,29 +12,7 @@ import edu.ucsf.lava.core.spring.LavaBeanUtils;
 
 public class EntityManagerBase {
 
-	private  Timestamp defaultExpDate;
-
-	public  Timestamp getDefaultExpDate(){
-		if (defaultExpDate == null){
-			try{
-				DateFormat dfm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				defaultExpDate = new Timestamp(dfm.parse("9999-09-09 00:00:00").getTime());
-			}catch(Exception e){}//do nothing
-		}
-		return defaultExpDate;
-	}
 	
-	
-	private  Timestamp defaultUnknownDate;
-	public  Timestamp getDefaultUnknownDate(){
-		if (defaultUnknownDate == null){
-			try{
-				DateFormat dfm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				defaultUnknownDate = new Timestamp(dfm.parse("8888-08-08 00:00:00").getTime());
-			}catch(Exception e){}//do nothing
-		}
-		return defaultUnknownDate;
-	}
 	
 	
 		protected LavaDao dao;

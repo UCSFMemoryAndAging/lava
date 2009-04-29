@@ -25,6 +25,7 @@ public class ProjectContactLogHandler extends CrmsListComponentHandler {
 		LavaDaoFilter filter = CrmsSessionUtils.setFilterProjectContext(sessionManager,request,ContactLog.newFilterInstance(getCurrentUser(request)));
 		filter.setAlias("patient","patient");
 		filter.addDefaultSort("logDate",false);
+		filter.addDefaultSort("logTime",false);
 		filter.addParamHandler(new LavaDateRangeParamHandler("logDate"));
 		return filter;
 	}

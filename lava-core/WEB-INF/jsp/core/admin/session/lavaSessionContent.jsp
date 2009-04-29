@@ -12,15 +12,15 @@
 		<tags:createField property="id" component="${component}"/>
 		<tags:createField property="serverInstanceId" component="${component}"/>
 		<tags:createField property="currentStatus" component="${component}"/>
-		<tags:createField property="createTime" component="${component}"/>
-		<tags:createField property="accessTime" component="${component}"/>
-		<tags:createField property="expireTime" component="${component}"/>
+		<tags:createField property="createTimestamp" component="${component}"/>
+		<tags:createField property="accessTimestamp" component="${component}"/>
+		<tags:createField property="expireTimestamp" component="${component}"/>
 		<tags:createField property="username" component="${component}"/>
 		<tags:createField property="hostname" component="${component}"/>
 	</tags:contentColumn>
 	<tags:contentColumn columnClass="colRight2Col5050">
 		<tags:createField property="httpSessionId" component="${component}"/>
-		<tags:createField property="disconnectTime" component="${component}"/>
+		<tags:createField property="disconnectDate,disconnectTime" component="${component}"/>
 		<tags:createField property="disconnectMessage" component="${component}"/>
 		<tags:createField property="notes" component="${component}"/>  
 	</tags:contentColumn>

@@ -20,7 +20,7 @@
        <property name="subproperty" column="subproperty" type="string" length="255"/>
        <property name="oldValue" column="old_value" type="string" length="255" not-null="true"/>
        <property name="newValue" column="new_value" type="string" length="255" not-null="true"/>
-       <property name="auditTime" column="audit_time" type="timestamp" not-null="true"/>
+       <property name="auditTimestamp" column="audit_timestamp" type="timestamp" not-null="true"/>
      
      
 	     <!-- set optional="true" to outer-join this table, since only audit properties that are greater than varchar(255) use it -->

@@ -92,7 +92,7 @@ public class AuditManager extends LavaManager{
 	
 	public void initializeAuditing(String actionId, String flowEvent, String idParam, String user, String host){
 		AuditEvent auditEvent = new AuditEvent();
-		auditEvent.setAuditTime(new Date());
+		auditEvent.setAuditTimestamp(new Timestamp(new Date().getTime()));
 		auditEvent.setAction((actionId.length()>255)? actionId.substring(0,255):actionId);
 		auditEvent.setActionEvent((flowEvent.length()>50)? flowEvent.substring(0,50):flowEvent);
 		auditEvent.setActionIdParam(idParam);

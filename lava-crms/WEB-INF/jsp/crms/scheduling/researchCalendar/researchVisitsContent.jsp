@@ -50,6 +50,7 @@
 		</tags:listCell>
 	   <tags:listCell>
 			<tags:listField property="visitDate" component="${component}" listIndex="${iterator.index}" entityType="visit"/>
+			<tags:listField property="visitTime" component="${component}" listIndex="${iterator.index}" entityType="visit"/>
 		</tags:listCell>
      	<tags:listCell>
 			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="visit"/>

@@ -6,25 +6,26 @@
      
 <hibernate-mapping>
 
-<class name="edu.ucsf.lava.core.session.model.LavaSession" table="lavasession" select-before-update="true">
+<class name="edu.ucsf.lava.core.session.model.LavaSession" table="lava_session" select-before-update="true">
 
 		<id name="id" type="long">
-			<column name="LavaSessionID" not-null="true"/> 
+			<column name="lava_session_id" not-null="true"/> 
 			<generator class="identity"/>
 		</id>
  	   <timestamp name="modified" column="modified"/>
-	   <property name="serverInstanceId" column="ServerInstanceID" type="long" not-null="true"/>
-       <property name="createTime" column="CreateTime" type="timestamp" not-null="true"/>
-       <property name="accessTime" column="AccessTime" type="timestamp" not-null="true"/>
-       <property name="expireTime" column="ExpireTime" type="timestamp" not-null="true"/>
-       <property name="currentStatus" column="currentStatus" type="string" length="25" not-null="true"/>
-       <property name="userId" column="UserID" type="long"/>
-       <property name="username" column="Username" type="string" length="50"/>
-       <property name="hostname" column="Hostname" type="string" length="50"/>
-       <property name="httpSessionId" column="HttpSessionId" type="string" length="100"/>
-       <property name="disconnectTime" column="DisconnectTime" type="timestamp"/>
-       <property name="disconnectMessage" column="DisconnectMessage" type="string" length="255"/>
-       <property name="notes" column="Notes" type="string" length="255"/>
+	   <property name="serverInstanceId" column="server_instance_id" type="long" not-null="true"/>
+       <property name="createTimestamp" column="create_timestamp" type="timestamp" not-null="true"/>
+       <property name="accessTimestamp" column="access_timestamp" type="timestamp" not-null="true"/>
+       <property name="expireTimestamp" column="expire_timestamp" type="timestamp" not-null="true"/>
+       <property name="currentStatus" column="current_status" type="string" length="25" not-null="true"/>
+       <property name="userId" column="user_id" type="long"/>
+       <property name="username" column="user_name" type="string" length="50"/>
+       <property name="hostname" column="host_name" type="string" length="50"/>
+       <property name="httpSessionId" column="http_session_id" type="string" length="100"/>
+       <property name="disconnectDate" column="disconnect_date" type="date"/>
+       <property name="disconnectTime" column="disconnect_time" type="time"/>
+       <property name="disconnectMessage" column="disconnect_message" type="string" length="255"/>
+       <property name="notes" column="notes" type="string" length="255"/>
 	  
 	   
 	<!-- associations -->

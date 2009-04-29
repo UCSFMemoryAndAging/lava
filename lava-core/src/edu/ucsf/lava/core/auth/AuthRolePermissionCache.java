@@ -66,7 +66,7 @@ public class AuthRolePermissionCache implements Serializable{
 					for(String role: permissions.keySet()){
 						workingCache.get(key)
 							.put(role,new Boolean(isPermitted(a,events[i],defaultPermissions,permissions.get(role))));
-						logger.debug("roleAuthPermissionCache Initialization: role="+role + "; key="+key+" permitted="+workingCache.get(key).get(role).toString());
+						logger.info("roleAuthPermissionCache Initialization: role="+role + "; key="+key+" permitted="+workingCache.get(key).get(role).toString());
 					}
 				}
 			}

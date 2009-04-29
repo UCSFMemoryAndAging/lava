@@ -1,6 +1,6 @@
 package edu.ucsf.lava.core.model;
 
-import java.sql.Timestamp;
+
 import java.util.List;
 
 import edu.ucsf.lava.core.auth.model.AuthUser;
@@ -8,8 +8,6 @@ import edu.ucsf.lava.core.dao.LavaDaoFilter;
 
 public interface EntityManager {
 
-		public Timestamp getDefaultUnknownDate();
-		public Timestamp getDefaultExpDate();
 		public Class getEntityClass();
 		public Object create();
 		public void delete(Object object);

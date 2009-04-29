@@ -14,8 +14,8 @@
 		</id>
 	   <timestamp name="modified" column="modified"/>
 	   <property name="groupName" column="GroupName" type="string" length="50" not-null="true"/>
-       <property name="effectiveDate" column="EffectiveDate" type="timestamp" not-null="true"/>
-       <property name="expirationDate" column="ExpirationDate" type="timestamp"/>
+       <property name="effectiveDate" column="EffectiveDate" type="date" not-null="true"/>
+       <property name="expirationDate" column="ExpirationDate" type="date"/>
        <property name="notes" column="Notes" type="string" length="255"/>
        	
        	

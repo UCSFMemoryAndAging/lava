@@ -1,5 +1,6 @@
 package edu.ucsf.lava.core.audit.model;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 import edu.ucsf.lava.core.model.EntityBase;
@@ -22,7 +23,7 @@ public class AuditProperty extends EntityBase{
 	private String subproperty;
 	private String oldValue;
 	private String newValue;
-	private Date auditTime;
+	private Timestamp auditTimestamp;
 	private String oldText;
 	private String newText;
 
@@ -41,7 +42,7 @@ public class AuditProperty extends EntityBase{
 	public AuditProperty(AuditEntity auditEntity, String property, String indexKey, String subproperty, String oldValue, String newValue) {
 		this();
 		this.auditEntity = auditEntity;
-		this.auditTime = (this.auditEntity != null) ? auditEntity.getAuditEvent().getAuditTime() : null;
+		this.auditTimestamp = (this.auditEntity != null) ? auditEntity.getAuditEvent().getAuditTimestamp() : null;
 		this.property = property;
 		this.indexKey = indexKey;
 		this.subproperty = subproperty;
@@ -67,11 +68,11 @@ public class AuditProperty extends EntityBase{
 	public void setAuditEntity(AuditEntity auditEntity) {
 		this.auditEntity = auditEntity;
 	}
-	public Date getAuditTime() {
-		return auditTime;
+	public Date getAuditTimestamp() {
+		return auditTimestamp;
 	}
-	public void setAuditTime(Date auditTime) {
-		this.auditTime = auditTime;
+	public void setAuditTimestamp(Timestamp auditTime) {
+		this.auditTimestamp = auditTime;
 	}
 
 

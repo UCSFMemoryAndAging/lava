@@ -47,6 +47,7 @@
 		</tags:listCell>
 	   <tags:listCell>
 			<tags:listField property="visitDate" component="${component}" listIndex="${iterator.index}" entityType="visit"/>
+			<tags:listField property="visitTime" component="${component}" listIndex="${iterator.index}" entityType="visit"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="visit"/>

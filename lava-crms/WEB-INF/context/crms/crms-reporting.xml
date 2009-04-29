@@ -18,11 +18,20 @@
 	<bean id="crmsReportFlowAction" abstract="true" parent="coreReportFlowAction" class="edu.ucsf.lava.crms.action.model.CrmsAction">
 		<property name="patientSectionDefault" value="false"/>
 		<property name="patientModuleDefault" value="false"/>
+		<property name="parentFlows">
+			<list>
+				<value>lava.core.reporting.reports.reportLauncher</value>
+				<value>lava.crms.reporting.reports.crmsReportLauncher</value>
+			</list>
+		</property>	
 	</bean>	
 	
 	<bean id="crmsReportLauncherFlowAction" abstract="true" parent="coreReportLauncherFlowAction" class="edu.ucsf.lava.crms.action.model.CrmsAction">
 		<property name="patientSectionDefault" value="true"/>
 		<property name="patientModuleDefault" value="true"/>
+		<property name="moduleDefault" value="true"/>
+		<property name="sectionDefault" value="true"/>
+		
 	</bean>	
 	
 

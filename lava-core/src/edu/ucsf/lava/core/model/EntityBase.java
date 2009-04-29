@@ -763,13 +763,6 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 			return entityClass;
 		}
 
-		public Timestamp getDefaultExpDate() {
-			return manager.getDefaultExpDate();
-		}
-
-		public Timestamp getDefaultUnknownDate() {
-			return manager.getDefaultUnknownDate(); 
-		}
 
 	
 		

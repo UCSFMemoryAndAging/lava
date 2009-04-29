@@ -40,7 +40,7 @@
 </c:set>
 <c:if test="${isInstrument}">
 	<c:set var="pageHeadingArgs">
-		${pageHeadingArgs},${currentPatient.fullNameNoSuffix},<fmt:formatDate value="${currentVisit.visitDate}" pattern="MMMM d yyyy h:mma"/>
+		${pageHeadingArgs},${currentPatient.fullNameNoSuffix},<fmt:formatDate value="${currentVisit.visitDate}" pattern="MMMM d yyyy"/>
 	</c:set>
 </c:if>	
 

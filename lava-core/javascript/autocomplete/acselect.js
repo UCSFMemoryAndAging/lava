@@ -1,6 +1,6 @@
 /** acselect: an autocompete select solution
 	author: joe hesse (jhesse@memory.ucsf.edu)
-	version: 1.3 (July 3, 2008)
+	version: 1.4 (April 21, 2009)
 	note: started from existing code from actb.js (http://www.codeproject.com/jscript/jsactb.asp)
 	functionality: operates similarly to combo box in Microsoft Access with autocomplete enabled. 
 	
@@ -53,6 +53,7 @@ function acselect(textboxIn,selectIn){
 	this.onChangeCallbackOwner = null; // the object owner of the callback function
 	this.appendOnChangeCallback = acs_appendOnChangeCallback;
 	this.matchLeadingZeros = true; // when true this will match values regardless of leading zeros entered (e.g. '4','04', and '004' all match '4')
+	
 	/* ---- Public Variables ---- */
 	
 	
@@ -184,6 +185,9 @@ function acselect(textboxIn,selectIn){
 	
 	
 
+
+		
+			
 	
 	
 	
@@ -499,6 +503,7 @@ function acselect(textboxIn,selectIn){
 		text in the textbox or the index of the item selected in the list
     *************************************/
 	function acs_selectItemByTextEntry(onExit, valueForNewOption){
+		
 		//if textbox matches underlying select list then just return
 		if(this.getIndexTextValue(this.select.selectedIndex) == this.textbox.value){return true;}
 		
@@ -510,6 +515,7 @@ function acselect(textboxIn,selectIn){
 				return true;
 				}
 			}
+		
 			
 		//if we are here then the textbox text does not match a value in the list
 		if(this.limitToList){

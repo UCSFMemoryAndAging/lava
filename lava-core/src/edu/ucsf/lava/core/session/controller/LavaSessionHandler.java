@@ -17,9 +17,9 @@ import org.springframework.webflow.execution.RequestContext;
 import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
 import edu.ucsf.lava.core.controller.ComponentCommand;
-import edu.ucsf.lava.core.controller.LavaCustomDateEditor;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.core.session.model.LavaSession;
+import edu.ucsf.lava.core.type.LavaCustomDateEditor;
 
 public class LavaSessionHandler extends BaseEntityComponentHandler {
 	
@@ -30,16 +30,6 @@ public class LavaSessionHandler extends BaseEntityComponentHandler {
 		setHandledEntity("lavaSession",LavaSession.class);
 	}
 	
-	public void registerPropertyEditors(PropertyEditorRegistry registry) {
-		super.registerPropertyEditors(registry);
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
-		SimpleDateFormat disconnectTimeFormat = new SimpleDateFormat("MM/dd/yyyy h:mma");
-		registry.registerCustomEditor(Date.class, "components[lavaSession].createTime", new LavaCustomDateEditor(dateFormat, true));
-		registry.registerCustomEditor(Date.class, "components[lavaSession].accessTime", new LavaCustomDateEditor(dateFormat, true));
-		registry.registerCustomEditor(Date.class, "components[lavaSession].expireTime", new LavaCustomDateEditor(dateFormat, true));
-		registry.registerCustomEditor(Date.class, "components[lavaSession].disconnectTime", new LavaCustomDateEditor(disconnectTimeFormat, true));
-	}
-
 
 
 	

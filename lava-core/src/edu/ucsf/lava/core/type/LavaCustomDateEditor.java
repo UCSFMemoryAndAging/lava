@@ -1,4 +1,4 @@
-package edu.ucsf.lava.core.controller;
+package edu.ucsf.lava.core.type;
 
 import java.text.DateFormat;
 import java.text.ParseException;

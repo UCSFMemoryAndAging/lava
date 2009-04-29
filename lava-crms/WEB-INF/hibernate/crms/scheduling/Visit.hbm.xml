@@ -21,7 +21,8 @@
 		<property name="visitLocation" type="string" column="VLocation" not-null="true"/> 
 		<property name="visitType" type="string" column="VType" not-null="true"/> 
 		<property name="visitWith" type="string" column="VWith"/> 
-		<property name="visitDate" type="timestamp" column="VDate" not-null="true"/> 
+		<property name="visitDate" type="date" column="VDate" not-null="true"/> 
+		<property name="visitTime" type="time" column="VTime"/> 
 		<property name="visitStatus" type="string" column="VStatus" not-null="true"/> 
 		<property name="visitNote" type="string" column="VNotes"/> 
 		<property name="followUpMonth" type="string" column="FUMonth"/>

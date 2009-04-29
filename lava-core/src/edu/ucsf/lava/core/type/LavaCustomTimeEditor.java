@@ -1,6 +1,7 @@
-package edu.ucsf.lava.core.util;
+package edu.ucsf.lava.core.type;
 
 import java.beans.PropertyEditorSupport;
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
@@ -10,7 +11,7 @@ import org.springframework.util.StringUtils;
 /**
  * 
  */
-public class CustomLavaDateEditor extends PropertyEditorSupport {
+public class LavaCustomTimeEditor extends PropertyEditorSupport {
 
 	private final DateFormat dateFormat;
 
@@ -28,7 +29,7 @@ public class CustomLavaDateEditor extends PropertyEditorSupport {
 	 * @param dateFormat DateFormat to use for parsing and rendering
 	 * @param allowEmpty if empty strings should be allowed
 	 */
-	public CustomLavaDateEditor(DateFormat dateFormat, boolean allowEmpty) {
+	public LavaCustomTimeEditor(DateFormat dateFormat, boolean allowEmpty) {
 		this.dateFormat = dateFormat;
 		this.allowEmpty = allowEmpty;
 		this.exactDateLength = -1;
@@ -49,7 +50,7 @@ public class CustomLavaDateEditor extends PropertyEditorSupport {
 	 * @param allowEmpty if empty strings should be allowed
 	 * @param exactDateLength the exact expected length of the date String
 	 */
-	public CustomLavaDateEditor(DateFormat dateFormat, boolean allowEmpty, int exactDateLength) {
+	public LavaCustomTimeEditor(DateFormat dateFormat, boolean allowEmpty, int exactDateLength) {
 		this.dateFormat = dateFormat;
 		this.allowEmpty = allowEmpty;
 		this.exactDateLength = exactDateLength;
@@ -70,7 +71,7 @@ public class CustomLavaDateEditor extends PropertyEditorSupport {
 		}
 		else {
 			try {
-				setValue(new LavaDate(this.dateFormat.parse(text).getTime()));
+				setValue(new Time(this.dateFormat.parse(text).getTime()));
 			}
 			catch (ParseException ex) {
 				throw new IllegalArgumentException("Could not parse date: " + ex.getMessage());
@@ -82,8 +83,8 @@ public class CustomLavaDateEditor extends PropertyEditorSupport {
 	 * Format the Date as String, using the specified DateFormat.
 	 */
 	public String getAsText() {
-		LavaDate value = (LavaDate) getValue();
-		return (value != null ? this.dateFormat.format(value.getDate()) : "");
+		Time value = (Time) getValue();
+		return (value != null ? this.dateFormat.format(value) : "");
 	}
 
 }

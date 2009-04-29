@@ -5,8 +5,8 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-beanutils-core.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-collections-3.2.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-logging-1.0.4.jar"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/hibernate3.jar"/>
-	<classpathentry sourcepath="D:/Dev/Install/spring/spring-framework-2.0.4/dist" kind="lib" path="WEB-INF/lib/spring.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/hibernate3.jar" sourcepath="/Users/jhesse/dev/install/hibernate-distribution-3.3.1.GA/project/core/src/main/java"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/spring.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/spring-binding-1.0.4.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/spring-webflow-1.0.4.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/acegi-security-1.0.7.jar"/>

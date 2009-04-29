@@ -1,5 +1,6 @@
 package edu.ucsf.lava.crms.people.model;
 
+import java.sql.Time;
 import java.util.Date;
 
 import edu.ucsf.lava.core.model.EntityBase;
@@ -11,6 +12,7 @@ public class ContactLog extends CrmsEntity {
 	private Patient patient;
 	private String projName;
 	private Date logDate;
+	private Time logTime;
 	private String method;
 	private Short staffInit;
 	private String staff;
@@ -20,6 +22,7 @@ public class ContactLog extends CrmsEntity {
 	
 	public ContactLog() {
 		super();
+		
 		this.setProjectAuth(true);
 		staffInit = 1;
 	}
@@ -35,15 +38,21 @@ public class ContactLog extends CrmsEntity {
 		this.contact = contact;
 	}
 
+
+
+	
 	public Date getLogDate() {
 		return logDate;
 	}
-
 	public void setLogDate(Date logDate) {
 		this.logDate = logDate;
 	}
-
-
+	public Time getLogTime() {
+		return logTime;
+	}
+	public void setLogTime(Time logTime) {
+		this.logTime = logTime;
+	}
 	public String getMethod() {
 		return method;
 	}

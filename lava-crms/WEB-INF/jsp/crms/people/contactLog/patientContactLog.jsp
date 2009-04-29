@@ -43,6 +43,7 @@
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="logDate" component="${component}" listIndex="${iterator.index}" entityType="contactLog"/>
+			<tags:listField property="logTime" component="${component}" listIndex="${iterator.index}" entityType="contactLog"/>
 			<br/><tags:listField property="method" component="${component}" listIndex="${iterator.index}" entityType="contactLog"/>
 			</tags:listCell>
 		<tags:listCell>

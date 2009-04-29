@@ -226,10 +226,7 @@ public class AuthUser extends EntityBase implements UserDetails {
 
 	public void setDisabled(Boolean disabled) {
 		if(disabled && (this.getExpirationDate()==null || this.getExpirationDate().after(new Date()))){
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(new Date());
-			calendar.add(Calendar.DAY_OF_MONTH,-1);
-			this.setExpirationDate(calendar.getTime());
+			this.setExpirationDate(dateWithoutTime(new Date()));
 		}else if(!disabled && this.getExpirationDate()!=null && this.getExpirationDate().before(new Date())){
 			this.setExpirationDate(null);
 		}

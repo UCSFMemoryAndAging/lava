@@ -23,7 +23,7 @@
   <page:param name="quicklinkPosition">top</page:param>
 <tags:createField property="visitLocation" component="${component}"/>
 <tags:createField property="visitWith" component="${component}"/>
-<tags:createField property="visitDate" component="${component}"/>
+<tags:createField property="visitDate,visitTime" component="${component}"/>
 <tags:createField property="visitStatus" component="${component}"/>
 </page:applyDecorator>  
 </tags:contentColumn>

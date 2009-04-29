@@ -2,6 +2,7 @@ package edu.ucsf.lava.core.auth;
 
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Locale;
 
@@ -63,7 +64,7 @@ public class AuthUserContextFilter implements Filter, ManagersAware {
 					session.setUserId(user.getId());
 					session.setUsername(user.getShortUserNameRev());
 					session.setHostname(request.getRemoteAddr());
-					session.setAccessTime(new Date());
+					session.setAccessTimestamp(new Timestamp(new Date().getTime()));
 					session.save();
 				}
 				

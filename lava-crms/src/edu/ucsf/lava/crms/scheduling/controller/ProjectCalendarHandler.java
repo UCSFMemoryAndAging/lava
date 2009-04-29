@@ -27,6 +27,7 @@ public class ProjectCalendarHandler extends CrmsCalendarComponentHandler {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		filter.setAlias("patient", "patient");
 		filter.addDefaultSort("visitDate", false);
+		filter.addDefaultSort("visitTime", false);
 		return CrmsSessionUtils.setFilterProjectContext(sessionManager,request,filter);
 	}
 	

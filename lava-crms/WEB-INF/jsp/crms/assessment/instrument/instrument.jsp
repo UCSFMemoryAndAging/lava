@@ -18,7 +18,7 @@
   <page:param name="isInstrument">true</page:param> 
   <page:param name="component">${component}</page:param>
   <page:param name="focusField">instrType</page:param>  
-  <page:param name="pageHeadingArgs"><tags:componentProperty component="${component}" property="instrType"/>,${currentPatient.fullNameNoSuffix},<fmt:formatDate value="${currentVisit.visitDate}" pattern="MMMM d yyyy h:mma"/></page:param>
+  <page:param name="pageHeadingArgs"><tags:componentProperty component="${component}" property="instrType"/>,${currentPatient.fullNameNoSuffix},<fmt:formatDate value="${currentVisit.visitDate}" pattern="MMMM d yyyy"/></page:param>
 
 <%-- note: add instrument uses the general component.entity.content decorator, as opposed
   to instrument-specific pages which use component.instrument.content which is specialized

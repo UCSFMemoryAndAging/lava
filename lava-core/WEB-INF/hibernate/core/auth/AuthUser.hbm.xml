@@ -22,8 +22,8 @@
        <property name="accessAgreementDate" column="AccessAgreementDate" type="timestamp"/>
        <property name="shortUserName" column="ShortUserName" type="string" length="50" />
        <property name="shortUserNameRev" column="ShortUserNameRev" type="string" length="50" />
-       <property name="effectiveDate" column="EffectiveDate" type="timestamp" not-null="true"/>
-       <property name="expirationDate" column="ExpirationDate" type="timestamp"/>
+       <property name="effectiveDate" column="EffectiveDate" type="date" not-null="true"/>
+       <property name="expirationDate" column="ExpirationDate" type="date"/>
        <property name="notes" column="Notes" type="string" length="255"/>
 
 	

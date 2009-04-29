@@ -34,6 +34,7 @@ public class PatientCalendarHandler extends CrmsCalendarComponentHandler{
 		}
 		filter.setAlias("patient", "patient");
 		filter.addDefaultSort("visitDate", false);
+		filter.addDefaultSort("visitTime", false);
 		return CrmsSessionUtils.setFilterPatientContext(sessionManager,request,filter);
 	}
 	

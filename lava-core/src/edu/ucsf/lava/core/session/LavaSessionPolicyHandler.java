@@ -10,6 +10,7 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import edu.ucsf.lava.core.session.model.LavaSession;
+import edu.ucsf.lava.core.type.LavaDateUtils;
 
 public class LavaSessionPolicyHandler {
 	public static final Long DEFAULT_EXPIRATION_MINUTES = new Long(30);
@@ -22,15 +23,7 @@ public class LavaSessionPolicyHandler {
 	
 	
 	
-	public static final Timestamp getDefaultExpDate(){
-		if (defaultExpDate == null){
-			try{
-				DateFormat dfm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				defaultExpDate = new Timestamp(dfm.parse("9999-09-09 00:00:00").getTime());
-			}catch(Exception e){}//do nothing
-		}
-		return defaultExpDate;
-	}
+	
 	
 	//override in subclass to identify those sessions that are handled in a custom manner
 	public boolean handlesSession(LavaSession session, HttpServletRequest request){
@@ -47,7 +40,7 @@ public class LavaSessionPolicyHandler {
 			return true;
 		}
 		
-		determineExpireTime(session, request);
+		session.setExpireTimestamp(determineExpireTime(session, request));
 		if (session.isExpireTimeBeforeNow()){
 			return true;
 		}
@@ -59,7 +52,7 @@ public class LavaSessionPolicyHandler {
 			return true;
 		}
 		
-		session.setDisconnectTime(determineDisconnectTime(session,request));
+		session.setDisconnectDateTime(determineDisconnectDateTime(session,request));
 		session.setDisconnectMessage(determineDisconnectMessage(session,request));
 		
 		if (session.isDisconnectTimeBeforeNow()){
@@ -72,9 +65,11 @@ public class LavaSessionPolicyHandler {
 
 	
 	//override in subclass for custom  functionality
-	public Date determineDisconnectTime(LavaSession session,HttpServletRequest request){
-		return session.getDisconnectTime();
+	public Date determineDisconnectDateTime(LavaSession session,HttpServletRequest request){
+		return session.getDisconnectDateTime();
 	}
+	
+	
 	
 	//override in subclass for custom  functionality
 	public String determineDisconnectMessage(LavaSession session,HttpServletRequest request){
@@ -82,23 +77,23 @@ public class LavaSessionPolicyHandler {
 	}
 		
 	//override in subclass for custom  functionality
-	public Date determineExpireTime(LavaSession session,HttpServletRequest request){
-		if(session == null){ return getDefaultExpDate();}
+	public Timestamp determineExpireTime(LavaSession session,HttpServletRequest request){
+		if(session == null){ return new Timestamp(new Date().getTime()+(DEFAULT_EXPIRATION_MINUTES * MILLIS_PER_MINUTE));}
 		Date now = new Date();
 		
-		if(session.getExpireTime()!= null && 
-				session.getExpireTime().before(now)){
-			return session.getExpireTime();
+		if(session.getExpireTimestamp()!= null && 
+				session.getExpireTimestamp().before(now)){
+			return session.getExpireTimestamp();
 		}
 		
-		if (session.getAccessTime()!=null){
-			return new Date(session.getAccessTime().getTime() + (expireMinutes * MILLIS_PER_MINUTE));
+		if (session.getAccessTimestamp()!=null){
+			return new Timestamp(session.getAccessTimestamp().getTime() + (expireMinutes * MILLIS_PER_MINUTE));
 		}
-		return new Date(now.getTime() + (expireMinutes * MILLIS_PER_MINUTE));
+		return new Timestamp(now.getTime() + (expireMinutes * MILLIS_PER_MINUTE));
 		
 	}
 	public boolean isDisconnectTimeWithinWarningWindow(LavaSession session,HttpServletRequest request){
-		if(session.getDisconnectTime() == null) {return false;} // no disconnect time
+		if(session.getDisconnectDateTime() == null) {return false;} // no disconnect time
 		if(session.isDisconnectTimeBeforeNow()){return false;} //already disconnected
 		
 		Date warningTime = new Date(session.getDisconnectTime().getTime() - (warningMinutes * MILLIS_PER_MINUTE)); 
@@ -110,12 +105,12 @@ public class LavaSessionPolicyHandler {
 	
 	public int getSecondsUntilExpiration(LavaSession session,HttpServletRequest request){
 		
-		if(session.getExpireTime() == null || session.getExpireTime().equals(this.getDefaultExpDate())){
+		if(session.getExpireTimestamp() == null){
 			return getExpireMinutes().intValue();
 		}else if (session.isExpireTimeBeforeNow()){
 			return 0;
 		}else{
-			return new Long(((session.getExpireTime().getTime() - new Date().getTime())/1000)).intValue();
+			return new Long(((session.getExpireTimestamp().getTime() - new Date().getTime())/1000)).intValue();
 		}
 	}
 

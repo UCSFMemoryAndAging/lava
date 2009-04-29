@@ -8,7 +8,7 @@
  <tags:createField property="id" component="${component}"/>
  <tags:createField property="patient.fullNameNoSuffix" component="${component}" metadataName="patient.fullNameNoSuffix"/>
  <tags:createField property="projName" component="${component}"/>
- <tags:createField property="logDate" component="${component}"/>
+ <tags:createField property="logDate,logTime" component="${component}"/>
 </page:applyDecorator>  
 </tags:contentColumn>
 

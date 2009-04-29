@@ -1,6 +1,7 @@
-package edu.ucsf.lava.core.util;
+package edu.ucsf.lava.core.type;
 
 
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -27,6 +28,11 @@ public class DateRange {
 	public DateRange(Date start, Date end){
 		this.start = start;
 		this.end = end;
+	}
+	public DateRange(Date start, Time startTime, Date end, Time endTime){
+		//TO Do calendar 
+		this.start = LavaDateUtils.getDateTime(start,startTime);
+		this.end = LavaDateUtils.getDateTime(end,endTime);
 	}
 	public Date getEnd() {
 		return end;
@@ -286,28 +292,6 @@ public class DateRange {
 		
 	}
 	
-	/*
-	<c:choose>
-	<c:when test="${range == 'All'}">
-		All Dates
- 	</c:when>
-	<c:when test="${range == 'Day' && empty shortFormat}">
-		<fmt:formatDate value="${beginDate}" pattern="EEEE  MMMM d yyyy"/>
- 	</c:when>
-	<c:when test="${range == 'Day' && not empty shortFormat}">
-		<fmt:formatDate value="${beginDate}" pattern="MMM dd, yyyy"/>
- 	</c:when>
- 	<c:when test="${(range == 'Week' || range == 'Custom') && empty shortFormat}">
- 	    <fmt:formatDate value="${beginDate}" pattern="EEEE  MMMM d yyyy"/> to <fmt:formatDate value="${endDate}" pattern="EEEE  MMMM d yyyy"/>
-    </c:when>
- 	<c:when test="${(range == 'Week' || range == 'Custom') && not empty shortFormat}">
- 	    <fmt:formatDate value="${beginDate}" pattern="MMM dd, yyyy"/> - <fmt:formatDate value="${endDate}" pattern="MMM dd, yyyy"/>
-    </c:when>
-    <c:when test="${range == 'Month'}">
-    	<fmt:formatDate value="${beginDate}" pattern="MMMM yyyy"/>
-    </c:when>
-</c:choose>        		
-	*/
 	
 	
 	

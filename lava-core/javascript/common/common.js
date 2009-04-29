@@ -147,7 +147,7 @@ function validateDateTimeEntry(element){
 			element.focus(); //this isn't working....
 			return false;
 		}else{
-			element.value=formatDate(d,'MM/dd/yyyy h:mma');
+			element.value=formatDate(d,'MM/dd/yyyy h:mm a');
 			return true;
 		}
 	}

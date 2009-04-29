@@ -1,6 +1,8 @@
 package edu.ucsf.lava.core.session.model;
 
 
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -9,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
+import edu.ucsf.lava.core.type.LavaDateUtils;
 
 public class LavaSession extends EntityBase {
 
@@ -24,15 +27,16 @@ public class LavaSession extends EntityBase {
 		
 
 	private Long serverInstanceId;
-	private Date createTime;
-	private Date accessTime;
-	private Date expireTime;
+	private Timestamp createTimestamp;
+	private Timestamp accessTimestamp;
+	private Timestamp expireTimestamp;
 	private String currentStatus;
 	private Long userId;
 	private String username;
 	private String hostname;
 	private String httpSessionId;
-	private Date disconnectTime;
+	private Date disconnectDate;
+	private Time disconnectTime;
 	private String disconnectMessage;
 	private String notes;
 	private int hibernateVersion;
@@ -41,9 +45,8 @@ public class LavaSession extends EntityBase {
 	public LavaSession(){
 		super();
 		this.setAudited(false);
-		this.createTime = new Date();
-		this.accessTime = this.createTime;
-		this.expireTime = MANAGER.getDefaultExpDate();
+		this.createTimestamp = new Timestamp(new Date().getTime());
+		this.accessTimestamp = this.createTimestamp;
 		this.username = LAVASESSION_UNINITIALIZED_VALUE;
 		this.hostname = LAVASESSION_UNINITIALIZED_VALUE;
 		this.currentStatus = LavaSession.LAVASESSION_STATUS_NEW;
@@ -60,10 +63,10 @@ public class LavaSession extends EntityBase {
 
 	public String getSessionDesc(){
 		StringBuffer block = new StringBuffer();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
 		String createdDateAsText = null;
-		if (createTime != null) {
-			createdDateAsText = dateFormat.format(createTime);
+		if (createTimestamp != null) {
+			createdDateAsText = dateFormat.format(createTimestamp);
 		}
 		
 		block.append(StringUtils.defaultString(username,"[user]")).append(" - ");
@@ -129,29 +132,46 @@ public class LavaSession extends EntityBase {
 
 	
 
-	public Date getAccessTime() {
-		return accessTime;
+	
+
+
+	public Timestamp getAccessTimestamp() {
+		return accessTimestamp;
 	}
 
 
 
 
-	public void setAccessTime(Date accessTime) {
-		this.accessTime = accessTime;
+	public void setAccessTimestamp(Timestamp accessTime) {
+		this.accessTimestamp = accessTime;
 	}
 
 
 
 
-	public Date getCreateTime() {
-		return createTime;
+	public Timestamp getCreateTimestamp() {
+		return createTimestamp;
 	}
 
 
 
 
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
+	public void setCreateTimestamp(Timestamp createTime) {
+		this.createTimestamp = createTime;
+	}
+
+
+
+
+	public Date getDisconnectDate() {
+		return disconnectDate;
+	}
+
+
+
+
+	public void setDisconnectDate(Date disconnectDate) {
+		this.disconnectDate = disconnectDate;
 	}
 
 
@@ -171,30 +191,40 @@ public class LavaSession extends EntityBase {
 
 
 
-	public Date getDisconnectTime() {
+	public Time getDisconnectTime() {
 		return disconnectTime;
 	}
 
 
 
 
-	public void setDisconnectTime(Date disconnectTime) {
+	public void setDisconnectTime(Time disconnectTime) {
 		this.disconnectTime = disconnectTime;
 	}
+	
+	public void setDisconnectDateTime(Date disconnect){
+		setDisconnectDate(LavaDateUtils.getDatePart(disconnect));
+		setDisconnectTime(LavaDateUtils.getTimePart(disconnect));
+	}
+	
+	public Date getDisconnectDateTime(){
+		return LavaDateUtils.getDateTime(getDisconnectDate(), getDisconnectTime());
+	}
 
 
 
-
-	public Date getExpireTime() {
-		return expireTime;
+	public Timestamp getExpireTimestamp() {
+		return expireTimestamp;
 	}
 
 
 
 
-	public void setExpireTime(Date expireTime) {
-		this.expireTime = expireTime;
+	public void setExpireTimestamp(Timestamp expireTime) {
+		this.expireTimestamp = expireTime;
 	}
+
+
 
 
 	public String toString(){
@@ -235,7 +265,7 @@ public class LavaSession extends EntityBase {
 
 
 	public boolean isDisconnectTimeBefore(Date time){
-		if (disconnectTime == null || disconnectTime.after(time)){
+		if (disconnectTime == null || disconnectDate == null || LavaDateUtils.getDateTime(disconnectDate,disconnectTime).after(time)){
 			return false;
 		}
 		return true;
@@ -246,7 +276,7 @@ public class LavaSession extends EntityBase {
 	}
 
 	public boolean isExpireTimeBefore(Date time){
-		if (expireTime == null || expireTime.after(time)){
+		if (expireTimestamp == null || expireTimestamp.after(time)){
 			return false;
 		}
 		return true;
@@ -294,7 +324,7 @@ public class LavaSession extends EntityBase {
 			LavaDaoFilter filter = newFilterInstance(null);
 			filter.addDaoParam(filter.daoEqualityParam("serverInstanceId", serverInstance.getId()));
 			filter.addDaoParam(filter.daoEqualityParam("httpSessionId",httpSessionId));
-			filter.addSort("createTime", false);
+			filter.addSort("createTimestamp", false);
 			List results = get(LavaSession.class,filter);
 			if (results.size() >= 1){
 				return (LavaSession)results.get(0);

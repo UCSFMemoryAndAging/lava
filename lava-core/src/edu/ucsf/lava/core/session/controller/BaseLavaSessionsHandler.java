@@ -12,20 +12,17 @@ import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.controller.BaseListComponentHandler;
-import edu.ucsf.lava.core.controller.LavaCustomDateEditor;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.session.SessionManager;
 import edu.ucsf.lava.core.session.model.LavaServerInstance;
 import edu.ucsf.lava.core.session.model.LavaSession;
+import edu.ucsf.lava.core.type.LavaCustomDateEditor;
 
 public abstract class BaseLavaSessionsHandler extends BaseListComponentHandler {
 	
 
 	
-	public void registerPropertyEditors(PropertyEditorRegistry registry) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
-		registry.registerCustomEditor(Date.class, new LavaCustomDateEditor(dateFormat, true));
-	}
+	
 
 	public void setSessionMonitor(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
@@ -38,7 +35,7 @@ public abstract class BaseLavaSessionsHandler extends BaseListComponentHandler {
 	public LavaDaoFilter extractFilterFromRequest(RequestContext context, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter =  LavaSession.MANAGER.newFilterInstance(null);
-		filter.addDefaultSort("createTime", false);
+		filter.addDefaultSort("createTimestamp", false);
 		return filter;
 	}
 	

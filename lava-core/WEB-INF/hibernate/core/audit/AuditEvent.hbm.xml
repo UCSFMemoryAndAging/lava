@@ -16,7 +16,7 @@
 
        <property name="auditUser" column="audit_user" type="string" length="50" not-null="true"/>
        <property name="auditHost" column="audit_host" type="string" length="25" not-null="true"/>
-       <property name="auditTime" column="audit_time" type="timestamp" not-null="true"/>
+       <property name="auditTimestamp" column="audit_timestamp" type="timestamp" not-null="true"/>
        <property name="action" column="action" type="string" length="255" not-null="true"/>
        <property name="actionEvent" column="action_event" type="string" length="50" not-null="true"/>
        <property name="actionIdParam" column="action_id_param" type="string" length="50"/>

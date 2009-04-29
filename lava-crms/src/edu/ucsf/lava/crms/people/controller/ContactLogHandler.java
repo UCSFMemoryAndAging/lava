@@ -68,17 +68,5 @@ public class ContactLogHandler extends CrmsEntityComponentHandler {
 		model.put("dynamicLists", dynamicLists);
 		return super.addReferenceData(context, command, errors, model);
 	}
-	
-////public void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) {
-	public void registerPropertyEditors(PropertyEditorRegistry registry) {
-		super.registerPropertyEditors(registry);
-		// register a property-specific custom editor for visitDate since it also requires a time component, so
-		// as not to interfere with the class-specific custom editor for any java.util.Date properties, such as
-		// visit.waitListDate
-		// vital: Spring binding requires our syntax to not include the single quotes around the component entity name,
-		// i.e. must pass in "components[visit].visitDate" and not "components['visit'].visitDate" to registerCustomEditor
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy h:mma");
-		registry.registerCustomEditor(Date.class, "components[contactLog].logDate", new CustomDateEditor(dateFormat, true));
-	}
-	
+		
 }
