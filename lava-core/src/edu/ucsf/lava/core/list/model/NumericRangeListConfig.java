@@ -111,10 +111,10 @@ public class NumericRangeListConfig extends DefaultListConfig {
 		if(minValue==null){minValue=defaultMinValue;}
 		if(maxValue==null){maxValue=defaultMaxValue;}
 	
-		int resultSize = maxValue.intValue() - minValue.intValue();
+		int resultSize = maxValue.intValue() - minValue.intValue() + 1;
 		List<LabelValueBean> results = new ArrayList<LabelValueBean>(resultSize < 0 ? 0 : resultSize);
 		
-		for(int i = minValue.intValue(); i < maxValue.intValue();i++){
+		for(int i = minValue.intValue(); i <= maxValue.intValue();i++){
 			String value = Integer.toString(i);
 			results.add(new LabelValueBean(value,value,Integer.valueOf(i)));
 		}
