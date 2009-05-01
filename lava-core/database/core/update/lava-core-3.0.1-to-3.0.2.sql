@@ -6,7 +6,8 @@
 -- Not preserving existing data because there are no production 3.0.1 "open" lava systems yet.
 -- -------------------------------------------------------
 
-
+insert into versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
+	VALUES ('lava-core-model','3.0.2',NOW(),3,0,2,1);
 -- -----------------------------------------------------
 -- Table `lava_session`
 -- -----------------------------------------------------
