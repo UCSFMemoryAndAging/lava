@@ -1,0 +1,1 @@
+mysql -s -r -u root -p [dbname] < extract-crms-data.sql > lava-crms-data-[version].sql
