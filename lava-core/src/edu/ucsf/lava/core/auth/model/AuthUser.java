@@ -24,6 +24,8 @@ public class AuthUser extends EntityBase implements UserDetails {
 	protected String userName;
 	protected String login;
 	protected String hashedPassword;
+	protected String email;
+	protected String phone;
 	protected Date accessAgreementDate;
 	protected Date effectiveDate;
 	protected Date expirationDate;
@@ -126,6 +128,42 @@ public class AuthUser extends EntityBase implements UserDetails {
 
 	public void setHashedPassword(String hashedPassword) {
 		this.hashedPassword = hashedPassword;
+	}
+
+
+
+
+
+
+	public String getEmail() {
+		return email;
+	}
+
+
+
+
+
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+
+
+
+
+
+	public String getPhone() {
+		return phone;
+	}
+
+
+
+
+
+
+	public void setPhone(String phone) {
+		this.phone = phone;
 	}
 
 
