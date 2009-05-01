@@ -15,10 +15,9 @@
 		<timestamp name="modified" column="modified"/>
 		 <property name="userName" column="UserName" type="string" length="50" not-null="true"/>
        <property name="login" column="Login" type="string" length="100"/>
-      <!-- <property name="hashedPassword" column="hashedPassword" type="string" length="100"/>
+       <property name="hashedPassword" column="hashedPassword" type="string" length="100"/>
        <property name="email" column="email" type="string" length="100"/>
        <property name="phone" column="phone" type="string" length="25"/>
-      -->
        <property name="accessAgreementDate" column="AccessAgreementDate" type="timestamp"/>
        <property name="shortUserName" column="ShortUserName" type="string" length="50" />
        <property name="shortUserNameRev" column="ShortUserNameRev" type="string" length="50" />
