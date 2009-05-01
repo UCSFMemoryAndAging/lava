@@ -1,4 +1,11 @@
-﻿-- Not preservign existing data because there are no production 3.0.1 openlava systems yet.
+﻿
+-- ------------------------------------------------------
+-- modifying system tables to create separate time and date fields and
+-- to conform with new standard usage of date, time, and timestamp terminology
+-- 
+-- Not preserving existing data because there are no production 3.0.1 "open" lava systems yet.
+-- -------------------------------------------------------
+
 
 -- -----------------------------------------------------
 -- Table `lava_session`

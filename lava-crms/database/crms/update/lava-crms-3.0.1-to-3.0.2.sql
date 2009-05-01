@@ -1,4 +1,8 @@
-﻿
+﻿-- ------------------------------------------------------------------
+-- modified visit and contact log tables to separate time from date 
+-- fields.  Added properties to the authuser table to support 
+-- password management. 
+-- ------------------------------------------------------------------
 
 delete from viewproperty where instance in ('nam53','examiner','mac') and scope = 'crms';
 
