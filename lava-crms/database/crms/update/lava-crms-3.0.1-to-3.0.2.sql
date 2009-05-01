@@ -9,6 +9,7 @@ insert into versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix
 	
 
 delete from viewproperty where instance in ('nam53','examiner','mac') and scope = 'crms';
+delete from viewproperty where instance ='ucd' and scope = 'crms' and entity = 'patient' and property IN ('hand','ucid');
 
 delete from hibernateproperty where instance in ('clinic','site') and scope = 'crms';
 
