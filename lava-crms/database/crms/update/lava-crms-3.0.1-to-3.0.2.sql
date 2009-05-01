@@ -8,18 +8,6 @@ insert into versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix
 	VALUES ('lava-crms-model','3.0.2',NOW(),3,0,2,1);
 	
 
-DROP TABLE IF EXISTS `demo`.`versionhistory`;
-CREATE TABLE  `demo`.`versionhistory` (
-  `Module` varchar(25) NOT NULL,
-  `Version` varchar(10) NOT NULL,
-  `VersionDate` datetime NOT NULL,
-  `Major` int(10) NOT NULL,
-  `Minor` int(10) NOT NULL,
-  `Fix` int(10) NOT NULL,
-  `UpdateRequired` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`Module`,`Version`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
 delete from viewproperty where instance in ('nam53','examiner','mac') and scope = 'crms';
 
 delete from hibernateproperty where instance in ('clinic','site') and scope = 'crms';
