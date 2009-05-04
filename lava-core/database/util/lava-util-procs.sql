@@ -149,7 +149,7 @@ SELECT CONCAT('INSERT INTO hibernateproperty (`instance`,`scope`,`entity`,`prope
             CASE WHEN `hibernateNotNull` IS NULL THEN 'NULL,' ELSE CONCAT('''',`hibernateNotNull`,''',') END,
             CASE WHEN `modified` IS NULL THEN 'NULL' ELSE CONCAT('''',CAST(`modified` as char),'''') END,
             ');')
-            FROM `hibernateProperty` WHERE `entity` Like EntityMask and
+            FROM `hibernateproperty` WHERE `entity` Like EntityMask and
                                     `instance` like InstanceMask and
                                     `scope` like ScopeMask
             ORDER BY `entity`, `dbOrder`;
