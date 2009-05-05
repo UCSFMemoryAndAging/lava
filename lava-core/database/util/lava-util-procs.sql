@@ -239,7 +239,7 @@ SELECT CONCAT('<?xml version="1.0"?>
 ')
 FROM `hibernateproperty` WHERE `Entity` = EntityIn and `Scope` = ScopeIn GROUP BY `Entity`,`Scope`;
 
-SELECT CONCAT('<',
+SELECT CONCAT('\t\t<',
 
     CASE WHEN `HibernateType` IN('many-to-one','one-to-many','one-to-one') THEN `HibernateType` ELSE 'property' END,
 
