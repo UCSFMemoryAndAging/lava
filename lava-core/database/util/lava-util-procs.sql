@@ -208,7 +208,7 @@ DROP PROCEDURE IF EXISTS `util_GetResultFields`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE  `util_GetResultFields`(EntityIn varchar(50), ScopeIn VARCHAR(25))
 BEGIN
 
-SELECT CONCAT('           "',`property`,'",')
+SELECT CONCAT('"',`property`,'",')
 FROM `viewproperty`
 WHERE `entity`=EntityIn AND context='r' AND `scope`=ScopeIn
 ORDER BY `propOrder`;
@@ -239,7 +239,7 @@ SELECT CONCAT('<?xml version="1.0"?>
 ')
 FROM `hibernateproperty` WHERE `Entity` = EntityIn and `Scope` = ScopeIn GROUP BY `Entity`,`Scope`;
 
-SELECT CONCAT('       <',
+SELECT CONCAT('<',
 
     CASE WHEN `HibernateType` IN('many-to-one','one-to-many','one-to-one') THEN `HibernateType` ELSE 'property' END,
 
@@ -260,7 +260,7 @@ SELECT CONCAT('       <',
 
 
     CASE WHEN `HibernateNotNull` = 'Yes' THEN ' not-null="true"' ELSE '' END,'/>')
-FROM `HibernateProperty` WHERE `Entity` = EntityIn and `Scope`=ScopeIn ORDER BY `DBTable`,`DBOrder`;
+FROM `hibernateproperty` WHERE `Entity` = EntityIn and `Scope`=ScopeIn ORDER BY `DBTable`,`DBOrder`;
 
 SELECT '
 
@@ -282,7 +282,7 @@ SELECT '
 
 
 </hibernate-mapping>'
-FROM `HibernateProperty` WHERE `Entity` = EntityIn and `Scope`=ScopeIn GROUP BY `Entity`,`Scope`;
+FROM `hibernateproperty` WHERE `Entity` = EntityIn and `Scope`=ScopeIn GROUP BY `Entity`,`Scope`;
 
 END $$
 
