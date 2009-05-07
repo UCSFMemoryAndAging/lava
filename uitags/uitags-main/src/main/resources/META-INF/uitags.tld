@@ -363,7 +363,8 @@
     <body-content>empty</body-content>
     <display-name>observeForNull</display-name>
     <description>Specialized version of the observe tag where the observe rule is met when the element(s)
-      holds a null value. This tag may be specified more than once within a &lt;formGuide&gt;.</description>
+      holds a null value. This is used for a checkbox, where an unchecked checkbox has value 'null'.
+      This tag may be specified more than once within a &lt;formGuide&gt;.</description>
     <attribute>
       <name>elementIds</name>
       <required>false</required>
@@ -401,7 +402,7 @@
     <name>ignore</name>
     <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Ignore@EL_CLS@Tag</tag-class>
     <body-content>empty</body-content>
-    <display-name>observe</display-name>
+    <display-name>ignore</display-name>
     <description>Specifies an ignore rule for each element. An ignore rule is met when the element
       holds the forValue (subject to regular expression matching). This tag may be specified more than once
       within a &lt;formGuide&gt;. All of the ignore rules togther, in conjunction with the parent formGuide 
@@ -458,7 +459,8 @@
     <body-content>empty</body-content>
     <display-name>ignoreForNull</display-name>
     <description>Specialized version of the ignore tag where the ignore rule is met when the element(s)
-      holds a null value. This tag may be specified more than once within a &lt;formGuide&gt;. All of
+      holds a null value. This is used for a checkbox, where an unchecked checkbox has value 'null'.
+      This tag may be specified more than once within a &lt;formGuide&gt;. All of
       the ignore rules togther, in conjunction with the parent formGuide tags ignoreAndOr attribute, are
       use to determine whether the entire formGuide tag should be ignored or not.</description>
     <attribute>
