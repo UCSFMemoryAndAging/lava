@@ -18,7 +18,7 @@ public class PatientCalendarHandler extends CrmsCalendarComponentHandler{
 
 	public PatientCalendarHandler() {
 		super();
-		this.setHandledList("patientVisits","visits");
+		this.setHandledList("patientVisits","visit");
 		this.setDatePropertyName("visitDate");
 		this.setDefaultDisplayRange(CalendarHandlerUtils.DISPLAY_RANGE_ALL);
 		this.setEntityForStandardSourceProvider(Visit.class);

@@ -22,7 +22,7 @@ public class PatientVisitsHandler extends CrmsListComponentHandler {
 
 	public PatientVisitsHandler() {
 		super();
-		this.setHandledList("patientVisits","visits");
+		this.setHandledList("patientVisits","visit");
 		this.setEntityForStandardSourceProvider(Visit.class);
 	}
 

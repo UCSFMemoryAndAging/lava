@@ -18,7 +18,7 @@ public class ProjectCalendarHandler extends CrmsCalendarComponentHandler {
 	
 	public ProjectCalendarHandler() {
 		super();
-		this.setHandledList("projectVisits","visits");
+		this.setHandledList("projectVisits","visit");
 		this.setDatePropertyName("visitDate");
 		this.setEntityForStandardSourceProvider(Visit.class);
 	}

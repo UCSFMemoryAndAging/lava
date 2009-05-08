@@ -16,7 +16,7 @@ public class ResearchCalendarHandler extends CrmsCalendarComponentHandler {
 
 	public ResearchCalendarHandler() {
 		super();
-		this.setHandledList("researchVisits","visits");
+		this.setHandledList("researchVisits","visit");
 		this.setDatePropertyName("visitDate");
 		this.setEntityForStandardSourceProvider(Visit.class);
 	}
