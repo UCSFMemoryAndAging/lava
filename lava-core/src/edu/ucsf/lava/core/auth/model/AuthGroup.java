@@ -20,7 +20,14 @@ public class AuthGroup extends EntityBase {
 	
 	
 	private Set<AuthUserGroup> users;
-	public AuthGroup() {}
+	private Set<AuthUserGroup> roles;
+	
+	
+	public AuthGroup() {
+		addPropertyToAuditIgnoreList("users");
+		addPropertyToAuditIgnoreList("roles");
+		
+	}
 	
 	public boolean getPatientAuth() {
 		return false;
@@ -28,6 +35,14 @@ public class AuthGroup extends EntityBase {
 
 
 	
+	public Set<AuthUserGroup> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<AuthUserGroup> roles) {
+		this.roles = roles;
+	}
+
 	public Set<AuthUserGroup> getUsers() {
 		return users;
 	}
@@ -105,4 +120,5 @@ public class AuthGroup extends EntityBase {
 		return this.getGroupName();
 	}
 
+	
 }

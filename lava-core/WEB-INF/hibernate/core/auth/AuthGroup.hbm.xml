@@ -23,6 +23,11 @@
 			<key column="GID"/>
 			<one-to-many class="edu.ucsf.lava.core.auth.model.AuthUserGroup"/>
 	   </set>	
+	   
+	   <set name="roles" inverse="true" cascade="delete" lazy="true">
+			<key column="GID"/>
+			<one-to-many class="edu.ucsf.lava.core.auth.model.AuthUserRole"/>
+	   </set>	
 	</class>
 	
 		<query name="list.authGroup.groups"><![CDATA[
