@@ -50,6 +50,8 @@ INSERT INTO `hibernateproperty` (`scope`,`entity`,`property`,`dbTable`,`dbColumn
 			WHEN 'nvarchar' THEN 'string'
 			WHEN 'binary' THEN 'binary'
 			WHEN 'tinyint' THEN 'byte'
+			WHEN 'date' THEN 'date'
+			WHEN 'time' THEN 'time'
 			WHEN 'smalldatetime' THEN 'timestamp'
 			WHEN 'varchar' THEN 'string'
 			WHEN 'bit' THEN 'boolean'
