@@ -91,11 +91,11 @@
      - "indentLevel" an integer (as String) the indent level for the field, where "0" means
                      do not indent, "1" means indent one level, etc.  e.g. if the field is 
                      question 3a. it should be indented from question 3 and its indentLevel=1
-     - "widgetListName" the name of the list for fields represented by an input widget that
-                        use a list. the name is used as the key into the "staticLists"
-                        or "dynamicLists" Maps in the model to obtain a list which is a
-                        Map<String,String> structure where the Map entry keys are the list item
-                        values and the Map entry values are the list item labels
+     - "listName" the name of the list for fields represented by an input widget that
+                  use a list. the name is used as the key into the "staticLists"
+                  or "dynamicLists" Maps in the model to obtain a list which is a
+                  Map<String,String> structure where the Map entry keys are the list item
+                  values and the Map entry values are the list item labels
      - "widgetAttributes" for fields represented by an input widget, the attributes as a String
                           that are used as HTML attributes for the input widget HTML tag, e.g.
                           the HTML attributes for a textarea: rows="14" cols="40"
@@ -321,7 +321,7 @@
 		    label=${label}<br>
 		    indentLevel=${indentLevel}<br>
 		    required=${required}<br>
-		    widgetListName=${widgetListName}<br>
+		    widgetListName=${listName}<br>
             widgetAttributes=${widgetAttributes}<br>
    		    maxTextLength=${maxTextLength}<br>
    		    textBoxSize=${textBoxSize}<br>
