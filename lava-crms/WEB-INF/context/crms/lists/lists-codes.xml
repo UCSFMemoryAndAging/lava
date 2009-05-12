@@ -26,6 +26,10 @@
 		</list></property>
 	</bean>	
 	
-	
+	<bean id="list.ref.totalErrorCodeDecimal" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Cannot Total"/><constructor-arg value="-5.0"/></bean>
+		</list></property>
+	</bean>	
 					
 </beans>
