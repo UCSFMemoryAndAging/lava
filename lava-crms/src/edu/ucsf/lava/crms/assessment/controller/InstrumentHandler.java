@@ -30,12 +30,17 @@ import edu.ucsf.lava.core.action.model.Action;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
+import edu.ucsf.lava.core.manager.CoreManagerUtils;
+import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
+import edu.ucsf.lava.crms.assessment.InstrumentDefinitions;
+import edu.ucsf.lava.crms.assessment.InstrumentManager;
 import edu.ucsf.lava.crms.assessment.controller.upload.FileLoader;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentConfig;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
+import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
@@ -541,6 +546,16 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 
 	protected void addInstrumentListsToModel(Map model,Instrument instrument){
 			addListsToModel(model, listManager.getStaticListsForEntity(instrument.getInstrTypeEncoded()));
+
+			//TODO: the use of currentVersionAlias for this is temporary. that is for instrument
+			//versioning, so need something like instrumentAlias
+			// determine if the instrument is an alias for a target instrument, in which case the
+			// lists for the target instrument should be added
+			InstrumentConfig instrumentConfig = instrumentManager.getInstrumentConfig().get(instrument.getInstrTypeEncoded());
+			if (!instrumentConfig.getInstrTypeEncoded().equals(instrument.getInstrTypeEncoded())) {
+				addListsToModel(model, listManager.getStaticListsForEntity(instrumentConfig.getInstrTypeEncoded()));
+			}
+			
 			if(instrument.getInstrTypeEncoded().startsWith("uds")){
 				addListsToModel(model,listManager.getStaticListsForEntity("udsinstrument"));
 			}
@@ -1726,6 +1741,5 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 	public void setProjectInstrumentVerifyRates(Map<String, Short> projectInstrumentVerifyRates) {
 		this.projectInstrumentVerifyRates = projectInstrumentVerifyRates;
 	}
-
 
 }
