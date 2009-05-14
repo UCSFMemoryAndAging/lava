@@ -87,7 +87,7 @@ public class CrmsEntityComponentHandler extends BaseEntityComponentHandler {
 			}
 			else {
 				// visit list has already been filtered for auth access, so no need to pass user when creating new filter
-				Visit v = (Visit)Visit.MANAGER.getById(Long.valueOf(entry.getKey()),Visit.MANAGER.newFilterInstance(user));
+				Visit v = (Visit)Visit.MANAGER.getById(Long.valueOf(entry.getKey()),Visit.newFilterInstance(user));
 				
 				if (entry.getKey().length() == 0 || authManager.isAuthorized(user, action, new CrmsAuthorizationContext(v.getProjName()))) {
 					filteredList.put(entry.getKey(), entry.getValue());
