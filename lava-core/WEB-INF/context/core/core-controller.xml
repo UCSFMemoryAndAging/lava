@@ -16,6 +16,9 @@
    		<property name="defaultActionViewSelector">
    			<ref bean="defaultActionViewSelector"/>
 		</property>	
+		<property name="formObjectName" value="command"/>
+		<property name="formObjectClass" value="edu.ucsf.lava.core.controller.ComponentCommand"/>
+		<property name="formObjectScope" value="FLOW"/>
 	</bean>
 
 	<!-- entity form objects are stored in flow scope so that different entities in the

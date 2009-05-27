@@ -8,7 +8,25 @@
 			
 	<bean id="lava.crms.mylava.welcome.welcome" parent="welcomeFlowAction"/>
 	     	
+	<bean id="lava.core.mylava.prefs.changePassword" parent="corePasswordFlowAction">
+		<property name="parentFlows"><list>
+  			<value>lava.core.mylava.prefs.userPreferences</value>
+  		</list></property>
+  	</bean>
+	<bean id="lava.core.mylava.prefs.userPreferences" parent="coreEntityFlowAction">
+		<property name="sectionDefault" value="true"/>
+	</bean>
+<!--  form action definitions  -->
+
+ 	<bean id="changePasswordFormAction" parent="coreComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.home.controller.ChangePasswordHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
 	
+
+ 	<bean id="userPreferencesFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.home.controller.UserPreferencesHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+		
 	
 	<bean id="lava.crms.mylava.myCalendar.myVisits" parent="crmsPatientSectionListAction">
 		<!-- use a subflow here to make sure the subflow / parent flow integration works using visit entitiy-->

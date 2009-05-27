@@ -1,5 +1,12 @@
 package edu.ucsf.lava.core.auth;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.acegisecurity.providers.dao.SaltSource;
+import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
@@ -25,6 +32,9 @@ public class AuthManager extends LavaManager implements UserDetailsService {
 	protected ScopeManager scopeManager;
 	protected ActionManager actionManager;
 	protected AuthRolePermissionCache rolePermissionCache;
+	protected PasswordDelegates passwordDelegates;
+	
+	
 	
 	public AuthManager(){
 		super(AUTH_MANAGER_NAME);
@@ -109,8 +119,74 @@ public class AuthManager extends LavaManager implements UserDetailsService {
 		return authUser;
 	}
 
+	/**
+	 * Change the users password.  
+	 * @param user
+	 * @param oldPassword
+	 * @param newPassword
+	 * @param newPasswordConfirm
+	 * @param errors
+	 * @return
+	 */
+	public boolean changePassword(AuthUser user, String oldPassword, String newPassword, String newPasswordConfirm, Map<String,ArrayList>errors){
+		if(user==null){
+			errors.put("passwordDelegate.changePassword.unexpectedError", null);
+			return false;
+		}
+		PasswordDelegate delegate = getPasswordDelegates().get(user.getAuthenticationType());
+		if(delegate==null){
+			errors.put("passwordDelegate.changePassword.unexpectedError", null);
+			return false;
+		}
+		return delegate.changePassword(user, oldPassword, newPassword, newPasswordConfirm, errors);
+		
+	}
+	
+	/**
+	 * Reset the users password.  
+	 * @param user
+	 * @param oldPassword
+	 * @param newPassword
+	 * @param newPasswordConfirm
+	 * @param errors
+	 * @return
+	 */
+	public boolean resetPassword(AuthUser user,  String newPassword, String newPasswordConfirm, Map<String,ArrayList>errors){
+		
+		PasswordDelegate delegate = getPasswordDelegate(user);
+		if(delegate==null){
+			errors.put("passwordDelegate.resetPassword.unexpectedError", null);
+			return false;
+		}
+		return delegate.resetPassword(user, newPassword, newPasswordConfirm, errors);
+	}
+	
+	
+	public Map<String,String> getAuthenticationTypesList(){
+		ArrayList<String> types = new ArrayList();
+		types.addAll(getPasswordDelegates().getDelegates().keySet());
+		Collections.sort(types);
+		Map<String,String> list = new LinkedHashMap<String,String>();
+		for(String type : types){
+			list.put(type, type);
+		}
+		return list;
+	}
+	
+	public PasswordDelegates getPasswordDelegates() {
+		return passwordDelegates;
+	}
+
+	public PasswordDelegate getPasswordDelegate(AuthUser user){
+		if(user==null || passwordDelegates == null){return null;}
+		return passwordDelegates.get(user.getAuthenticationType());
+		}
+	public void setPasswordDelegates(PasswordDelegates passwordDelegates) {
+		this.passwordDelegates = passwordDelegates;
+	}
 
 
+	
 
 
 

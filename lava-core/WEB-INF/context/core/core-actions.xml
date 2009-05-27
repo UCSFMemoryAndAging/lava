@@ -54,6 +54,10 @@
 			<property name="moduleDefault" value="true"/>
 			<property name="sectionDefault" value="true"/>
 	</bean>
+	
+	<bean id="corePasswordFlowAction" abstract="true" parent="coreAction">
+		<property name="flowTypeBuilder"><ref bean="corePasswordFlowTypeBuilder"/></property>
+	</bean>	
 			
 	
 </beans>

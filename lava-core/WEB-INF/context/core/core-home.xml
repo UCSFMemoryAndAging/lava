@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+
+<!-- actions -->
+
+
+	<bean id="lava.core.home.prefs.changePassword" parent="corePasswordFlowAction">
+		<property name="parentFlows"><list>
+  			<value>lava.core.home.prefs.userPreferences</value>
+  		</list></property>
+  	</bean>
+	<bean id="lava.core.home.prefs.userPreferences" parent="coreEntityFlowAction">
+		<property name="sectionDefault" value="true"/>
+	</bean>
+<!--  form action definitions  -->
+
+ 	<bean id="changePasswordFormAction" parent="coreComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.home.controller.ChangePasswordHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+	
+
+ 	<bean id="userPreferencesFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.home.controller.UserPreferencesHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+			 
+
+</beans>

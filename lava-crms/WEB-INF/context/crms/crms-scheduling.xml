@@ -36,14 +36,11 @@
 					</list></property>
 				</bean>
 
-				<bean id="lava.crms.scheduling.visit.visitInstruments" parent="crmsInstrumentListFlowAction"/>
+	<bean id="lava.crms.scheduling.visit.visitInstruments" parent="crmsInstrumentListFlowAction"/>
 
-				<bean id="lava.crms.scheduling.patientCalendar.patientVisits" parent="crmsPatientModuleListAction"/>
+	<bean id="lava.crms.scheduling.patientCalendar.patientVisits" parent="crmsPatientModuleListAction"/>
 
-				<bean id="lava.crms.scheduling.projectCalendar.projectVisits" parent="crmsModuleListAction">
-					<property name="patientSectionDefault" value="true"/>
-				</bean>
-				
+	<bean id="lava.crms.scheduling.projectCalendar.projectVisits" parent="crmsModuleListAction"/>			
 			
 
 	<!-- form action definitions -->

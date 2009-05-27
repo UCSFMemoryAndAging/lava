@@ -1,4 +1,4 @@
-﻿
+
 -- ------------------------------------------------------
 -- modifying system tables to create separate time and date fields and
 -- to conform with new standard usage of date, time, and timestamp terminology

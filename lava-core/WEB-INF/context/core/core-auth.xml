@@ -4,16 +4,33 @@
 <beans>
 
 <!--  the auth manager bean -->
-<bean id="authManager" class="edu.ucsf.lava.core.auth.AuthManager" />
+<bean id="authManager" class="edu.ucsf.lava.core.auth.AuthManager">
+	<property name="passwordDelegates"><ref bean="passwordDelegates"/></property>
+</bean>
 
 <bean id="coreAuthorizationDelegate" parent="baseScopeAuthorizationDelegate" class="edu.ucsf.lava.core.auth.CoreAuthorizationDelegate"/>
 
 <bean id="coreAuthUserContextFilter" class="edu.ucsf.lava.core.auth.AuthUserContextFilter"/>
 
+<bean id="passwordDelegates" class="edu.ucsf.lava.core.auth.PasswordDelegates"/>
+
 
 <!-- actions -->
 
+
+	<bean id="lava.core.home.prefs.changePassword" parent="corePasswordFlowAction">
+		<property name="sectionDefault" value="true"/>
+	</bean>
+	
+	<bean id="lava.core.admin.auth.resetPassword" parent="corePasswordFlowAction">
+		<property name="parentFlows"><list>
+  			<value>lava.core.admin.auth.authUser</value>
+     		<value>lava.core.admin.auth.authUsers</value>
+  		</list></property>
+  	</bean>
+		
 	<bean id="lava.core.admin.auth.authUsers" parent="coreModuleListAction"/>
+	
 				
 	<bean id="lava.core.admin.auth.authUser" parent="coreEntityFlowAction">
 		<property name="parentFlows"><list>
@@ -65,6 +82,15 @@
 	<bean id="lava.core.admin.auth.authPermissions" parent="coreListFlowAction"/>
 
 <!--  form action definitions  -->
+
+ 	<bean id="changePasswordFormAction" parent="coreComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.home.controller.ChangePasswordHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+	
+ 	<bean id="resetPasswordFormAction" parent="coreComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.auth.controller.ResetPasswordHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+
 
 	<bean id="reloadAuthController" class="edu.ucsf.lava.core.auth.controller.ReloadAuthController"/>
 	

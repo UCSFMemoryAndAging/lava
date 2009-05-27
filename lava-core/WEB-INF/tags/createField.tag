@@ -387,6 +387,16 @@
 				<c:when test="${style == 'multiple'}">
 			    	<c:set var="dataElement" value="multipleSelect"/>
 				</c:when>
+				<c:when test="${style == 'password'}">
+					<c:choose>
+				    	<c:when test="${mode == 'dc' || mode == 'de' || mode == 'le'}">
+		        	    	<c:set var="dataElement" value="password"/>
+			    		</c:when>
+				        <c:when test="${mode == 'vw' || mode == 'lv'}">
+		        	    	<c:set var="dataElement" value="readonlyPassword"/>
+			    	    </c:when>
+					</c:choose>
+				</c:when>
 				<c:when test="${style == 'string' || style == 'numeric'}">
 					<c:choose>
 				    	<c:when test="${mode == 'dc' || mode == 'de' || mode == 'le'}">
@@ -602,11 +612,17 @@
 					<c:when test="${dataElement == 'readonlyText'}">	
 						<tags:readonlyText property="${bindProperty}" alignment="${alignment}" list="${widgetList}"  styleClass="${style == 'numeric' ? 'readonlyDataNumeric' : 'readonlyData'} ${not empty dataStyle ? dataStyle :''}" inlineData="${inlineReadonlyData}"/>
 					</c:when>
+					<c:when test="${dataElement == 'readonlyPassword'}">	
+						<tags:readonlyPassword property="${bindProperty}" alignment="${alignment}" list="${widgetList}"  styleClass="${style == 'numeric' ? 'readonlyDataNumeric' : 'readonlyData'} ${not empty dataStyle ? dataStyle :''}" inlineData="${inlineReadonlyData}"/>
+					</c:when>
 					<c:when test="${dataElement == 'truncatedReadonlyText'}">	
 						<tags:truncatedReadonlyText property="${bindProperty}" alignment="${alignment}" list="${widgetList}"  styleClass="${style == 'numeric' ? 'readonlyDataNumeric' : 'readonlyData'} ${not empty dataStyle ? dataStyle :''}" inlineData="${inlineReadonlyData}"/>
 					</c:when>
 					<c:when test="${dataElement == 'textBox'}">
 			   			<tags:textBox property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}" styleClass="${style == 'numeric' ? 'inputDataNumeric' : 'inputData'} ${not empty dataStyle ? dataStyle :''}" textBoxSize="${textBoxSize}" maxLength="${maxTextLength}"/>
+					</c:when>
+					<c:when test="${dataElement == 'password'}">
+			   			<tags:password property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}" styleClass="${style == 'numeric' ? 'inputDataNumeric' : 'inputData'} ${not empty dataStyle ? dataStyle :''}" textBoxSize="${textBoxSize}" maxLength="${maxTextLength}"/>
 					</c:when>
 					<c:when test="${dataElement == 'dateTextBox'}">
 	   					<tags:dateTextBox property="${bindProperty}"  fieldId="${fieldId}" attributesText="${widgetAttributes}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}" textBoxSize="${textBoxSize}"/>

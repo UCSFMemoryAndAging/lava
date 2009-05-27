@@ -16,6 +16,7 @@
 <import resource="core-auth.xml"/>
 <import resource="core-controller.xml"/>
 <import resource="core-dao.xml"/>
+<import resource="core-home.xml"/>
 <import resource="core-list.xml"/>
 <import resource="core-managers.xml"/>
 <import resource="core-mappings.xml"/>

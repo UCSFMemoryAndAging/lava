@@ -1,5 +1,6 @@
 package edu.ucsf.lava.core.auth.model;
 
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 
@@ -18,12 +20,11 @@ import edu.ucsf.lava.core.model.EntityBase;
 
 public class AuthUser extends EntityBase implements UserDetails {
 	
-	
+	public static final String AUTH_TYPE_LOCAL = "LOCAL";
 	public static AuthUser.Manager MANAGER = new AuthUser.Manager();
 
 	protected String userName;
 	protected String login;
-	protected String hashedPassword;
 	protected String email;
 	protected String phone;
 	protected Date accessAgreementDate;
@@ -32,7 +33,14 @@ public class AuthUser extends EntityBase implements UserDetails {
 	protected String shortUserName; 
 	protected String shortUserNameRev; 
 	protected String notes;
-
+	protected String authenticationType;
+	protected String password;
+	protected Timestamp passwordExpiration;
+	protected String passwordResetToken;
+	protected Timestamp passwordResetExpiration;
+	protected Short failedLoginCount;
+	protected Timestamp lastFailedLogin;
+	protected Timestamp accountLocked;
 	protected boolean authUserContextInit = false; //flag used by authUserContext filters to determine when to perform initialization actions.
 	protected Set<AuthUserGroup> groups;
 	protected Set<AuthUserRole> roles;
@@ -91,34 +99,82 @@ public class AuthUser extends EntityBase implements UserDetails {
 		return false;
 	}
 
+
+
 	public Date getAccessAgreementDate() {
 		return accessAgreementDate;
 	}
+
+
+
+
+
 
 	public void setAccessAgreementDate(Date accessAgreementDate) {
 		this.accessAgreementDate = accessAgreementDate;
 	}
 
+
+
+
+
+
+	public Timestamp getAccountLocked() {
+		return accountLocked;
+	}
+
+
+
+
+
+
+	public void setAccountLocked(Timestamp accountLocked) {
+		this.accountLocked = accountLocked;
+	}
+
+
+
+
+
+
+	public String getAuthenticationType() {
+		return authenticationType;
+	}
+
+
+
+
+
+
+	public void setAuthenticationType(String authenticationType) {
+		this.authenticationType = authenticationType;
+	}
+
+
+
+
+
+
 	public Date getEffectiveDate() {
 		return effectiveDate;
 	}
+
+
+
+
+
 
 	public void setEffectiveDate(Date effectiveDate) {
 		this.effectiveDate = effectiveDate;
 	}
 
-	public Date getExpirationDate() {
-		return expirationDate;
-	}
-
-	public void setExpirationDate(Date expirationDate) {
-		this.expirationDate = expirationDate;
-	}
 
 
 
-	public String getHashedPassword() {
-		return hashedPassword;
+
+
+	public List<AuthUserRole> getEffectiveRoles() {
+		return effectiveRoles;
 	}
 
 
@@ -126,8 +182,8 @@ public class AuthUser extends EntityBase implements UserDetails {
 
 
 
-	public void setHashedPassword(String hashedPassword) {
-		this.hashedPassword = hashedPassword;
+	public void setEffectiveRoles(List<AuthUserRole> effectiveRoles) {
+		this.effectiveRoles = effectiveRoles;
 	}
 
 
@@ -153,6 +209,164 @@ public class AuthUser extends EntityBase implements UserDetails {
 
 
 
+	public Date getExpirationDate() {
+		return expirationDate;
+	}
+
+
+
+
+
+
+	public void setExpirationDate(Date expirationDate) {
+		this.expirationDate = expirationDate;
+	}
+
+
+
+
+
+
+	public Short getFailedLoginCount() {
+		return failedLoginCount;
+	}
+
+
+
+
+
+
+	public void setFailedLoginCount(Short failedLoginCount) {
+		this.failedLoginCount = failedLoginCount;
+	}
+
+
+
+
+
+
+	public Timestamp getLastFailedLogin() {
+		return lastFailedLogin;
+	}
+
+
+
+
+
+
+	public void setLastFailedLogin(Timestamp lastFailedLogin) {
+		this.lastFailedLogin = lastFailedLogin;
+	}
+
+
+
+
+
+
+	public String getLogin() {
+		return login;
+	}
+
+
+
+
+
+
+	public void setLogin(String login) {
+		this.login = login;
+	}
+
+
+
+
+
+
+	public String getNotes() {
+		return notes;
+	}
+
+
+
+
+
+
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+
+
+
+
+
+
+	public String getPassword() {
+		return password;
+	}
+
+
+
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
+
+
+	public Timestamp getPasswordExpiration() {
+		return passwordExpiration;
+	}
+
+
+
+
+
+
+	public void setPasswordExpiration(Timestamp passwordExpiration) {
+		this.passwordExpiration = passwordExpiration;
+	}
+
+
+
+
+
+
+	public Timestamp getPasswordResetExpiration() {
+		return passwordResetExpiration;
+	}
+
+
+
+
+
+
+	public void setPasswordResetExpiration(Timestamp passwordResetExpiration) {
+		this.passwordResetExpiration = passwordResetExpiration;
+	}
+
+
+
+
+
+
+	public String getPasswordResetToken() {
+		return passwordResetToken;
+	}
+
+
+
+
+
+
+	public void setPasswordResetToken(String passwordResetToken) {
+		this.passwordResetToken = passwordResetToken;
+	}
+
+
+
+
+
+
 	public String getPhone() {
 		return phone;
 	}
@@ -171,57 +385,63 @@ public class AuthUser extends EntityBase implements UserDetails {
 
 
 
-	public String getLogin() {
-		return login;
-	}
-
-	public void setLogin(String login) {
-		this.login = login;
-	}
-
 	public String getShortUserName() {
 		return shortUserName;
 	}
+
+
+
+
+
 
 	public void setShortUserName(String shortUserName) {
 		this.shortUserName = shortUserName;
 	}
 
+
+
+
+
+
 	public String getShortUserNameRev() {
 		return shortUserNameRev;
 	}
+
+
+
+
+
 
 	public void setShortUserNameRev(String shortUserNameRev) {
 		this.shortUserNameRev = shortUserNameRev;
 	}
 
+
+
+
+
+
 	public String getUserName() {
 		return userName;
 	}
+
+
+
+
+
 
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
 
-	public String getNotes() {
-		return notes;
-	}
-
-	public void setNotes(String notes) {
-		this.notes = notes;
-	}
 
 
 
-	public List<AuthUserRole> getEffectiveRoles() {
-		return effectiveRoles;
-	}
 
 
 
-	public void setEffectiveRoles(List<AuthUserRole> effectiveRoles) {
-		this.effectiveRoles = effectiveRoles;
-	}
+
+
 
 	/**
 	 * Return a map of Authorization Dao Filters to be used by
@@ -368,15 +588,25 @@ public class AuthUser extends EntityBase implements UserDetails {
 	    */
 		
 		
-		
+		/**
+		 * Only return granted authorities for accounts with locally defined
+		 * authentication.  The granted authroities for external authenticated 
+		 * accounts will be returned by the external providers. Return a single
+		 * authority "ROLE_USER" to allow access to the application.  Internal 
+		 * application roles and access permissions managed by the auth framework
+		 * not acegi. 
+		 */
 		public GrantedAuthority[] getAuthorities() {
-			return null;
+			String type = getAuthenticationType();
+			if(type!=null && type.equals(AUTH_TYPE_LOCAL)){
+				return new GrantedAuthority[]{new GrantedAuthorityImpl("ROLE_USER")};
+			}else{
+				return new GrantedAuthority[]{new GrantedAuthorityImpl("EXTERNAL_AUTHENTICATION_TYPE")};
+			}
 		}
 
 
-		public String getPassword() {
-			return getHashedPassword();
-		}
+	
 
 
 		public String getUsername() {
@@ -399,11 +629,13 @@ public class AuthUser extends EntityBase implements UserDetails {
 
 
 		/*
-		 * Lava User Accounts do not have a locked property
-		 * (non-Javadoc)
-		 * @see org.acegisecurity.userdetails.UserDetails#isAccountNonLocked()
+		 * If the account has local defined authentication, check to
+		 * see if an account locked timestamp is set. Otherwise return false;
 		 */
 		public boolean isAccountNonLocked() {
+			if(this.getAuthenticationType()!=null && this.getAuthenticationType().equals(AUTH_TYPE_LOCAL)){
+				return (this.getAccountLocked()==null);
+			}
 			return true;
 		}
 
@@ -412,10 +644,18 @@ public class AuthUser extends EntityBase implements UserDetails {
 
 
 		/*
-		 * Lava User Accounts do not have a password expiration feature
+		 * If the account has local defined authentication, check to
+		 * see if an account has a password expiration set that has passed.
 		 */
 		public boolean isCredentialsNonExpired() {
-			return true;
+			if(this.getAuthenticationType()!=null && 
+					this.getAuthenticationType().equals(AUTH_TYPE_LOCAL) &&
+					this.getPasswordExpiration()!=null &&
+					this.getPasswordExpiration().before(new Date())){
+				return false;
+			}
+			return true;	
+		
 		}
 
 

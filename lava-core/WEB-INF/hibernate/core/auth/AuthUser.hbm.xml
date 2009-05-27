@@ -15,7 +15,6 @@
 		<timestamp name="modified" column="modified"/>
 		 <property name="userName" column="UserName" type="string" length="50" not-null="true"/>
        <property name="login" column="Login" type="string" length="100"/>
-       <property name="hashedPassword" column="hashedPassword" type="string" length="100"/>
        <property name="email" column="email" type="string" length="100"/>
        <property name="phone" column="phone" type="string" length="25"/>
        <property name="accessAgreementDate" column="AccessAgreementDate" type="timestamp"/>
@@ -24,8 +23,14 @@
        <property name="effectiveDate" column="EffectiveDate" type="date" not-null="true"/>
        <property name="expirationDate" column="ExpirationDate" type="date"/>
        <property name="notes" column="Notes" type="string" length="255"/>
-
-	
+       <property name="authenticationType" column="authenticationType" type="string" length="10"/>
+       <property name="password" column="password" type="string" length="100"/>
+       <property name="passwordExpiration" column="passwordExpiration" type="timestamp"/>
+       <property name="passwordResetToken" column="passwordResetToken" type="string" length="100"/>
+       <property name="passwordResetExpiration" column="passwordResetExpiration" type="timestamp"/>
+       <property name="failedLoginCount" column="failedLoginCount" type="short"/>
+       <property name="lastFailedLogin" column="lastFailedLogin" type="timestamp"/>
+       <property name="accountLocked" column="accountLocked" type="timestamp"/>
 	
 	<set name="groups" inverse="true" cascade="delete" lazy="true">
 			<key column="UID"/>

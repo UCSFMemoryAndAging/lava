@@ -43,6 +43,7 @@ import edu.ucsf.lava.core.session.LavaSessionHttpRequestWrapper;
 import edu.ucsf.lava.core.session.SessionManager;
 
 
+
 //common functionality and core internal methods required by all Lava Component Handlers
 
 /**
@@ -746,6 +747,15 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		initializeListsInModel(model);
 		getListsFromModel(model).put(listRequestId, list);
 	}
+	
+	protected void addDynamicListToModel(Map model,String listName, Map<String,String> list){
+		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
+		dynamicLists.put(listName, list);
+		model.put("dynamicLists", dynamicLists);
+		}
+	
+	
+	
 	protected void addListsToModel(Map model,Map<String,Map<String,String>> lists){
 		initializeListsInModel(model);
 		getListsFromModel(model).putAll(lists);

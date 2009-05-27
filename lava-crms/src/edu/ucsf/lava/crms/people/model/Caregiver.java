@@ -375,9 +375,9 @@ public class Caregiver extends CrmsEntity {
 
 	protected void updateContactDesc(){
 		StringBuffer buffer = new StringBuffer();
-		if(getIsPrimaryContact()==(short)1){
+		if(getIsPrimaryContact()!=null && getIsPrimaryContact()==(short)1){
 			buffer.append("Primary Contact");
-		}else if(getIsContact()==(short)1){
+		}else if(getIsContact()!=null && getIsContact()==(short)1){
 			buffer.append("Contact");
 		}
 		
@@ -390,22 +390,22 @@ public class Caregiver extends CrmsEntity {
 
 	protected void updateRolesDesc(){
 		StringBuffer buffer = new StringBuffer();
-		if(getIsCaregiver()==(short)1){
+		if(getIsCaregiver()!=null && getIsCaregiver()==(short)1){
 			buffer.append("Caregiver; ");
 		}
-		if(getIsInformant()==(short)1){
+		if(getIsInformant()!=null && getIsInformant()==(short)1){
 			buffer.append("Informant; ");
 		}
-		if(getIsResearchSurrogate()==(short)1){
+		if(getIsResearchSurrogate()!=null && getIsResearchSurrogate()==(short)1){
 			buffer.append("Surrogate; ");
 		}
-		if(getIsNextOfKin()==(short)1){
+		if(getIsNextOfKin()!=null && getIsNextOfKin()==(short)1){
 			buffer.append("Next Of Kin; ");
 		}
-		if(getIsPowerOfAttorney()==(short)1){
+		if(getIsPowerOfAttorney()!=null && getIsPowerOfAttorney()==(short)1){
 			buffer.append("Power of Attorney; ");
 		}
-		if(getIsOtherRole()==(short)1){
+		if(getIsOtherRole()!=null && getIsOtherRole()==(short)1){
 			buffer.append("Other Role");
 		}
 		if(getOtherRoleDesc()!=null){
