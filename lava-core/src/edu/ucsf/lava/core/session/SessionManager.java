@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -19,7 +20,10 @@ import edu.ucsf.lava.core.manager.LavaManager;
 import edu.ucsf.lava.core.manager.CoreManagerUtils;
 import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.core.metadata.MetadataManager;
+import edu.ucsf.lava.core.scope.AbstractScopeSessionAttributeHandler;
 import edu.ucsf.lava.core.scope.ScopeManager;
+import edu.ucsf.lava.core.scope.ScopeSessionAttributeHandler;
+import edu.ucsf.lava.core.scope.ScopeSessionAttributeHandlers;
 import edu.ucsf.lava.core.session.model.LavaServerInstance;
 import edu.ucsf.lava.core.session.model.LavaSession;
 import edu.ucsf.lava.core.type.LavaDateUtils;
@@ -64,12 +68,13 @@ public class SessionManager extends LavaManager{
 			return scopeManager.getSessionAttributeHandlers().getAttribute(request, attribute);
 		}
 
-			
-		
+		public void addHandledAttribute(HttpServletRequest request,String scope, String attribute) {
+			ScopeSessionAttributeHandlers attributeHandlers = scopeManager.getSessionAttributeHandlers();
+			ScopeSessionAttributeHandler handler = attributeHandlers.getHandlers().get(scope);
+			handler.addHandledAttribute(attribute);
+		}
 
-			
-	
-	
+		
 		
 		
 		//LAVA Session Methods

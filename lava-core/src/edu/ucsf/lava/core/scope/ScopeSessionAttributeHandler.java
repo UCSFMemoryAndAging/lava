@@ -41,6 +41,12 @@ public interface ScopeSessionAttributeHandler {
 	 */
 	public List<String> getHandledAttributes();
 	
+	/**
+	 * add an attribute to the list of handled attributes, so it can be set in the session 
+	 * @param handledAttribute name of attribute to handle
+	 */
+	public void addHandledAttribute(String handledAttribute);
+
 
 	/** 
 	 * returns the list of attributes handled by this handler that
