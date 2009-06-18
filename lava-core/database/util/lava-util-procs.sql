@@ -19,12 +19,13 @@ UPPER(SUBSTRING(hibernateProperty,LOCATE('_',hibernateProperty)+1,1)),
 SUBSTRING(hibernateProperty,LOCATE('_',hibernateProperty)+2))
 WHERE entity = EntityIn AND hibernateProperty like '%\_%';
 
-
 UPDATE viewproperty SET
-messageCode = CONCAT(SUBSTRING_INDEX(messageCode,'_',1),
+messageCode =
+CONCAT(SUBSTRING_INDEX(messageCode,'_',1),
 UPPER(SUBSTRING(messageCode,LOCATE('_',messageCode)+1,1)),
 SUBSTRING(messageCode,LOCATE('_',messageCode)+2)),
-property = CONCAT(SUBSTRING_INDEX(property,'_',1),
+property =
+CONCAT(SUBSTRING_INDEX(property,'_',1),
 UPPER(SUBSTRING(property,LOCATE('_',property)+1,1)),
 SUBSTRING(property,LOCATE('_',property)+2))
 WHERE entity = EntityIn and property like '%\_%';
@@ -32,7 +33,7 @@ WHERE entity = EntityIn and property like '%\_%';
 END$$
 
 DROP PROCEDURE IF EXISTS `util_AddTableToHibernateProperty`$$
-CREATE PROCEDURE `util_AddTableToHibernateProperty`(TableNameIn varchar (50),EntityIn varchar (50),ScopeIn varchar(25))
+CREATE PROCEDURE  `util_AddTableToHibernateProperty`(TableNameIn varchar (50),EntityIn varchar (50),ScopeIn varchar(25))
 BEGIN
 
 INSERT INTO `hibernateproperty` (`scope`,`entity`,`property`,`dbTable`,`dbColumn`,`dbType`,`dbLength`,
