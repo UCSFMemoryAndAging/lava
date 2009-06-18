@@ -28,33 +28,9 @@ class EntityAddFlowBuilder extends BaseFlowBuilder {
     
     public void buildEventStates() throws FlowBuilderException {
     	TransitionCriteria reRenderEventTransitionCriteria;
-    	// until configuration provides knowledge of whether this add entity has a secondary list
-    	// component, hard-code which entities have it, and on __reRender, do a refresh event on
-    	// this list
-    	// if add instrument
-   		if (ActionUtils.getModule(actionId).equals("assessment") && 
-     			ActionUtils.getSection(actionId).equals("instrument")) {      		
-    		reRenderEventTransitionCriteria = ifReturnedSuccess(new Action[]{
-              	invoke("customBind", formAction),
-               	// update pre-populated dcDate,dcStatus based on selected visit
-               	invoke("handleFlowEvent", formAction),
-               	// need to refresh the secondary component list of instruments
-               	new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, 
-						expression("'visitInstruments__refresh'")),
-				invoke("handleFlowEvent",formAction),
-				// reset the eventOverride so original event (reRender) is available if needed in render actions
-				new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, expression(null))
-               	});
-    	}
-    	else {
-    		// else if not instrument
-    		reRenderEventTransitionCriteria = ifReturnedSuccess(new Action[]{
-               		invoke("customBind", formAction),
-               		invoke("handleFlowEvent", formAction)});
-    	}
-    	
-   		
-   		
+   		reRenderEventTransitionCriteria = ifReturnedSuccess(new Action[]{
+         		invoke("customBind", formAction),
+          		invoke("handleFlowEvent", formAction)});
    		
     	addViewState(getFlowEvent(), 
     			null, formAction.getCustomViewSelector(),
@@ -81,6 +57,7 @@ class EntityAddFlowBuilder extends BaseFlowBuilder {
     			null, null, null);
     	
     }
+ 
 }
 
 
