@@ -6,8 +6,9 @@
        description="the text to use for the button"%>
 <%@ attribute name="actionId" required="true" 
        description="the action id to use" %>
-<%@ attribute name="component" required="true"
-       description="the component for the action"%>
+<%@ attribute name="component"
+       description="the component for the action. NOT USED, but so many instances of it being
+       passed in, so have to leave in here for now."%>
 <%@ attribute name="eventId"
        description="[optional] flow event id" %>      
 <%@ attribute name="startMode"  
