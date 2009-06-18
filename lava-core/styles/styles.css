@@ -1714,7 +1714,7 @@ select.listControlBarActionNavButtonRight {
 	/* thus, best solution (again) is to use a fixed pixel width for width of the table, and 
    then use percentages for widths of the columns, which only need to be specified on the columns
    in the first row (i.e. the column headers) */
-table.listing,table.wideListing,table.veryWideListing {
+table.listing,table.shortListing,table.wideListing,table.veryWideListing {
 	table-layout: fixed;
 	/* may result in faster table calculation by browser. width of table
 	                       based on table width property and first row cell width properties */
@@ -1751,6 +1751,10 @@ table.listing,table.wideListing,table.veryWideListing {
 	width: 997px;
 }
 
+/* inlineTable is just a marker class, used to size tables differently depending upon where
+they are, i.e. use inlineTable if a table is within the content area such that the table width needs
+to be smaller than a table that spans the content area. inlineTable is most frequently used in 
+conjunction with the tableForm tag, for using tables to lay out forms */
 #centerLeftNav div.inlineTable table.listing {
 	width: 750px;
 	margin-left: 5px;
@@ -1760,6 +1764,17 @@ table.listing,table.wideListing,table.veryWideListing {
 	width: 965px;
 	margin-left: 5px;
 }
+
+
+/* Shorter tables are one half the width of regular tables, and just used inline */
+#centerLeftNav div.inlineTable table.shortListing {
+	width: 375px;
+}
+
+#centerModal div.inlineTable table.shortListing {
+	width: 482px;
+}
+
 
 /* Wider tables.  As per BLAF guidelines, when horizontally scrolling tables are unavoidable 
 				the table content if the only part that should scroll off the page.  The table controls should
@@ -1801,7 +1816,7 @@ table.listing,table.wideListing,table.veryWideListing {
 }
 
 /* column headings */
-table.listing th,table.wideListing th,table.veryWideListing th {
+table.listing th,table.shortListing th,table.wideListing th,table.veryWideListing th {
 	font-size: 10pt;
 	font-weight: bold; /* defaults to bold */
 	font-family: Arial, Helvetica, Geneva, sans-serif;
@@ -1818,7 +1833,7 @@ table.listing th,table.wideListing th,table.veryWideListing th {
 }
 
 /* table data */
-table.listing td,table.wideListing td,table.veryWideListing td {
+table.listing td,table.shortListing td,table.wideListing td,table.veryWideListing td {
 	background-color: #eeeeee;/*Table Row*/
 	/* SET TO MATCH BACKGROUND OF ACTION BUTTON IMAGES, OR MAYBE JUST THAT COLUMN ? */
 	font-size: 9pt;
@@ -1831,14 +1846,14 @@ table.listing td,table.wideListing td,table.veryWideListing td {
 	border: 1px solid #cccccc;/*Table Header  the border of the row is the header background and vise versa */
 }
 
-table.listing td.actionButton,table.wideListing td.actionButton,table.veryWideListing td.actionButton
+table.listing td.actionButton,table.shortListing td.actionButton, table.wideListing td.actionButton,table.veryWideListing td.actionButton
 	{
 	text-align: center;
 	vertical-align: middle;
 }
 
 /* override the div.field declarations that do not apply when the field is within a table cell */
-table.listing div.field,table.wideListing div.field,table.veryWideListing div.field
+table.listing div.field,table.shortListing div.field,table.wideListing div.field,table.veryWideListing div.field
 	{
 	float: none;
 	/* table cell data is within div block (put there by createField tag), but since field is within
@@ -1851,9 +1866,11 @@ table.listing div.field,table.wideListing div.field,table.veryWideListing div.fi
 	display: inline;
 }
 
-/* all labels that are within a table.tableForm cell are made left labels, regardless of
-   what the metadata says, as visually this is sensible. treat longLeft as left, and ignore
-   indented labels when dealing with labels within table cells. */
+/* the tableForm style class is used when displaying data within a table's cells, where the 
+data may or may not include labels.
+all labels that are within a table.tableForm cell are made left labels, regardless of
+what the metadata says, as visually this is sensible. treat longLeft as left, and ignore
+indented labels when dealing with labels within table cells. */
 	/* note: typically, data elements in table cells do not have labels, but if they do, they
          must be short to work, and need to manipulate column sizes of individual tables so 
          that can use a "one size fits all" width here */
@@ -1933,7 +1950,7 @@ form table.tableForm td.wideLabels div.comboRadioSelect {
 
 /* override the display declaration, because data elements within tables should not be block as that
    will mess up formatting, and also, wrapping will be taken care of by the cell */
-table.listing td .readonlyData,table.listing td .readonlyDataNumeric {
+table.tableForm td .readonlyData,table.listing td .readonlyDataNumeric {
 	display: inline;
 }
 
@@ -1966,6 +1983,13 @@ table.tableForm td.wideLabels .readonlyData,table.tableForm td.wideLabels .reado
 	{
 	margin-left: 45%; /* label width of 44% plus 1% for margin */
 }
+
+/* within a table, a group of rows can be styled (see listRowGroup.tag) */
+tbody.rowGroup {
+	border-top: solid 2px #C0C0C0;
+	border-bottom: solid 2px #C0C0C0;
+}
+
 
 /*calendar popup styles*/
 .cpYearNavigation,.cpMonthNavigation {
