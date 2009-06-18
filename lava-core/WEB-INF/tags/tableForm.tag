@@ -9,8 +9,12 @@
 	       metadata says.
 	       the tableForm style class is used to accomodate these labels.
 --%>
+<%@ attribute name="listingStyle" required="false"  
+			description="the style class which determines the table width, e.g. 
+           	'shortListing, 'listing', 'wideListing', veryWideListing'. if not
+            specified, defaults to 'listing' " %>
 <div class="inlineTable">  
-<table class="listing tableForm">  
+<table class="${not empty listingStyle ? listingStyle : 'listing'}" tableForm">  
   <jsp:doBody/>
 </table>
 </div>
