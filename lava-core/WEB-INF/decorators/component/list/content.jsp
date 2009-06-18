@@ -176,6 +176,9 @@ ${customActions}
 
 <%--Determine width of table content area--%>
 <c:choose>
+	<c:when test="${widthClass == 'short'}">
+		<table class="shortListing">
+	</c:when>
 	<c:when test="${widthClass == 'wide'}">
 		<table class="wideListing">
 	</c:when>
