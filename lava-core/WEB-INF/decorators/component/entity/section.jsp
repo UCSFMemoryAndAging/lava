@@ -20,6 +20,8 @@
      decorator as the sectionId parameter, in which case the field(s) will be wrapped
      by a fieldset that has no visibility, i.e. no border or legend 
      
+     sectionNameKey - message key for section name
+     
      other parameters:
      sectionNameArgs - comma-separated arguments to the sectionNameKey
      
