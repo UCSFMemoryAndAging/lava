@@ -1754,7 +1754,11 @@ table.listing,table.shortListing,table.wideListing,table.veryWideListing {
 /* inlineTable is just a marker class, used to size tables differently depending upon where
 they are, i.e. use inlineTable if a table is within the content area such that the table width needs
 to be smaller than a table that spans the content area. inlineTable is most frequently used in 
-conjunction with the tableForm tag, for using tables to lay out forms */
+conjunction with the tableForm tag, for using tables to lay out forms, e.g. an editable table,
+where the table is within an entity section and therefore is indented slightly just like form
+properties within a section area, and since it is indented its width needs to be smaller than
+the content area (compare the width to the equivalent style withou the div.inlineTable to see
+how much smaller) */
 #centerLeftNav div.inlineTable table.listing {
 	width: 750px;
 	margin-left: 5px;
@@ -1767,6 +1771,14 @@ conjunction with the tableForm tag, for using tables to lay out forms */
 
 
 /* Shorter tables are one half the width of regular tables, and just used inline */
+#centerLeftNav table.shortListing {
+	width: 391px;
+}
+
+#centerModal table.shortListing {
+	width: 498px;
+}
+
 #centerLeftNav div.inlineTable table.shortListing {
 	width: 375px;
 }
