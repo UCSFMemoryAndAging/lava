@@ -1529,6 +1529,11 @@ div.verticalSpace30 {
 	visibility: hidden;
 }
 
+/* use for a very small input box that just shows 1 characters, i.e. smaller than the HTML size="1" */
+input.onecharInput {
+	width: 1em;
+}
+
 /* List styles (i.e. table styles) */
 	/* NOTE: on a list view, all center blocks are enclosed in a listCenterWrapperBox to give a dark gray
          background around all elements
