@@ -1967,7 +1967,7 @@ form table.tableForm td.wideLabels div.comboRadioSelect {
 
 /* override the display declaration, because data elements within tables should not be block as that
    will mess up formatting, and also, wrapping will be taken care of by the cell */
-table.tableForm td .readonlyData,table.listing td .readonlyDataNumeric {
+table.tableForm td .readonlyData,table.tableForm td .readonlyDataNumeric,table.listing td .readonlyData,table.listing td .readonlyDataNumeric {
 	display: inline;
 }
 
