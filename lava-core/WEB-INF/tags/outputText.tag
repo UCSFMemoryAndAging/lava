@@ -29,14 +29,18 @@
                            typically a field. otherwise, the bottom margin of the previous block applies. 
                            this attribute only applies to text output in a block, i.e. inline=false" %>
 <%@ attribute name="indent" type="java.lang.Boolean" required="false"
-              description="[optional] (defaults to false) if true, indent text 20px. this only applies to text output 
-                           in a block, i.e. inline=false" %>
-                           
+              description="[optional] (defaults to false) if true, when inline=false, indent text 20px. when inline=true,
+              			   indent 5 spaces" %>
+                    
 <c:if test="${not empty textKey}">
 	<c:set var="text">
 		<spring:message code="${textKey}" arguments="${arguments}"/>
 	</c:set>
-</c:if>			
+</c:if>
+
+<c:if test="${empty inline}">
+	<c:set var="inline" value="true"/>
+</c:if>	  			
 	                     
 <c:if test="${not empty inline && !inline}">
 	<div class="outputText ${not empty hangingIndent ? 'hangingIndentOutputText' : ''} ${not empty associated ? 'associatedOutputText' : ''} ${not empty indent ? 'indentOutputText' : ''}">
@@ -46,7 +50,7 @@
 	<span class="${styleClass}">
 </c:if>	
 
-${text}
+${inline && indent ? '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' : ''}${text}
 
 <c:if test="${not empty styleClass}">
 	</span>
