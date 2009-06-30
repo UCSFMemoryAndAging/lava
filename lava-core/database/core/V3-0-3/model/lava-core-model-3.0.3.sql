@@ -2,19 +2,9 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
-CREATE TABLE IF NOT EXISTS `versionhistory` (
-  `Module` varchar(25) NOT NULL,
-  `Version` varchar(10) NOT NULL,
-  `VersionDate` datetime NOT NULL,
-  `Major` int(10) NOT NULL,
-  `Minor` int(10) NOT NULL,
-  `Fix` int(10) NOT NULL,
-  `UpdateRequired` tinyint(1) NOT NULL default '0',
-  PRIMARY KEY  (`Module`,`Version`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
 insert into versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-	VALUES ('lava-core-model','3.0.2',NOW(),3,0,2,1);
+	VALUES ('lava-core-model','3.0.3',NOW(),3,0,3,1);
+
 
 -- -----------------------------------------------------
 -- Table `audit_entity_history`
@@ -49,7 +39,7 @@ CREATE  TABLE IF NOT EXISTS `audit_entity_work` (
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`audit_entity_id`) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 103
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -94,7 +84,7 @@ CREATE  TABLE IF NOT EXISTS `audit_event_work` (
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`audit_event_id`) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 1071
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -135,7 +125,7 @@ CREATE  TABLE IF NOT EXISTS `audit_property_work` (
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`audit_property_id`) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 328
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -181,7 +171,7 @@ CREATE  TABLE IF NOT EXISTS `authgroup` (
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`GID`) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -203,7 +193,7 @@ CREATE  TABLE IF NOT EXISTS `authpermission` (
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`PermID`) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 54
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -219,7 +209,7 @@ CREATE  TABLE IF NOT EXISTS `authrole` (
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`RoleID`) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 6
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -232,7 +222,6 @@ CREATE  TABLE IF NOT EXISTS `authuser` (
   `UID` INT(10) NOT NULL AUTO_INCREMENT ,
   `UserName` VARCHAR(50) NOT NULL ,
   `Login` VARCHAR(100) NULL DEFAULT NULL ,
-  `hashedPassword` VARCHAR(100) NULL DEFAULT NULL ,
   `email` VARCHAR(100) NULL DEFAULT NULL ,
   `phone` VARCHAR(25) NULL DEFAULT NULL ,
   `AccessAgreementDate` DATE NULL DEFAULT NULL ,
@@ -241,12 +230,20 @@ CREATE  TABLE IF NOT EXISTS `authuser` (
   `EffectiveDate` DATE NOT NULL ,
   `ExpirationDate` DATE NULL DEFAULT NULL ,
   `Notes` VARCHAR(255) NULL DEFAULT NULL ,
+  `authenticationType` VARCHAR(10) NULL DEFAULT 'LOCAL' ,
+  `password` VARCHAR(100) NULL DEFAULT NULL ,
+  `passwordExpiration` TIMESTAMP NULL DEFAULT NULL ,
+  `passwordResetToken` VARCHAR(100) NULL DEFAULT NULL ,
+  `passwordResetExpiration` TIMESTAMP NULL DEFAULT NULL ,
+  `failedLoginCount` SMALLINT NULL DEFAULT NULL ,
+  `lastFailedLogin` TIMESTAMP NULL DEFAULT NULL ,
+  `accountLocked` TIMESTAMP NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`UID`) ,
   UNIQUE INDEX `Unique_UserName` (`UserName` ASC) ,
   UNIQUE INDEX `Unique_Login` (`Login` ASC) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 6
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -263,7 +260,7 @@ CREATE  TABLE IF NOT EXISTS `authusergroup` (
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`UGID`) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -281,7 +278,7 @@ CREATE  TABLE IF NOT EXISTS `authuserrole` (
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`URID`) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -310,7 +307,7 @@ CREATE  TABLE IF NOT EXISTS `hibernateproperty` (
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 1625
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -337,7 +334,7 @@ CREATE  TABLE IF NOT EXISTS `lava_session` (
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`lava_session_id`) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 243
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -356,7 +353,7 @@ CREATE  TABLE IF NOT EXISTS `lavaserverinstance` (
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`ServerInstanceID`) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 79
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -373,7 +370,7 @@ CREATE  TABLE IF NOT EXISTS `list` (
   PRIMARY KEY (`ListID`) ,
   INDEX `ListName` (`ListName` ASC) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 468
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -393,7 +390,7 @@ CREATE  TABLE IF NOT EXISTS `listvalues` (
   INDEX `cListID` (`ListID` ASC) ,
   INDEX `ValueKey` (`ValueKey` ASC) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 24376
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -445,8 +442,105 @@ CREATE  TABLE IF NOT EXISTS `viewproperty` (
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
+AUTO_INCREMENT = 2479
+DEFAULT CHARACTER SET = latin1;
+
+
+-- -----------------------------------------------------
+-- Table `calendar`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `calendar` ;
+
+CREATE  TABLE IF NOT EXISTS `calendar` (
+  `calendar_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `type` VARCHAR(25) NOT NULL ,
+  `name` VARCHAR(100) NOT NULL ,
+  `description` VARCHAR(255) NULL DEFAULT NULL ,
+  `notes` TEXT NULL DEFAULT NULL ,
+  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`calendar_id`) )
+ENGINE = InnoDB
 AUTO_INCREMENT = 1
 DEFAULT CHARACTER SET = latin1;
+
+
+-- -----------------------------------------------------
+-- Table `appointment`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `appointment` ;
+
+CREATE  TABLE IF NOT EXISTS `appointment` (
+  `appointment_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `calendar_id` INT UNSIGNED NOT NULL ,
+  `organizer_id` INT NOT NULL ,
+  `type` VARCHAR(25) NOT NULL ,
+  `description` VARCHAR(50) NULL DEFAULT NULL ,
+  `location` VARCHAR(100) NULL DEFAULT NULL ,
+  `start_date` DATE NOT NULL ,
+  `start_time` TIME NOT NULL ,
+  `end_date` DATE NOT NULL ,
+  `end_time` TIME NOT NULL ,
+  `status` VARCHAR(25) NULL ,
+  `notes` TEXT NULL DEFAULT NULL ,
+  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`appointment_id`) ,
+  INDEX `appointment__calendar` (`calendar_id` ASC) ,
+  CONSTRAINT `appointment__calendar`
+    FOREIGN KEY (`calendar_id` )
+    REFERENCES `calendar` (`calendar_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+AUTO_INCREMENT = 10
+DEFAULT CHARACTER SET = latin1;
+
+
+-- -----------------------------------------------------
+-- Table `attendee`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `attendee` ;
+
+CREATE  TABLE IF NOT EXISTS `attendee` (
+  `attendee_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `appointment_id` INT UNSIGNED NOT NULL ,
+  `user_id` INT NOT NULL ,
+  `role` VARCHAR(25) NOT NULL ,
+  `status` VARCHAR(25) NOT NULL ,
+  `notes` VARCHAR(100) NULL ,
+  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`attendee_id`) ,
+  INDEX `attendee__appointment` (`appointment_id` ASC) ,
+  CONSTRAINT `attendee__appointment`
+    FOREIGN KEY (`appointment_id`)
+    REFERENCES `appointment` (`appointment_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
+
+
+-- -----------------------------------------------------
+-- Table `appointment_change`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `appointment_change` ;
+
+CREATE  TABLE IF NOT EXISTS `appointment_change` (
+  `appointment_change_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `appointment_id` INT UNSIGNED NOT NULL ,
+  `type` VARCHAR(25) NOT NULL ,
+  `description` VARCHAR(255) NULL ,
+  `change_by` INT NOT NULL ,
+  `change_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`appointment_change_id`) ,
+  INDEX `appointment_change__appointment` (`appointment_id` ASC) ,
+  CONSTRAINT `appointment_change__appointment`
+    FOREIGN KEY (`appointment_id`)
+    REFERENCES `appointment` (`appointment_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
+
 
 
 -- -----------------------------------------------------
@@ -481,7 +575,7 @@ CREATE  OR REPLACE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `audit_entity` 
 -- -----------------------------------------------------
 DROP VIEW IF EXISTS `audit_event` ;
 DROP TABLE IF EXISTS `audit_event`;
-CREATE  OR REPLACE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `audit_event` AS select `audit_event_work`.`audit_event_id` AS `audit_event_id`,`audit_event_work`.`audit_user` AS `audit_user`,`audit_event_work`.`audit_host` AS `audit_host`,`audit_event_work`.`audit_timestamp` AS `audit_timestamp`,`audit_event_work`.`action` AS `action`,`audit_event_work`.`action_event` AS `action_event`,`audit_event_work`.`action_id_param` AS `action_id_param`,`audit_event_work`.`event_note` AS `event_note`,`audit_event_work`.`exception` AS `exception`,`audit_event_work`.`exception_message` AS `exception_message`,`audit_event_work`.`modified` AS `modified` from `audit_event_work` union all select `audit_event_history`.`audit_event_id` AS `audit_event_id`,`audit_event_history`.`audit_user` AS `audit_user`,`audit_event_history`.`audit_host` AS `audit_host`,`audit_event_history`.`audit_timestamp` AS `audit_timestamp`,`audit_event_history`.`action` AS `action`,`audit_event_history`.`action_event` AS `action_event`,`audit_event_history`.`action_id_param` AS `action_id_param`,`audit_event_history`.`event_note` AS `event_note`,`audit_event_history`.`exception` AS `exception`,`audit_event_history`.`exception_message` AS `exception_message`,`audit_event_history`.`modified` AS `modified` from `audit_event_history`;
+CREATE  OR REPLACE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `audit_event` AS select `audit_event_work`.`audit_event_id` AS `audit_event_id`,`audit_event_work`.`audit_user` AS `audit_user`,`audit_event_work`.`audit_host` AS `audit_host`,`audit_event_work`.`audit_timestamp` AS `audit_timestamp`,`audit_event_work`.`action` AS `action`,`audit_event_work`.`action_event` AS `action_event`,`audit_event_work`.`action_id_param` AS `action_id_param`,`audit_event_work`.`event_note` AS `event_note`,`audit_event_work`.`exception` AS `exception`,`audit_event_work`.`exception_message` AS `exception_message`,`audit_event_work`.`modified` AS `modified` from `audit_event_work` union all select `audit_event_history`.`audit_event_id` AS `audit_event_id`,`audit_event_history`.`audit_user` AS `audit_user`,`audit_event_history`.`audit_host` AS `audit_host`,`audit_event_history`.`audit_timestamp` AS `audit_timestamp`,`audit_event_history`.`action` AS `action`,`audit_event_history`.`action_event` AS `action_event`,`audit_event_history`.`action_id_param` AS `action_id_param`,`audit_event_history`.`event_note` AS `event_note`,`audit_event_history`.`exception` AS `exception`,`audit_event_history`.`exception_message` AS `exception_message`,`audit_event_history`.`modified` AS `modified` from `audit_event_history`;
 
 -- -----------------------------------------------------
 -- View `audit_property`
