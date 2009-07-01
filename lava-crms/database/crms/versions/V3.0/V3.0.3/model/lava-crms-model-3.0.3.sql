@@ -2,15 +2,16 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
-CREATE SCHEMA IF NOT EXISTS `lava_crms` DEFAULT CHARACTER SET latin1 ;
-USE `lava_crms`;
+
+insert into versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
+	VALUES ('lava-crms-model','3.0.3',NOW(),3,0,3,1);
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`patient`
+-- Table `patient`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`patient` ;
+DROP TABLE IF EXISTS `patient` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`patient` (
+CREATE  TABLE IF NOT EXISTS `patient` (
   `PIDN` INT(10) NOT NULL AUTO_INCREMENT ,
   `LName` VARCHAR(25) NOT NULL ,
   `MInitial` CHAR(1) NULL DEFAULT NULL ,
@@ -41,11 +42,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`caregiver`
+-- Table `caregiver`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`caregiver` ;
+DROP TABLE IF EXISTS `caregiver` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`caregiver` (
+CREATE  TABLE IF NOT EXISTS `caregiver` (
   `CareID` INT(10) NOT NULL AUTO_INCREMENT ,
   `PIDN` INT(10) NOT NULL ,
   `Lname` VARCHAR(25) NOT NULL ,
@@ -83,7 +84,7 @@ CREATE  TABLE IF NOT EXISTS `lava_crms`.`caregiver` (
   INDEX `caregiver__PIDN` (`PIDN` ASC) ,
   CONSTRAINT `caregiver__PIDN`
     FOREIGN KEY (`PIDN` )
-    REFERENCES `lava_crms`.`patient` (`PIDN` )
+    REFERENCES `patient` (`PIDN` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -92,11 +93,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`contactinfo`
+-- Table `contactinfo`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`contactinfo` ;
+DROP TABLE IF EXISTS `contactinfo` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`contactinfo` (
+CREATE  TABLE IF NOT EXISTS `contactinfo` (
   `CInfoID` INT(10) NOT NULL AUTO_INCREMENT ,
   `PIDN` INT(10) NOT NULL ,
   `CareID` INT(10) NULL DEFAULT NULL ,
@@ -127,12 +128,12 @@ CREATE  TABLE IF NOT EXISTS `lava_crms`.`contactinfo` (
   INDEX `contactinfo__CareID` (`CareID` ASC) ,
   CONSTRAINT `contactinfo__PIDN`
     FOREIGN KEY (`PIDN` )
-    REFERENCES `lava_crms`.`patient` (`PIDN` )
+    REFERENCES `patient` (`PIDN` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `contactinfo__CareID`
     FOREIGN KEY (`CareID` )
-    REFERENCES `lava_crms`.`caregiver` (`CareID` )
+    REFERENCES `caregiver` (`CareID` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -141,11 +142,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`projectunit`
+-- Table `projectunit`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`projectunit` ;
+DROP TABLE IF EXISTS `projectunit` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`projectunit` (
+CREATE  TABLE IF NOT EXISTS `projectunit` (
   `ProjUnitID` INT(10) NOT NULL AUTO_INCREMENT ,
   `Project` VARCHAR(25) NOT NULL ,
   `Unit` VARCHAR(25) NULL DEFAULT NULL ,
@@ -162,11 +163,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`contactlog`
+-- Table `contactlog`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`contactlog` ;
+DROP TABLE IF EXISTS `contactlog` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`contactlog` (
+CREATE  TABLE IF NOT EXISTS `contactlog` (
   `LogID` INT(10) NOT NULL AUTO_INCREMENT ,
   `PIDN` INT(10) NOT NULL ,
   `ProjName` VARCHAR(75) NULL DEFAULT NULL ,
@@ -183,12 +184,12 @@ CREATE  TABLE IF NOT EXISTS `lava_crms`.`contactlog` (
   INDEX `contactlog__ProjName` (`ProjName` ASC) ,
   CONSTRAINT `contactlog__PIDN`
     FOREIGN KEY (`PIDN` )
-    REFERENCES `lava_crms`.`patient` (`PIDN` )
+    REFERENCES `patient` (`PIDN` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `contactlog__ProjName`
     FOREIGN KEY (`ProjName` )
-    REFERENCES `lava_crms`.`projectunit` (`ProjUnitDesc` )
+    REFERENCES `projectunit` (`ProjUnitDesc` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -197,11 +198,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`crmsauthrole`
+-- Table `crmsauthrole`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`crmsauthrole` ;
+DROP TABLE IF EXISTS `crmsauthrole` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`crmsauthrole` (
+CREATE  TABLE IF NOT EXISTS `crmsauthrole` (
   `RoleID` INT(10) NOT NULL ,
   `PatientAccess` SMALLINT(5) NOT NULL DEFAULT '1' ,
   `PhiAccess` SMALLINT(5) NOT NULL DEFAULT '1' ,
@@ -212,11 +213,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`crmsauthuser`
+-- Table `crmsauthuser`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`crmsauthuser` ;
+DROP TABLE IF EXISTS `crmsauthuser` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`crmsauthuser` (
+CREATE  TABLE IF NOT EXISTS `crmsauthuser` (
   `UID` INT(10) NOT NULL ,
   PRIMARY KEY (`UID`) )
 ENGINE = InnoDB
@@ -224,11 +225,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`crmsauthuserrole`
+-- Table `crmsauthuserrole`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`crmsauthuserrole` ;
+DROP TABLE IF EXISTS `crmsauthuserrole` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`crmsauthuserrole` (
+CREATE  TABLE IF NOT EXISTS `crmsauthuserrole` (
   `URID` INT(10) NOT NULL ,
   `Project` VARCHAR(25) NULL DEFAULT NULL ,
   `Unit` VARCHAR(25) NULL DEFAULT NULL ,
@@ -238,11 +239,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`doctor`
+-- Table `doctor`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`doctor` ;
+DROP TABLE IF EXISTS `doctor` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`doctor` (
+CREATE  TABLE IF NOT EXISTS `doctor` (
   `DocID` INT(10) NOT NULL AUTO_INCREMENT ,
   `LName` VARCHAR(25) NOT NULL ,
   `MInitial` CHAR(1) NULL DEFAULT NULL ,
@@ -269,11 +270,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`enrollmentstatus`
+-- Table `enrollmentstatus`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`enrollmentstatus` ;
+DROP TABLE IF EXISTS `enrollmentstatus` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`enrollmentstatus` (
+CREATE  TABLE IF NOT EXISTS `enrollmentstatus` (
   `EnrollStatID` INT(10) NOT NULL AUTO_INCREMENT ,
   `PIDN` INT(10) NOT NULL ,
   `ProjName` VARCHAR(75) NULL DEFAULT NULL ,
@@ -325,12 +326,12 @@ CREATE  TABLE IF NOT EXISTS `lava_crms`.`enrollmentstatus` (
   INDEX `enrollmentstatus__ProjName` (`ProjName` ASC) ,
   CONSTRAINT `enrollmentstatus__PIDN`
     FOREIGN KEY (`PIDN` )
-    REFERENCES `lava_crms`.`patient` (`PIDN` )
+    REFERENCES `patient` (`PIDN` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `enrollmentstatus__ProjName`
     FOREIGN KEY (`ProjName` )
-    REFERENCES `lava_crms`.`projectunit` (`ProjUnitDesc` )
+    REFERENCES `projectunit` (`ProjUnitDesc` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -339,11 +340,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`instrument`
+-- Table `instrument`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`instrument` ;
+DROP TABLE IF EXISTS `instrument` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`instrument` (
+CREATE  TABLE IF NOT EXISTS `instrument` (
   `InstrID` INT(10) NOT NULL AUTO_INCREMENT ,
   `InstrName` VARCHAR(25) NOT NULL ,
   `TableName` VARCHAR(25) NOT NULL ,
@@ -359,11 +360,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`visit`
+-- Table `visit`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`visit` ;
+DROP TABLE IF EXISTS `visit` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`visit` (
+CREATE  TABLE IF NOT EXISTS `visit` (
   `VID` INT(10) NOT NULL AUTO_INCREMENT ,
   `PIDN` INT(10) NOT NULL ,
   `ProjName` VARCHAR(75) NOT NULL ,
@@ -388,12 +389,12 @@ CREATE  TABLE IF NOT EXISTS `lava_crms`.`visit` (
   INDEX `visit__ProjName` (`ProjName` ASC) ,
   CONSTRAINT `visit__PIDN`
     FOREIGN KEY (`PIDN` )
-    REFERENCES `lava_crms`.`patient` (`PIDN` )
+    REFERENCES `patient` (`PIDN` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `visit__ProjName`
     FOREIGN KEY (`ProjName` )
-    REFERENCES `lava_crms`.`projectunit` (`ProjUnitDesc` )
+    REFERENCES `projectunit` (`ProjUnitDesc` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -402,11 +403,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`instrumenttracking`
+-- Table `instrumenttracking`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`instrumenttracking` ;
+DROP TABLE IF EXISTS `instrumenttracking` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`instrumenttracking` (
+CREATE  TABLE IF NOT EXISTS `instrumenttracking` (
   `InstrID` INT(10) NOT NULL AUTO_INCREMENT ,
   `VID` INT(10) NOT NULL ,
   `ProjName` VARCHAR(75) NOT NULL ,
@@ -443,22 +444,22 @@ CREATE  TABLE IF NOT EXISTS `lava_crms`.`instrumenttracking` (
   INDEX `insttumenttracking__PIDN` (`PIDN` ASC) ,
   CONSTRAINT `instrumenttracking__InstrType`
     FOREIGN KEY (`InstrType` )
-    REFERENCES `lava_crms`.`instrument` (`InstrName` )
+    REFERENCES `instrument` (`InstrName` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `instrumenttracking__VID`
     FOREIGN KEY (`VID` )
-    REFERENCES `lava_crms`.`visit` (`VID` )
+    REFERENCES `visit` (`VID` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `instrumenttracking__ProjName`
     FOREIGN KEY (`ProjName` )
-    REFERENCES `lava_crms`.`projectunit` (`ProjUnitDesc` )
+    REFERENCES `projectunit` (`ProjUnitDesc` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `insttumenttracking__PIDN`
     FOREIGN KEY (`PIDN` )
-    REFERENCES `lava_crms`.`patient` (`PIDN` )
+    REFERENCES `patient` (`PIDN` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -467,18 +468,18 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`instrumentnotes`
+-- Table `instrumentnotes`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`instrumentnotes` ;
+DROP TABLE IF EXISTS `instrumentnotes` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`instrumentnotes` (
+CREATE  TABLE IF NOT EXISTS `instrumentnotes` (
   `InstrID` INT(10) NOT NULL ,
   `Section` VARCHAR(50) NOT NULL ,
   `Note` VARCHAR(2000) NULL DEFAULT NULL ,
   INDEX `instrumentnotes__instrID` (`InstrID` ASC) ,
   CONSTRAINT `instrumentnotes__instrID`
     FOREIGN KEY (`InstrID` )
-    REFERENCES `lava_crms`.`instrumenttracking` (`InstrID` )
+    REFERENCES `instrumenttracking` (`InstrID` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -486,18 +487,18 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`instrumentsummary`
+-- Table `instrumentsummary`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`instrumentsummary` ;
+DROP TABLE IF EXISTS `instrumentsummary` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`instrumentsummary` (
+CREATE  TABLE IF NOT EXISTS `instrumentsummary` (
   `InstrID` INT(10) NOT NULL ,
   `Summary` VARCHAR(500) NULL DEFAULT NULL ,
   PRIMARY KEY (`InstrID`) ,
   INDEX `instrumentsummary__InstrID` (`InstrID` ASC) ,
   CONSTRAINT `instrumentsummary__InstrID`
     FOREIGN KEY (`InstrID` )
-    REFERENCES `lava_crms`.`instrumenttracking` (`InstrID` )
+    REFERENCES `instrumenttracking` (`InstrID` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -505,11 +506,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`patientdoctors`
+-- Table `patientdoctors`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`patientdoctors` ;
+DROP TABLE IF EXISTS `patientdoctors` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`patientdoctors` (
+CREATE  TABLE IF NOT EXISTS `patientdoctors` (
   `PIDNDocID` INT(10) NOT NULL AUTO_INCREMENT ,
   `DocID` INT(10) NOT NULL ,
   `PIDN` INT(10) NOT NULL ,
@@ -521,12 +522,12 @@ CREATE  TABLE IF NOT EXISTS `lava_crms`.`patientdoctors` (
   INDEX `patientdoctors__DocID` (`DocID` ASC) ,
   CONSTRAINT `patientdoctors__PIDN`
     FOREIGN KEY (`PIDN` )
-    REFERENCES `lava_crms`.`patient` (`PIDN` )
+    REFERENCES `patient` (`PIDN` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `patientdoctors__DocID`
     FOREIGN KEY (`DocID` )
-    REFERENCES `lava_crms`.`doctor` (`DocID` )
+    REFERENCES `doctor` (`DocID` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -535,11 +536,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`tasks`
+-- Table `tasks`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`tasks` ;
+DROP TABLE IF EXISTS `tasks` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`tasks` (
+CREATE  TABLE IF NOT EXISTS `tasks` (
   `TaskID` INT(10) NOT NULL AUTO_INCREMENT ,
   `PIDN` INT(10) NOT NULL ,
   `ProjName` VARCHAR(75) NULL DEFAULT NULL ,
@@ -558,12 +559,12 @@ CREATE  TABLE IF NOT EXISTS `lava_crms`.`tasks` (
   INDEX `tasks__ProjName` (`ProjName` ASC) ,
   CONSTRAINT `tasks__PIDN`
     FOREIGN KEY (`PIDN` )
-    REFERENCES `lava_crms`.`patient` (`PIDN` )
+    REFERENCES `patient` (`PIDN` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `tasks__ProjName`
     FOREIGN KEY (`ProjName` )
-    REFERENCES `lava_crms`.`projectunit` (`ProjUnitDesc` )
+    REFERENCES `projectunit` (`ProjUnitDesc` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -572,11 +573,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`uploadedfiles`
+-- Table `uploadedfiles`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`uploadedfiles` ;
+DROP TABLE IF EXISTS `uploadedfiles` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`uploadedfiles` (
+CREATE  TABLE IF NOT EXISTS `uploadedfiles` (
   `InstrID` INT(10) NOT NULL ,
   `FileName` VARCHAR(500) NULL DEFAULT NULL ,
   `FileContents` VARCHAR(16) NULL DEFAULT NULL ,
@@ -584,7 +585,7 @@ CREATE  TABLE IF NOT EXISTS `lava_crms`.`uploadedfiles` (
   INDEX `uploadedfiles__InstrID` (`InstrID` ASC) ,
   CONSTRAINT `uploadedfiles__InstrID`
     FOREIGN KEY (`InstrID` )
-    REFERENCES `lava_crms`.`instrumenttracking` (`InstrID` )
+    REFERENCES `instrumenttracking` (`InstrID` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -592,11 +593,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lava_crms`.`patientconsent`
+-- Table `patientconsent`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_crms`.`patientconsent` ;
+DROP TABLE IF EXISTS `patientconsent` ;
 
-CREATE  TABLE IF NOT EXISTS `lava_crms`.`patientconsent` (
+CREATE  TABLE IF NOT EXISTS `patientconsent` (
   `ConsentID` INT(10) NOT NULL AUTO_INCREMENT ,
   `PIDN` INT(10) NOT NULL ,
   `CareID` INT(10) NULL DEFAULT NULL ,
@@ -631,12 +632,12 @@ CREATE  TABLE IF NOT EXISTS `lava_crms`.`patientconsent` (
   INDEX `patientconsent__ProjName` (`ProjName` ASC) ,
   CONSTRAINT `patientconsent__PIDN`
     FOREIGN KEY (`PIDN` )
-    REFERENCES `lava_crms`.`patient` (`PIDN` )
+    REFERENCES `patient` (`PIDN` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `patientconsent__ProjName`
     FOREIGN KEY (`ProjName` )
-    REFERENCES `lava_crms`.`projectunit` (`ProjUnitDesc` )
+    REFERENCES `projectunit` (`ProjUnitDesc` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -645,27 +646,27 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Placeholder table for view `lava_crms`.`vwrptprojectpatientstatus`
+-- Placeholder table for view `vwrptprojectpatientstatus`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `lava_crms`.`vwrptprojectpatientstatus` (`id` INT);
+CREATE TABLE IF NOT EXISTS `vwrptprojectpatientstatus` (`id` INT);
 
 -- -----------------------------------------------------
--- Placeholder table for view `lava_crms`.`vwrptprojectvisitlist`
+-- Placeholder table for view `vwrptprojectvisitlist`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `lava_crms`.`vwrptprojectvisitlist` (`id` INT);
+CREATE TABLE IF NOT EXISTS `vwrptprojectvisitlist` (`id` INT);
 
 -- -----------------------------------------------------
--- View `lava_crms`.`vwrptprojectpatientstatus`
+-- View `vwrptprojectpatientstatus`
 -- -----------------------------------------------------
-DROP VIEW IF EXISTS `lava_crms`.`vwrptprojectpatientstatus` ;
-DROP TABLE IF EXISTS `lava_crms`.`vwrptprojectpatientstatus`;
+DROP VIEW IF EXISTS `vwrptprojectpatientstatus` ;
+DROP TABLE IF EXISTS `vwrptprojectpatientstatus`;
 CREATE  OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY DEFINER VIEW `vwrptprojectpatientstatus` AS select `p`.`PIDN` AS `PIDN`,`p`.`FullNameRev` AS `FullNameRev`,`p`.`AGE` AS `AGE`,`p`.`Gender` AS `Gender`,`lps`.`ProjName` AS `ProjName`,`lps`.`LatestDate` AS `StatusDate`,`lps`.`LatestDesc` AS `Status`,`lps`.`LatestNote` AS `StatusNote`,(case `lps`.`LatestDesc` when _utf8'ACTIVE' then 0 when _utf8'FOLLOW-UP' then 1 when _utf8'CANCELED' then 5 when _utf8'CLOSED' then 6 when _utf8'INACTIVE' then 4 when _utf8'PRE-APPOINTMENT' then 2 when _utf8'PENDING' then 3 when _utf8'ENROLLED' then 7 when _utf8'DECEASED' then 8 when _utf8'DECEASED-PERFORMED' then 9 when _utf8'DECEASED-NOT PERFORMED' then 10 when _utf8'REFERRED' then 11 when _utf8'ELIGIBLE' then 12 when _utf8'INELIGIBLE' then 13 when _utf8'WITHDREW' then 14 when _utf8'EXCLUDED' then 15 when _utf8'DECLINED' then 16 else 17 end) AS `StatusOrder`,`pu`.`Project` AS `ProjUnitDesc`,`pu`.`Project` AS `Project`,_utf8'OVERALL' AS `Unit`,1 AS `UnitOrder` from ((`patient` `p` join `enrollmentstatus` `lps` on((`p`.`PIDN` = `lps`.`PIDN`))) join `projectunit` `pu` on((`lps`.`ProjName` = `pu`.`ProjUnitDesc`))) union select `p`.`PIDN` AS `PIDN`,`p`.`FullNameRev` AS `FullNameRev`,`p`.`AGE` AS `AGE`,`p`.`Gender` AS `Gender`,`lps`.`ProjName` AS `ProjName`,`lps`.`LatestDate` AS `LatestDate`,`lps`.`LatestDesc` AS `LatestDesc`,`lps`.`LatestNote` AS `StatusNote`,(case `lps`.`LatestDesc` when _utf8'ACTIVE' then 0 when _utf8'FOLLOW-UP' then 1 when _utf8'CANCELED' then 5 when _utf8'CLOSED' then 6 when _utf8'INACTIVE' then 4 when _utf8'PRE-APPOINTMENT' then 2 when _utf8'PENDING' then 3 when _utf8'ENROLLED' then 7 when _utf8'DECEASED' then 8 when _utf8'DECEASED-PERFORMED' then 9 when _utf8'DECEASED-NOT PERFORMED' then 10 when _utf8'REFERRED' then 11 when _utf8'ELIGIBLE' then 12 when _utf8'INELIGIBLE' then 13 when _utf8'WITHDREW' then 14 when _utf8'EXCLUDED' then 15 when _utf8'DECLINED' then 16 else 17 end) AS `StatusOrder`,`pu`.`ProjUnitDesc` AS `ProjUnitDesc`,`pu`.`Project` AS `Project`,`pu`.`Unit` AS `Unit`,2 AS `UnitOrder` from ((`patient` `p` join `enrollmentstatus` `lps` on((`p`.`PIDN` = `lps`.`PIDN`))) join `projectunit` `pu` on((`lps`.`ProjName` = `pu`.`ProjUnitDesc`))) where (`pu`.`Unit` is not null);
 
 -- -----------------------------------------------------
--- View `lava_crms`.`vwrptprojectvisitlist`
+-- View `vwrptprojectvisitlist`
 -- -----------------------------------------------------
-DROP VIEW IF EXISTS `lava_crms`.`vwrptprojectvisitlist` ;
-DROP TABLE IF EXISTS `lava_crms`.`vwrptprojectvisitlist`;
+DROP VIEW IF EXISTS `vwrptprojectvisitlist` ;
+DROP TABLE IF EXISTS `vwrptprojectvisitlist`;
 CREATE  OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY DEFINER VIEW `vwrptprojectvisitlist` AS select `p`.`PIDN` AS `PIDN`,`p`.`FullNameRev` AS `FullNameRev`,`p`.`TransLanguage` AS `TransLanguage`,`p`.`Gender` AS `Gender`,`p`.`AGE` AS `AGE`,`v`.`VLocation` AS `VLocation`,`v`.`VType` AS `VType`,`v`.`VWith` AS `VWith`,`v`.`VDate` AS `VDate`,`v`.`VStatus` AS `VStatus`,`v`.`ProjName` AS `ProjName`,`v`.`VNotes` AS `VNotes`,cast(`v`.`VDate` as date) AS `VDateNoTime` from (`patient` `p` join `visit` `v` on((`p`.`PIDN` = `v`.`PIDN`))) where (not((`v`.`VStatus` like _latin1'%CANC%')));
 
 
