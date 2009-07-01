@@ -3,6 +3,42 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
 
+-- -----------------------------------------------------
+-- Table `audit_entity_history`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `audit_entity_history` ;
+
+CREATE  TABLE IF NOT EXISTS `audit_entity_history` (
+  `audit_entity_id` INT(10) NOT NULL AUTO_INCREMENT ,
+  `audit_event_id` INT(10) NOT NULL ,
+  `entity_id` INT(10) NOT NULL ,
+  `entity` VARCHAR(100) NOT NULL ,
+  `entity_type` VARCHAR(100) NOT NULL ,
+  `audit_type` VARCHAR(10) NOT NULL ,
+  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`audit_entity_id`) )
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
+
+
+-- -----------------------------------------------------
+-- Table `audit_entity_work`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `audit_entity_work` ;
+
+CREATE  TABLE IF NOT EXISTS `audit_entity_work` (
+  `audit_entity_id` INT(10) NOT NULL AUTO_INCREMENT ,
+  `audit_event_id` INT(10) NOT NULL ,
+  `entity_id` INT(10) NOT NULL ,
+  `entity` VARCHAR(100) NOT NULL ,
+  `entity_type` VARCHAR(100) NULL DEFAULT NULL ,
+  `audit_type` VARCHAR(10) NOT NULL ,
+  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`audit_entity_id`) )
+ENGINE = InnoDB
+AUTO_INCREMENT = 103
+DEFAULT CHARACTER SET = latin1;
+
 
 -- -----------------------------------------------------
 -- Table `audit_event_history`
@@ -24,31 +60,6 @@ CREATE  TABLE IF NOT EXISTS `audit_event_history` (
   PRIMARY KEY (`audit_event_id`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
-
-
--- -----------------------------------------------------
--- Table `audit_entity_history`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `audit_entity_history` ;
-
-CREATE  TABLE IF NOT EXISTS `audit_entity_history` (
-  `audit_entity_id` INT(10) NOT NULL AUTO_INCREMENT ,
-  `audit_event_id` INT(10) NOT NULL ,
-  `entity_id` INT(10) NOT NULL ,
-  `entity` VARCHAR(100) NOT NULL ,
-  `entity_type` VARCHAR(100) NOT NULL ,
-  `audit_type` VARCHAR(10) NOT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`audit_entity_id`) ,
-  CONSTRAINT `audit_entity_history__audit_event_id`
-    FOREIGN KEY (`audit_event_id` )
-    REFERENCES `audit_event_history` (`audit_event_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `audit_entity_history__audit_event_id` ON `audit_entity_history` (`audit_event_id` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -75,32 +86,6 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `audit_entity_work`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `audit_entity_work` ;
-
-CREATE  TABLE IF NOT EXISTS `audit_entity_work` (
-  `audit_entity_id` INT(10) NOT NULL AUTO_INCREMENT ,
-  `audit_event_id` INT(10) NOT NULL ,
-  `entity_id` INT(10) NOT NULL ,
-  `entity` VARCHAR(100) NOT NULL ,
-  `entity_type` VARCHAR(100) NULL DEFAULT NULL ,
-  `audit_type` VARCHAR(10) NOT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`audit_entity_id`) ,
-  CONSTRAINT `audit_entity_work__audit_event_id`
-    FOREIGN KEY (`audit_event_id` )
-    REFERENCES `audit_event_work` (`audit_event_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-AUTO_INCREMENT = 103
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `audit_entity_work__audit_event_id` ON `audit_entity_work` (`audit_event_id` ASC) ;
-
-
--- -----------------------------------------------------
 -- Table `audit_property_history`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `audit_property_history` ;
@@ -115,16 +100,9 @@ CREATE  TABLE IF NOT EXISTS `audit_property_history` (
   `new_value` VARCHAR(255) NOT NULL ,
   `audit_timestamp` TIMESTAMP NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`audit_property_id`) ,
-  CONSTRAINT `audit_property_history__audit_entity_id`
-    FOREIGN KEY (`audit_entity_id` )
-    REFERENCES `audit_entity_history` (`audit_entity_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`audit_property_id`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `audit_property_history__audit_entity_id` ON `audit_property_history` (`audit_entity_id` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -142,17 +120,10 @@ CREATE  TABLE IF NOT EXISTS `audit_property_work` (
   `new_value` VARCHAR(255) NOT NULL ,
   `audit_timestamp` TIMESTAMP NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`audit_property_id`) ,
-  CONSTRAINT `audit_property_work__audit_entity_id`
-    FOREIGN KEY (`audit_entity_id` )
-    REFERENCES `audit_entity_work` (`audit_entity_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`audit_property_id`) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 328
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `audit_property_work__audit_entity_id` ON `audit_property_work` (`audit_entity_id` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -161,19 +132,12 @@ CREATE INDEX `audit_property_work__audit_entity_id` ON `audit_property_work` (`a
 DROP TABLE IF EXISTS `audit_text_history` ;
 
 CREATE  TABLE IF NOT EXISTS `audit_text_history` (
-  `audit_property_id` INT(10) NOT NULL ,
+  `audit_property_id` INT(11) NOT NULL ,
   `old_text` TEXT NULL DEFAULT NULL ,
   `new_text` TEXT NULL DEFAULT NULL ,
-  PRIMARY KEY (`audit_property_id`) ,
-  CONSTRAINT `audit_text_history__audit_property_id`
-    FOREIGN KEY (`audit_property_id` )
-    REFERENCES `audit_property_history` (`audit_property_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`audit_property_id`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
-
-CREATE INDEX `audit_text_history__audit_property_id` ON `audit_text_history` (`audit_property_id` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -182,19 +146,12 @@ CREATE INDEX `audit_text_history__audit_property_id` ON `audit_text_history` (`a
 DROP TABLE IF EXISTS `audit_text_work` ;
 
 CREATE  TABLE IF NOT EXISTS `audit_text_work` (
-  `audit_property_id` INT(10) NOT NULL ,
+  `audit_property_id` INT(11) NOT NULL ,
   `old_text` TEXT NULL DEFAULT NULL ,
   `new_text` TEXT NULL DEFAULT NULL ,
-  PRIMARY KEY (`audit_property_id`) ,
-  CONSTRAINT `audit_text_work__audit_property_id`
-    FOREIGN KEY (`audit_property_id` )
-    REFERENCES `audit_property_work` (`audit_property_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`audit_property_id`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
-
-CREATE INDEX `audit_text_work__audit_property_id` ON `audit_text_work` (`audit_property_id` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -216,6 +173,28 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
+-- Table `authpermission`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `authpermission` ;
+
+CREATE  TABLE IF NOT EXISTS `authpermission` (
+  `PermID` INT(10) NOT NULL AUTO_INCREMENT ,
+  `RoleID` INT(10) NOT NULL ,
+  `PermitDeny` VARCHAR(10) NOT NULL ,
+  `Scope` VARCHAR(50) NOT NULL ,
+  `Module` VARCHAR(50) NOT NULL ,
+  `Section` VARCHAR(50) NOT NULL ,
+  `Target` VARCHAR(50) NOT NULL ,
+  `Mode` VARCHAR(25) NOT NULL ,
+  `Notes` VARCHAR(100) NULL DEFAULT NULL ,
+  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`PermID`) )
+ENGINE = InnoDB
+AUTO_INCREMENT = 54
+DEFAULT CHARACTER SET = latin1;
+
+
+-- -----------------------------------------------------
 -- Table `authrole`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `authrole` ;
@@ -232,35 +211,6 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `authpermission`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `authpermission` ;
-
-CREATE  TABLE IF NOT EXISTS `authpermission` (
-  `PermID` INT(10) NOT NULL AUTO_INCREMENT ,
-  `RoleID` INT(10) NOT NULL ,
-  `PermitDeny` VARCHAR(10) NOT NULL ,
-  `Scope` VARCHAR(50) NOT NULL ,
-  `Module` VARCHAR(50) NOT NULL ,
-  `Section` VARCHAR(50) NOT NULL ,
-  `Target` VARCHAR(50) NOT NULL ,
-  `Mode` VARCHAR(25) NOT NULL ,
-  `Notes` VARCHAR(100) NULL DEFAULT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`PermID`) ,
-  CONSTRAINT `authpermission_RoleID`
-    FOREIGN KEY (`RoleID` )
-    REFERENCES `authrole` (`RoleID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-AUTO_INCREMENT = 54
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `authpermission_RoleID` ON `authpermission` (`RoleID` ASC) ;
-
-
--- -----------------------------------------------------
 -- Table `authuser`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `authuser` ;
@@ -269,6 +219,7 @@ CREATE  TABLE IF NOT EXISTS `authuser` (
   `UID` INT(10) NOT NULL AUTO_INCREMENT ,
   `UserName` VARCHAR(50) NOT NULL ,
   `Login` VARCHAR(100) NULL DEFAULT NULL ,
+  `hashedPassword` VARCHAR(100) NULL DEFAULT NULL ,
   `email` VARCHAR(100) NULL DEFAULT NULL ,
   `phone` VARCHAR(25) NULL DEFAULT NULL ,
   `AccessAgreementDate` DATE NULL DEFAULT NULL ,
@@ -277,14 +228,6 @@ CREATE  TABLE IF NOT EXISTS `authuser` (
   `EffectiveDate` DATE NOT NULL ,
   `ExpirationDate` DATE NULL DEFAULT NULL ,
   `Notes` VARCHAR(255) NULL DEFAULT NULL ,
-  `authenticationType` VARCHAR(10) NULL DEFAULT 'EXTERNAL' ,
-  `password` VARCHAR(100) NULL DEFAULT NULL ,
-  `passwordExpiration` TIMESTAMP NULL DEFAULT NULL ,
-  `passwordResetToken` VARCHAR(100) NULL DEFAULT NULL ,
-  `passwordResetExpiration` TIMESTAMP NULL DEFAULT NULL ,
-  `failedLoginCount` SMALLINT NULL DEFAULT NULL ,
-  `lastFailedLogin` TIMESTAMP NULL DEFAULT NULL ,
-  `accountLocked` TIMESTAMP NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`UID`) )
 ENGINE = InnoDB
@@ -307,24 +250,10 @@ CREATE  TABLE IF NOT EXISTS `authusergroup` (
   `GID` INT(10) NOT NULL ,
   `Notes` VARCHAR(255) NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`UGID`) ,
-  CONSTRAINT `authusergroup_UID`
-    FOREIGN KEY (`UID` )
-    REFERENCES `authuser` (`UID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `authusergroup_GID`
-    FOREIGN KEY (`UGID` )
-    REFERENCES `authgroup` (`GID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`UGID`) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `authusergroup_UID` ON `authusergroup` (`UID` ASC) ;
-
-CREATE INDEX `authusergroup_GID` ON `authusergroup` (`UGID` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -339,31 +268,10 @@ CREATE  TABLE IF NOT EXISTS `authuserrole` (
   `GID` INT(10) NULL DEFAULT NULL ,
   `Notes` VARCHAR(255) NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`URID`) ,
-  CONSTRAINT `authuserrole_RoleID`
-    FOREIGN KEY (`RoleID` )
-    REFERENCES `authrole` (`RoleID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `authuserrole_UID`
-    FOREIGN KEY (`URID` )
-    REFERENCES `authuser` (`UID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `authuserrole_GID`
-    FOREIGN KEY (`GID` )
-    REFERENCES `authgroup` (`GID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`URID`) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `authuserrole_RoleID` ON `authuserrole` (`RoleID` ASC) ;
-
-CREATE INDEX `authuserrole_UID` ON `authuserrole` (`URID` ASC) ;
-
-CREATE INDEX `authuserrole_GID` ON `authuserrole` (`GID` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -396,25 +304,6 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lavaserverinstance`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `lavaserverinstance` ;
-
-CREATE  TABLE IF NOT EXISTS `lavaserverinstance` (
-  `ServerInstanceID` INT(10) NOT NULL AUTO_INCREMENT ,
-  `ServerDescription` VARCHAR(255) NULL DEFAULT NULL ,
-  `CreateTime` TIMESTAMP NULL DEFAULT NULL ,
-  `DisconnectTime` DATETIME NULL DEFAULT NULL ,
-  `DisconnectWarningMinutes` INT(10) NULL DEFAULT NULL ,
-  `DisconnectMessage` VARCHAR(500) NULL DEFAULT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`ServerInstanceID`) )
-ENGINE = InnoDB
-AUTO_INCREMENT = 79
-DEFAULT CHARACTER SET = latin1;
-
-
--- -----------------------------------------------------
 -- Table `lava_session`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `lava_session` ;
@@ -435,24 +324,29 @@ CREATE  TABLE IF NOT EXISTS `lava_session` (
   `disconnect_message` VARCHAR(500) NULL DEFAULT NULL ,
   `notes` VARCHAR(255) NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`lava_session_id`) ,
-  CONSTRAINT `lavasession__server_instance_id`
-    FOREIGN KEY (`server_instance_id` )
-    REFERENCES `lavaserverinstance` (`ServerInstanceID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `lavasession__user_id`
-    FOREIGN KEY (`user_id` )
-    REFERENCES `authuser` (`UID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`lava_session_id`) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 243
 DEFAULT CHARACTER SET = latin1;
 
-CREATE INDEX `lavasession__server_instance_id` ON `lava_session` (`server_instance_id` ASC) ;
 
-CREATE INDEX `lavasession__user_id` ON `lava_session` (`user_id` ASC) ;
+-- -----------------------------------------------------
+-- Table `lavaserverinstance`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `lavaserverinstance` ;
+
+CREATE  TABLE IF NOT EXISTS `lavaserverinstance` (
+  `ServerInstanceID` INT(10) NOT NULL AUTO_INCREMENT ,
+  `ServerDescription` VARCHAR(255) NULL DEFAULT NULL ,
+  `CreateTime` TIMESTAMP NULL DEFAULT NULL ,
+  `DisconnectTime` DATETIME NULL DEFAULT NULL ,
+  `DisconnectWarningMinutes` INT(10) NULL DEFAULT NULL ,
+  `DisconnectMessage` VARCHAR(500) NULL DEFAULT NULL ,
+  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`ServerInstanceID`) )
+ENGINE = InnoDB
+AUTO_INCREMENT = 79
+DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
@@ -485,21 +379,14 @@ CREATE  TABLE IF NOT EXISTS `listvalues` (
   `ValueDesc` VARCHAR(100) NULL DEFAULT NULL ,
   `OrderID` INT(10) NOT NULL DEFAULT '0' ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`ID`) ,
-  CONSTRAINT `list__ListID`
-    FOREIGN KEY (`ListID` )
-    REFERENCES `list` (`ListID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`ID`) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 24376
 DEFAULT CHARACTER SET = latin1;
 
-CREATE INDEX `ListID` ON `listvalues` (`ListID` ASC) ;
+CREATE INDEX `cListID` ON `listvalues` (`ListID` ASC) ;
 
 CREATE INDEX `ValueKey` ON `listvalues` (`ValueKey` ASC) ;
-
-CREATE INDEX `list__ListID` ON `listvalues` (`ListID` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -555,148 +442,6 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `calendar`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `calendar` ;
-
-CREATE  TABLE IF NOT EXISTS `calendar` (
-  `calendar_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `type` VARCHAR(25) NOT NULL ,
-  `name` VARCHAR(100) NOT NULL ,
-  `description` VARCHAR(255) NULL DEFAULT NULL ,
-  `notes` TEXT NULL DEFAULT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`calendar_id`) )
-ENGINE = InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
-
-
--- -----------------------------------------------------
--- Table `appointment`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `appointment` ;
-
-CREATE  TABLE IF NOT EXISTS `appointment` (
-  `appointment_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `calendar_id` INT UNSIGNED NOT NULL ,
-  `organizer_id` INT NOT NULL ,
-  `type` VARCHAR(25) NOT NULL ,
-  `description` VARCHAR(100) NULL DEFAULT NULL ,
-  `location` VARCHAR(100) NULL DEFAULT NULL ,
-  `start_date` DATE NOT NULL ,
-  `start_time` TIME NOT NULL ,
-  `end_date` DATE NOT NULL ,
-  `end_time` TIME NOT NULL ,
-  `status` VARCHAR(25) NULL DEFAULT NULL ,
-  `notes` TEXT NULL DEFAULT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`appointment_id`) ,
-  CONSTRAINT `appointment__calendar`
-    FOREIGN KEY (`calendar_id` )
-    REFERENCES `calendar` (`calendar_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-AUTO_INCREMENT = 10
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `appointment__calendar` ON `appointment` (`calendar_id` ASC) ;
-
-
--- -----------------------------------------------------
--- Table `attendee`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `attendee` ;
-
-CREATE  TABLE IF NOT EXISTS `attendee` (
-  `attendee_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `appointment_id` INT UNSIGNED NOT NULL ,
-  `user_id` INT(10) NOT NULL ,
-  `role` VARCHAR(25) NOT NULL ,
-  `status` VARCHAR(25) NOT NULL ,
-  `notes` VARCHAR(100) NULL DEFAULT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`attendee_id`) ,
-  CONSTRAINT `attendee__appointment`
-    FOREIGN KEY (`appointment_id` )
-    REFERENCES `appointment` (`appointment_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `attendee__user_id`
-    FOREIGN KEY (`user_id` )
-    REFERENCES `authuser` (`UID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `attendee__appointment` ON `attendee` (`appointment_id` ASC) ;
-
-CREATE INDEX `attendee__user_id` ON `attendee` (`user_id` ASC) ;
-
-
--- -----------------------------------------------------
--- Table `appointment_change`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `appointment_change` ;
-
-CREATE  TABLE IF NOT EXISTS `appointment_change` (
-  `appointment_change_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `appointment_id` INT UNSIGNED NOT NULL ,
-  `type` VARCHAR(25) NOT NULL ,
-  `description` VARCHAR(255) NULL DEFAULT NULL ,
-  `change_by` INT(10) NOT NULL ,
-  `change_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`appointment_change_id`) ,
-  CONSTRAINT `appointment_change__appointment`
-    FOREIGN KEY (`appointment_id` )
-    REFERENCES `appointment` (`appointment_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `appointment_change__change_by`
-    FOREIGN KEY (`change_by` )
-    REFERENCES `authuser` (`UID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `appointment_change__appointment` ON `appointment_change` (`appointment_id` ASC) ;
-
-CREATE INDEX `appointment_change__change_by` ON `appointment_change` (`change_by` ASC) ;
-
-
--- -----------------------------------------------------
--- Table `resource_calendar`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `resource_calendar` ;
-
-CREATE  TABLE IF NOT EXISTS `resource_calendar` (
-  `calendar_id` INT UNSIGNED NOT NULL ,
-  `resource_type` VARCHAR(25) NOT NULL ,
-  `location` VARCHAR(100) NULL DEFAULT NULL ,
-  `contact_id` INT(10) NOT NULL ,
-  PRIMARY KEY (`calendar_id`) ,
-  CONSTRAINT `resource_calendar__calendar`
-    FOREIGN KEY (`calendar_id` )
-    REFERENCES `calendar` (`calendar_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `resource_calendar__user_id`
-    FOREIGN KEY (`contact_id` )
-    REFERENCES `authuser` (`UID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `resource_calendar__calendar` ON `resource_calendar` (`calendar_id` ASC) ;
-
-CREATE INDEX `resource_calendar__user_id` ON `resource_calendar` (`contact_id` ASC) ;
-
-
--- -----------------------------------------------------
 -- Placeholder table for view `audit_entity`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `audit_entity` (`id` INT);
@@ -745,13 +490,9 @@ DROP TABLE IF EXISTS `audit_text`;
 CREATE  OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY DEFINER VIEW `audit_text` AS select `audit_text_history`.`audit_property_id` AS `audit_property_id`,`audit_text_history`.`old_text` AS `old_text`,`audit_text_history`.`new_text` AS `new_text` from `audit_text_history` union all select `audit_text_work`.`audit_property_id` AS `audit_property_id`,`audit_text_work`.`old_text` AS `old_text`,`audit_text_work`.`new_text` AS `new_text` from `audit_text_work`;
 
 
-
 insert into versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-	VALUES ('lava-core-model','3.0.3',NOW(),3,0,3,1);
-
+	VALUES ('lava-core-model','3.0.2',NOW(),3,0,2,1);
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-
-

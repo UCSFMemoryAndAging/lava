@@ -2,14 +2,52 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
+CREATE SCHEMA IF NOT EXISTS `lava_core` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
+USE `lava_core`;
+
+-- -----------------------------------------------------
+-- Table `lava_core`.`audit_entity_history`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `lava_core`.`audit_entity_history` ;
+
+CREATE  TABLE IF NOT EXISTS `lava_core`.`audit_entity_history` (
+  `audit_entity_id` INT(10) NOT NULL AUTO_INCREMENT ,
+  `audit_event_id` INT(10) NOT NULL ,
+  `entity_id` INT(10) NOT NULL ,
+  `entity` VARCHAR(100) NOT NULL ,
+  `entity_type` VARCHAR(100) NOT NULL ,
+  `audit_type` VARCHAR(10) NOT NULL ,
+  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`audit_entity_id`) )
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `audit_event_history`
+-- Table `lava_core`.`audit_entity_work`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `audit_event_history` ;
+DROP TABLE IF EXISTS `lava_core`.`audit_entity_work` ;
 
-CREATE  TABLE IF NOT EXISTS `audit_event_history` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`audit_entity_work` (
+  `audit_entity_id` INT(10) NOT NULL AUTO_INCREMENT ,
+  `audit_event_id` INT(10) NOT NULL ,
+  `entity_id` INT(10) NOT NULL ,
+  `entity` VARCHAR(100) NOT NULL ,
+  `entity_type` VARCHAR(100) NULL DEFAULT NULL ,
+  `audit_type` VARCHAR(10) NOT NULL ,
+  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`audit_entity_id`) )
+ENGINE = InnoDB
+AUTO_INCREMENT = 103
+DEFAULT CHARACTER SET = latin1;
+
+
+-- -----------------------------------------------------
+-- Table `lava_core`.`audit_event_history`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `lava_core`.`audit_event_history` ;
+
+CREATE  TABLE IF NOT EXISTS `lava_core`.`audit_event_history` (
   `audit_event_id` INT(10) NOT NULL AUTO_INCREMENT ,
   `audit_user` VARCHAR(50) NOT NULL ,
   `audit_host` VARCHAR(25) NOT NULL ,
@@ -27,36 +65,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `audit_entity_history`
+-- Table `lava_core`.`audit_event_work`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `audit_entity_history` ;
+DROP TABLE IF EXISTS `lava_core`.`audit_event_work` ;
 
-CREATE  TABLE IF NOT EXISTS `audit_entity_history` (
-  `audit_entity_id` INT(10) NOT NULL AUTO_INCREMENT ,
-  `audit_event_id` INT(10) NOT NULL ,
-  `entity_id` INT(10) NOT NULL ,
-  `entity` VARCHAR(100) NOT NULL ,
-  `entity_type` VARCHAR(100) NOT NULL ,
-  `audit_type` VARCHAR(10) NOT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`audit_entity_id`) ,
-  CONSTRAINT `audit_entity_history__audit_event_id`
-    FOREIGN KEY (`audit_event_id` )
-    REFERENCES `audit_event_history` (`audit_event_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `audit_entity_history__audit_event_id` ON `audit_entity_history` (`audit_event_id` ASC) ;
-
-
--- -----------------------------------------------------
--- Table `audit_event_work`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `audit_event_work` ;
-
-CREATE  TABLE IF NOT EXISTS `audit_event_work` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`audit_event_work` (
   `audit_event_id` INT(10) NOT NULL AUTO_INCREMENT ,
   `audit_user` VARCHAR(50) NOT NULL ,
   `audit_host` VARCHAR(25) NOT NULL ,
@@ -75,37 +88,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `audit_entity_work`
+-- Table `lava_core`.`audit_property_history`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `audit_entity_work` ;
+DROP TABLE IF EXISTS `lava_core`.`audit_property_history` ;
 
-CREATE  TABLE IF NOT EXISTS `audit_entity_work` (
-  `audit_entity_id` INT(10) NOT NULL AUTO_INCREMENT ,
-  `audit_event_id` INT(10) NOT NULL ,
-  `entity_id` INT(10) NOT NULL ,
-  `entity` VARCHAR(100) NOT NULL ,
-  `entity_type` VARCHAR(100) NULL DEFAULT NULL ,
-  `audit_type` VARCHAR(10) NOT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`audit_entity_id`) ,
-  CONSTRAINT `audit_entity_work__audit_event_id`
-    FOREIGN KEY (`audit_event_id` )
-    REFERENCES `audit_event_work` (`audit_event_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-AUTO_INCREMENT = 103
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `audit_entity_work__audit_event_id` ON `audit_entity_work` (`audit_event_id` ASC) ;
-
-
--- -----------------------------------------------------
--- Table `audit_property_history`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `audit_property_history` ;
-
-CREATE  TABLE IF NOT EXISTS `audit_property_history` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`audit_property_history` (
   `audit_property_id` INT(10) NOT NULL AUTO_INCREMENT ,
   `audit_entity_id` INT(10) NOT NULL ,
   `property` VARCHAR(100) NOT NULL ,
@@ -115,24 +102,17 @@ CREATE  TABLE IF NOT EXISTS `audit_property_history` (
   `new_value` VARCHAR(255) NOT NULL ,
   `audit_timestamp` TIMESTAMP NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`audit_property_id`) ,
-  CONSTRAINT `audit_property_history__audit_entity_id`
-    FOREIGN KEY (`audit_entity_id` )
-    REFERENCES `audit_entity_history` (`audit_entity_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`audit_property_id`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
-CREATE INDEX `audit_property_history__audit_entity_id` ON `audit_property_history` (`audit_entity_id` ASC) ;
-
 
 -- -----------------------------------------------------
--- Table `audit_property_work`
+-- Table `lava_core`.`audit_property_work`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `audit_property_work` ;
+DROP TABLE IF EXISTS `lava_core`.`audit_property_work` ;
 
-CREATE  TABLE IF NOT EXISTS `audit_property_work` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`audit_property_work` (
   `audit_property_id` INT(10) NOT NULL AUTO_INCREMENT ,
   `audit_entity_id` INT(10) NOT NULL ,
   `property` VARCHAR(100) NOT NULL ,
@@ -142,67 +122,46 @@ CREATE  TABLE IF NOT EXISTS `audit_property_work` (
   `new_value` VARCHAR(255) NOT NULL ,
   `audit_timestamp` TIMESTAMP NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`audit_property_id`) ,
-  CONSTRAINT `audit_property_work__audit_entity_id`
-    FOREIGN KEY (`audit_entity_id` )
-    REFERENCES `audit_entity_work` (`audit_entity_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`audit_property_id`) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 328
 DEFAULT CHARACTER SET = latin1;
 
-CREATE INDEX `audit_property_work__audit_entity_id` ON `audit_property_work` (`audit_entity_id` ASC) ;
-
 
 -- -----------------------------------------------------
--- Table `audit_text_history`
+-- Table `lava_core`.`audit_text_history`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `audit_text_history` ;
+DROP TABLE IF EXISTS `lava_core`.`audit_text_history` ;
 
-CREATE  TABLE IF NOT EXISTS `audit_text_history` (
-  `audit_property_id` INT(10) NOT NULL ,
+CREATE  TABLE IF NOT EXISTS `lava_core`.`audit_text_history` (
+  `audit_property_id` INT(11) NOT NULL ,
   `old_text` TEXT NULL DEFAULT NULL ,
   `new_text` TEXT NULL DEFAULT NULL ,
-  PRIMARY KEY (`audit_property_id`) ,
-  CONSTRAINT `audit_text_history__audit_property_id`
-    FOREIGN KEY (`audit_property_id` )
-    REFERENCES `audit_property_history` (`audit_property_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`audit_property_id`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
-CREATE INDEX `audit_text_history__audit_property_id` ON `audit_text_history` (`audit_property_id` ASC) ;
-
 
 -- -----------------------------------------------------
--- Table `audit_text_work`
+-- Table `lava_core`.`audit_text_work`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `audit_text_work` ;
+DROP TABLE IF EXISTS `lava_core`.`audit_text_work` ;
 
-CREATE  TABLE IF NOT EXISTS `audit_text_work` (
-  `audit_property_id` INT(10) NOT NULL ,
+CREATE  TABLE IF NOT EXISTS `lava_core`.`audit_text_work` (
+  `audit_property_id` INT(11) NOT NULL ,
   `old_text` TEXT NULL DEFAULT NULL ,
   `new_text` TEXT NULL DEFAULT NULL ,
-  PRIMARY KEY (`audit_property_id`) ,
-  CONSTRAINT `audit_text_work__audit_property_id`
-    FOREIGN KEY (`audit_property_id` )
-    REFERENCES `audit_property_work` (`audit_property_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`audit_property_id`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
-CREATE INDEX `audit_text_work__audit_property_id` ON `audit_text_work` (`audit_property_id` ASC) ;
-
 
 -- -----------------------------------------------------
--- Table `authgroup`
+-- Table `lava_core`.`authgroup`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `authgroup` ;
+DROP TABLE IF EXISTS `lava_core`.`authgroup` ;
 
-CREATE  TABLE IF NOT EXISTS `authgroup` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`authgroup` (
   `GID` INT(10) NOT NULL AUTO_INCREMENT ,
   `GroupName` VARCHAR(50) NOT NULL ,
   `EffectiveDate` DATE NOT NULL ,
@@ -216,11 +175,33 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `authrole`
+-- Table `lava_core`.`authpermission`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `authrole` ;
+DROP TABLE IF EXISTS `lava_core`.`authpermission` ;
 
-CREATE  TABLE IF NOT EXISTS `authrole` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`authpermission` (
+  `PermID` INT(10) NOT NULL AUTO_INCREMENT ,
+  `RoleID` INT(10) NOT NULL ,
+  `PermitDeny` VARCHAR(10) NOT NULL ,
+  `Scope` VARCHAR(50) NOT NULL ,
+  `Module` VARCHAR(50) NOT NULL ,
+  `Section` VARCHAR(50) NOT NULL ,
+  `Target` VARCHAR(50) NOT NULL ,
+  `Mode` VARCHAR(25) NOT NULL ,
+  `Notes` VARCHAR(100) NULL DEFAULT NULL ,
+  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`PermID`) )
+ENGINE = InnoDB
+AUTO_INCREMENT = 54
+DEFAULT CHARACTER SET = latin1;
+
+
+-- -----------------------------------------------------
+-- Table `lava_core`.`authrole`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `lava_core`.`authrole` ;
+
+CREATE  TABLE IF NOT EXISTS `lava_core`.`authrole` (
   `RoleID` INT(10) NOT NULL AUTO_INCREMENT ,
   `RoleName` VARCHAR(25) NOT NULL ,
   `Notes` VARCHAR(255) NULL DEFAULT NULL ,
@@ -232,43 +213,15 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `authpermission`
+-- Table `lava_core`.`authuser`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `authpermission` ;
+DROP TABLE IF EXISTS `lava_core`.`authuser` ;
 
-CREATE  TABLE IF NOT EXISTS `authpermission` (
-  `PermID` INT(10) NOT NULL AUTO_INCREMENT ,
-  `RoleID` INT(10) NOT NULL ,
-  `PermitDeny` VARCHAR(10) NOT NULL ,
-  `Scope` VARCHAR(50) NOT NULL ,
-  `Module` VARCHAR(50) NOT NULL ,
-  `Section` VARCHAR(50) NOT NULL ,
-  `Target` VARCHAR(50) NOT NULL ,
-  `Mode` VARCHAR(25) NOT NULL ,
-  `Notes` VARCHAR(100) NULL DEFAULT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`PermID`) ,
-  CONSTRAINT `authpermission_RoleID`
-    FOREIGN KEY (`RoleID` )
-    REFERENCES `authrole` (`RoleID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-AUTO_INCREMENT = 54
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `authpermission_RoleID` ON `authpermission` (`RoleID` ASC) ;
-
-
--- -----------------------------------------------------
--- Table `authuser`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `authuser` ;
-
-CREATE  TABLE IF NOT EXISTS `authuser` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`authuser` (
   `UID` INT(10) NOT NULL AUTO_INCREMENT ,
   `UserName` VARCHAR(50) NOT NULL ,
   `Login` VARCHAR(100) NULL DEFAULT NULL ,
+  `hashedPassword` VARCHAR(100) NULL DEFAULT NULL ,
   `email` VARCHAR(100) NULL DEFAULT NULL ,
   `phone` VARCHAR(25) NULL DEFAULT NULL ,
   `AccessAgreementDate` DATE NULL DEFAULT NULL ,
@@ -277,101 +230,56 @@ CREATE  TABLE IF NOT EXISTS `authuser` (
   `EffectiveDate` DATE NOT NULL ,
   `ExpirationDate` DATE NULL DEFAULT NULL ,
   `Notes` VARCHAR(255) NULL DEFAULT NULL ,
-  `authenticationType` VARCHAR(10) NULL DEFAULT 'EXTERNAL' ,
-  `password` VARCHAR(100) NULL DEFAULT NULL ,
-  `passwordExpiration` TIMESTAMP NULL DEFAULT NULL ,
-  `passwordResetToken` VARCHAR(100) NULL DEFAULT NULL ,
-  `passwordResetExpiration` TIMESTAMP NULL DEFAULT NULL ,
-  `failedLoginCount` SMALLINT NULL DEFAULT NULL ,
-  `lastFailedLogin` TIMESTAMP NULL DEFAULT NULL ,
-  `accountLocked` TIMESTAMP NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`UID`) )
+  PRIMARY KEY (`UID`) ,
+  UNIQUE INDEX `Unique_UserName` (`UserName` ASC) ,
+  UNIQUE INDEX `Unique_Login` (`Login` ASC) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 6
 DEFAULT CHARACTER SET = latin1;
 
-CREATE UNIQUE INDEX `Unique_UserName` ON `authuser` (`UserName` ASC) ;
-
-CREATE UNIQUE INDEX `Unique_Login` ON `authuser` (`Login` ASC) ;
-
 
 -- -----------------------------------------------------
--- Table `authusergroup`
+-- Table `lava_core`.`authusergroup`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `authusergroup` ;
+DROP TABLE IF EXISTS `lava_core`.`authusergroup` ;
 
-CREATE  TABLE IF NOT EXISTS `authusergroup` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`authusergroup` (
   `UGID` INT(10) NOT NULL AUTO_INCREMENT ,
   `UID` INT(10) NOT NULL ,
   `GID` INT(10) NOT NULL ,
   `Notes` VARCHAR(255) NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`UGID`) ,
-  CONSTRAINT `authusergroup_UID`
-    FOREIGN KEY (`UID` )
-    REFERENCES `authuser` (`UID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `authusergroup_GID`
-    FOREIGN KEY (`UGID` )
-    REFERENCES `authgroup` (`GID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`UGID`) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = latin1;
 
-CREATE INDEX `authusergroup_UID` ON `authusergroup` (`UID` ASC) ;
-
-CREATE INDEX `authusergroup_GID` ON `authusergroup` (`UGID` ASC) ;
-
 
 -- -----------------------------------------------------
--- Table `authuserrole`
+-- Table `lava_core`.`authuserrole`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `authuserrole` ;
+DROP TABLE IF EXISTS `lava_core`.`authuserrole` ;
 
-CREATE  TABLE IF NOT EXISTS `authuserrole` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`authuserrole` (
   `URID` INT(10) NOT NULL AUTO_INCREMENT ,
   `RoleID` INT(10) NOT NULL ,
   `UID` INT(10) NULL DEFAULT NULL ,
   `GID` INT(10) NULL DEFAULT NULL ,
   `Notes` VARCHAR(255) NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`URID`) ,
-  CONSTRAINT `authuserrole_RoleID`
-    FOREIGN KEY (`RoleID` )
-    REFERENCES `authrole` (`RoleID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `authuserrole_UID`
-    FOREIGN KEY (`URID` )
-    REFERENCES `authuser` (`UID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `authuserrole_GID`
-    FOREIGN KEY (`GID` )
-    REFERENCES `authgroup` (`GID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`URID`) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = latin1;
 
-CREATE INDEX `authuserrole_RoleID` ON `authuserrole` (`RoleID` ASC) ;
-
-CREATE INDEX `authuserrole_UID` ON `authuserrole` (`URID` ASC) ;
-
-CREATE INDEX `authuserrole_GID` ON `authuserrole` (`GID` ASC) ;
-
 
 -- -----------------------------------------------------
--- Table `hibernateproperty`
+-- Table `lava_core`.`hibernateproperty`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `hibernateproperty` ;
+DROP TABLE IF EXISTS `lava_core`.`hibernateproperty` ;
 
-CREATE  TABLE IF NOT EXISTS `hibernateproperty` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`hibernateproperty` (
   `id` INT(10) NOT NULL AUTO_INCREMENT ,
   `instance` VARCHAR(25) NOT NULL DEFAULT 'lava' ,
   `scope` VARCHAR(25) NOT NULL ,
@@ -396,30 +304,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `lavaserverinstance`
+-- Table `lava_core`.`lava_session`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `lavaserverinstance` ;
+DROP TABLE IF EXISTS `lava_core`.`lava_session` ;
 
-CREATE  TABLE IF NOT EXISTS `lavaserverinstance` (
-  `ServerInstanceID` INT(10) NOT NULL AUTO_INCREMENT ,
-  `ServerDescription` VARCHAR(255) NULL DEFAULT NULL ,
-  `CreateTime` TIMESTAMP NULL DEFAULT NULL ,
-  `DisconnectTime` DATETIME NULL DEFAULT NULL ,
-  `DisconnectWarningMinutes` INT(10) NULL DEFAULT NULL ,
-  `DisconnectMessage` VARCHAR(500) NULL DEFAULT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`ServerInstanceID`) )
-ENGINE = InnoDB
-AUTO_INCREMENT = 79
-DEFAULT CHARACTER SET = latin1;
-
-
--- -----------------------------------------------------
--- Table `lava_session`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `lava_session` ;
-
-CREATE  TABLE IF NOT EXISTS `lava_session` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`lava_session` (
   `lava_session_id` INT(10) NOT NULL AUTO_INCREMENT ,
   `server_instance_id` INT(10) NOT NULL ,
   `http_session_id` VARCHAR(64) NULL DEFAULT NULL ,
@@ -435,50 +324,54 @@ CREATE  TABLE IF NOT EXISTS `lava_session` (
   `disconnect_message` VARCHAR(500) NULL DEFAULT NULL ,
   `notes` VARCHAR(255) NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`lava_session_id`) ,
-  CONSTRAINT `lavasession__server_instance_id`
-    FOREIGN KEY (`server_instance_id` )
-    REFERENCES `lavaserverinstance` (`ServerInstanceID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `lavasession__user_id`
-    FOREIGN KEY (`user_id` )
-    REFERENCES `authuser` (`UID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`lava_session_id`) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 243
 DEFAULT CHARACTER SET = latin1;
 
-CREATE INDEX `lavasession__server_instance_id` ON `lava_session` (`server_instance_id` ASC) ;
 
-CREATE INDEX `lavasession__user_id` ON `lava_session` (`user_id` ASC) ;
+-- -----------------------------------------------------
+-- Table `lava_core`.`lavaserverinstance`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `lava_core`.`lavaserverinstance` ;
+
+CREATE  TABLE IF NOT EXISTS `lava_core`.`lavaserverinstance` (
+  `ServerInstanceID` INT(10) NOT NULL AUTO_INCREMENT ,
+  `ServerDescription` VARCHAR(255) NULL DEFAULT NULL ,
+  `CreateTime` TIMESTAMP NULL DEFAULT NULL ,
+  `DisconnectTime` DATETIME NULL DEFAULT NULL ,
+  `DisconnectWarningMinutes` INT(10) NULL DEFAULT NULL ,
+  `DisconnectMessage` VARCHAR(500) NULL DEFAULT NULL ,
+  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`ServerInstanceID`) )
+ENGINE = InnoDB
+AUTO_INCREMENT = 79
+DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `list`
+-- Table `lava_core`.`list`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `list` ;
+DROP TABLE IF EXISTS `lava_core`.`list` ;
 
-CREATE  TABLE IF NOT EXISTS `list` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`list` (
   `ListID` INT(10) NOT NULL AUTO_INCREMENT ,
   `ListName` VARCHAR(50) NOT NULL ,
   `NumericKey` TINYINT(1) NOT NULL DEFAULT '0' ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`ListID`) )
+  PRIMARY KEY (`ListID`) ,
+  INDEX `ListName` (`ListName` ASC) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 468
 DEFAULT CHARACTER SET = latin1;
 
-CREATE INDEX `ListName` ON `list` (`ListName` ASC) ;
-
 
 -- -----------------------------------------------------
--- Table `listvalues`
+-- Table `lava_core`.`listvalues`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `listvalues` ;
+DROP TABLE IF EXISTS `lava_core`.`listvalues` ;
 
-CREATE  TABLE IF NOT EXISTS `listvalues` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`listvalues` (
   `ID` INT(10) NOT NULL AUTO_INCREMENT ,
   `ListID` INT(10) NOT NULL ,
   `ValueKey` VARCHAR(100) NOT NULL ,
@@ -486,28 +379,19 @@ CREATE  TABLE IF NOT EXISTS `listvalues` (
   `OrderID` INT(10) NOT NULL DEFAULT '0' ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`ID`) ,
-  CONSTRAINT `list__ListID`
-    FOREIGN KEY (`ListID` )
-    REFERENCES `list` (`ListID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  INDEX `cListID` (`ListID` ASC) ,
+  INDEX `ValueKey` (`ValueKey` ASC) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 24376
 DEFAULT CHARACTER SET = latin1;
 
-CREATE INDEX `ListID` ON `listvalues` (`ListID` ASC) ;
-
-CREATE INDEX `ValueKey` ON `listvalues` (`ValueKey` ASC) ;
-
-CREATE INDEX `list__ListID` ON `listvalues` (`ListID` ASC) ;
-
 
 -- -----------------------------------------------------
--- Table `versionhistory`
+-- Table `lava_core`.`versionhistory`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `versionhistory` ;
+DROP TABLE IF EXISTS `lava_core`.`versionhistory` ;
 
-CREATE  TABLE IF NOT EXISTS `versionhistory` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`versionhistory` (
   `Module` VARCHAR(25) NOT NULL ,
   `Version` VARCHAR(10) NOT NULL ,
   `VersionDate` DATETIME NOT NULL ,
@@ -521,11 +405,11 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `viewproperty`
+-- Table `lava_core`.`viewproperty`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `viewproperty` ;
+DROP TABLE IF EXISTS `lava_core`.`viewproperty` ;
 
-CREATE  TABLE IF NOT EXISTS `viewproperty` (
+CREATE  TABLE IF NOT EXISTS `lava_core`.`viewproperty` (
   `id` INT(10) NOT NULL AUTO_INCREMENT ,
   `messageCode` VARCHAR(255) NULL DEFAULT NULL ,
   `locale` VARCHAR(10) NOT NULL DEFAULT 'en' ,
@@ -555,203 +439,54 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `calendar`
+-- Placeholder table for view `lava_core`.`audit_entity`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `calendar` ;
-
-CREATE  TABLE IF NOT EXISTS `calendar` (
-  `calendar_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `type` VARCHAR(25) NOT NULL ,
-  `name` VARCHAR(100) NOT NULL ,
-  `description` VARCHAR(255) NULL DEFAULT NULL ,
-  `notes` TEXT NULL DEFAULT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`calendar_id`) )
-ENGINE = InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
-
+CREATE TABLE IF NOT EXISTS `lava_core`.`audit_entity` (`id` INT);
 
 -- -----------------------------------------------------
--- Table `appointment`
+-- Placeholder table for view `lava_core`.`audit_event`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `appointment` ;
-
-CREATE  TABLE IF NOT EXISTS `appointment` (
-  `appointment_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `calendar_id` INT UNSIGNED NOT NULL ,
-  `organizer_id` INT NOT NULL ,
-  `type` VARCHAR(25) NOT NULL ,
-  `description` VARCHAR(100) NULL DEFAULT NULL ,
-  `location` VARCHAR(100) NULL DEFAULT NULL ,
-  `start_date` DATE NOT NULL ,
-  `start_time` TIME NOT NULL ,
-  `end_date` DATE NOT NULL ,
-  `end_time` TIME NOT NULL ,
-  `status` VARCHAR(25) NULL DEFAULT NULL ,
-  `notes` TEXT NULL DEFAULT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`appointment_id`) ,
-  CONSTRAINT `appointment__calendar`
-    FOREIGN KEY (`calendar_id` )
-    REFERENCES `calendar` (`calendar_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-AUTO_INCREMENT = 10
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `appointment__calendar` ON `appointment` (`calendar_id` ASC) ;
-
+CREATE TABLE IF NOT EXISTS `lava_core`.`audit_event` (`id` INT);
 
 -- -----------------------------------------------------
--- Table `attendee`
+-- Placeholder table for view `lava_core`.`audit_property`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `attendee` ;
-
-CREATE  TABLE IF NOT EXISTS `attendee` (
-  `attendee_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `appointment_id` INT UNSIGNED NOT NULL ,
-  `user_id` INT(10) NOT NULL ,
-  `role` VARCHAR(25) NOT NULL ,
-  `status` VARCHAR(25) NOT NULL ,
-  `notes` VARCHAR(100) NULL DEFAULT NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`attendee_id`) ,
-  CONSTRAINT `attendee__appointment`
-    FOREIGN KEY (`appointment_id` )
-    REFERENCES `appointment` (`appointment_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `attendee__user_id`
-    FOREIGN KEY (`user_id` )
-    REFERENCES `authuser` (`UID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `attendee__appointment` ON `attendee` (`appointment_id` ASC) ;
-
-CREATE INDEX `attendee__user_id` ON `attendee` (`user_id` ASC) ;
-
+CREATE TABLE IF NOT EXISTS `lava_core`.`audit_property` (`id` INT);
 
 -- -----------------------------------------------------
--- Table `appointment_change`
+-- Placeholder table for view `lava_core`.`audit_text`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `appointment_change` ;
-
-CREATE  TABLE IF NOT EXISTS `appointment_change` (
-  `appointment_change_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `appointment_id` INT UNSIGNED NOT NULL ,
-  `type` VARCHAR(25) NOT NULL ,
-  `description` VARCHAR(255) NULL DEFAULT NULL ,
-  `change_by` INT(10) NOT NULL ,
-  `change_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`appointment_change_id`) ,
-  CONSTRAINT `appointment_change__appointment`
-    FOREIGN KEY (`appointment_id` )
-    REFERENCES `appointment` (`appointment_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `appointment_change__change_by`
-    FOREIGN KEY (`change_by` )
-    REFERENCES `authuser` (`UID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `appointment_change__appointment` ON `appointment_change` (`appointment_id` ASC) ;
-
-CREATE INDEX `appointment_change__change_by` ON `appointment_change` (`change_by` ASC) ;
-
+CREATE TABLE IF NOT EXISTS `lava_core`.`audit_text` (`id` INT);
 
 -- -----------------------------------------------------
--- Table `resource_calendar`
+-- View `lava_core`.`audit_entity`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `resource_calendar` ;
-
-CREATE  TABLE IF NOT EXISTS `resource_calendar` (
-  `calendar_id` INT UNSIGNED NOT NULL ,
-  `resource_type` VARCHAR(25) NOT NULL ,
-  `location` VARCHAR(100) NULL DEFAULT NULL ,
-  `contact_id` INT(10) NOT NULL ,
-  PRIMARY KEY (`calendar_id`) ,
-  CONSTRAINT `resource_calendar__calendar`
-    FOREIGN KEY (`calendar_id` )
-    REFERENCES `calendar` (`calendar_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `resource_calendar__user_id`
-    FOREIGN KEY (`contact_id` )
-    REFERENCES `authuser` (`UID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `resource_calendar__calendar` ON `resource_calendar` (`calendar_id` ASC) ;
-
-CREATE INDEX `resource_calendar__user_id` ON `resource_calendar` (`contact_id` ASC) ;
-
-
--- -----------------------------------------------------
--- Placeholder table for view `audit_entity`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `audit_entity` (`id` INT);
-
--- -----------------------------------------------------
--- Placeholder table for view `audit_event`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `audit_event` (`id` INT);
-
--- -----------------------------------------------------
--- Placeholder table for view `audit_property`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `audit_property` (`id` INT);
-
--- -----------------------------------------------------
--- Placeholder table for view `audit_text`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `audit_text` (`id` INT);
-
--- -----------------------------------------------------
--- View `audit_entity`
--- -----------------------------------------------------
-DROP VIEW IF EXISTS `audit_entity` ;
-DROP TABLE IF EXISTS `audit_entity`;
+DROP VIEW IF EXISTS `lava_core`.`audit_entity` ;
+DROP TABLE IF EXISTS `lava_core`.`audit_entity`;
 CREATE  OR REPLACE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `audit_entity` AS select `audit_entity_work`.`audit_entity_id` AS `audit_entity_id`,`audit_entity_work`.`audit_event_id` AS `audit_event_id`,`audit_entity_work`.`entity_id` AS `entity_id`,`audit_entity_work`.`entity` AS `entity`,`audit_entity_work`.`entity_type` AS `entity_type`,`audit_entity_work`.`audit_type` AS `audit_type`,`audit_entity_work`.`modified` AS `modified` from `audit_entity_work` union all select `audit_entity_history`.`audit_entity_id` AS `audit_entity_id`,`audit_entity_history`.`audit_event_id` AS `audit_event_id`,`audit_entity_history`.`entity_id` AS `entity_id`,`audit_entity_history`.`entity` AS `entity`,`audit_entity_history`.`entity_type` AS `entity_type`,`audit_entity_history`.`audit_type` AS `audit_type`,`audit_entity_history`.`modified` AS `modified` from `audit_entity_history`;
 
 -- -----------------------------------------------------
--- View `audit_event`
+-- View `lava_core`.`audit_event`
 -- -----------------------------------------------------
-DROP VIEW IF EXISTS `audit_event` ;
-DROP TABLE IF EXISTS `audit_event`;
+DROP VIEW IF EXISTS `lava_core`.`audit_event` ;
+DROP TABLE IF EXISTS `lava_core`.`audit_event`;
 CREATE  OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY DEFINER VIEW `audit_event` AS select `audit_event_work`.`audit_event_id` AS `audit_event_id`,`audit_event_work`.`audit_user` AS `audit_user`,`audit_event_work`.`audit_host` AS `audit_host`,`audit_event_work`.`audit_timestamp` AS `audit_timestamp`,`audit_event_work`.`action` AS `action`,`audit_event_work`.`action_event` AS `action_event`,`audit_event_work`.`action_id_param` AS `action_id_param`,`audit_event_work`.`event_note` AS `event_note`,`audit_event_work`.`exception` AS `exception`,`audit_event_work`.`exception_message` AS `exception_message`,`audit_event_work`.`modified` AS `modified` from `audit_event_work` union all select `audit_event_history`.`audit_event_id` AS `audit_event_id`,`audit_event_history`.`audit_user` AS `audit_user`,`audit_event_history`.`audit_host` AS `audit_host`,`audit_event_history`.`audit_timestamp` AS `audit_timestamp`,`audit_event_history`.`action` AS `action`,`audit_event_history`.`action_event` AS `action_event`,`audit_event_history`.`action_id_param` AS `action_id_param`,`audit_event_history`.`event_note` AS `event_note`,`audit_event_history`.`exception` AS `exception`,`audit_event_history`.`exception_message` AS `exception_message`,`audit_event_history`.`modified` AS `modified` from `audit_event_history`;
 
 -- -----------------------------------------------------
--- View `audit_property`
+-- View `lava_core`.`audit_property`
 -- -----------------------------------------------------
-DROP VIEW IF EXISTS `audit_property` ;
-DROP TABLE IF EXISTS `audit_property`;
+DROP VIEW IF EXISTS `lava_core`.`audit_property` ;
+DROP TABLE IF EXISTS `lava_core`.`audit_property`;
 CREATE  OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY DEFINER VIEW `audit_property` AS select `audit_property_work`.`audit_property_id` AS `audit_property_id`,`audit_property_work`.`audit_entity_id` AS `audit_entity_id`,`audit_property_work`.`property` AS `property`,`audit_property_work`.`index_key` AS `index_key`,`audit_property_work`.`subproperty` AS `subproperty`,`audit_property_work`.`old_value` AS `old_value`,`audit_property_work`.`new_value` AS `new_value`,`audit_property_work`.`audit_timestamp` AS `audit_timestamp`,`audit_property_work`.`modified` AS `modified` from `audit_property_work` union all select `audit_property_history`.`audit_property_id` AS `audit_property_id`,`audit_property_history`.`audit_entity_id` AS `audit_entity_id`,`audit_property_history`.`property` AS `property`,`audit_property_history`.`index_key` AS `index_key`,`audit_property_history`.`subproperty` AS `subproperty`,`audit_property_history`.`old_value` AS `old_value`,`audit_property_history`.`new_value` AS `new_value`,`audit_property_history`.`audit_timestamp` AS `audit_timestamp`,`audit_property_history`.`modified` AS `modified` from `audit_property_history`;
 
 -- -----------------------------------------------------
--- View `audit_text`
+-- View `lava_core`.`audit_text`
 -- -----------------------------------------------------
-DROP VIEW IF EXISTS `audit_text` ;
-DROP TABLE IF EXISTS `audit_text`;
+DROP VIEW IF EXISTS `lava_core`.`audit_text` ;
+DROP TABLE IF EXISTS `lava_core`.`audit_text`;
 CREATE  OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY DEFINER VIEW `audit_text` AS select `audit_text_history`.`audit_property_id` AS `audit_property_id`,`audit_text_history`.`old_text` AS `old_text`,`audit_text_history`.`new_text` AS `new_text` from `audit_text_history` union all select `audit_text_work`.`audit_property_id` AS `audit_property_id`,`audit_text_work`.`old_text` AS `old_text`,`audit_text_work`.`new_text` AS `new_text` from `audit_text_work`;
-
-
-
-insert into versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-	VALUES ('lava-core-model','3.0.3',NOW(),3,0,3,1);
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-
-
