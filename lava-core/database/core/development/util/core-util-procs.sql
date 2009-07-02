@@ -81,9 +81,9 @@ END $$
 
 
 
-
 DROP PROCEDURE IF EXISTS `util_CreateMetadataInsertStatements`$$
-CREATE  PROCEDURE `util_CreateMetadataInsertStatements`(InstanceMask varchar(50), ScopeMask varchar(50), EntityMask varchar (50))
+
+CREATE PROCEDURE `util_CreateMetadataInsertStatements`(InstanceMask varchar(50), ScopeMask varchar(50), EntityMask varchar (50))
 BEGIN
 
 IF InstanceMask IS NULL THEN
@@ -101,6 +101,8 @@ END IF;
 
 
 
+
+
 SELECT CONCAT('INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,',
             '`context`,`style`,`required`,`label`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,',
             '`propOrder`,`quickHelp`,`modified`) VALUES(',
@@ -115,7 +117,7 @@ SELECT CONCAT('INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scop
             CASE WHEN `context` IS NULL THEN 'NULL,' ELSE CONCAT('''',`context`,''',') END,
             CASE WHEN `style` IS NULL THEN 'NULL,' ELSE CONCAT('''',`style`,''',') END,
             CASE WHEN `required` IS NULL THEN 'NULL,' ELSE CONCAT('''',`required`,''',') END,
-            CASE WHEN `label` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`label`,'\'','\\\''),''',') END,
+            CASE WHEN `label` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`label`,'''','\\'''),''',') END,
             CASE WHEN `maxLength` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`maxLength` as char),',') END,
             CASE WHEN `size` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`size` as char),',') END,
             CASE WHEN `indentLevel` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`indentLevel` as char),',') END,
@@ -123,7 +125,7 @@ SELECT CONCAT('INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scop
             CASE WHEN `list` IS NULL THEN 'NULL,' ELSE CONCAT('''',`list`,''',') END,
             CASE WHEN `listAttributes` IS NULL THEN 'NULL,' ELSE CONCAT('''',`listAttributes`,''',') END,
             CASE WHEN `propOrder` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`propOrder` as char),',') END,
-            CASE WHEN `quickHelp` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`quickHelp`,'\'','\\\''),''',') END,
+            CASE WHEN `quickHelp` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`quickHelp`,'''','\\'''),''',') END,
            CASE WHEN `modified` IS NULL THEN 'NULL' ELSE CONCAT('''',CAST(`modified` as char),'''') END,
             ');')
             FROM `viewproperty` WHERE `entity` Like EntityMask and
@@ -160,7 +162,35 @@ SELECT CONCAT('INSERT INTO hibernateproperty (`instance`,`scope`,`entity`,`prope
             ORDER BY `entity`, `dbOrder`;
 
 
-END $$
+
+
+SELECT CONCAT('INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) VALUES(',
+        	  CASE WHEN `ListName` IS NULL THEN 'NULL,' ELSE CONCAT('''',`ListName`,''',') END,
+        	  CASE WHEN `scope` IS NULL THEN 'NULL,' ELSE CONCAT('''',`scope`,''',') END,
+        	  CASE WHEN `NumericKey` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`NumericKey` as char),',') END,
+              CASE WHEN `modified` IS NULL THEN 'NULL' ELSE CONCAT('''',CAST(`modified` as char),'''') END,
+            ');')
+            FROM `list` WHERE `scope` like ScopeMask
+            ORDER BY `ListName`; 
+
+
+
+
+
+SELECT CONCAT('INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`)',
+			' SELECT `ListID`,',CASE WHEN lv.`ValueKey` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(lv.`ValueKey`,'''','\\'''),''',') END,
+        	  CASE WHEN lv.`ValueDesc` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(lv.`ValueDesc`,'''','\\'''),''',') END,
+				CASE WHEN lv.`OrderID` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(lv.`OrderID` as char),',') END,
+              CASE WHEN lv.`modified` IS NULL THEN 'NULL' ELSE CONCAT('''',CAST(lv.`modified` as char),'''') END,
+            ' FROM `list` where `ListName`=''',l.`ListName`,''';')
+            FROM `listvalues` lv INNER JOIN `list` l on l.`ListId`=lv.`ListID` WHERE l.`scope` like ScopeMask
+            ORDER BY l.`ListName`, lv.ORDERID, lv.ValueKey;
+
+
+END
+
+
+$$
 
 
 DROP PROCEDURE IF EXISTS `util_GetCreateFieldTags`$$

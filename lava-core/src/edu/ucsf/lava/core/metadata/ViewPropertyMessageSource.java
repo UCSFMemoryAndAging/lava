@@ -14,6 +14,10 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 
 import edu.ucsf.lava.core.action.ActionManager;
 import edu.ucsf.lava.core.action.ActionUtils;
+import edu.ucsf.lava.core.environment.EnvironmentManager;
+import edu.ucsf.lava.core.manager.CoreManagerUtils;
+import edu.ucsf.lava.core.manager.Managers;
+import edu.ucsf.lava.core.manager.ManagersAware;
 import edu.ucsf.lava.core.metadata.model.ViewProperty;
 import static edu.ucsf.lava.core.metadata.model.ViewProperty.*;
 
@@ -34,25 +38,31 @@ import static edu.ucsf.lava.core.metadata.model.ViewProperty.*;
  * 5) [if we find we need others add them here]
  * 
  */
-public class ViewPropertyMessageSource extends AbstractMessageSource {
+public class ViewPropertyMessageSource extends AbstractMessageSource implements ManagersAware{
 	
 	private HashMap messageMap;
 	public static final Locale DEFAULT_LOCALE= new Locale("en");
-	
+	protected EnvironmentManager environmentManager;
 	
 	
 
+	/**
+	 * utility function...returns LAVA_INSTANCE_IDENTIFIER is environment manager not yet set. 
+	 * @return
+	 */
+	protected String getWebAppInstance(){
+		if(null == environmentManager){return ActionUtils.LAVA_INSTANCE_IDENTIFIER;}
+		return environmentManager.getInstanceName();
+	}
 
 	
-
 	
-	//
 	protected String resolveCodeWithoutArguments(String code, Locale locale) {
 		HashMap map = getMessageMap();
 		String langCode = locale.getLanguage();
 		
 		//try webapp instance first, then lava instance
-		for (String instance: new String[]{ActionManager.webappInstanceName,ActionUtils.LAVA_INSTANCE_IDENTIFIER})
+		for (String instance: new String[]{getWebAppInstance(),ActionUtils.LAVA_INSTANCE_IDENTIFIER})
 		{
 			
 			//first look for properties in the instance scope, then look in lava scope
@@ -244,6 +254,15 @@ public class ViewPropertyMessageSource extends AbstractMessageSource {
 	public synchronized void setMessageMap(HashMap messageMap) {
 		this.messageMap = messageMap;
 	}
+
+
+
+
+	public void updateManagers(Managers managers) {
+		this.environmentManager = CoreManagerUtils.getEnvironmentManager(managers);
+	}
+	
+	
 	
 	
 }

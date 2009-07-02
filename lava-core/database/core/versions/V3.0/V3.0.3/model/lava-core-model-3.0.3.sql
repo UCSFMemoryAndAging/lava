@@ -40,6 +40,7 @@ CREATE  TABLE IF NOT EXISTS `audit_entity_history` (
   `audit_type` VARCHAR(10) NOT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`audit_entity_id`) ,
+  INDEX `audit_entity_history__audit_event_id` (`audit_event_id` ASC) ,
   CONSTRAINT `audit_entity_history__audit_event_id`
     FOREIGN KEY (`audit_event_id` )
     REFERENCES `audit_event_history` (`audit_event_id` )
@@ -47,8 +48,6 @@ CREATE  TABLE IF NOT EXISTS `audit_entity_history` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `audit_entity_history__audit_event_id` ON `audit_entity_history` (`audit_event_id` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -88,6 +87,7 @@ CREATE  TABLE IF NOT EXISTS `audit_entity_work` (
   `audit_type` VARCHAR(10) NOT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`audit_entity_id`) ,
+  INDEX `audit_entity_work__audit_event_id` (`audit_event_id` ASC) ,
   CONSTRAINT `audit_entity_work__audit_event_id`
     FOREIGN KEY (`audit_event_id` )
     REFERENCES `audit_event_work` (`audit_event_id` )
@@ -96,8 +96,6 @@ CREATE  TABLE IF NOT EXISTS `audit_entity_work` (
 ENGINE = InnoDB
 AUTO_INCREMENT = 103
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `audit_entity_work__audit_event_id` ON `audit_entity_work` (`audit_event_id` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -116,6 +114,7 @@ CREATE  TABLE IF NOT EXISTS `audit_property_history` (
   `audit_timestamp` TIMESTAMP NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`audit_property_id`) ,
+  INDEX `audit_property_history__audit_entity_id` (`audit_entity_id` ASC) ,
   CONSTRAINT `audit_property_history__audit_entity_id`
     FOREIGN KEY (`audit_entity_id` )
     REFERENCES `audit_entity_history` (`audit_entity_id` )
@@ -123,8 +122,6 @@ CREATE  TABLE IF NOT EXISTS `audit_property_history` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `audit_property_history__audit_entity_id` ON `audit_property_history` (`audit_entity_id` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -143,6 +140,7 @@ CREATE  TABLE IF NOT EXISTS `audit_property_work` (
   `audit_timestamp` TIMESTAMP NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`audit_property_id`) ,
+  INDEX `audit_property_work__audit_entity_id` (`audit_entity_id` ASC) ,
   CONSTRAINT `audit_property_work__audit_entity_id`
     FOREIGN KEY (`audit_entity_id` )
     REFERENCES `audit_entity_work` (`audit_entity_id` )
@@ -151,8 +149,6 @@ CREATE  TABLE IF NOT EXISTS `audit_property_work` (
 ENGINE = InnoDB
 AUTO_INCREMENT = 328
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `audit_property_work__audit_entity_id` ON `audit_property_work` (`audit_entity_id` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -165,6 +161,7 @@ CREATE  TABLE IF NOT EXISTS `audit_text_history` (
   `old_text` TEXT NULL DEFAULT NULL ,
   `new_text` TEXT NULL DEFAULT NULL ,
   PRIMARY KEY (`audit_property_id`) ,
+  INDEX `audit_text_history__audit_property_id` (`audit_property_id` ASC) ,
   CONSTRAINT `audit_text_history__audit_property_id`
     FOREIGN KEY (`audit_property_id` )
     REFERENCES `audit_property_history` (`audit_property_id` )
@@ -172,8 +169,6 @@ CREATE  TABLE IF NOT EXISTS `audit_text_history` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
-
-CREATE INDEX `audit_text_history__audit_property_id` ON `audit_text_history` (`audit_property_id` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -186,6 +181,7 @@ CREATE  TABLE IF NOT EXISTS `audit_text_work` (
   `old_text` TEXT NULL DEFAULT NULL ,
   `new_text` TEXT NULL DEFAULT NULL ,
   PRIMARY KEY (`audit_property_id`) ,
+  INDEX `audit_text_work__audit_property_id` (`audit_property_id` ASC) ,
   CONSTRAINT `audit_text_work__audit_property_id`
     FOREIGN KEY (`audit_property_id` )
     REFERENCES `audit_property_work` (`audit_property_id` )
@@ -193,8 +189,6 @@ CREATE  TABLE IF NOT EXISTS `audit_text_work` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
-
-CREATE INDEX `audit_text_work__audit_property_id` ON `audit_text_work` (`audit_property_id` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -248,6 +242,7 @@ CREATE  TABLE IF NOT EXISTS `authpermission` (
   `Notes` VARCHAR(100) NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`PermID`) ,
+  INDEX `authpermission_RoleID` (`RoleID` ASC) ,
   CONSTRAINT `authpermission_RoleID`
     FOREIGN KEY (`RoleID` )
     REFERENCES `authrole` (`RoleID` )
@@ -256,8 +251,6 @@ CREATE  TABLE IF NOT EXISTS `authpermission` (
 ENGINE = InnoDB
 AUTO_INCREMENT = 54
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `authpermission_RoleID` ON `authpermission` (`RoleID` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -286,14 +279,12 @@ CREATE  TABLE IF NOT EXISTS `authuser` (
   `lastFailedLogin` TIMESTAMP NULL DEFAULT NULL ,
   `accountLocked` TIMESTAMP NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`UID`) )
+  PRIMARY KEY (`UID`) ,
+  UNIQUE INDEX `Unique_UserName` (`UserName` ASC) ,
+  UNIQUE INDEX `Unique_Login` (`Login` ASC) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 6
 DEFAULT CHARACTER SET = latin1;
-
-CREATE UNIQUE INDEX `Unique_UserName` ON `authuser` (`UserName` ASC) ;
-
-CREATE UNIQUE INDEX `Unique_Login` ON `authuser` (`Login` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -308,6 +299,8 @@ CREATE  TABLE IF NOT EXISTS `authusergroup` (
   `Notes` VARCHAR(255) NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`UGID`) ,
+  INDEX `authusergroup_UID` (`UID` ASC) ,
+  INDEX `authusergroup_GID` (`UGID` ASC) ,
   CONSTRAINT `authusergroup_UID`
     FOREIGN KEY (`UID` )
     REFERENCES `authuser` (`UID` )
@@ -321,10 +314,6 @@ CREATE  TABLE IF NOT EXISTS `authusergroup` (
 ENGINE = InnoDB
 AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `authusergroup_UID` ON `authusergroup` (`UID` ASC) ;
-
-CREATE INDEX `authusergroup_GID` ON `authusergroup` (`UGID` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -340,6 +329,9 @@ CREATE  TABLE IF NOT EXISTS `authuserrole` (
   `Notes` VARCHAR(255) NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`URID`) ,
+  INDEX `authuserrole_RoleID` (`RoleID` ASC) ,
+  INDEX `authuserrole_UID` (`URID` ASC) ,
+  INDEX `authuserrole_GID` (`GID` ASC) ,
   CONSTRAINT `authuserrole_RoleID`
     FOREIGN KEY (`RoleID` )
     REFERENCES `authrole` (`RoleID` )
@@ -358,12 +350,6 @@ CREATE  TABLE IF NOT EXISTS `authuserrole` (
 ENGINE = InnoDB
 AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `authuserrole_RoleID` ON `authuserrole` (`RoleID` ASC) ;
-
-CREATE INDEX `authuserrole_UID` ON `authuserrole` (`URID` ASC) ;
-
-CREATE INDEX `authuserrole_GID` ON `authuserrole` (`GID` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -436,6 +422,8 @@ CREATE  TABLE IF NOT EXISTS `lava_session` (
   `notes` VARCHAR(255) NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`lava_session_id`) ,
+  INDEX `lavasession__server_instance_id` (`server_instance_id` ASC) ,
+  INDEX `lavasession__user_id` (`user_id` ASC) ,
   CONSTRAINT `lavasession__server_instance_id`
     FOREIGN KEY (`server_instance_id` )
     REFERENCES `lavaserverinstance` (`ServerInstanceID` )
@@ -450,10 +438,6 @@ ENGINE = InnoDB
 AUTO_INCREMENT = 243
 DEFAULT CHARACTER SET = latin1;
 
-CREATE INDEX `lavasession__server_instance_id` ON `lava_session` (`server_instance_id` ASC) ;
-
-CREATE INDEX `lavasession__user_id` ON `lava_session` (`user_id` ASC) ;
-
 
 -- -----------------------------------------------------
 -- Table `list`
@@ -463,14 +447,14 @@ DROP TABLE IF EXISTS `list` ;
 CREATE  TABLE IF NOT EXISTS `list` (
   `ListID` INT(10) NOT NULL AUTO_INCREMENT ,
   `ListName` VARCHAR(50) NOT NULL ,
+  `scope` VARCHAR(25) NOT NULL ,
   `NumericKey` TINYINT(1) NOT NULL DEFAULT '0' ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`ListID`) )
+  PRIMARY KEY (`ListID`) ,
+  UNIQUE INDEX `ListName` (`ListName` ASC) )
 ENGINE = InnoDB
 AUTO_INCREMENT = 468
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `ListName` ON `list` (`ListName` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -486,7 +470,10 @@ CREATE  TABLE IF NOT EXISTS `listvalues` (
   `OrderID` INT(10) NOT NULL DEFAULT '0' ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`ID`) ,
-  CONSTRAINT `list__ListID`
+  INDEX `ListID` (`ListID` ASC) ,
+  INDEX `ValueKey` (`ValueKey` ASC) ,
+  INDEX `listvalues__listID` (`ListID` ASC) ,
+  CONSTRAINT `listvalues__listID`
     FOREIGN KEY (`ListID` )
     REFERENCES `list` (`ListID` )
     ON DELETE NO ACTION
@@ -494,12 +481,6 @@ CREATE  TABLE IF NOT EXISTS `listvalues` (
 ENGINE = InnoDB
 AUTO_INCREMENT = 24376
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `ListID` ON `listvalues` (`ListID` ASC) ;
-
-CREATE INDEX `ValueKey` ON `listvalues` (`ValueKey` ASC) ;
-
-CREATE INDEX `list__ListID` ON `listvalues` (`ListID` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -592,6 +573,7 @@ CREATE  TABLE IF NOT EXISTS `appointment` (
   `notes` TEXT NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`appointment_id`) ,
+  INDEX `appointment__calendar` (`calendar_id` ASC) ,
   CONSTRAINT `appointment__calendar`
     FOREIGN KEY (`calendar_id` )
     REFERENCES `calendar` (`calendar_id` )
@@ -600,8 +582,6 @@ CREATE  TABLE IF NOT EXISTS `appointment` (
 ENGINE = InnoDB
 AUTO_INCREMENT = 10
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `appointment__calendar` ON `appointment` (`calendar_id` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -618,6 +598,8 @@ CREATE  TABLE IF NOT EXISTS `attendee` (
   `notes` VARCHAR(100) NULL DEFAULT NULL ,
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`attendee_id`) ,
+  INDEX `attendee__appointment` (`appointment_id` ASC) ,
+  INDEX `attendee__user_id` (`user_id` ASC) ,
   CONSTRAINT `attendee__appointment`
     FOREIGN KEY (`appointment_id` )
     REFERENCES `appointment` (`appointment_id` )
@@ -630,10 +612,6 @@ CREATE  TABLE IF NOT EXISTS `attendee` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `attendee__appointment` ON `attendee` (`appointment_id` ASC) ;
-
-CREATE INDEX `attendee__user_id` ON `attendee` (`user_id` ASC) ;
 
 
 -- -----------------------------------------------------
@@ -649,6 +627,8 @@ CREATE  TABLE IF NOT EXISTS `appointment_change` (
   `change_by` INT(10) NOT NULL ,
   `change_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`appointment_change_id`) ,
+  INDEX `appointment_change__appointment` (`appointment_id` ASC) ,
+  INDEX `appointment_change__change_by` (`change_by` ASC) ,
   CONSTRAINT `appointment_change__appointment`
     FOREIGN KEY (`appointment_id` )
     REFERENCES `appointment` (`appointment_id` )
@@ -662,10 +642,6 @@ CREATE  TABLE IF NOT EXISTS `appointment_change` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
-CREATE INDEX `appointment_change__appointment` ON `appointment_change` (`appointment_id` ASC) ;
-
-CREATE INDEX `appointment_change__change_by` ON `appointment_change` (`change_by` ASC) ;
-
 
 -- -----------------------------------------------------
 -- Table `resource_calendar`
@@ -678,6 +654,8 @@ CREATE  TABLE IF NOT EXISTS `resource_calendar` (
   `location` VARCHAR(100) NULL DEFAULT NULL ,
   `contact_id` INT(10) NOT NULL ,
   PRIMARY KEY (`calendar_id`) ,
+  INDEX `resource_calendar__calendar` (`calendar_id` ASC) ,
+  INDEX `resource_calendar__user_id` (`contact_id` ASC) ,
   CONSTRAINT `resource_calendar__calendar`
     FOREIGN KEY (`calendar_id` )
     REFERENCES `calendar` (`calendar_id` )
@@ -690,10 +668,6 @@ CREATE  TABLE IF NOT EXISTS `resource_calendar` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
-
-CREATE INDEX `resource_calendar__calendar` ON `resource_calendar` (`calendar_id` ASC) ;
-
-CREATE INDEX `resource_calendar__user_id` ON `resource_calendar` (`contact_id` ASC) ;
 
 
 -- -----------------------------------------------------

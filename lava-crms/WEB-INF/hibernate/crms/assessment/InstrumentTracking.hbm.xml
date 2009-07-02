@@ -3,8 +3,8 @@
 <!DOCTYPE hibernate-mapping PUBLIC 
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"
-    [<!ENTITY instrInclude SYSTEM "resource://WEB-INF/hibernate/crms/assessment/instrInclude.xml" >
-     <!ENTITY instrInclude2 SYSTEM "resource://WEB-INF/hibernate/crms/assessment/instrInclude2.xml" >]>
+    [<!ENTITY instrInclude SYSTEM "classpath://../hibernate/crms/assessment/instrInclude.xml" >
+     <!ENTITY instrInclude2 SYSTEM "classpath://../hibernate/crms/assessment/instrInclude2.xml" >]>
     
 <!-- Map the InstrumentTracking class, which is a lightweight instrument class containing only
      the data in the InstrumentTracking table for a given instrument.

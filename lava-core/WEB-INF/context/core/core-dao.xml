@@ -29,12 +29,8 @@
 			</map>
 		</property>
 	    <property name="hibernateProperties">
-    	  <props>
-        	<prop key="hibernate.dialect">${hibernate.dialect}</prop>
-          	<prop key="hibernate.transaction.manager_lookup_class">${hibernate.transaction.manager_lookup_class}</prop>
-          	<prop key="hibernate.transaction.factory_class">${hibernate.transaction.factory_class}</prop>
-     	  </props>
-    	</property>
+	    	<ref bean="sessionFactoryHibernateProperties"/>
+ 		</property>
     	<property name="configurationClass"><value>edu.ucsf.lava.core.dao.hibernate.LavaConfiguration</value></property>
     	<property name="mappingDirectoryLocations">
     	  		<list>
@@ -45,19 +41,9 @@
 	
 	<bean id="auditHibernateListener" class="edu.ucsf.lava.core.audit.AuditHibernateListener"/>
 	
-    <bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">
-        <!-- this setting is J2EE-server specific. this is the JBoss setting
-             see JtaTransactionManager API for more info -->
-    	<property name="transactionManagerName">
-    		<value>java:/TransactionManager</value>
-    	</property>
-    	<!-- the typical default for JTA providers is 30 seconds. can set to a very large
-    		value like 100000 for debugging purposes -->
-    	<property name="defaultTimeout">
-    		<value>90</value>
-    	</property>
-    </bean>
-    
+
+	
+
     
 	<bean id="transactionAttributeSource" 
 	   class="org.springframework.transaction.interceptor.MatchAlwaysTransactionAttributeSource">
@@ -79,6 +65,8 @@
 			<value>ISOLATION_DEFAULT</value>
 		</property>
    </bean>
+   
+   <!--  TRANSACTION MANAGER DEFINED in [instance]-env-[server].xml in instance context -->
    
     <bean id="abstractTransactionProxy" abstract="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">

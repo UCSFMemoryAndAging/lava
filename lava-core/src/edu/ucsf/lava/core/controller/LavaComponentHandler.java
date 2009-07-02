@@ -31,6 +31,7 @@ import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.dao.file.LavaFile;
 import edu.ucsf.lava.core.dao.file.LavaFileDao;
+import edu.ucsf.lava.core.environment.EnvironmentManager;
 import edu.ucsf.lava.core.list.ListManager;
 import edu.ucsf.lava.core.manager.CoreManagerUtils;
 import edu.ucsf.lava.core.manager.Managers;
@@ -58,6 +59,7 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 	protected MetadataManager metadataManager;
 	protected ActionManager actionManager; 
 	protected SessionManager sessionManager; 
+	protected EnvironmentManager environmentManager;
 	
 	protected String primaryComponentContext;
 	protected List<String> handledEvents; //a list of events handled by the handler, set by default, may be specified
@@ -784,6 +786,7 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		this.listManager = CoreManagerUtils.getListManager(managers);
 		this.metadataManager = CoreManagerUtils.getMetadataManager(managers);
 		this.sessionManager = CoreManagerUtils.getSessionManager(managers);
+		this.environmentManager = CoreManagerUtils.getEnvironmentManager(managers);
 	}		
 	
 	

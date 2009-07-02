@@ -57,29 +57,9 @@ public class ApplicationEventListener implements ServletContextListener, Manager
 		logger.info("Initializing Authorization Manager");
 		authManager.initialize();
 		
-		// create an instance of AppInfo to store application-wide information at application scope
-		AppInfo appInfo = new AppInfo();
-
-		// get the version of the application
-		appInfo.setVersion(servletContext.getInitParameter("webappVersion"));
-		logger.info("version=" + servletContext.getInitParameter("webappVersion"));
-
-		// get the name of the database that we are connected to for informational purposes
-		LavaDao lavaDao = (LavaDao) LavaBeanUtils.get("lavaDao");
-		String dbName = lavaDao.getDatabaseName();
-		if (dbName != null) {
-			logger.info("dbName=" + dbName);
-			appInfo.setDatabaseName(dbName);
-		}
-		// set the appInfo object at application scope
-		servletContext.setAttribute("appInfo", appInfo);
+	
 		
-		
-		LavaServerInstance serverInstance = sessionManager.createLavaServerInstance(appInfo);
-		
-		if(serverInstance != null){
-			logger.info("Created LavaServerInstance: " + serverInstance.toString());
-		}
+	
 		
     }
 	

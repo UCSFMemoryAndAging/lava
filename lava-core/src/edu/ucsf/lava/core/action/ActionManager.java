@@ -13,6 +13,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
 import edu.ucsf.lava.core.action.model.Action;
+import edu.ucsf.lava.core.environment.EnvironmentManager;
 import edu.ucsf.lava.core.manager.LavaManager;
 import edu.ucsf.lava.core.manager.CoreManagerUtils;
 import edu.ucsf.lava.core.manager.Managers;
@@ -26,11 +27,12 @@ public class ActionManager extends LavaManager {
 	
 	public static String ACTION_MANAGER_NAME="actionManager";
 	
-	public static String webappInstanceName = initializeWebAppInstanceName();
+	
 	protected ActionDefinitions actionDefinitions;
 	protected ActionRegistry actionRegistry = new ActionRegistry();
 	protected ScopeManager scopeManager;
 	protected SessionManager sessionManager;
+	protected EnvironmentManager environmentManager;
 	/** Logger for this class and subclasses */
     protected final Log logger = LogFactory.getLog(getClass());
 
@@ -43,6 +45,7 @@ public class ActionManager extends LavaManager {
 		super.updateManagers(managers);
 		scopeManager = CoreManagerUtils.getScopeManager(managers);
 		sessionManager = CoreManagerUtils.getSessionManager(managers);
+		environmentManager = CoreManagerUtils.getEnvironmentManager(managers);
 	}
 
 
@@ -143,87 +146,7 @@ public class ActionManager extends LavaManager {
 	}
 	
 	
-	/**
-	 * The most accurate method for determining the instance of the currently running app 
-	 * within jboss without access to the servlet context. 
-	 * 
-	 * @return
-	 */
-	private static String initializeWebAppInstanceName(){
-		//		 determine the context path which is the webapp instance name (e.g. "mac", "examiner")
-  	// as this is used to determine if any instance specific FormAction beans should be used
-  	// when creating the flows
-  	// because the ServletContext is not available here, determine the context path by obtaining
-  	// the path to WEB-INF/web.xml and working from there using String methods
-      // e.g. in exploded WAR deployment (i.e. development) the path will be something like:
-	//   /home/ctoohey/project/webapp/mac.war/WEB-INF/web.xml, the goal is
-  	// however, in a WAR deployment, JBoss explodes the WAR into a temporary directory 
-	// (../server/SERVER_NAME/tmp/...) and the path will be something like:
-	//   /usr/local/jboss-4.0.2/server/dev-ctoohey/tmp/deploy/tmp52223mac.war/WEB-INF/web.xml
-	//   where the webapp name is always preceded by "tmpNNNNN.." where N is a digit
-	// in either example, the goal is to parse out "mac" as the webapp instance name
-	String webAppInstanceName;
-  	ResourceLoader resourceLoader = new DefaultResourceLoader();
-  	Resource resource = resourceLoader.getResource("WEB-INF/web.xml");
-	Log logger = LogFactory.getLog(ActionManager.class);
-       try {
-	        //logger.info("abolutePath=" + resource.getFile().getAbsolutePath());
-	        //logger.info("canonicalPath=" + resource.getFile().getCanonicalPath());
-	        logger.info("WEB-INF/web.xml path=" + resource.getFile().getPath());
-	        String path = resource.getFile().getPath();
-
-	        // parse out the webapp instance name from the path
-	                
-	        int endIndex = path.indexOf(".war/WEB-INF");
-	        if (endIndex == -1){
-		    // on Windows platform look forith path separator of '\'
-		    endIndex = path.indexOf(".war\\WEB-INF");
-	        }
-
-	        // 	starting from endIndex, look backwards for the beginning index
-
-	        // first look for path separator on Unix platforms, '/'
-	        int beginIndex = path.lastIndexOf("/", endIndex);
-	        // if on Windows platform, look for '\' instead
-	        if (beginIndex == -1) {
-	        	beginIndex = path.lastIndexOf("\\", endIndex);
-	        }
-
-	        // 	now determine whether this is an exploded WAR deployment or a WAR 
-	        // file deployment
-	        int tmpIndex = path.indexOf("tmp", beginIndex);
-	        if (tmpIndex == -1) {
-	        // if not a tmp dir, this is an exploded WAR deployment
-	        	webappInstanceName = path.substring(beginIndex+1, endIndex); 
-	        }
-	        else {
-		    // this is a WAR file deployment exploded into a tmp directory where
-		    // the webapp directory is "tmpNNNN...WEBAPPNAME.war"
-		    // tmpIndex is position at 't', and endIndex is positioned at '.'
-	        	String tempStr = path.substring(tmpIndex+3, endIndex); 
-	        	// tempStr = NNNN...WEBAPPNAME
-	        	// search for the first character after the digits
-	        	int i=0;
-	        	for (i=0; i<tempStr.length(); i++) {
-	        		if (tempStr.charAt(i) < '0' || tempStr.charAt(i) > '9') {
-	        			break;
-	        		}
-	        	}
-	        	webappInstanceName = tempStr.substring(i);
-	        	// 	the exploded tmp dir may also have "-exp" appended to the name, e.g.
-	        	// "tmpNNNN...WEBAPPNAME-exp.war", so look for "-exp" and remove if present
-	        	tmpIndex = webappInstanceName.indexOf("-exp");
-	        	if (tmpIndex != -1) {
-	        		webappInstanceName = webappInstanceName.substring(0,tmpIndex);
-	        	}
-	        }
-       }
-       catch (IOException ex) {
-      	logger.error("resourceLoader exception trying to find context path", ex);
-      }
-      logger.info("webappInstanceName=<" + webappInstanceName + ">");
-      return webappInstanceName;
-	}
+	
 	
 	
 	/*
@@ -241,7 +164,11 @@ public class ActionManager extends LavaManager {
 	}
 		
 
-	
+	public String getWebAppInstanceName(){
+		if(environmentManager==null){ return "";}
+		return environmentManager.getInstanceName();
+		
+	}
 	
 	
 	public Action getDefaultAction(HttpServletRequest request,Action actionIn){

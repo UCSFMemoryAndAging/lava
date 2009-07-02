@@ -54,6 +54,167 @@ DROP TEMPORARY TABLE temp_authuser;
 
 
 
+CREATE TEMPORARY TABLE `temp_list` LIKE `list`;
+
+INSERT INTO `temp_list` select * from `list`;
+
+ALTER TABLE `listvalues` DROP FOREIGN KEY `FK_ListID`; 
+
+DROP TABLE IF EXISTS `list` ;
+
+CREATE  TABLE IF NOT EXISTS `list` (
+  `ListID` INT(10) NOT NULL AUTO_INCREMENT ,
+  `ListName` VARCHAR(50) NOT NULL ,
+  `scope` VARCHAR(25) NOT NULL ,
+  `NumericKey` TINYINT(1) NOT NULL DEFAULT '0' ,
+  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`ListID`),
+  UNIQUE INDEX `ListName` (`ListName` ASC) )
+ENGINE = InnoDB
+AUTO_INCREMENT = 468
+DEFAULT CHARACTER SET = latin1;
+
+
+
+
+INSERT INTO `list` (`ListID`,`ListName`,`scope`,`NumericKey`,`modified`)
+	  SELECT `ListID`,`ListName`,'scope-not-set',`NumericKey`,`modified` from temp_list;
+	  
+DROP TEMPORARY TABLE temp_list;
+
+UPDATE `list` set `scope`='crms' where `ListName`='CaregiverMaritalStatus';
+UPDATE `list` set `scope`='crms' where `ListName`='ConsentType';
+UPDATE `list` set `scope`='crms' where `ListName`='ContactMethods';
+UPDATE `list` set `scope`='crms' where `ListName`='ContactRelations';
+UPDATE `list` set `scope`='crms' where `ListName`='DataCollectionStatus';
+UPDATE `list` set `scope`='crms' where `ListName`='DataEntryStatus';
+UPDATE `list` set `scope`='crms' where `ListName`='DataValidationStatus';
+UPDATE `list` set `scope`='crms' where `ListName`='DoctorStatus';
+UPDATE `list` set `scope`='crms' where `ListName`='Education';
+UPDATE `list` set `scope`='crms' where `ListName`='Gender';
+UPDATE `list` set `scope`='crms' where `ListName`='Handedness';
+UPDATE `list` set `scope`='crms' where `ListName`='InstrumentQualityIssue';
+UPDATE `list` set `scope`='crms' where `ListName`='InstrumentResearchStatus';
+UPDATE `list` set `scope`='crms' where `ListName`='InstrumentVersions';
+UPDATE `list` set `scope`='core' where `ListName`='LavaSessionStatus';
+UPDATE `list` set `scope`='crms' where `ListName`='MaritalStatus';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='mdsstatcurrentstat';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='mdsstatdiscrea';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='MultumDrugLookup';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath10';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath11';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath13A';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NaccPath13B';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NaccPath14F';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath17A';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath18A';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath18B';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath18C';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath19';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath7';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath8A';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath8B';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath8C';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath8D';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPath9';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPathMildModSevere';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCPathYesNo';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NaccPathYesNoOnly';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='NACCSubmissionStatus';
+UPDATE `list` set `scope`='core' where `ListName`='NavigationListPageSize';
+UPDATE `list` set `scope`='crms' where `ListName`='Occupation';
+UPDATE `list` set `scope`='crms' where `ListName`='PatientLanguage';
+UPDATE `list` set `scope`='crms' where `ListName`='PhoneType';
+UPDATE `list` set `scope`='crms' where `ListName`='PrimaryCaregiver';
+UPDATE `list` set `scope`='crms' where `ListName`='ProbablePossibleNo';
+UPDATE `list` set `scope`='crms' where `ListName`='ProjectStatus';
+UPDATE `list` set `scope`='crms' where `ListName`='ProjectStatusType';
+UPDATE `list` set `scope`='crms' where `ListName`='RACE';
+UPDATE `list` set `scope`='crms' where `ListName`='ReferralSources';
+UPDATE `list` set `scope`='crms' where `ListName`='SkipErrorCodes';
+UPDATE `list` set `scope`='crms' where `ListName`='SpanishOrigin';
+UPDATE `list` set `scope`='crms' where `ListName`='StaffList';
+UPDATE `list` set `scope`='crms' where `ListName`='StandardErrorCodes';
+UPDATE `list` set `scope`='crms' where `ListName`='States';
+UPDATE `list` set `scope`='crms' where `ListName`='TaskStatus';
+UPDATE `list` set `scope`='crms' where `ListName`='TaskType';
+UPDATE `list` set `scope`='core' where `ListName`='TextYesNo';
+UPDATE `list` set `scope`='core' where `ListName`='TextYesNoDK';
+UPDATE `list` set `scope`='core' where `ListName`='TextYesNoNA';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1handed';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1hispanic';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1indepd';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1lang';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1livesit';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1marital';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1padctype';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1presdis';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1prespart';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1primreason';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1race';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1race2';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1refsource';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa1residence';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa2freq';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa2relation';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa3twintype';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa4frequnit';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa4medunit';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa5packsmoke';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa5presence3';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsa5presence4';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsb201';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsb202';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsb7diff';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsb9domain';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsb9fuchg';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsb9mode';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsb9overall';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsb9predombeh';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsb9predomcog';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsb9predommot';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsc1admin';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsc1cogstat';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsc1cogstatV2';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsc1lang';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='UDSCenterIDs';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsd1ifpres';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsd1ifpressht';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsd1presab';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsd1response';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='UDSErrorCodes';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='UDSFormIDs';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='UDSFormLogicCheckReason';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='UDSFormLogicCheckStatus';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='UDSFormSubmissionReason';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='UDSFormSubmissionStatus';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsM1Discont';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsm1nurse';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsM1Protocol';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsm1status';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsnoyes01';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsNoYesNA';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsnoyesunknown019';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='UDSPacketReason';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='UDSPacketStatus';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='UDSPacketTypes';
+UPDATE `list` set `scope`='crms-nacc' where `ListName`='udsZ1Reason';
+UPDATE `list` set `scope`='crms' where `ListName`='UsualSomeRare';
+UPDATE `list` set `scope`='crms' where `ListName`='UsualSomeRareDK';
+UPDATE `list` set `scope`='crms' where `ListName`='VisitLocations';
+UPDATE `list` set `scope`='crms' where `ListName`='VisitStatus';
+UPDATE `list` set `scope`='crms' where `ListName`='VisitType';
+UPDATE `list` set `scope`='core' where `ListName`='YESNO';
+UPDATE `list` set `scope`='core' where `ListName`='YESNODK';
+UPDATE `list` set `scope`='core' where `ListName`='YesNoDK_Zero';
+UPDATE `list` set `scope`='crms' where `ListName`='YesNoScale_NoCorrect';
+UPDATE `list` set `scope`='crms' where `ListName`='YesNoScale_YesCorrect';
+UPDATE `list` set `scope`='core' where `ListName`='YesNoUnknown';
+UPDATE `list` set `scope`='core' where `ListName`='YesNo_Zero';
+
+
+
+
 CREATE  TABLE IF NOT EXISTS `appointment_change` (
   `appointment_change_id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
   `appointment_id` INT(11) UNSIGNED NOT NULL ,
@@ -273,14 +434,16 @@ ALTER TABLE `lava_session`
 , ADD INDEX `lavasession__server_instance_id` (`server_instance_id` ASC) 
 , ADD INDEX `lavasession__user_id` (`user_id` ASC) ;
 
-ALTER TABLE `listvalues` 
-  ADD CONSTRAINT `list__ListID`
+
+
+ALTER TABLE `lava_core`.`listvalues` 
+  ADD CONSTRAINT `listvalues__listID`
   FOREIGN KEY (`ListID` )
-  REFERENCES `list` (`ListID` )
+  REFERENCES `lava_core`.`list` (`ListID` )
   ON DELETE NO ACTION
   ON UPDATE NO ACTION
 , ADD INDEX `ListID` (`ListID` ASC) 
-, ADD INDEX `list__ListID` (`ListID` ASC) 
+, ADD INDEX `listvalues__listID` (`ListID` ASC) 
 , DROP INDEX `cListID` ;
 
 

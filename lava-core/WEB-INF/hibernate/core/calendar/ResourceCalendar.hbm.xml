@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+<joined-subclass name="edu.ucsf.lava.core.calendar.model.ResourceCalendar" table="resource_calendar" extends="edu.ucsf.lava.core.calendar.model.Calendar" select-before-update="true">
+
+	   <key column="calendar_id"/>
+		<property name="resourceType" column="resource_type" type="string" length="25" not-null="true"/>
+		<property name="location" column="location" type="string" length="100"/>
+		<many-to-one name="contact" column="contact_id" class="edu.ucsf.lava.core.auth.model.AuthUser" not-null="true" lazy="false"/>
+	    		
+    
+</joined-subclass>
+	
+	
+</hibernate-mapping>

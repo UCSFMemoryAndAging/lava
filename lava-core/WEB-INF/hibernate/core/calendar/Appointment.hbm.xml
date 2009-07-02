@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.calendar.model.Appointment" table="appointment" select-before-update="true">
+		
+		<id name="id" type="long">
+			<column name="appointment_id" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+		<timestamp name="modified" column="modified"/>
+
+        <many-to-one name="calendar" column="calendar_id" class="edu.ucsf.lava.core.calendar.model.ResourceCalendar" not-null="true" lazy="false"/>
+        <many-to-one name="organizer" column="organizer_id" class="edu.ucsf.lava.core.auth.model.AuthUser" not-null="true" lazy="false"/>
+        <property name="type" column="type" type="string" length="25" not-null="true"/>
+        <property name="description" column="description" type="string" length="100"/>
+        <property name="location" column="location" type="string" length="100"/>
+        <property name="startDate" column="start_date" type="date" not-null="true"/>
+        <property name="startTime" column="start_time" type="time" not-null="true"/>
+        <property name="endDate" column="end_date" type="date" not-null="true"/>
+        <property name="endTime" column="end_time" type="time" not-null="true"/>
+        <property name="status" column="status" type="string" length="25"/>
+        <property name="notes" column="notes" type="string"/>
+		
+		
+		<set name="attendees" inverse="true" cascade="all" lazy="false">
+			<key column="appointment_id"/>
+			<one-to-many class="edu.ucsf.lava.core.calendar.model.Attendee"/>
+		</set>
+		
+		<set name="changes" inverse="true"  cascade="all" lazy="false">
+			<key column="appointment_id"/>
+			<one-to-many class="edu.ucsf.lava.core.calendar.model.AppointmentChange"/>
+		</set>
+	</class>
+	
+	<query name="list.appointment.calendar"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(c.name,c.id)
+		from Calendar c 
+		order by c.name
+	]]></query>
+	
+	
+	<query name="list.appointment.organizer"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(au.userName,au.id)
+		from AuthUser au 
+		order by au.shortUserNameRev
+	]]></query>
+	
+</hibernate-mapping>

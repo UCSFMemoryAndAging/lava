@@ -3,6 +3,7 @@ package edu.ucsf.lava.core.manager;
 import edu.ucsf.lava.core.action.ActionManager;
 import edu.ucsf.lava.core.audit.AuditManager;
 import edu.ucsf.lava.core.auth.AuthManager;
+import edu.ucsf.lava.core.environment.EnvironmentManager;
 import edu.ucsf.lava.core.list.ListManager;
 import edu.ucsf.lava.core.metadata.MetadataManager;
 import edu.ucsf.lava.core.scope.ScopeManager;
@@ -45,6 +46,15 @@ public class CoreManagerUtils extends LavaBeanUtils {
 		return getAuditManager(getManagers());
 	}
 
+	public static EnvironmentManager getEnvironmentManager(Managers managers){
+		return (EnvironmentManager) managers.get(EnvironmentManager.ENVIRONMENT_MANAGER_NAME);
+	}
+	
+	public static EnvironmentManager getEnvironmentManager(){
+		return getEnvironmentManager(getManagers());
+	}
+
+		
 	
 	public static ScopeManager getScopeManager(Managers managers){
 		return (ScopeManager) managers.get(ScopeManager.SCOPE_MANAGER_NAME);

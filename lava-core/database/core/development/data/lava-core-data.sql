@@ -1,5 +1,7 @@
-DELETE from viewproperty where instance='lava' and scope='core';
-DELETE from hibernateproperty where instance='lava' and scope='core';
+DELETE from `viewproperty` where `instance`='lava' and `scope`='core';
+DELETE from `hibernateproperty` where `instance`='lava' and `scope`='core';
+DELETE from `listvalues` where `ListID` in (SELECT `ListID` from `list` where `scope`='core');
+DELETE from `list` where `scope`='core';
 
 INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) VALUES('*.appointment.id','en','lava','core',NULL,'appointment','id','details','c','numeric','Yes','ID',NULL,NULL,0,NULL,NULL,NULL,1,NULL,'2009-03-31 13:35:39');
 INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) VALUES('*.appointment.calendar.name','en','lava','core',NULL,'appointment','calendar.name','details','c','string','No','Calendar',NULL,NULL,0,NULL,NULL,NULL,2,NULL,'2009-03-31 13:35:39');
@@ -189,7 +191,6 @@ INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`en
 INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) VALUES('*.viewProperty.quickHelp','en','lava','core',NULL,'ViewProperty','quickHelp','','','','No','',NULL,NULL,0,'','',NULL,15,'','2009-01-24 21:28:51');
 INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) VALUES('*.viewProperty.propOrder','en','lava','core',NULL,'ViewProperty','propOrder','','','','No','',NULL,NULL,0,'','',NULL,16,'','2009-01-24 21:28:51');
 
-
 INSERT INTO hibernateproperty (`instance`,`scope`,`entity`,`property`,`dbTable`,`dbColumn`,`dbType`,`dbLength`,`dbPrecision`,`dbScale`,`dbOrder`,`hibernateProperty`,`hibernateType`,`hibernateClass`,`hibernateNotNull`,`modified`) VALUES('lava','core','appointment','id','appointment','reservation_id','int',NULL,10,0,1,'id','long',NULL,'Yes','2009-03-31 13:35:27');
 INSERT INTO hibernateproperty (`instance`,`scope`,`entity`,`property`,`dbTable`,`dbColumn`,`dbType`,`dbLength`,`dbPrecision`,`dbScale`,`dbOrder`,`hibernateProperty`,`hibernateType`,`hibernateClass`,`hibernateNotNull`,`modified`) VALUES('lava','core','appointment','calendar','appointment','calendar_id','int',NULL,10,0,2,'calendar','many-to-one','edu.ucsf.lava.core.resource.model.ResourceCalendar','Yes','2009-03-31 13:35:27');
 INSERT INTO hibernateproperty (`instance`,`scope`,`entity`,`property`,`dbTable`,`dbColumn`,`dbType`,`dbLength`,`dbPrecision`,`dbScale`,`dbOrder`,`hibernateProperty`,`hibernateType`,`hibernateClass`,`hibernateNotNull`,`modified`) VALUES('lava','core','appointment','organizer','appointment','organizer_id','int',NULL,10,0,3,'owner','many-to-one','edu.ucsf.lava.core.auth.model.AuthUser','Yes','2009-03-31 13:35:27');
@@ -374,3 +375,48 @@ INSERT INTO hibernateproperty (`instance`,`scope`,`entity`,`property`,`dbTable`,
 INSERT INTO hibernateproperty (`instance`,`scope`,`entity`,`property`,`dbTable`,`dbColumn`,`dbType`,`dbLength`,`dbPrecision`,`dbScale`,`dbOrder`,`hibernateProperty`,`hibernateType`,`hibernateClass`,`hibernateNotNull`,`modified`) VALUES('lava','core','ViewProperty','label','ViewProperty','label','varchar',500,NULL,NULL,14,'label','string',NULL,'No','2009-01-24 21:25:56');
 INSERT INTO hibernateproperty (`instance`,`scope`,`entity`,`property`,`dbTable`,`dbColumn`,`dbType`,`dbLength`,`dbPrecision`,`dbScale`,`dbOrder`,`hibernateProperty`,`hibernateType`,`hibernateClass`,`hibernateNotNull`,`modified`) VALUES('lava','core','ViewProperty','quickHelp','ViewProperty','quickHelp','varchar',500,NULL,NULL,15,'quickHelp','string',NULL,'No','2009-01-24 21:25:56');
 INSERT INTO hibernateproperty (`instance`,`scope`,`entity`,`property`,`dbTable`,`dbColumn`,`dbType`,`dbLength`,`dbPrecision`,`dbScale`,`dbOrder`,`hibernateProperty`,`hibernateType`,`hibernateClass`,`hibernateNotNull`,`modified`) VALUES('lava','core','ViewProperty','propOrder','ViewProperty','propOrder','int',NULL,10,0,16,'propOrder','long',NULL,'No','2009-01-24 21:25:56');
+
+INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) VALUES('LavaSessionStatus','core',0,'2009-01-24 20:57:59');
+INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) VALUES('NavigationListPageSize','core',1,'2009-01-24 20:57:59');
+INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) VALUES('TextYesNo','core',0,'2009-01-24 20:57:59');
+INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) VALUES('TextYesNoDK','core',0,'2009-01-24 20:57:59');
+INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) VALUES('TextYesNoNA','core',0,'2009-01-24 20:57:59');
+INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) VALUES('YESNO','core',1,'2009-01-24 20:57:59');
+INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) VALUES('YESNODK','core',1,'2009-01-24 20:57:59');
+INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) VALUES('YesNoDK_Zero','core',0,'2009-01-24 20:57:59');
+INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) VALUES('YesNoUnknown','core',1,'2009-01-24 20:57:59');
+INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) VALUES('YesNo_Zero','core',0,'2009-01-24 20:57:59');
+
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'NEW',NULL,1,'2009-01-24 20:57:59' FROM `list` where `ListName`='LavaSessionStatus';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'ACTIVE',NULL,2,'2009-01-24 20:57:59' FROM `list` where `ListName`='LavaSessionStatus';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'LOGOFF',NULL,3,'2009-01-24 20:57:59' FROM `list` where `ListName`='LavaSessionStatus';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'EXPIRED',NULL,4,'2009-01-24 20:57:59' FROM `list` where `ListName`='LavaSessionStatus';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'DISCONNECTED',NULL,5,'2009-01-24 20:57:59' FROM `list` where `ListName`='LavaSessionStatus';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'10','10/page',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='NavigationListPageSize';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'100','100/page',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='NavigationListPageSize';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'15','15/page',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='NavigationListPageSize';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'25','25/page',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='NavigationListPageSize';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'250','250/page',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='NavigationListPageSize';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'5','5/page',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='NavigationListPageSize';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'50','50/page',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='NavigationListPageSize';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'Yes',NULL,1,'2009-01-24 20:57:59' FROM `list` where `ListName`='TextYesNo';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'No',NULL,2,'2009-01-24 20:57:59' FROM `list` where `ListName`='TextYesNo';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'Yes',NULL,1,'2009-01-24 20:57:59' FROM `list` where `ListName`='TextYesNoDK';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'No',NULL,2,'2009-01-24 20:57:59' FROM `list` where `ListName`='TextYesNoDK';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'Don\'t Know',NULL,3,'2009-01-24 20:57:59' FROM `list` where `ListName`='TextYesNoDK';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'Yes',NULL,1,'2009-01-24 20:57:59' FROM `list` where `ListName`='TextYesNoNA';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'No',NULL,2,'2009-01-24 20:57:59' FROM `list` where `ListName`='TextYesNoNA';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'N/A',NULL,3,'2009-01-24 20:57:59' FROM `list` where `ListName`='TextYesNoNA';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'1','Yes',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='YESNO';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'2','No',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='YESNO';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'1','Yes',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='YESNODK';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'2','No',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='YESNODK';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'9','Don\'t Know',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='YESNODK';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'0','No',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='YesNoDK_Zero';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'1','Yes',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='YesNoDK_Zero';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'9','Don\'t Know',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='YesNoDK_Zero';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'0','No',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='YesNoUnknown';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'1','Yes',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='YesNoUnknown';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'9','Unknown',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='YesNoUnknown';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'0','No',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='YesNo_Zero';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'1','Yes',0,'2009-01-24 20:57:59' FROM `list` where `ListName`='YesNo_Zero';

@@ -1,4 +1,4 @@
-package edu.ucsf.lava.core.session;
+package edu.ucsf.lava.core.environment;
 
 import edu.ucsf.lava.core.manager.AppInfo;
 
@@ -10,7 +10,7 @@ import edu.ucsf.lava.core.manager.AppInfo;
  * @author jhesse
  *
  */
-public interface LavaServerInstanceDelegate {
+public interface ApplicationServerDelegate {
 
-	public String getServerDescription(AppInfo appInfo);
+	public String getInstanceName();
 }

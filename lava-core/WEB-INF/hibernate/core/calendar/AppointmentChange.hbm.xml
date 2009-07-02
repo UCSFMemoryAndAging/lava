@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.calendar.model.AppointmentChange" table="appointment_change" select-before-update="true">
+		
+		<id name="id" type="long">
+			<column name="appointment_change_id" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+		
+		<many-to-one name="appointment" column="appointment_id" class="edu.ucsf.lava.core.calendar.model.Appointment" not-null="true" lazy="false"/>
+        <property name="type" column="type" type="string" length="25" not-null="true"/>
+        <property name="description" column="description" type="string" length="255"/>
+        <many-to-one name="changeBy" column="change_by" class="edu.ucsf.lava.core.auth.model.AuthUser" not-null="true" lazy="false"/>
+        <property name="changeTimestamp" column="change_timestamp" type="timestamp" not-null="true"/>
+    </class>
+</hibernate-mapping>

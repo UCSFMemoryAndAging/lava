@@ -18,9 +18,7 @@
 				</property>
 	</bean>
 
-	<bean id="jbossLavaServerInstanceDelegate" class="edu.ucsf.lava.core.session.JBossLavaServerInstanceDelegate">
-		<property name="sessionManager"><ref bean="sessionManager"/></property>
-	</bean>
+	
 
 	<bean id="coreSessionAttributeHandler" parent="baseScopeSessionAttributeHandler" class="edu.ucsf.lava.core.session.CoreSessionAttributeHandler"/>
 

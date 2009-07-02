@@ -28,7 +28,7 @@ public class CoreDefaultActionStrategy implements DefaultActionStrategy {
 	{
 		String defaultActionId = null;
 		ActionRegistry actionRegistry = actionManager.getActionRegistry();
-		String instanceName =  actionManager.webappInstanceName;
+		String instanceName =  actionManager.getWebAppInstanceName();
 		
 		defaultActionId = ActionUtils.getDefaultActionKeyWithInstance(actionIn.getId(),instanceName, defaultIdentifier);
 		if(actionRegistry.containsAction(defaultActionId)){

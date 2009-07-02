@@ -206,7 +206,7 @@ public class LavaComponentFormAction extends BaseComponentFormAction {
 		model.put("flowState", context.getCurrentState().getId()); // e.g. enter
 		model.put("flowEvent", ActionUtils.getEventId(context)); // e.g. continue
 		model.put("flowIsRoot", new Boolean(context.getFlowExecutionContext().getActiveSession().isRoot()));
-		model.put("webappInstance", actionManager.webappInstanceName); // for reports
+		model.put("webappInstance", environmentManager.getInstanceName()); // for reports
 		model.put("actions",actionManager.getActionRegistry().getActions());
 		model.putAll(sessionManager.getContextFromSession(request));
 		return model;

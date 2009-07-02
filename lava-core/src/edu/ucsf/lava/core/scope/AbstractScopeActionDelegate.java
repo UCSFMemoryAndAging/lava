@@ -49,7 +49,7 @@ public abstract class AbstractScopeActionDelegate implements Comparable<ScopeAct
 		
 		//instance scope, e.g. demo.core.admin.auth.authUsers 
 		ActionRegistry actionRegistry = actionManager.getActionRegistry();
-		String instanceActionId = ActionUtils.getActionIdWithInstance(actionId, actionManager.webappInstanceName);
+		String instanceActionId = ActionUtils.getActionIdWithInstance(actionId, actionManager.getWebAppInstanceName());
 		if (actionRegistry.containsAction(instanceActionId)){
 			return actionRegistry.getAction(instanceActionId);
 		}else if(actionRegistry.containsAction(actionId)){
@@ -74,7 +74,7 @@ public abstract class AbstractScopeActionDelegate implements Comparable<ScopeAct
 			return false;
 		}else if(action.getInstance().equals(ActionUtils.LAVA_INSTANCE_IDENTIFIER)){
 			//this is a base "lava" action. 
-			String instanceActionId = ActionUtils.getActionIdWithInstance(action.getId(), actionManager.webappInstanceName);
+			String instanceActionId = ActionUtils.getActionIdWithInstance(action.getId(), actionManager.getWebAppInstanceName());
 			if(null!=actionManager.getAction(instanceActionId)){
 				//there is an instance specific customization of this base "lava" action, so don't build the flow
 				return false;

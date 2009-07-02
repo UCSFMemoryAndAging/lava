@@ -186,7 +186,7 @@ public class FlowRegistrar implements LavaFlowRegistrar {
 		// and CustomViewSelector then resolves to a view path of:
 		// local/mac/enrollment/status/dimondEnrollmentStatus which resolves to a jsp
 		    	
-		String instanceActionId = new StringBuffer(actionManager.webappInstanceName).
+		String instanceActionId = new StringBuffer(actionManager.getWebAppInstanceName()).
 			append(ActionUtils.ACTION_ID_DELIMITER).
 			append(ActionUtils.getScope(actionId)).
 			append(ActionUtils.ACTION_ID_DELIMITER).
@@ -197,7 +197,7 @@ public class FlowRegistrar implements LavaFlowRegistrar {
 			append(ActionUtils.getTarget(actionId)).toString();
 		if (actionManager.getActionRegistry().containsAction(instanceActionId)) {
 			// if exists, want to change the FormAction bean used in the flow definition,
-			localFormActionName = actionManager.webappInstanceName + StringUtils.capitalize(ActionUtils.getTarget(actionId));
+			localFormActionName = actionManager.getWebAppInstanceName() + StringUtils.capitalize(ActionUtils.getTarget(actionId));
 		}
 		return localFormActionName;
 		

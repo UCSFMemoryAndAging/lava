@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- the session manager bean -->
+    <bean id="calendarManager" class="edu.ucsf.lava.core.calendar.CalendarManager">
+			
+	</bean>
+
+	
+	
+	
+	<!-- Actions -->
+	
+	<bean id="lava.core.admin.calendar.calendar" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.admin.calendar.calendars</value>
+		</list></property>
+	</bean>
+
+	<bean id="lava.core.admin.calendar.resourceCalendar" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.admin.calendar.resourceCalendars</value>
+			<value>lava.core.admin.calendar.calendars</value>
+		</list></property>
+	</bean>
+	
+	<bean id="lava.core.calendar.appointment.appointment" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.calendar.appointment.appointments</value>
+		</list></property>
+	</bean>
+	
+	<bean id="lava.core.calendar.appointment.reservation" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.calendar.appointment.reservations</value>
+		</list></property>
+	</bean>
+	
+	<bean id="lava.core.admin.calendar.calendars" parent="coreSectionListAction"/>
+	
+	<bean id="lava.core.admin.calendar.resourceCalendars" parent="coreListFlowAction"/>
+
+	<bean id="lava.core.calendar.appointment.appointments" parent="coreListFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.calendar.appointment.selectCalendar</value>
+		</list></property>
+	</bean>
+		
+	<bean id="lava.core.calendar.appointment.reservations" parent="coreListFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.calendar.appointment.selectCalendar</value>
+		</list></property>
+	</bean>	
+		
+	<bean id="lava.core.calendar.appointment.selectCalendar" parent="coreModuleListAction"/>
+	
+
+	
+	<!--  form action definitions -->
+	<bean id="calendarFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+			<bean class="edu.ucsf.lava.core.calendar.controller.CalendarHandler" parent="coreHandler"/>
+		</list></constructor-arg>
+	</bean>
+	
+	 <bean id="calendarsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.calendar.controller.CalendarsHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+	
+	
+	<bean id="resourceCalendarFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+			<bean class="edu.ucsf.lava.core.calendar.controller.ResourceCalendarHandler" parent="coreHandler"/>
+		</list></constructor-arg>
+	</bean>
+	
+	<bean id="resourceCalendarsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.calendar.controller.ResourceCalendarsHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+	
+	<bean id="appointmentFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+			<bean class="edu.ucsf.lava.core.calendar.controller.AppointmentHandler" parent="coreHandler"/>
+		</list></constructor-arg>
+	</bean>
+	
+	<bean id="appointmentsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.calendar.controller.AppointmentsHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+   	
+   	<bean id="reservationFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+			<bean class="edu.ucsf.lava.core.calendar.controller.ReservationHandler" parent="coreHandler"/>
+		</list></constructor-arg>
+	</bean>
+	
+	<bean id="reservationsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.calendar.controller.ReservationsHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+	
+  	<bean id="selectCalendarFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.calendar.controller.SelectCalendarHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+	
+  	
+	
+	
+</beans>

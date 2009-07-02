@@ -218,14 +218,18 @@ ALTER TABLE `lava_core`.`lava_session`
 , ADD INDEX `lavasession__server_instance_id` (`server_instance_id` ASC) 
 , ADD INDEX `lavasession__user_id` (`user_id` ASC) ;
 
+ALTER TABLE `lava_core`.`list` ADD COLUMN `scope` VARCHAR(25) NOT NULL  AFTER `ListName` 
+, DROP INDEX `ListName` 
+, ADD UNIQUE INDEX `ListName` (`ListName` ASC) ;
+
 ALTER TABLE `lava_core`.`listvalues` 
-  ADD CONSTRAINT `list__ListID`
+  ADD CONSTRAINT `listvalues__listID`
   FOREIGN KEY (`ListID` )
   REFERENCES `lava_core`.`list` (`ListID` )
   ON DELETE NO ACTION
   ON UPDATE NO ACTION
 , ADD INDEX `ListID` (`ListID` ASC) 
-, ADD INDEX `list__ListID` (`ListID` ASC) 
+, ADD INDEX `listvalues__listID` (`ListID` ASC) 
 , DROP INDEX `cListID` ;
 
 

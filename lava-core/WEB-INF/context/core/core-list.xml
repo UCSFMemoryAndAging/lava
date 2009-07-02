@@ -101,6 +101,7 @@
 <!-- specific list configuration files -->
 
 <import resource="lists/lists-auth.xml"/>
+<import resource="lists/lists-calendar.xml"/>
 <import resource="lists/lists-common.xml"/>
 <import resource="lists/lists-session.xml"/>
 </beans>

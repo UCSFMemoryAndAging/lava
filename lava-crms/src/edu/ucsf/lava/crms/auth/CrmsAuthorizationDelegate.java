@@ -82,7 +82,7 @@ public class CrmsAuthorizationDelegate extends
 			if(p==null){return false;} //if no patient set, then return false.
 		
 			//if patient auth get enrollment status records and check for authorization on each project
-			List enrollmentStatusList = p.getEnrollmentStatus(p.newFilterInstance());
+			List enrollmentStatusList = p.getEnrollmentStatus(Patient.newFilterInstance());
 			for(Object o: enrollmentStatusList){
 				if(this.isAuthorized(roleCache,user,action,newAuthorizationContext(((EnrollmentStatus)o).getProjName()))){
 					return true;

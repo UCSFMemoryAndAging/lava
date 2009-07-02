@@ -15,6 +15,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.ucsf.lava.core.environment.ApplicationServerDelegate;
+import edu.ucsf.lava.core.environment.EnvironmentManager;
 import edu.ucsf.lava.core.manager.AppInfo;
 import edu.ucsf.lava.core.manager.LavaManager;
 import edu.ucsf.lava.core.manager.CoreManagerUtils;
@@ -37,7 +39,8 @@ public class SessionManager extends LavaManager{
 		protected LavaServerInstance serverInstance;
 		protected MetadataManager metadataManager;
 		protected ScopeManager scopeManager;
-		protected LavaServerInstanceDelegate lavaServerInstanceDelegate;  //abstracts servlet container specific implementation details
+		protected EnvironmentManager environmentManager;
+		
 		
 		
 		public SessionManager(){
@@ -50,6 +53,7 @@ public class SessionManager extends LavaManager{
 			super.updateManagers(managers);
 			metadataManager = CoreManagerUtils.getMetadataManager(managers);
 			scopeManager = CoreManagerUtils.getScopeManager(managers);
+			environmentManager = CoreManagerUtils.getEnvironmentManager(managers);
 		}
 
 		
@@ -274,14 +278,13 @@ public class SessionManager extends LavaManager{
 		
 	
 
-		
-		public LavaServerInstance createLavaServerInstance(AppInfo appInfo){
+		/**
+		 * Create the lava server instance entity...when created, not enough information about the runtime context is
+		 * available to fully name the server instance.  Placeholder name is used until first user request.
+		 * @return
+		 */
+		public LavaServerInstance createLavaServerInstance(){
 			serverInstance = (LavaServerInstance)LavaServerInstance.MANAGER.create();
-			if(lavaServerInstanceDelegate==null || appInfo==null){
-				serverInstance.setServerDescription("No Description for Server Instance");
-			}else{
-				serverInstance.setServerDescription(lavaServerInstanceDelegate.getServerDescription(appInfo));
-			}
 			serverInstance.save();
 			serverInstance.refresh();
 			return serverInstance;
@@ -291,7 +294,7 @@ public class SessionManager extends LavaManager{
 			if(serverInstance != null){
 				return serverInstance;
 			}
-			return createLavaServerInstance(null);
+			return createLavaServerInstance();
 			
 		}
 
@@ -308,16 +311,6 @@ public class SessionManager extends LavaManager{
 
 
 
-		public LavaServerInstanceDelegate getLavaServerInstanceDelegate() {
-			return lavaServerInstanceDelegate;
-		}
-
-
-
-		public void setLavaServerInstanceDelegate(
-				LavaServerInstanceDelegate lavaServerInstanceDelegate) {
-			this.lavaServerInstanceDelegate = lavaServerInstanceDelegate;
-		}
 
 	
 
