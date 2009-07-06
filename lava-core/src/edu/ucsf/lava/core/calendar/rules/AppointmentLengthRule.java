@@ -42,15 +42,7 @@ public class AppointmentLengthRule extends AbstractAppointmentRule {
 
 	
 	
-	public List<String> getViolationErrors(Appointment reservation) {
-		List<String>errors = new ArrayList();
-		if(this.isLessThanMinLength(reservation)){
-			errors.add(getMetadataManager().getMessage(MIN_LENGTH_RULE_ERROR_MESSAGE_CODE, new Object[]{getLengthDesc(minLength)},Locale.getDefault()));
-		}else if (this.isgreaterThanMaxLength(reservation)){
-			errors.add(getMetadataManager().getMessage(MAX_LENGTH_RULE_ERROR_MESSAGE_CODE, new Object[]{getLengthDesc(maxLength)},Locale.getDefault()));
-		}
-		return errors;
-	}
+
 
 	public boolean isViolatedBy(Appointment appointment, Map<String,Object[]>errors) {
 		if(!appliesTo(appointment)){return false;}

@@ -23,13 +23,6 @@ public class AppointmentWithinRangeRule extends AbstractAppointmentRule {
 		return true;
 	}
 
-	public List<String> getViolationErrors(Appointment appointment) {
-		List<String>errors = new ArrayList();
-		if(this.isOutOfRange(appointment)){
-			errors.add(getMetadataManager().getMessage(OUT_OF_RANGE_RULE_ERROR_MESSAGE_CODE, new Object[]{getRangeDescription()},Locale.getDefault()));
-		}
-		return errors;
-	}
 
 	public boolean isViolatedBy(Appointment appointment, Map<String,Object[]>errors) {
 		if(appliesTo(appointment) && isOutOfRange(appointment)){
