@@ -23,7 +23,7 @@ CREATE  TABLE IF NOT EXISTS `authuser` (
   `EffectiveDate` DATE NOT NULL ,
   `ExpirationDate` DATE NULL DEFAULT NULL ,
   `Notes` VARCHAR(255) NULL DEFAULT NULL ,
-  `authenticationType` VARCHAR(10) NULL DEFAULT 'EXTERNAL' ,
+  `authenticationType` VARCHAR(10) NULL DEFAULT 'LOCAL' ,
   `password` VARCHAR(100) NULL DEFAULT NULL ,
   `passwordExpiration` TIMESTAMP NULL DEFAULT NULL ,
   `passwordResetToken` VARCHAR(100) NULL DEFAULT NULL ,
@@ -436,7 +436,7 @@ ALTER TABLE `lava_session`
 
 
 
-ALTER TABLE `lava_core`.`listvalues` 
+ALTER TABLE `listvalues` 
   ADD CONSTRAINT `listvalues__listID`
   FOREIGN KEY (`ListID` )
   REFERENCES `lava_core`.`list` (`ListID` )
