@@ -39,7 +39,9 @@
 	                'inputData' or 'inputDataNumeric' or 'readonlyData' or 'readonlyDataNumeric' style
 	                (assuming that the specificity of the rules in the stylesheet are the same)"%>
 
+<c:set var="escapedProperty"><tags:escapeProperty property="${property}"/></c:set>
+
 <tags:createField property="pageList[${listIndex}].entity.${property}" component="${component}" entityType="${empty entityType?'':entityType}" 
-		metadataName="${empty entityType ? '':entityType}${empty entityType?'':'.'}${property}"
+		metadataName="${empty entityType ? '':entityType}${empty entityType?'':'.'}${escapedProperty}"
 		mode="${empty mode  ? '':mode}" fieldStyle="${empty fieldStyle ?'':fieldStyle}" labelAlignment="${empty labelAlignment ?'':labelAlignment}" 
 		labelStyle="${empty labelStyle ?'':labelStyle}"  optionsAlignment="${empty optionsAlignment ?'':optionsAlignment}" dataStyle="${empty dataStyle ?'':dataStyle}"/>

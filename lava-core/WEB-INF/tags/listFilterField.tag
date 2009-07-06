@@ -18,9 +18,13 @@
        description="Used to create the metaDataName property to lookup metadata for the filter field
        				the format of the metaDataName will be filter.$entityType.$property. If not specified, just use filter.$property"%>
 
+
+<c:set var="escapedProperty"><tags:escapeProperty property="${property}"/></c:set>
+
+
 <tags:createField property="filter.params[${property}]" 
 		component="${component}" 
-		metadataName="filter.${empty entityType ? '':entityType}${empty entityType?'':'.'}${property}" 
+		metadataName="filter.${empty entityType ? '':entityType}${empty entityType?'':'.'}${escapedProperty}" 
 		mode="dc" 
-		fieldId="${component}_${empty entityType?'':entityType}_${property}"/>
+		fieldId="${component}_${empty entityType?'':entityType}_${escapedProperty}"/>
 	
