@@ -6,11 +6,13 @@ import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.dao.LavaDaoParam;
 import edu.ucsf.lava.core.type.DateRange;
+import edu.ucsf.lava.core.type.LavaDateUtils;
 
 public class CalendarDaoUtils {
 
-	
+	public static final String START_DATE_PARAM = "startDate";
 	public static final String START_TIME_PARAM = "startTime";
+	public static final String END_DATE_PARAM = "endDate";
 	public static final String END_TIME_PARAM = "endTime";
 	
 	/**
@@ -20,18 +22,33 @@ public class CalendarDaoUtils {
 	 * @param filter
 	 * @return
 	 */
-	public static LavaDaoParam getDateRangeParam(String startTimeProp, String endTimeProp, DateRange range, LavaDaoFilter filter){
+	public static LavaDaoParam getDateRangeParam(String startDateProp, String startTimeProp,
+			String endDateProp, String endTimeProp, DateRange range, LavaDaoFilter filter){
 			
 		if(range==null || filter == null){return null;}
 		
 		return filter.daoOr(
 							filter.daoAnd(
-									filter.daoGreaterThanOrEqualParam(startTimeProp, range.getStart()),
-									filter.daoLessThanParam(startTimeProp, range.getEnd())),
+									filter.daoAnd(
+											filter.daoGreaterThanOrEqualParam(startDateProp, LavaDateUtils.getDatePart(range.getStart())),
+										    filter.daoGreaterThanOrEqualParam(startTimeProp, LavaDateUtils.getTimePart(range.getStart()))
+								    ),
+								    filter.daoAnd(
+											filter.daoLessThanParam(startDateProp, LavaDateUtils.getDatePart(range.getEnd())),
+									        filter.daoLessThanParam(startTimeProp, LavaDateUtils.getTimePart(range.getEnd()))
+									)
+							),
 							filter.daoAnd(
-									filter.daoLessThanOrEqualParam(endTimeProp, range.getEnd()),
-									filter.daoGreaterThanParam(endTimeProp, range.getStart()))
-						    );
+									filter.daoAnd(
+											filter.daoLessThanOrEqualParam(endDateProp, LavaDateUtils.getDatePart(range.getEnd())),
+										    filter.daoLessThanOrEqualParam(endTimeProp, LavaDateUtils.getTimePart(range.getEnd()))
+								    ),
+								    filter.daoAnd(
+											filter.daoGreaterThanParam(endDateProp, LavaDateUtils.getDatePart(range.getStart())),
+									        filter.daoGreaterThanParam(endTimeProp, LavaDateUtils.getTimePart(range.getStart()))
+									)
+								)
+						);
 		}
 	
 
@@ -42,7 +59,7 @@ public class CalendarDaoUtils {
 	 * @return
 	 */
 	public static LavaDaoParam getDateRangeParam(DateRange range, LavaDaoFilter filter){
-		return getDateRangeParam(START_TIME_PARAM,END_TIME_PARAM,range,filter);
+		return getDateRangeParam(START_DATE_PARAM,START_TIME_PARAM,END_DATE_PARAM,END_TIME_PARAM,range,filter);
 		}
 	
 	

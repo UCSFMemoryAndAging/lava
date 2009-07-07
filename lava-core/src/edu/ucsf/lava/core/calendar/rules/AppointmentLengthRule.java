@@ -29,12 +29,19 @@ public class AppointmentLengthRule extends AbstractAppointmentRule {
 	
 	
 	public AppointmentLengthRule() {
-		super();
-		this.minLength = NO_MIN_LENGTH;
-		this.maxLength = NO_MAX_LENGTH;
+		this(NO_MIN_LENGTH,NO_MAX_LENGTH);
 	}
 
+	public AppointmentLengthRule(Long minLength){
+		this(minLength,NO_MAX_LENGTH);
+	}
 
+	
+	public AppointmentLengthRule(Long minLength, Long maxLength){
+		super();
+		this.minLength = minLength;
+		this.maxLength = maxLength;
+	}
 
 	public boolean appliesTo(Appointment reservation) {
 		return true;

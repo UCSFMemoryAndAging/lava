@@ -439,7 +439,7 @@ ALTER TABLE `lava_session`
 ALTER TABLE `listvalues` 
   ADD CONSTRAINT `listvalues__listID`
   FOREIGN KEY (`ListID` )
-  REFERENCES `lava_core`.`list` (`ListID` )
+  REFERENCES `list` (`ListID` )
   ON DELETE NO ACTION
   ON UPDATE NO ACTION
 , ADD INDEX `ListID` (`ListID` ASC) 

@@ -20,18 +20,20 @@ import edu.ucsf.lava.core.type.DateRange;
 public class AppointmentConcurrencyRule extends AbstractAppointmentRule {
 
 	public static String MAX_CONCURRENCY_RULE_ERROR_MESSAGE_CODE = "appointmentConcurrencyRule.maxConcurrencyErrorMessage";
-	
+	public static String SINGLE_CONCURRENCY_RULE_ERROR_MESSAGE_CODE = "appointmentConcurrencyRule.singleConcurrencyErrorMessage";
 	public static Long NO_MAX_CONCURRENCY = (long)-1;
 	
 	protected Long maxConcurrency;
 	
 	
 	public AppointmentConcurrencyRule() {
-		super();
-		this.maxConcurrency = NO_MAX_CONCURRENCY;
+		this(NO_MAX_CONCURRENCY);
 	}
 
-
+	public AppointmentConcurrencyRule(Long maxConcurrency){
+		super();
+		this.maxConcurrency = maxConcurrency;
+	}
 
 	public boolean appliesTo(Appointment appointment) {
 		return true;
@@ -41,7 +43,11 @@ public class AppointmentConcurrencyRule extends AbstractAppointmentRule {
 	
 	public boolean isViolatedBy(Appointment appointment, Map<String,Object[]> errors) {
 		if(appliesTo(appointment) && exceedsMaxConcurrency(appointment)){
-			errors.put(MAX_CONCURRENCY_RULE_ERROR_MESSAGE_CODE, new Object[]{maxConcurrency});
+			if(maxConcurrency==1){
+				errors.put(SINGLE_CONCURRENCY_RULE_ERROR_MESSAGE_CODE,null);
+			}else{
+				errors.put(MAX_CONCURRENCY_RULE_ERROR_MESSAGE_CODE, new Object[]{maxConcurrency});
+			}
 			return true;
 		}
 		return false;

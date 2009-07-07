@@ -174,6 +174,9 @@ public class AuthUser extends EntityBase implements UserDetails {
 
 
 	public List<AuthUserRole> getEffectiveRoles() {
+		if(effectiveRoles == null){
+			effectiveRoles = this.getUserRoles();
+		}
 		return effectiveRoles;
 	}
 

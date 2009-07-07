@@ -72,6 +72,7 @@ public class DateRange {
 		return hasStart() && hasEnd() && getStart().before(getEnd());
 		
 	}
+
 	
 	/**
 	 * True if the date passed in is between start and end date

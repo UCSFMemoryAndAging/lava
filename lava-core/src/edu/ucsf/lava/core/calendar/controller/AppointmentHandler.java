@@ -1,8 +1,12 @@
 package edu.ucsf.lava.core.calendar.controller;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import javax.servlet.http.HttpServletRequest;
@@ -20,8 +24,10 @@ import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.auth.model.AuthUserGroup;
 import edu.ucsf.lava.core.calendar.model.Calendar;
 import edu.ucsf.lava.core.calendar.model.Appointment;
+import edu.ucsf.lava.core.calendar.rules.AppointmentRule;
 import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
 import edu.ucsf.lava.core.controller.ComponentCommand;
+import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 
 public class AppointmentHandler extends BaseEntityComponentHandler {
 
@@ -63,10 +69,16 @@ public class AppointmentHandler extends BaseEntityComponentHandler {
 	
 	protected Event doSave(RequestContext context, Object command, BindingResult errors) throws Exception {
 		handleOrganizerChange(context,command, errors);
+		if(this.hasRuleViolationErrors(context, command, errors)){
+			return new Event(this,ERROR_FLOW_EVENT_ID);
+		}
 		return super.doSave(context, command, errors);
 	}
 	protected Event doSaveAdd(RequestContext context, Object command, BindingResult errors) throws Exception {
 		handleOrganizerChange(context,command, errors);
+		if(this.hasRuleViolationErrors(context, command, errors)){
+			return new Event(this,ERROR_FLOW_EVENT_ID);
+		}
 		return super.doSaveAdd(context, command, errors);
 	}
 
@@ -74,6 +86,8 @@ public class AppointmentHandler extends BaseEntityComponentHandler {
 		handleOrganizerChange(context,command, errors);
 		return super.doReRender(context, command, errors);
 	}
+	
+	
 	
 	
 	protected void handleOrganizerChange(RequestContext context, Object command, BindingResult errors){
@@ -89,9 +103,40 @@ public class AppointmentHandler extends BaseEntityComponentHandler {
 		}
 	}
 	
-	
+	/**
+	 * Check all appointment rules and convert any errors into command errors. 
+	 * @param context
+	 * @param command
+	 * @param errors
+	 * @return 
+	 * @throws Exception
+	 */
+	protected boolean hasRuleViolationErrors(RequestContext context, Object command, BindingResult errors)throws Exception{
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		Appointment a = (Appointment)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
+		Map<String,Object[]> violations = new LinkedHashMap<String,Object[]>();
+		List<AppointmentRule> rules = getRules(a);
+		for(AppointmentRule rule : rules){
+			rule.isViolatedBy(a, violations);
+		}
+		//If any rules returned violation errors, then convert errors into command errors and return error. 
+		if(!violations.isEmpty()){
+			
+			for(Entry<String,Object[]> violation : violations.entrySet()){
+				LavaComponentFormAction.createCommandError(errors,violation.getKey(),violation.getValue());
+			}
+			return true;
+		}
+		return false;
+	}
 
-	
+	/**
+	 * Override this in subclasses to provide appointment rules.
+	 * @return
+	 */
+	protected List<AppointmentRule> getRules(Appointment appointment){
+		return new ArrayList<AppointmentRule>();
+	}
 	public Map addReferenceData(RequestContext context, Object command, BindingResult errors, Map model) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		//load up dynamic lists

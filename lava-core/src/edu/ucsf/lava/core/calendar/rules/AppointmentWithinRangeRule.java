@@ -1,6 +1,8 @@
 package edu.ucsf.lava.core.calendar.rules;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -9,6 +11,7 @@ import edu.ucsf.lava.core.calendar.model.Appointment;
 import edu.ucsf.lava.core.manager.CoreManagerUtils;
 import edu.ucsf.lava.core.metadata.MetadataManager;
 import edu.ucsf.lava.core.type.DateRange;
+import edu.ucsf.lava.core.type.LavaDateUtils;
 
 public class AppointmentWithinRangeRule extends AbstractAppointmentRule {
 
@@ -19,6 +22,20 @@ public class AppointmentWithinRangeRule extends AbstractAppointmentRule {
 	protected String rangeDescription;
 	
 	
+	public AppointmentWithinRangeRule(int daysFromNow) {
+		super();
+		Date now = new Date();
+		Calendar calendar = LavaDateUtils.toCalendar(now);
+		calendar.add(Calendar.DAY_OF_MONTH, daysFromNow);
+		this.range = new DateRange(now,calendar.getTime());
+	}
+	
+	public AppointmentWithinRangeRule(DateRange range) {
+		super();
+		this.range = range;
+	}
+
+
 	public boolean appliesTo(Appointment appointment) {
 		return true;
 	}
