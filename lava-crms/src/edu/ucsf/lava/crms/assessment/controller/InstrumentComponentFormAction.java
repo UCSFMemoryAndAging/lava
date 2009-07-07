@@ -143,7 +143,7 @@ public class InstrumentComponentFormAction extends CrmsComponentFormAction {
 		//       action event (also, in enter flow, the fields are not comboRadioSelects, and
 		//       on "compare" event, there is no action to mark missing fields with a missing data code, 
 		//       so do not need to process the "compareInstrument" instrument object for those purposes either)
-		if (event.equals("saveDoubleEnter") || event.equals("hideCodesDoubleEnter") || event.equals("showCodesDoubleEnter")) {
+		if (event.equals("doubleEnterSave") || event.equals("hideCodesDoubleEnter") || event.equals("showCodesDoubleEnter")) {
 			component = COMPARE_INSTRUMENT;
 		}
 		// in all other cases, process the "instrument" instrument object 
