@@ -116,7 +116,7 @@ public class Calendar extends CoreEntity {
 		
 			
 		if(user!=null){
-			filter.addDaoParam(CalendarDaoUtils.getAttendeesParam(user, filter));
+			filter.addDaoParam(CalendarDaoUtils.getOrganizerParam(user, filter));
 		}
 		if(range!=null && range.hasRange()){
 			filter.addDaoParam(CalendarDaoUtils.getDateRangeOverlapParam(range,filter));

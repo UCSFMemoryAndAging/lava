@@ -45,7 +45,20 @@ public class CalendarDaoUtils {
 		}
 	
 	
-	
+	/**
+	 * return a dao param that encodes the logic for determining whether an appointment includes a particular user
+	 * as an attendee
+	 * @param user
+	 * @param filter
+	 * @return
+	 */
+	public static LavaDaoParam getOrganizerParam(AuthUser user, LavaDaoFilter filter){
+			
+		if(user==null || filter == null){return null;}
+		filter.setAlias("organizer", "organizer");
+		return filter.daoEqualityParam("organizer.id",user.getId());	
+
+	}
 	/**
 	 * return a dao param that encodes the logic for determining whether an appointment includes a particular user
 	 * as an attendee
@@ -57,8 +70,7 @@ public class CalendarDaoUtils {
 			
 		if(user==null || filter == null){return null;}
 		filter.setAlias("attendees", "attendees");
-		filter.setAlias("attendees.attendee", "attendee");
-		filter.setAlias("attendee.user", "attendee_user");
+		filter.setAlias("attendees.user", "attendee_user");
 		return filter.daoEqualityParam("attendee_user.id",user.getId());	
 		}
 	}
