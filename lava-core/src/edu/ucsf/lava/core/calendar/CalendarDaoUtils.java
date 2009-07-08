@@ -16,39 +16,21 @@ public class CalendarDaoUtils {
 	public static final String END_TIME_PARAM = "endTime";
 	
 	/**
-	 * return a complex dao param that encodes the logic for comparing a date range to start and end date properties
+	 * return a complex dao param that encodes the logic for determining whether the daterange passed in overlaps with the start and end date properties in 
+	 * the database. 
 	 * 
 	 * @param range
 	 * @param filter
 	 * @return
 	 */
-	public static LavaDaoParam getDateRangeParam(String startDateProp, String startTimeProp,
+	public static LavaDaoParam getDateRangeOverlapParam(String startDateProp, String startTimeProp,
 			String endDateProp, String endTimeProp, DateRange range, LavaDaoFilter filter){
 			
 		if(range==null || filter == null){return null;}
 		
-		return filter.daoOr(
-							filter.daoAnd(
-									filter.daoAnd(
-											filter.daoGreaterThanOrEqualParam(startDateProp, LavaDateUtils.getDatePart(range.getStart())),
-										    filter.daoGreaterThanOrEqualParam(startTimeProp, LavaDateUtils.getTimePart(range.getStart()))
-								    ),
-								    filter.daoAnd(
-											filter.daoLessThanParam(startDateProp, LavaDateUtils.getDatePart(range.getEnd())),
-									        filter.daoLessThanParam(startTimeProp, LavaDateUtils.getTimePart(range.getEnd()))
-									)
-							),
-							filter.daoAnd(
-									filter.daoAnd(
-											filter.daoLessThanOrEqualParam(endDateProp, LavaDateUtils.getDatePart(range.getEnd())),
-										    filter.daoLessThanOrEqualParam(endTimeProp, LavaDateUtils.getTimePart(range.getEnd()))
-								    ),
-								    filter.daoAnd(
-											filter.daoGreaterThanParam(endDateProp, LavaDateUtils.getDatePart(range.getStart())),
-									        filter.daoGreaterThanParam(endTimeProp, LavaDateUtils.getTimePart(range.getStart()))
-									)
-								)
-						);
+		return filter.daoDateAndTimeOverlapsParam(startDateProp, startTimeProp, endDateProp, endTimeProp, 
+				LavaDateUtils.getDatePart(range.getStart()),LavaDateUtils.getTimePart(range.getStart()),
+				LavaDateUtils.getDatePart(range.getEnd()),LavaDateUtils.getTimePart(range.getEnd()));
 		}
 	
 
@@ -58,8 +40,8 @@ public class CalendarDaoUtils {
 	 * @param filter
 	 * @return
 	 */
-	public static LavaDaoParam getDateRangeParam(DateRange range, LavaDaoFilter filter){
-		return getDateRangeParam(START_DATE_PARAM,START_TIME_PARAM,END_DATE_PARAM,END_TIME_PARAM,range,filter);
+	public static LavaDaoParam getDateRangeOverlapParam(DateRange range, LavaDaoFilter filter){
+		return getDateRangeOverlapParam(START_DATE_PARAM,START_TIME_PARAM,END_DATE_PARAM,END_TIME_PARAM,range,filter);
 		}
 	
 	

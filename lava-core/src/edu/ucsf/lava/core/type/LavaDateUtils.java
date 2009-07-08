@@ -65,7 +65,23 @@ public class LavaDateUtils {
 		return calendar;
 		} 
 	
+	public static Time getDayStartTime(){
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(0);
+		calendar.set(Calendar.HOUR_OF_DAY,0);
+		calendar.set(Calendar.MINUTE,0);
+		calendar.set(Calendar.SECOND,0);
+		return new Time(calendar.getTimeInMillis());
+	}
 
+	public static Time getDayEndTime(){
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(0);
+		calendar.set(Calendar.HOUR_OF_DAY,23);
+		calendar.set(Calendar.MINUTE,59);
+		calendar.set(Calendar.SECOND,59);
+		return new Time(calendar.getTimeInMillis());
+	}
 	
 	
 }

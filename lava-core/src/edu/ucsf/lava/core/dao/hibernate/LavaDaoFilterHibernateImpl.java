@@ -1,6 +1,8 @@
 package edu.ucsf.lava.core.dao.hibernate;
 
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -433,6 +435,53 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 		if(params.get(name) != null && StringUtils.isNotEmpty(params.get(name).toString())){
 		 	this.addDaoParam(this.daoLikeParam(name,(String)params.get(name).toString()));
 		}
+	}
+
+	public LavaDaoParam daoDateAndTimeBetweenParam(String datePropertyName, String timePropertyName, Date startDateParam, Time startTimeParam, Date endDateParam, Time endTimeParam) {
+		return new DaoHibernateCriterionParam(
+					LavaDateTimeHibernateCriteriaUtils.daoBetween(datePropertyName, timePropertyName, startDateParam, startTimeParam, endDateParam, endTimeParam));
+	}
+
+	public LavaDaoParam daoDateAndTimeEqualityParam(String datePropertyName, String timePropertyName, Date dateParam, Time timeParam) {
+		return new DaoHibernateCriterionParam(
+				LavaDateTimeHibernateCriteriaUtils.daoEquality(datePropertyName, timePropertyName, dateParam, timeParam));
+	}
+
+	public LavaDaoParam daoDateAndTimeGreaterThanOrEqualParam(String datePropertyName, String timePropertyName, Date dateParam, Time timeParam) {
+		return new DaoHibernateCriterionParam(
+				LavaDateTimeHibernateCriteriaUtils.daoGreaterThanOrEqual(datePropertyName, timePropertyName, dateParam, timeParam));
+	}
+
+	public LavaDaoParam daoDateAndTimeGreaterThanParam(String datePropertyName, String timePropertyName, Date dateParam, Time timeParam) {
+		return new DaoHibernateCriterionParam( LavaDateTimeHibernateCriteriaUtils.daoGreaterThan(datePropertyName, timePropertyName, dateParam, timeParam));
+	}
+
+	public LavaDaoParam daoDateAndTimeLessThanOrEqualParam(String datePropertyName, String timePropertyName, Date dateParam, Time timeParam) {
+		return new DaoHibernateCriterionParam( LavaDateTimeHibernateCriteriaUtils.daoLessThanOrEqual(datePropertyName, timePropertyName, dateParam, timeParam));
+	}
+
+	public LavaDaoParam daoDateAndTimeLessThanParam(String datePropertyName, String timePropertyName, Date dateParam, Time timeParam) {
+		return new DaoHibernateCriterionParam( LavaDateTimeHibernateCriteriaUtils.daoLessThan(datePropertyName, timePropertyName, dateParam, timeParam));
+	}
+
+	public LavaDaoParam daoDateAndTimeNotNull(String datePropertyName, String timePropertyName) {
+		return new DaoHibernateCriterionParam( LavaDateTimeHibernateCriteriaUtils.daoNotNull(datePropertyName, timePropertyName));
+	}
+
+	public LavaDaoParam daoDateAndTimeNull(String datePropertyName, String timePropertyName) {
+		return new DaoHibernateCriterionParam( LavaDateTimeHibernateCriteriaUtils.daoNull(datePropertyName, timePropertyName));
+	}
+
+	public LavaDaoParam daoDateAndTimeBetweenParam(String datePropertyName, String timePropertyName, Date startDateParam, Date endDateParam) {
+		return new DaoHibernateCriterionParam( LavaDateTimeHibernateCriteriaUtils.daoBetween(datePropertyName, timePropertyName, startDateParam, endDateParam));
+	}
+
+	public LavaDaoParam daoDateAndTimeBetweenParam(String startDatePropertyName, String startTimePropertyName, String endDatePropertyName, String endTimePropertyName, Date dateParam, Time timeParam) {
+		return new DaoHibernateCriterionParam( LavaDateTimeHibernateCriteriaUtils.daoBetween(startDatePropertyName, startTimePropertyName, endDatePropertyName, endTimePropertyName, dateParam, timeParam));
+	}
+
+	public LavaDaoParam daoDateAndTimeOverlapsParam(String startDatePropertyName, String startTimePropertyName, String endDatePropertyName, String endTimePropertyName, Date startDateParam, Time startTimeParam, Date endDateParam, Time endTimeParam) {
+		return new DaoHibernateCriterionParam( LavaDateTimeHibernateCriteriaUtils.daoOverlaps(startDatePropertyName, startTimePropertyName, endDatePropertyName, endTimePropertyName, startDateParam, startTimeParam, endDateParam, endTimeParam));
 	}
 
 

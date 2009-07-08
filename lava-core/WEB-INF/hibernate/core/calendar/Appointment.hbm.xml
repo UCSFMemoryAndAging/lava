@@ -27,6 +27,7 @@
         <property name="notes" column="notes" type="string"/>
 		
 		
+		
 		<set name="attendees" inverse="true" cascade="all" lazy="false">
 			<key column="appointment_id"/>
 			<one-to-many class="edu.ucsf.lava.core.calendar.model.Attendee"/>

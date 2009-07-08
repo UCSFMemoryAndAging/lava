@@ -1,6 +1,8 @@
 package edu.ucsf.lava.core.dao;
 
 import java.io.Serializable;
+import java.sql.Time;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +68,21 @@ public interface LavaDaoFilter extends Serializable {
 	public LavaDaoParam daoGreaterThanOrEqualParam(String propertyName, Object value);
 	public LavaDaoParam daoLessThanParam(String propertyName, Object value);
 	public LavaDaoParam daoLessThanOrEqualParam(String propertyName, Object value);
+	
+	
+	public LavaDaoParam daoDateAndTimeEqualityParam(String datePropertyName, String timePropertyName, Date dateParam, Time timeParam);
+	public LavaDaoParam daoDateAndTimeBetweenParam(String datePropertyName, String timePropertyName, Date startDateParam, Time startTimeParam, Date endDateParam, Time endTimeParam);
+	public LavaDaoParam daoDateAndTimeBetweenParam(String datePropertyName, String timePropertyName, Date startDateParam,  Date endDateParam);
+	public LavaDaoParam daoDateAndTimeBetweenParam(String startDatePropertyName, String startTimePropertyName, String endDatePropertyName, String endTimePropertyName,Date dateParam, Time timeParam);
+	public LavaDaoParam daoDateAndTimeOverlapsParam(String startDatePropertyName, String startTimePropertyName, String endDatePropertyName, String endTimePropertyName,Date startDateParam, Time startTimeParam, Date endDateParam, Time endTimeParam);
+	public LavaDaoParam daoDateAndTimeNull(String datePropertyName, String timePropertyName);
+	public LavaDaoParam daoDateAndTimeNotNull(String datePropertyName, String timePropertyName);
+	public LavaDaoParam daoDateAndTimeGreaterThanParam(String datePropertyName, String timePropertyName, Date dateParam, Time timeParam);
+	public LavaDaoParam daoDateAndTimeGreaterThanOrEqualParam(String datePropertyName, String timePropertyName, Date dateParam, Time timeParam);
+	public LavaDaoParam daoDateAndTimeLessThanParam(String datePropertyName, String timePropertyName, Date dateParam, Time timeParam);
+	public LavaDaoParam daoDateAndTimeLessThanOrEqualParam(String datePropertyName, String timePropertyName, Date dateParam, Time timeParam);
+	
+	
 	
 	//convenience function
 	public LavaDaoFilter addIdDaoEqualityParam(Long id);
