@@ -20,6 +20,10 @@
   <decorator name="component.entity.section" page="component/entity/section.jsp"/>
   <decorator name="component.group.content" page="component/group/content.jsp"/>  
   <decorator name="component.instrument.content" page="component/instrument/content.jsp"/>
+  <decorator name="component.calendar.day" page="component/calendar/day.jsp"/>
+<!--   <decorator name="component.calendar.week" page="component/calendar/week.jsp"/>
+  <decorator name="component.calendar.month" page="component/calendar/month.jsp"/>
+    -->
   <!-- note that instruments use the same section decorator as entities -->
   <decorator name="component.instrument.section" page="component/entity/section.jsp"/>
   <decorator name="component.report.content" page="component/report/content.jsp"/>

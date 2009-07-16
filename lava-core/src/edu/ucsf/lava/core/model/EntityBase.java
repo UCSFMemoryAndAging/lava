@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -483,12 +484,17 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 	 * Registers the property and value with the dirty tracking mechanism.  If the property 
 	 * already has a value associated with it in the dirty tracking mechanism, then the value
 	 * passed in becomes the dirty value, otherwise the value passed in is the old value
+	 * 
+	 * store Date, Time, and Timestamp values internally as java.util.Timestamp for consistent comparisons
+	 * 
 	 */
 	protected void trackDirty(String property,Object value){
 		if(property!=null){
 			Object convertedValue = null;
 			if(value!=null){
 				if(value instanceof Date){
+					convertedValue = new Timestamp(((Date)value).getTime());
+				}else if(value instanceof Time){
 					convertedValue = new Timestamp(((Date)value).getTime());
 				}else{
 					convertedValue = value;

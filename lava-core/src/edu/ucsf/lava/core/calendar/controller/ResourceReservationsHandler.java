@@ -56,7 +56,7 @@ public class ResourceReservationsHandler extends BaseCalendarComponentHandler {
 
 
 
-		public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter, Map components) {
+	public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 	
 			if(components.containsKey(CALENDAR_COMPONENT_NAME)){

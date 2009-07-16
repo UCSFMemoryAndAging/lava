@@ -68,17 +68,25 @@ public class AppointmentHandler extends BaseEntityComponentHandler {
 	
 	
 	protected Event doSave(RequestContext context, Object command, BindingResult errors) throws Exception {
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		Appointment a = (Appointment)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
 		handleOrganizerChange(context,command, errors);
 		if(this.hasRuleViolationErrors(context, command, errors)){
+			a.setStatus(Appointment.STATUS_ERROR);
 			return new Event(this,ERROR_FLOW_EVENT_ID);
-		}
+			}
+		a.setStatus(Appointment.STATUS_SCHEDULED);
 		return super.doSave(context, command, errors);
 	}
 	protected Event doSaveAdd(RequestContext context, Object command, BindingResult errors) throws Exception {
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		Appointment a = (Appointment)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
 		handleOrganizerChange(context,command, errors);
 		if(this.hasRuleViolationErrors(context, command, errors)){
+			a.setStatus(Appointment.STATUS_ERROR);
 			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
+		a.setStatus(Appointment.STATUS_SCHEDULED);
 		return super.doSaveAdd(context, command, errors);
 	}
 

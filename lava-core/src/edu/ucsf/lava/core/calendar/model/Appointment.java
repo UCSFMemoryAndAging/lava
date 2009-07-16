@@ -16,6 +16,8 @@ public class Appointment extends CoreEntity {
 	public static String APPOINTMENT_TYPE = "Appointment";
 	public static String STATUS_SCHEDULED = "Scheduled";
 	public static String STATUS_CANCELED = "Canceled";
+	public static String STATUS_ERROR = "Error";
+	
 	
 	protected Calendar calendar;
 	protected Long calendarId;
@@ -34,7 +36,7 @@ public class Appointment extends CoreEntity {
 	
 	protected Set attendees;
 	
-	protected Set changes;
+	
 	
 	public Appointment() {
 		super();
@@ -67,6 +69,8 @@ public class Appointment extends CoreEntity {
 	}
 	public void setLocation(String location) {
 		this.location = location;
+		trackDirty("location",location);
+		
 	}
 	public String getNotes() {
 		return notes;
@@ -82,6 +86,7 @@ public class Appointment extends CoreEntity {
 		if(this.organizer != null){
 			this.organizerId = this.organizer.getId();
 		}
+		trackDirty("organizer",organizer);
 	}
 	
 	
@@ -112,6 +117,7 @@ public class Appointment extends CoreEntity {
 
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
+		trackDirty("endDate",endDate);
 	}
 
 	public Time getEndTime() {
@@ -120,6 +126,7 @@ public class Appointment extends CoreEntity {
 
 	public void setEndTime(Time endTime) {
 		this.endTime = endTime;
+		trackDirty("endTime",endTime);
 	}
 
 	public Date getStartDate() {
@@ -128,14 +135,17 @@ public class Appointment extends CoreEntity {
 
 	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
+		trackDirty("startDate",startDate);
 	}
 
 	public Time getStartTime() {
 		return startTime;
+	
 	}
 
 	public void setStartTime(Time startTime) {
 		this.startTime = startTime;
+		trackDirty("startTime",startTime);
 	}
 
 	public String getStatus() {
@@ -150,6 +160,26 @@ public class Appointment extends CoreEntity {
 		return new DateRange(getStartDate(),getStartTime(),getEndDate(),getEndTime());
 	}
 
+	
+	public String getDuration(){
+		Long rangeMinutes = getDateRange().getRangeInMinutes();
+		Long days = rangeMinutes / (60*24);
+		Long remainder = rangeMinutes % (60*24);
+		Long hours = remainder / 60;
+		Long minutes = remainder % 60;
+		StringBuffer buffer = new StringBuffer();
+		if(days > 0){
+			buffer.append(days).append((days > 1) ? " days " : " day ");
+		}
+		if(hours > 0){
+			buffer.append(hours).append((hours > 1) ? " hours " : " hour ");
+		}
+		if(minutes > 0){
+			buffer.append(minutes).append((minutes > 1) ? " minutes " : " minute ");
+		}
+		return buffer.toString().trim();
+	}
+	
 	public String getType() {
 		return type;
 	}
@@ -158,15 +188,7 @@ public class Appointment extends CoreEntity {
 		this.type = type;
 	}
 
-	public Set getChanges() {
-		return changes;
-	}
 
-	public void setChanges(Set changes) {
-		this.changes = changes;
-	}
-
-	
 
 
 	

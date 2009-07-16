@@ -18,13 +18,13 @@
 		All Dates
  	</c:when>
 	<c:when test="${range == 'Day' && empty shortFormat}">
-		<fmt:formatDate value="${beginDate}" pattern="EEEE  MMMM d yyyy"/>
+		<fmt:formatDate value="${beginDate}" pattern="EEEE,  MMMM d, yyyy"/>
  	</c:when>
 	<c:when test="${range == 'Day' && not empty shortFormat}">
 		<fmt:formatDate value="${beginDate}" pattern="MMM dd, yyyy"/>
  	</c:when>
  	<c:when test="${(range == 'Week' || range == 'Custom') && empty shortFormat}">
- 	    <fmt:formatDate value="${beginDate}" pattern="EEEE  MMMM d yyyy"/> to <fmt:formatDate value="${endDate}" pattern="EEEE  MMMM d yyyy"/>
+ 	    <fmt:formatDate value="${beginDate}" pattern="EEEE,  MMMM d, yyyy"/> to <fmt:formatDate value="${endDate}" pattern="EEEE,  MMMM d, yyyy"/>
     </c:when>
  	<c:when test="${(range == 'Week' || range == 'Custom') && not empty shortFormat}">
  	    <fmt:formatDate value="${beginDate}" pattern="MMM dd, yyyy"/> - <fmt:formatDate value="${endDate}" pattern="MMM dd, yyyy"/>
