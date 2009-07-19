@@ -159,7 +159,7 @@ public class Appointment extends CoreEntity {
 	public DateRange getDateRange(){
 		return new DateRange(getStartDate(),getStartTime(),getEndDate(),getEndTime());
 	}
-
+	
 	
 	public String getDuration(){
 		Long rangeMinutes = getDateRange().getRangeInMinutes();

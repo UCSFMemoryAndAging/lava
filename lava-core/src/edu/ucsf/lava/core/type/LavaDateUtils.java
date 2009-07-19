@@ -74,6 +74,9 @@ public class LavaDateUtils {
 		return new Time(calendar.getTimeInMillis());
 	}
 
+	
+
+	
 	public static Time getDayEndTime(){
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(0);

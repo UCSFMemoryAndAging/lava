@@ -242,6 +242,75 @@ public class DateRange {
 	}
 	
 	
+	
+	
+	
+	/**
+	 * Return the number of minute between the date passed in and the start of this range
+	 * @param dateIn  any date that preceeds the start of the range
+	 * @return null if dateIn does not preceed the start of this range
+	 */
+	public Long getMinutesUntilStart(Date dateIn){
+		if (dateIn==null || this.getStart()==null || dateIn.after(this.getStart())){
+			return null;
+		}
+		return new DateRange(dateIn,this.getStart()).getRangeInMinutes();
+	}
+	/**
+	 * convenience method to get minutes until the range start from the current time
+	 * @return
+	 */
+	public long getMinutesUntilStart(){
+		return getMinutesUntilStart(new Date());
+	}
+	
+	/**
+	 * Convenience method that takes a Time only (using the date part of the range start)
+	 * This allows us to easily get the number of minutes from the start of the day of the 
+	 * range
+	 * @param timeIn
+	 * @return
+	 */
+	public Long getMinutesUntilStart(Time timeIn){
+		if(this.getStart()==null){return null;}
+		
+		return getMinutesUntilStart(LavaDateUtils.getDateTime(
+				LavaDateUtils.getDatePart(this.getStart()),timeIn));
+	}
+	
+	/**
+	 * Return the number of minute between the date passed in and the end of this range
+	 * @param dateIn  any date that comes after the end of the range
+	 * @return null if dateIn does not preceed the start of this range
+	 */
+	public Long getMinutesAfterEnd(Date dateIn){
+		if (dateIn==null || this.getEnd()==null || dateIn.before(this.getEnd())){
+			return null;
+		}
+		return new DateRange(this.getEnd(),dateIn).getRangeInMinutes();
+	}
+	/**
+	 * convenience method to get minutes after the reange end from the current date/time
+	 * @return
+	 */
+	public long getMinutesAfterEnd(){
+		return getMinutesAfterEnd(new Date());
+	}
+	
+	/**
+	 * Convenience method that takes a Time only (using the date part of the range end)
+	 * This allows us to easily get the number of minutes between tne end of the range and a time later in 
+	 * the day. 
+	 * @param timeIn
+	 * @return
+	 */
+	public Long getMinutesAfterEnd(Time timeIn){
+		if(this.getEnd()==null){return null;}
+		
+		return getMinutesAfterEnd(LavaDateUtils.getDateTime(
+				LavaDateUtils.getDatePart(this.getEnd()),timeIn));
+	}
+	
 	/* Convenience Formatting Methods */
 	
 	protected String getStartDesc(DateFormat format){
