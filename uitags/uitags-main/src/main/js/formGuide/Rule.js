@@ -71,7 +71,12 @@ uiFormGuide_Rule.prototype._holds = function() {
   }
   */
   if (this.__expectedValue == null) {
-    return (this.__widgetGroup.getValues().length == 0);
+	  if (this.__negate) {
+    	return (this.__widgetGroup.getValues().length != 0);
+	  }
+	  else {
+    	return (this.__widgetGroup.getValues().length == 0);
+    	}
   }
 
   //alert("rule holds result=" + this.__widgetGroup.hasRegExpValue(this.__expectedValue));
