@@ -1121,7 +1121,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		// since dcStatus is initialized to "Scheduled" for new instruments, consider it the
 		// same as null in terms of whether dcStatus can be overwritten
 		if (instrument.getDcStatus() == null || instrument.getDcStatus().equals("Scheduled")) {
-			instrument.setDcStatus("Complete - Paper Collect");
+			instrument.setDcStatus("Complete");
 		}
 	
 		// the data entry fields are whoever is logged in and now			
@@ -1322,7 +1322,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		// since dcStatus is initialized to "Scheduled" for new instruments, consider it the
 		// same as null in terms of whether dcStatus can be overwritten
 		if (instrument.getDcStatus() == null || instrument.getDcStatus().equals("Scheduled")) {
-			instrument.setDcStatus("Complete - Paper Collect");
+			instrument.setDcStatus("Complete");
 		}
 
 		// the data entry fields are whoever is logged in and now			
