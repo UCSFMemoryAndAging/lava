@@ -10,12 +10,14 @@
 --%> 
 
 <%@ attribute name="property" required="true" 
-       description="The name of the property in the filter.params[] map'" %>
+       description="The name of the property.  properties that are subproperties (e.g. patient.birthDate) will be formated as patient_birthdate for metadata lookups" %>
 <%@ attribute name="component" required="true" 
        description="All lists are implemented in components" %>
 <%@ attribute name="entityType" 
-       description="Used to create the metaDataName property to lookup metadata for the filter field
-       				the format of the metaDataName will be $entityType.filter.$property  If not specified, then property will be used alone as metadataname"%>
+       description="Used to lookkup the metadata for the property.  The format will be $entityType.$property"%>
+<%@ attribute name="metadataName"
+       description="[optional] override of the standard metadata lookup format.  Useful when you want to use the standard metadata information for 
+       				a subproperty of a entity that is itself a property of the list item (e.g. 'patient.fullName' when patient is a property of the list item"%>
 <%@ attribute name="mode"
        description="[optional] a mode to use to override the page mode"%>
 <%@ attribute name="listIndex"
@@ -40,8 +42,11 @@
 	                (assuming that the specificity of the rules in the stylesheet are the same)"%>
 
 <c:set var="escapedProperty"><tags:escapeProperty property="${property}"/></c:set>
+<c:if test="${empty metadataName}">
+	<c:set var="metadataName" value="${empty entityType ? '':entityType}${empty entityType?'':'.'}${escapedProperty}"/>
+</c:if>
+	
 
 <tags:createField property="pageList[${listIndex}].entity.${property}" component="${component}" entityType="${empty entityType?'':entityType}" 
-		metadataName="${empty entityType ? '':entityType}${empty entityType?'':'.'}${escapedProperty}"
-		mode="${empty mode  ? '':mode}" fieldStyle="${empty fieldStyle ?'':fieldStyle}" labelAlignment="${empty labelAlignment ?'':labelAlignment}" 
+		metadataName="${metadataName}" mode="${empty mode  ? '':mode}" fieldStyle="${empty fieldStyle ?'':fieldStyle}" labelAlignment="${empty labelAlignment ?'':labelAlignment}" 
 		labelStyle="${empty labelStyle ?'':labelStyle}"  optionsAlignment="${empty optionsAlignment ?'':optionsAlignment}" dataStyle="${empty dataStyle ?'':dataStyle}"/>

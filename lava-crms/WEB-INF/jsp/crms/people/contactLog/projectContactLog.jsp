@@ -68,7 +68,7 @@
 				<tags:listActionURLStandardButtons actionId="lava.crms.people.contactLog.contactLog" component="contactLog" idParam="${item.id}"/>	    	                      
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="contactLog"/>	
+			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="contactLog" metadataName="patient.fullNameNoSuffix"/>	
 			<br/>(<tags:listField property="contact" component="${component}" listIndex="${iterator.index}" entityType="contactLog"/>)
 		</tags:listCell>
 	<c:if test="${empty currentProject}">
