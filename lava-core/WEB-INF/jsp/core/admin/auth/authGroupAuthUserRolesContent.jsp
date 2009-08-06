@@ -36,7 +36,7 @@
 			</c:if>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="role.roleName" component="${component}" listIndex="${iterator.index}" entityType="authUserRole" metadataName="role.roleName"/>
+			<tags:listField property="role.roleName" component="${component}" listIndex="${iterator.index}" entityType="authUserRole" metadataName="authRole.roleName"/>
 			<tags:listActionURLButton buttonImage="view" actionId="lava.core.admin.auth.authRole" eventId="authRole__view" idParam="${item.role.id}"/>/	    	                      
 			<tags:listField property="summaryInfo" component="${component}" listIndex="${iterator.index}" entityType="authUserRole"/>
 		</tags:listCell>

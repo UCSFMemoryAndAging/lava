@@ -37,7 +37,7 @@
 				</c:if>
 			</tags:listCell>
 			<tags:listCell>
-				<tags:listField property="user.userNameWithStatus" component="${component}" listIndex="${iterator.index}" entityType="authUserRole" metadataName="user.userNameWithStatus"/>
+				<tags:listField property="user.userNameWithStatus" component="${component}" listIndex="${iterator.index}" entityType="authUserRole" metadataName="authUser.userNameWithStatus"/>
 			</tags:listCell>
 
 	
