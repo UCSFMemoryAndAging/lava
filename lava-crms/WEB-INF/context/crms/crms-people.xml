@@ -13,8 +13,8 @@
 		<bean id="lava.crms.people.patient.patient" parent="crmsEntityFlowAction">
   					<property name="patientModuleDefault" value="true"/>
   					<property name="patientSectionDefault" value="true"/>
-  					<property name="moduleDefault" value="true"/>
-  					<property name="sectionDefault" value="true"/>
+  					<property name="moduleDefault" value="false"/>
+  					<property name="sectionDefault" value="false"/>
   					<property name="parentFlows"><list>
   						<value>lava.crms.people.patient.projectPatients</value>
   						<value>lava.crms.enrollment.status.projectEnrollmentStatus</value>
