@@ -40,7 +40,7 @@
 		</tags:listCell>
 		
 		<tags:listCell>
-			<tags:listField property="role.roleName" component="${component}" listIndex="${iterator.index}" entityType="authPermission"/>
+			<tags:listField property="role.roleName" component="${component}" listIndex="${iterator.index}" entityType="authPermission" metadataName="role.roleName"/>
 			<tags:listActionURLButton buttonImage="view" actionId="lava.admin.auth.authRole" eventId="authRole__view" idParam="${item.role.id}"/>	    	                      
 			
 		</tags:listCell>

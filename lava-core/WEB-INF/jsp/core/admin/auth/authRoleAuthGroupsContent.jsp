@@ -38,7 +38,7 @@
 				</c:if>
 			</tags:listCell>
 			<tags:listCell>
-				<tags:listField property="group.groupNameWithStatus" component="${component}" listIndex="${iterator.index}" entityType="authUserRole"/>
+				<tags:listField property="group.groupNameWithStatus" component="${component}" listIndex="${iterator.index}" entityType="authUserRole" metadataName="group.groupNameWithStatus"/>
 			</tags:listCell>
 			<tags:listCell>
 				<tags:listField property="summaryInfo" component="${component}" listIndex="${iterator.index}" entityType="authUserRole"/>

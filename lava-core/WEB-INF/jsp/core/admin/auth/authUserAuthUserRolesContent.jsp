@@ -35,13 +35,13 @@
 			<tags:listCell styleClass="actionButton">
 			</tags:listCell>
 			<tags:listCell>
-				<tags:listField property="role.roleName" component="${component}" listIndex="${iterator.index}" entityType="authUserRole"/>
+				<tags:listField property="role.roleName" component="${component}" listIndex="${iterator.index}" entityType="authUserRole" metadataName="role.roleName"/>
 					<tags:listActionURLButton buttonImage="view" actionId="lava.core.admin.auth.authRole" eventId="authRole__view" idParam="${item.role.id}"/>/
 				<tags:listField property="summaryInfo" component="${component}" listIndex="${iterator.index}" entityType="authUserRole"/>
 			</tags:listCell>	
 			<tags:listCell>	
 				<tags:outputText textKey="authUser.grantedToGroup.label" inline="true" styleClass="bold"/>
-				<tags:listField property="group.groupNameWithStatus" component="${component}" listIndex="${iterator.index}" entityType="authUserRole"/>
+				<tags:listField property="group.groupNameWithStatus" component="${component}" listIndex="${iterator.index}" entityType="authUserRole" metadataName="group.groupNameWithStatus"/>
 			</tags:listCell>
 		</tags:ifComponentPropertyEmpty>
 		<tags:ifComponentPropertyNotEmpty component="${component}" property="user" listIndex="${iterator.index}">
@@ -51,7 +51,7 @@
 				</c:if>
 			</tags:listCell>
 			<tags:listCell>
-				<tags:listField property="role.roleName" component="${component}" listIndex="${iterator.index}" entityType="authUserRole"/>
+				<tags:listField property="role.roleName" component="${component}" listIndex="${iterator.index}" entityType="authUserRole" metadataName="role.roleName"/>
 					<tags:listActionURLButton buttonImage="view" actionId="lava.admin.auth.authRole" eventId="authRole__view" idParam="${item.role.id}"/>/
 					<tags:listField property="summaryInfo" component="${component}" listIndex="${iterator.index}" entityType="authUserRole"/>
 				</tags:listCell>	
