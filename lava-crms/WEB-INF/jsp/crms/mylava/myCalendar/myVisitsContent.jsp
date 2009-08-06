@@ -37,7 +37,7 @@
 			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="visit"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="visit"/>
+			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="visit" metadataName="patient.fullNameNoSuffix"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="visitType" component="${component}" listIndex="${iterator.index}" entityType="visit"/>

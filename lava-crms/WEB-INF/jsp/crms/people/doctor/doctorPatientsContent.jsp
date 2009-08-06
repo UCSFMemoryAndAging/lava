@@ -33,11 +33,11 @@
 		</tags:listCell>
 --%>		
 		<tags:listCell>
-			<tags:listField property="patient.fullNameRevNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor"/>
+			<tags:listField property="patient.fullNameRevNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor" metadataName="patient.fullNameNoSuffix"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="docStat" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor"/>
-			<br/>(<tags:listField property="doctor.docType" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor"/>)
+			<br/>(<tags:listField property="doctor.docType" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor" metadataName="doctor.docType"/>)
 		</tags:listCell>
 		<tags:listCell>
 				<tags:listField property="docNote" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor"/>

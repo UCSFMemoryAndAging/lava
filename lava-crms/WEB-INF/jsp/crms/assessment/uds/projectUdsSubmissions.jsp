@@ -76,7 +76,7 @@
 			</c:choose>					  
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="instrument"/>			
+			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="instrument" metadataName="patient.fullNameNoSuffix"/>			
 			<%-- because eventId is not specified, this will result in a new root flow, until the list flow definition allows entity CRUD
 			     subflows on entity types other than the list type, at which time will use eventId="visit__view" --%>
 			<tags:listActionURLButton buttonImage="view" actionId="lava.crms.people.patient.patient" idParam="${item.patient.id}"/>	    

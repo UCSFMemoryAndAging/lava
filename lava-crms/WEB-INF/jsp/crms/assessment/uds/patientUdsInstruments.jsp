@@ -74,12 +74,12 @@
 			<tags:listField property="formId" component="${component}" listIndex="${iterator.index}" entityType="udsinstrument"/>: <tags:listField property="instrType" component="${component}" listIndex="${iterator.index}" entityType="instrument"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="visit.visitDate" component="${component}" listIndex="${iterator.index}" entityType="instrument"/>
+			<tags:listField property="visit.visitDate" component="${component}" listIndex="${iterator.index}" entityType="instrument" metadataName="visit.visitDate"/>
 			<%-- because eventId is not specified, this will result in a new root flow, until the list flow definition allows entity CRUD
 			     subflows on entity types other than the list type, at which time will use eventId="visit__view" --%>
 			<tags:listActionURLButton buttonImage="view" actionId="lava.crms.scheduling.visit.visit" idParam="${item.visit.id}"/><BR/>
-			<tags:listField property="visit.projName" component="${component}" listIndex="${iterator.index}" entityType="instrument"/>:			
-			<tags:listField property="visit.visitType" component="${component}" listIndex="${iterator.index}" entityType="instrument"/><BR/>			
+			<tags:listField property="visit.projName" component="${component}" listIndex="${iterator.index}" entityType="instrument" metadataName="visit.projName"/>:			
+			<tags:listField property="visit.visitType" component="${component}" listIndex="${iterator.index}" entityType="instrument" metadataName="visit.visitType"/><BR/>			
 
 		</tags:listCell>
 	

@@ -59,7 +59,7 @@
 				<tags:listActionURLStandardButtons actionId="lava.crms.people.task.task" component="task" idParam="${item.id}"/>	    	                      
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="patient.fullNameRev" component="${component}" listIndex="${iterator.index}" entityType="task"/>	
+			<tags:listField property="patient.fullNameRev" component="${component}" listIndex="${iterator.index}" entityType="task" metadataName="patient.fullNameRev"/>	
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="task"/>	

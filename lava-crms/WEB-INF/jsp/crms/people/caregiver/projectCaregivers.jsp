@@ -55,7 +55,7 @@
 				<tags:listActionURLStandardButtons actionId="lava.crms.people.caregiver.caregiver" component="caregiver" idParam="${item.id}"/>	    
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="caregiver"/>
+			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="caregiver" metadataName="patient.fullNameNoSuffix"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="fullName" component="${component}" listIndex="${iterator.index}" entityType="caregiver"/>

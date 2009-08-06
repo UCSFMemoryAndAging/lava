@@ -24,17 +24,17 @@
 			<tags:listActionURLStandardButtons actionId="lava.crms.people.doctor.patientDoctor" component="patientDoctor" idParam="${item.id}"/>	    
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="doctor.fullNameRev" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor"/>		
+			<tags:listField property="doctor.fullNameRev" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor" metadataName="doctor.fullNameRev"/>		
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="docStat" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor"/>		
-			<br/>(<tags:listField property="doctor.docType" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor"/>)
+			<br/>(<tags:listField property="doctor.docType" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor" metadataName="doctor.docType"/>)
 		</tags:listCell>
 		<tags:listCell>
-				<tags:listField property="doctor.addressBlock" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor"/>		
+				<tags:listField property="doctor.addressBlock" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor" metadataName="doctor.addressBlock"/>		
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="doctor.phoneEmailBlock" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor"/>		
+			<tags:listField property="doctor.phoneEmailBlock" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor" metadataName="doctor.phoneEmailBlock"/>		
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="docNote" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor"/>		

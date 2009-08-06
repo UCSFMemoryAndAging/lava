@@ -56,7 +56,7 @@
 				<tags:listActionURLStandardButtons actionId="lava.crms.people.contactInfo.contactInfo" component="contactInfo" idParam="${item.id}"/>	    	                      
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="patient"/>
+			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="patient" metadataName="patient.fullNameNoSuffix"/>
 			
 			<c:if test="${not empty item.caregiverId}">
 				<br/>(<tags:listField property="contactNameRev" component="${component}" listIndex="${iterator.index}" entityType="contactInfo"/>)

@@ -58,7 +58,7 @@
 			<tags:listActionURLStandardButtons actionId="lava.crms.enrollment.consent.consent" component="consent" idParam="${item.id}"/>	    
 		</tags:listCell>
 	   <tags:listCell>
-			<tags:listField property="patient.fullNameRevNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="consent"/>
+			<tags:listField property="patient.fullNameRevNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="consent" metadataName="patient.fullNameRevNoSuffix"/>
 		</tags:listCell>
 	 <c:if test="${empty currentProject}">
 		<tags:listCell>
