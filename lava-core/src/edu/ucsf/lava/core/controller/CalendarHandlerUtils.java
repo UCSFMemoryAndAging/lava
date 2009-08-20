@@ -21,12 +21,20 @@ public class CalendarHandlerUtils {
 	public static final String DISPLAY_RANGE_DAY = "Day";
 	public static final String DISPLAY_RANGE_ALL = "All";
 	public static final String DISPLAY_RANGE_CUSTOM = "Custom";
+	public static final String SHOW_DAYLENGTH_PARAM = "showDayLength";
+	public static final String SHOW_DAYLENGTH_FULLDAY = "Full Day";
+	public static final String SHOW_DAYLENGTH_WORKDAY = "Work Day";
+	
 	public static final String DISPLAY_YEAR_EVENT = "displayYear";
 	public static final String DISPLAY_MONTH_EVENT = "displayMonth";
 	public static final String DISPLAY_WEEK_EVENT = "displayWeek";
 	public static final String DISPLAY_DAY_EVENT = "displayDay";
 	public static final String DISPLAY_NOW_EVENT = "displayNow";
 	public static final String DISPLAY_ALL_EVENT = "displayAll";
+	public static final String SHOW_FULLDAY_EVENT = "showFullDay";
+	public static final String SHOW_WORKDAY_EVENT = "showWorkDay";
+	
+	
 
 	public static final String NEXT_DATE_RANGE_EVENT = "nextDateRange";
 	public static final String PREV_DATE_RANGE_EVENT = "prevDateRange";
@@ -37,7 +45,7 @@ public class CalendarHandlerUtils {
 	
 	public static List getDefaultEvents() {
 		return Arrays.asList(new String[]{DISPLAY_YEAR_EVENT,DISPLAY_MONTH_EVENT,DISPLAY_WEEK_EVENT,DISPLAY_DAY_EVENT,DISPLAY_NOW_EVENT,
-				DISPLAY_ALL_EVENT,NEXT_DATE_RANGE_EVENT,PREV_DATE_RANGE_EVENT});
+				DISPLAY_ALL_EVENT,NEXT_DATE_RANGE_EVENT,PREV_DATE_RANGE_EVENT,SHOW_FULLDAY_EVENT,SHOW_WORKDAY_EVENT});
 	}
 
 	
@@ -62,7 +70,13 @@ public class CalendarHandlerUtils {
 		return false;
 	}
 	
-	public static void setDefaultFilterParams(LavaDaoFilter filter, String defaultDisplayRange, String startDateParam, String endDateParam){
+	
+	public static void setDefaultDayLengthParam(LavaDaoFilter filter,  String defaultDayLength){
+		filter.setParam(SHOW_DAYLENGTH_PARAM, defaultDayLength);
+	}
+	
+	public static void setDefaultFilterParams(LavaDaoFilter filter,  String defaultDisplayRange, String startDateParam, String endDateParam){
+
 		filter.setParam(DISPLAY_RANGE_PARAM,defaultDisplayRange);
 		if(defaultDisplayRange.equalsIgnoreCase(DISPLAY_RANGE_YEAR)){
 			filter.setParam(startDateParam,CalendarHandlerUtils.getYearStartDate(new Date()));
@@ -81,6 +95,24 @@ public class CalendarHandlerUtils {
 			filter.setParam(endDateParam,null);	
 		}
 		
+		
+		
+	}
+	
+
+	public static LavaDaoFilter setDayLengthParam(RequestContext context, LavaDaoFilter filter, String defaultDayLength)
+	{
+		Map params = filter.getParams();
+		String event = ActionUtils.getEventName(context);
+		//Determine daylength to use  based on current event or current state of param.  default is  work day 
+		if (ActionUtils.getEventName(context).equalsIgnoreCase(SHOW_FULLDAY_EVENT)){
+			filter.setParam(SHOW_DAYLENGTH_PARAM,SHOW_DAYLENGTH_FULLDAY);
+		} else if (ActionUtils.getEventName(context).equalsIgnoreCase(SHOW_WORKDAY_EVENT)){
+			filter.setParam(SHOW_DAYLENGTH_PARAM,SHOW_DAYLENGTH_WORKDAY);
+		} else if (params.get(SHOW_DAYLENGTH_PARAM) == null){
+			filter.setParam(SHOW_DAYLENGTH_PARAM,defaultDayLength);
+		} 
+		return filter;
 	}
 	
 	public static LavaDaoFilter setDateFilterParams(RequestContext context, LavaDaoFilter filter, String defaultDisplayRange, String startDateParam, String endDateParam)
@@ -102,13 +134,16 @@ public class CalendarHandlerUtils {
 			filter.setParam(DISPLAY_RANGE_PARAM,DISPLAY_RANGE_DAY);
 		} else if (params.get(DISPLAY_RANGE_PARAM) == null){
 			filter.setParam(DISPLAY_RANGE_PARAM,defaultDisplayRange);
-		}
+		} 
+
 		displayRange = params.get(DISPLAY_RANGE_PARAM).toString();
 		//clear custom date filter fields if using a standard range
 		if (!displayRange.equalsIgnoreCase(DISPLAY_RANGE_CUSTOM)){
 			filter.setParam(CUSTOM_DATE_FILTER_START_PARAM,null);
 			filter.setParam(CUSTOM_DATE_FILTER_END_PARAM,null);
 		}
+		
+		
 		
 		//determine the "pivot date" based on the event, or the current start date param.  Default is current date
 		//first attempt to get current start date

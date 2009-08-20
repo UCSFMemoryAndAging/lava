@@ -1,9 +1,7 @@
 package edu.ucsf.lava.core.controller;
 
-import static edu.ucsf.lava.core.controller.CalendarHandlerUtils.CUSTOM_DATE_FILTER_END_PARAM;
-import static edu.ucsf.lava.core.controller.CalendarHandlerUtils.CUSTOM_DATE_FILTER_START_PARAM;
-import static edu.ucsf.lava.core.controller.CalendarHandlerUtils.DISPLAY_RANGE_MONTH;
-import static edu.ucsf.lava.core.controller.CalendarHandlerUtils.DISPLAY_RANGE_PARAM;
+
+import static edu.ucsf.lava.core.controller.CalendarHandlerUtils.*;
 
 import java.util.Map;
 
@@ -21,6 +19,7 @@ import edu.ucsf.lava.core.model.EntityBase;
 
 abstract public class BaseCalendarComponentHandler extends BaseListComponentHandler {
 	protected String defaultDisplayRange=DISPLAY_RANGE_MONTH;
+	protected String defaultDayLength=SHOW_DAYLENGTH_WORKDAY;
 	protected String datePropertyName;
 	protected String startDateParam;
 	protected String endDateParam;
@@ -46,9 +45,11 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 	
 		filter.addParamHandler(new LavaDateRangeParamHandler(datePropertyName));
 		filter.addParamHandler(new LavaIgnoreParamHandler(DISPLAY_RANGE_PARAM));
+		filter.addParamHandler(new LavaIgnoreParamHandler(SHOW_DAYLENGTH_PARAM));
 		filter.addParamHandler(new LavaIgnoreParamHandler(CUSTOM_DATE_FILTER_START_PARAM));
 		filter.addParamHandler(new LavaIgnoreParamHandler(CUSTOM_DATE_FILTER_END_PARAM));
 		filter = prepareFilter(context,filter,components);
+		filter = this.setDayLengthParam(context, filter);
 		return this.setDateFilterParams(context,filter);
 	}
 	
@@ -68,6 +69,7 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 	
 	protected void setDefaultFilterParams(LavaDaoFilter filter){
 		CalendarHandlerUtils.setDefaultFilterParams(filter, this.defaultDisplayRange, this.startDateParam, this.endDateParam);
+		CalendarHandlerUtils.setDefaultDayLengthParam(filter, this.defaultDayLength);
 	}
 	
 	protected Event handleCustomEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
@@ -75,6 +77,7 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		ScrollablePagedListHolder plh = (ScrollablePagedListHolder) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
 		setDateFilterParams(context,(LavaDaoFilter)plh.getFilter());
+		setDayLengthParam(context, (LavaDaoFilter)plh.getFilter());
 		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
 		((BaseListSourceProvider)plh.getSourceProvider()).setListHandler(this);
 		try {
@@ -87,6 +90,23 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 		return returnEvent;
 	}
 	
+	/**
+	 * Sets the length of the day to display param in the filter (work day or full day).
+	 * @param context
+	 * @param filter
+	 * @return
+	 */
+	public LavaDaoFilter setDayLengthParam(RequestContext context, LavaDaoFilter filter)
+	{
+		return CalendarHandlerUtils.setDayLengthParam(context, filter, defaultDayLength);
+	}
+	
+	/**
+	 * Sets the data filter params based on the display range and the start date and end date params.
+	 * @param context
+	 * @param filter
+	 * @return
+	 */
 	public LavaDaoFilter setDateFilterParams(RequestContext context, LavaDaoFilter filter)
 	{
 		return CalendarHandlerUtils.setDateFilterParams(context, filter, this.defaultDisplayRange, this.startDateParam, this.endDateParam);
@@ -104,6 +124,14 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 	
 	
 	
+
+	public String getDefaultDayLength() {
+		return defaultDayLength;
+	}
+
+	public void setDefaultDayLength(String defaultDayLength) {
+		this.defaultDayLength = defaultDayLength;
+	}
 
 	public LavaDaoFilter onPreFilterParamConversion(LavaDaoFilter daoFilter) {
 		handleCustomDateFilter(daoFilter); //only really need to do this on loadList not LoadELements...not sure if this will be a problem..

@@ -39,7 +39,7 @@
 			<tags:listField property="user.userNameWithStatus" component="${component}" listIndex="${iterator.index}" entityType="authUserGroup" metadataName="authUser.userNameWithStatus"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="user.login" component="${component}" listIndex="${iterator.index}" entityType="authUserGroup" metadataName="user.login"/>
+			<tags:listField property="user.login" component="${component}" listIndex="${iterator.index}" entityType="authUserGroup" metadataName="autUser.login"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="notes" component="${component}" listIndex="${iterator.index}" entityType="authUserGroup"/>
