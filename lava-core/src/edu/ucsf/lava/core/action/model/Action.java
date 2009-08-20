@@ -53,8 +53,8 @@ public interface Action {
 	
 	
 	
-	public Long getDefaultActionLevel();
-	public void setDefaultActionLevel(Long defaultActionLevel);
+	public Long getPrecedenceLevel();
+	public void setPrecedenceLevel(Long precedenceLevel);
 	
 	
 	public boolean getHomeDefault();

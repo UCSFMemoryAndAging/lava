@@ -51,6 +51,8 @@ import edu.ucsf.lava.core.webflow.builder.FlowTypeBuilder;
  */
 public class BaseAction implements Action, Serializable, Cloneable{
 	
+	public static Long DEFAULT_PRECEDENCE_LEVEL = new Long(0);
+	
 	protected transient ActionDefinitions actionDefinitions;
 	protected String instance;
 	protected String scope;
@@ -64,7 +66,7 @@ public class BaseAction implements Action, Serializable, Cloneable{
 	protected String viewBasePath;
 	protected String customizedViewBasePath;
 	protected String description;
-	protected Long defaultActionLevel; // higher level actions override lower level actions when determining default actions for modules, sections, etc.
+	protected Long precedenceLevel; // higher level precedence overrides lower level actions when building registry of actions
 	protected boolean homeDefault = false;
 	protected boolean moduleDefault = false;
 	protected boolean sectionDefault = false;
@@ -92,6 +94,7 @@ public class BaseAction implements Action, Serializable, Cloneable{
 	}
 
 	public BaseAction(){
+		this.setPrecedenceLevel(this.DEFAULT_PRECEDENCE_LEVEL);
 	}
 	
 	
@@ -364,12 +367,13 @@ public class BaseAction implements Action, Serializable, Cloneable{
 
 
 
-	public Long getDefaultActionLevel() {
-		return defaultActionLevel;
+
+	public Long getPrecedenceLevel() {
+		return precedenceLevel;
 	}
 
-	public void setDefaultActionLevel(Long defaultActionLevel) {
-		this.defaultActionLevel = defaultActionLevel;
+	public void setPrecedenceLevel(Long precedenceLevel) {
+		this.precedenceLevel = precedenceLevel;
 	}
 
 	public boolean getHomeDefault() {

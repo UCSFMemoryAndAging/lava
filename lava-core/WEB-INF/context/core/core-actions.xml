@@ -37,7 +37,9 @@
 	
 	
 	<!-- base core scope action bean - all core actions inherit from this bean -->
-	<bean id="coreAction" abstract="true" parent="baseAction" class="edu.ucsf.lava.core.action.model.CoreAction"/>
+	<bean id="coreAction" abstract="true" parent="baseAction" class="edu.ucsf.lava.core.action.model.CoreAction">
+		<property name="precedenceLevel" value="100"/>
+	</bean>	
 
 	<bean id="coreEntityFlowAction" abstract="true" parent="coreAction">
 		<property name="flowTypeBuilder"><ref bean="coreEntityFlowTypeBuilder"/></property>
