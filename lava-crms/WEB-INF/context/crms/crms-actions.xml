@@ -11,8 +11,9 @@
 	<bean id="crmsAction" abstract="true" parent="baseAction" class="edu.ucsf.lava.crms.action.model.CrmsAction">
 		<property name="patientSectionDefault" value="false"/>
 		<property name="patientModuleDefault" value="false"/>
+		<property name="precedenceLevel" value="200"/>
 	</bean>	
-
+	
 
 	<bean id="welcomeFlowAction" abstract="true" parent="crmsAction">
 		<property name="flowTypeBuilder"><ref bean="crmsWelcomeFlowTypeBuilder"/></property>
