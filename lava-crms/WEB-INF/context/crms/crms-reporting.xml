@@ -11,11 +11,10 @@
 		<property name="location"><value>/WEB-INF/context/crms/crms-reports.xml</value></property>
 	</bean>
   
-  	
-	
 <!-- actions -->
-
-	<bean id="crmsReportFlowAction" abstract="true" parent="coreReportFlowAction" class="edu.ucsf.lava.crms.action.model.CrmsAction">
+	
+	<bean id="crmsReportFlowAction" abstract="true" parent="crmsAction" class="edu.ucsf.lava.crms.action.model.CrmsAction">
+		<property name="flowTypeBuilder"> <ref bean="coreReportFlowTypeBuilder"/></property>
 		<property name="patientSectionDefault" value="false"/>
 		<property name="patientModuleDefault" value="false"/>
 		<property name="parentFlows">
@@ -26,16 +25,15 @@
 		</property>	
 	</bean>	
 	
-	<bean id="crmsReportLauncherFlowAction" abstract="true" parent="coreReportLauncherFlowAction" class="edu.ucsf.lava.crms.action.model.CrmsAction">
+	<bean id="crmsReportLauncherFlowAction" abstract="true" parent="crmsAction" class="edu.ucsf.lava.crms.action.model.CrmsAction">
+		<property name="flowTypeBuilder"><ref bean="coreReportLauncherFlowTypeBuilder"/></property>
 		<property name="patientSectionDefault" value="true"/>
 		<property name="patientModuleDefault" value="true"/>
 		<property name="moduleDefault" value="true"/>
 		<property name="sectionDefault" value="true"/>
-		
 	</bean>	
 	
-
- 	 <bean id="lava.crms.reporting.reports.crmsReportLauncher" parent="crmsReportLauncherFlowAction">
+	<bean id="lava.crms.reporting.reports.crmsReportLauncher" parent="crmsReportLauncherFlowAction">
  	</bean>	
 	
 	<bean id="lava.crms.reporting.reports.projectPatientStatus" parent="crmsReportFlowAction"/>
@@ -43,8 +41,6 @@
 	<bean id="lava.crms.reporting.reports.researchVisitListByDate" parent="crmsReportFlowAction"/>
 	<bean id="lava.crms.reporting.reports.researchVisitListByPatient" parent="crmsReportFlowAction"/>
 	<bean id="lava.crms.reporting.reports.projectVisitListByPatient" parent="crmsReportFlowAction"/>
-
-
 
 <!--  Form Action Definitions -->					
 	<bean id="crmsReportLauncherFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
@@ -69,7 +65,6 @@
 	</bean>
 	
 	
-	
 	<bean id="projectPatientStatusFormAction"  parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean parent="crmsProjectCriteriaReportHandler"/>
 	</list></constructor-arg></bean>	
@@ -89,8 +84,5 @@
 	<bean id="projectVisitListByPatientFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean parent="crmsProjectCriteriaReportHandler"/>
 	</list></constructor-arg></bean>	
-	
-	
-	
 	
 </beans>
