@@ -1,0 +1,245 @@
+/******
+Temp style sheet for the calendar rendering until I can refactor the css. 
+
+
+*******/ 
+
+/* calender day view formatting */
+
+#centerLeftNav div.calendarDayBox {
+	position: absolute;
+	width: 782px;
+	background-color: #cccccc;/*Calendar Background*/
+	border: 1px solid #cccccc;/*Calendar Border*/
+	
+	}
+
+div.calendarDayTitleBox{
+	width: 782px;
+	height: 60px;
+	background-color: #cccccc;/*Calendar Header*/
+	color: #003366;/*Calendar Header Text*/
+	border: 0;
+	
+	}
+
+div.calendarDayHourBox{
+	width: 782px;
+	height: 30px;
+	border: 0;
+	}
+
+div.calendarDayHourLabelBox{
+	float:left;
+	background-color: #ffffff;/*Calendar Day Hour Label Box*/
+	width: 40px;
+	height: 18px;
+	padding: 5px;
+	text-align:right;
+	color: #000000;/*Calendar Day Hour Label Text*/
+	border: 1px solid #cccccc;/*Calendar Day Hour Label Border*/	
+	}
+
+
+div.calendarDayHourLabelBox .calendarDayHourLabel{
+	font-size: 14pt;
+	font-weight: bold; 
+	font-family: Arial, Helvetica, Geneva, sans-serif;
+	}
+
+
+
+
+div.calendarDayHourLabelBox .calendarDayHourLabelSuffix{
+	font-size: 7pt;
+	font-weight: bold; 
+	font-family: Arial, Helvetica, Geneva, sans-serif;
+	vertical-align:top;
+	margin-right: 2px;
+}
+
+div.calendarDayHourLabelBox .calendarDayHourLabelAMPMSuffix{
+	font-size: 6pt;
+	font-weight: bold; 
+	font-family: Arial, Helvetica, Geneva, sans-serif;
+	vertical-align:top;
+
+	
+	
+}
+div.calendarDayHour2IntervalBox{
+	float:right;
+	background-color: #eeeecc;/*Table Row*/
+	color: #000000;/*Table Row Text*/
+	border: 1px solid #cccccc;/*Table Header  the border of the row is the header background and vise versa */	
+	width: 728px;
+	height: 13px;
+	font-size: 9pt;
+	
+	}
+	
+
+div.testAppointment{
+	position:absolute;
+	left:55px;
+	top:150px;
+	background-color: #FFFFFF;/*Table Row*/
+	color: #000000;/*Table Row Text*/
+	border: 1px solid #cccccc;/*Table Header  the border of the row is the header background and vise versa */	
+	width: 720px;
+	height: 58px;
+	}
+	
+div.testAppointment2{
+	position:absolute;
+	left:55px;
+	top:210px;
+	background-color: #FFFFFF;/*Table Row*/
+	color: #000000;/*Table Row Text*/
+	border: 1px solid #cccccc;/*Table Header  the border of the row is the header background and vise versa */	
+	width: 720px;
+	height: 58px;
+	}
+	
+/* calender week view formatting */
+
+#centerLeftNav div.calendarWeekBox {
+	position: absolute;
+	width: 782px;
+	background-color: #cccccc;/*Calendar Background*/
+	border: 1px solid #cccccc;/*Calendar Border*/
+	
+	}
+
+div.calendarWeekTitleBox{
+	width: 782px;
+	height: 60px;
+	background-color: #cccccc;/*Calendar Header*/
+	color: #003366;/*Calendar Header Text*/
+	border: 0;
+	
+	}
+
+
+div.calendarWeekHeaderBox{
+	width: 782px;
+	height: 30px;
+	border: 0;
+	}
+
+
+div.calendarWeekHourColumnSpacerBox{
+	float: left;
+	width: 52px;
+	height: 28px;
+	border: 1px solid #cccccc;/*Calendar Week Day Label Border*/
+	background-color: #ffffff;/*Calendar Week Day Label */
+	}
+
+
+div.calendarWeekDayLabelBox{
+	float: left;
+	font-size: 10pt;
+	font-weight: bold; 
+	font-family: Arial, Helvetica, Geneva, sans-serif;
+	width: 102px;
+	height: 28px;
+	border: 1px solid #cccccc;/*Calendar Week Day Label Border*/
+	background-color: #ffffff;/*Calendar Week Day Label */
+	}
+
+div.calendarWeekHourBox{
+	width: 782px;
+	height: 30px;
+	border: 0;
+	}
+
+div.calendarWeekHourLabelBox{
+	float: left;
+	background-color: #ffffff;/*Calendar Day Hour Label Box*/
+	width: 42px;
+	height: 18px;
+	padding: 5px;
+	text-align:right;
+	color: #000000;/*Calendar Day Hour Label Text*/
+	border: 1px solid #cccccc;/*Calendar Day Hour Label Border*/	
+	}
+
+
+div.calendarWeekHourLabelBox .calendarWeekHourLabel{
+	font-size: 14pt;
+	font-weight: bold; 
+	font-family: Arial, Helvetica, Geneva, sans-serif;
+	}
+
+
+div.calendarWeekHourLabelBox .calendarWeekHourLabelAMPMSuffix{
+	font-size: 6pt;
+	font-weight: bold; 
+	font-family: Arial, Helvetica, Geneva, sans-serif;
+	vertical-align:top;
+}
+
+div.calendarWeekHourLabelBox .calendarWeekHourLabelSuffix{
+	font-size: 7pt;
+	font-weight: bold; 
+	font-family: Arial, Helvetica, Geneva, sans-serif;
+	vertical-align:top;
+	margin-right: 2px;
+}
+
+div.calendarWeekHour2IntervalBox{
+	float:right;
+	background-color: #eeeecc;/*Table Row*/
+	color: #000000;/*Table Row Text*/
+	border: 1px solid #cccccc;/*Table Header  the border of the row is the header background and vise versa */	
+	width: 102px;
+	height: 13px;
+	font-size: 9pt;
+	
+	}
+	
+/* these must come after other interval classes so that they override background colors*/
+div.calendarIntervalBoxWorkHour{
+	background-color: #ddeeee;/*Table Row*/
+	}
+
+div.calendarIntervalBoxWeekend{
+	background-color: #eeeecc;/*Table Row*/
+	}
+/* ffffdd yellow 
+   ffddbb pink - today?
+   eeffff blue 
+   ddeeee darker blue - work hour
+   eeeecc pastel khaki - non work hours
+   #eeeeee - grey - past
+   */
+
+
+div.testWeekAppointment{
+	position:absolute;
+	left:56px;
+	top:150px;
+	background-color: #FFFFFF;/*Table Row*/
+	color: #000000;/*Table Row Text*/
+	border: 1px solid #cccccc;/*Table Header  the border of the row is the header background and vise versa */	
+	font-size: 9pt;
+	font-family: Arial, Helvetica, Geneva, sans-serif;
+	width: 90px;
+	height: 58px;
+	padding: 2px 4px;
+	}
+	
+div.testWeekAppointment2{
+	position:absolute;
+	left:160px;
+	top:210px;
+	background-color: #FFFFFF;/*Table Row*/
+	color: #000000;/*Table Row Text*/
+	border: 1px solid #cccccc;/*Table Header  the border of the row is the header background and vise versa */	
+	font-size: 9pt;
+	font-family: Arial, Helvetica, Geneva, sans-serif;
+	width: 90px;
+	height: 58px;
+	padding: 2px 4px;
+	}

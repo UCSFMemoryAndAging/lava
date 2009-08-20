@@ -57,6 +57,7 @@ As much as possible, colors are listed from top to bottom in terms of page rende
 #003366;/*Heading Text
 
 
+
 #ddddaa/*Table header
 
 #990000;/*Error
@@ -2007,91 +2008,6 @@ tbody.rowGroup {
 	border-bottom: solid 2px #C0C0C0;
 }
 
-
-/* calender day view formatting */
-
-#centerLeftNav div.calendarDayBox {
-	position: absolute;
-	width: 782px;
-	border: 1px solid #cccccc;/*Table Header  the border of the row is the header background and vise versa */	
-	
-	}
-
-div.calendarDayTitleBox{
-	width: 780px;
-	height: 60px;
-	background-color: #cccccc;/*Table Header*/
-	color: #003366;/*Table Header Text*/
-	border: 1px solid #eeeeee;/*Table Row  the border of the header is the color of the rows and vise versa */
-	
-	}
-
-div.calendarDayHourBox{
-	width: 780px;
-	height: 30px;
-	background-color: #eeeeee;/*Table Row*/
-	
-	}
-
-div.calendarDayHourLabelBox{
-	float:left;
-	background-color: #eeeeee;/*Table Row*/
-	color: #000000;/*Table Row Text*/
-	border: 1px solid #cccccc;/*Table Header  the border of the row is the header background and vise versa */	
-	width: 45px;
-	height: 18px;
-	padding: 5px;
-	text-align:right;
-	}
-
-
-div.calendarDayHourLabelBox .calendarDayHourLabel{
-	font-size: 14pt;
-	font-weight: bold; 
-	font-family: Arial, Helvetica, Geneva, sans-serif;
-	}
-
-
-div.calendarDayHourLabelBox .calendarDayHourLabelAMPMSuffix{
-	font-size: 8pt;
-	font-weight: bold; 
-	font-family: Arial, Helvetica, Geneva, sans-serif;
-	vertical-align:top;
-	
-	
-}
-
-div.calendarDayHourLabelBox .calendarDayHourLabelSuffix{
-	font-size: 9pt;
-	font-weight: bold; 
-	font-family: Arial, Helvetica, Geneva, sans-serif;
-	vertical-align:top;
-	margin-right: 3px;
-}
-
-div.calendarDayHourIntervalBox{
-	float:right;
-	background-color: #eeeeee;/*Table Row*/
-	color: #000000;/*Table Row Text*/
-	border: 1px solid #cccccc;/*Table Header  the border of the row is the header background and vise versa */	
-	width: 721px;
-	height: 13px;
-	font-size: 9pt;
-	
-	}
-	
-div.testAppointment{
-	position:absolute;
-	left:65px;
-	top:151px;
-	background-color: #FFFFFF;/*Table Row*/
-	color: #000000;/*Table Row Text*/
-	border: 1px solid #cccccc;/*Table Header  the border of the row is the header background and vise versa */	
-	width: 705px;
-	height: 60px;
-	}
-	
-	
 
 
 
