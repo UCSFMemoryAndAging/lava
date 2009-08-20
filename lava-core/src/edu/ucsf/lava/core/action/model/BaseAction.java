@@ -64,6 +64,7 @@ public class BaseAction implements Action, Serializable, Cloneable{
 	protected String viewBasePath;
 	protected String customizedViewBasePath;
 	protected String description;
+	protected Long defaultActionLevel; // higher level actions override lower level actions when determining default actions for modules, sections, etc.
 	protected boolean homeDefault = false;
 	protected boolean moduleDefault = false;
 	protected boolean sectionDefault = false;
@@ -72,7 +73,7 @@ public class BaseAction implements Action, Serializable, Cloneable{
 	protected List<String> subFlows = new ArrayList<String>();
 	protected String customizedFlow; 
 	protected List<String> customizingFlows = new ArrayList<String>();
-	protected String defaultMode;
+	protected String defaultMode; //is this needed for anything? jhesse
 	
 	
 
@@ -362,6 +363,14 @@ public class BaseAction implements Action, Serializable, Cloneable{
 	
 
 
+
+	public Long getDefaultActionLevel() {
+		return defaultActionLevel;
+	}
+
+	public void setDefaultActionLevel(Long defaultActionLevel) {
+		this.defaultActionLevel = defaultActionLevel;
+	}
 
 	public boolean getHomeDefault() {
 		return homeDefault;
