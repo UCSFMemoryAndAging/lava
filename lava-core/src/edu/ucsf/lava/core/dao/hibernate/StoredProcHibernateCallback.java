@@ -39,7 +39,9 @@ public class StoredProcHibernateCallback implements HibernateCallback {
     	Connection con = session.connection();
     	CallableStatement proc = null;
     	try{
+    	
     		proc = con.prepareCall(this.storedProcCall);
+    		
     		
     		// iterate thru the parameters, setting values for input parameters, and registering output parameters 
 			for (int i=0; i < this.paramValues.length; i++) {
@@ -63,6 +65,15 @@ public class StoredProcHibernateCallback implements HibernateCallback {
 		    		this.paramValues[i] = proc.getObject(i+1);
 				}
 			}
+    	}
+    	catch(HibernateException e){
+    		logger.error(e.toString());
+    		logger.info(e.getStackTrace());
+    		throw e;
+    	}catch(SQLException e){
+    		logger.error(e.toString());
+    		logger.info(e.getStackTrace());
+    		throw e;
     	}
 	// HibernateCallback converts Hibernate and SQL checked exceptions to unchecked org.springframework.dao 
 	//  DataAccessExceptions which propagate up to the service layer and view layer, so need not be handled here
