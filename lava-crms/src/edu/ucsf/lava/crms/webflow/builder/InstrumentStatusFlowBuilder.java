@@ -63,6 +63,7 @@ class InstrumentStatusFlowBuilder extends BaseFlowBuilder {
     			flow(actionId+".editStatus"), 
     			idMapper, 
     			new Transition[] {
+    				transition(on("finishCancel"), to("subFlowReturnState")),
     				transition(on("finish"), to("subFlowReturnState"))});
    	
     	// Finish state used for a canceled version change, just do a normal subflow return.
@@ -71,6 +72,7 @@ class InstrumentStatusFlowBuilder extends BaseFlowBuilder {
     			idMapper, 
     			new Transition[] {
     				transition(on("finish"), to("subFlowReturnState")),
+    				transition(on("finishCancel"), to("subFlowReturnState")),
     				transition(on("versionChanged"), to("finish"))});
     	
    
