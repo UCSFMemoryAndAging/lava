@@ -8,6 +8,14 @@
 		<property name="dbListName" value="Gender"/>
 	</bean>
 
+	<bean id="list.generic.race" parent="list.standardNumericValue">
+		<property name="dbListName" value="Race"/>
+	</bean>
+
+	<bean id="list.generic.education" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="Education"/>
+	</bean>
+
 	<bean id="list.patient.handedness" parent="list.standardValueNoLabel">
 		<property name="dbListName" value="Handedness"/>
 	</bean>
@@ -22,6 +30,10 @@
 	
 	<bean id="list.patient.contactInfo" parent="list.dynamicSortValue">
 		<property name="query" value="list.patient.contactInfo"/>
+	</bean>
+	
+	<bean id="list.patient.maritalStatus" parent="list.standardNumericValue">
+		<property name="dbListName" value="MaritalStatus"/>
 	</bean>
 				
 	<!-- Caregiver Lists -->
