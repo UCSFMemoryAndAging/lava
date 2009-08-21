@@ -477,8 +477,8 @@ public class Instrument extends CrmsEntity {
 	}
 
 	public void changeVersion(String version){
-		StringBuffer procName = new StringBuffer("sp").append(getEntityName()).append("ChangeVersion");
-		MANAGER.executeSQLProcedure(procName.toString(), new Object[] {getId()}, new int[] {Types.INTEGER,Types.VARCHAR},new char[] {'i','i'});
+		StringBuffer procName = new StringBuffer("proc_").append(getInstrTypeEncoded(false)).append("_change_version");
+		MANAGER.executeSQLProcedure(procName.toString(), new Object[] {getId(),getInstrVer()}, new int[] {Types.INTEGER,Types.VARCHAR},new char[] {'i','i'});
 	}
 
 
