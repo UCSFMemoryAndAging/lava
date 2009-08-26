@@ -1,12 +1,14 @@
 DELIMITER $$
 
-
--- run repeatedly while there are still properties with '_' chars                                                                           
--- for an entity
-   
+ 
 DROP PROCEDURE IF EXISTS `util_FixMetadataPropertyNames`$$
 CREATE PROCEDURE `util_FixMetadataPropertyNames` (EntityIn varchar(50))
 BEGIN
+
+-- run repeatedly while there are still properties with '_' chars                                                                           
+-- for an entity to remove the '_' char and capitalize the following char,
+-- because table column naming convention is to use '_' as word separator
+-- while Hibernate and Java property names do not
 
 UPDATE hibernateproperty SET
 property =
