@@ -72,7 +72,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		defaultEvents = new ArrayList(Arrays.asList(new String[]{"applyAdd","saveAdd","cancelAdd","close","confirmDelete","cancelDelete",
 				"enterSave", "enterVerify", "doubleEnterSave", "doubleEnterDefer", "doubleEnterCompare",
 				"enterReviewSave", "upload", "collectSave", "collectReviewRevise", "collectReviewSave", "collectReviewDefer",
-				"saveStatus", "cancel","refresh","reRender","save","upload","confirmChangeVersion","cancelChangeVersion",
+				"statusSave", "cancel","refresh","reRender","save","upload","confirmChangeVersion","cancelChangeVersion",
 				"custom","custom2","custom3","customEnd","customEnd2","customEnd3"}));
 		
 		this.setPrimaryComponentContext(CrmsSessionUtils.CURRENT_INSTRUMENT);
@@ -140,7 +140,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		    	setRequiredFields(new String[0]);
 	    	}
 	    }
-	    else if (event.equals("saveStatus")) {
+	    else if (event.equals("statusSave")) {
 	    	// the dv* fields are readonly and therefore not required. they are imputed when double
 	    	// enter verify is done ("enter" and "enterReview" flows, if configured to support). the
 	    	// dvNotes field is not readonly, but is not a required field.
@@ -978,8 +978,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			else {
 				handlerFound = false;
 			}
-		}
-		if (flowMode.equals("collect")) {
+		} else if (flowMode.equals("collect")) {
 			// collect flow events
 			// "collectSave" - collect state - transitions to review state 
 			// "collectReviewRevise" - review state - transitions to collect state (no handler needed)
@@ -1000,9 +999,9 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		}
 			
 		// the rest of these events are common across all flows that use them 
-	    // "saveStatus" in both enter, enterReview, upload and collect flows is signaled in the status view-state
-		else if(event.equals("saveStatus")){
-			return this.handleSaveStatusEvent(context,command,errors);
+	    // "statusSave" in both enter, enterReview, upload and collect flows is signaled in the status view-state
+		if(event.equals("statusSave")){
+			return this.handleStatusSaveEvent(context,command,errors);
 		}
 		// pass the event component to page navigation event handlers. these handle the list navigation
 		// for detail components, and need to know the name of which detail component to navigate 
@@ -1555,11 +1554,11 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 	 * "editStatus" flow, "editStatus" state, transtioning to the end state, thereby terminating the "editStatus" subflow
 	 * and returning to the parent flow ("enter", "enterReview", "upload", "collect", "view")
 	 */
-	public Event handleSaveStatusEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
-		return doSaveStatusEvent(context,command,errors);
+	public Event handleStatusSaveEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
+		return doStatusSaveEvent(context,command,errors);
 	}
 	
-	protected Event doSaveStatusEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
+	protected Event doStatusSaveEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
 		return this.doSave(context,command,errors);
 	}	
 	
