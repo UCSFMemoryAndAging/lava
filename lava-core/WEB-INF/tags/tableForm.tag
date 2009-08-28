@@ -14,7 +14,7 @@
            	'shortListing, 'listing', 'wideListing', veryWideListing'. if not
             specified, defaults to 'listing' " %>
 <div class="inlineTable">  
-<table class="${not empty listingStyle ? listingStyle : 'listing'}" tableForm">  
+<table class="${not empty listingStyle ? listingStyle : 'listing'} tableForm">  
   <jsp:doBody/>
 </table>
 </div>
