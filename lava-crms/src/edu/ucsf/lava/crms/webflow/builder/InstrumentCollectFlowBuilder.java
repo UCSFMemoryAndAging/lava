@@ -137,12 +137,13 @@ class InstrumentCollectFlowBuilder extends BaseFlowBuilder {
 
 		addViewState("editStatus", null, formAction.getCustomViewSelector(),
 				new Action[] { invoke("prepareToRender", formAction) },
-				new Transition[] { transition(on("instrument__saveStatus"),
+				new Transition[] { transition(on("instrument__statusSave"),
 						to("finish"), ifReturnedSuccess(new Action[] {
 								invoke("customBind", formAction),
 								invoke("handleFlowEvent", formAction) })) },
 				null, null, null);
-
+		
+    	
 	
 		// special flow termination for switching from collect to enter flow.
 		// collect flow can only be

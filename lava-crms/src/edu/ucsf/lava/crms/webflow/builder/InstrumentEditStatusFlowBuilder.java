@@ -43,7 +43,7 @@ class InstrumentEditStatusFlowBuilder extends BaseFlowBuilder {
     	    			null, formAction.getCustomViewSelector(),
     	    			new Action[]{invoke("prepareToRender",formAction)},
     	    			new Transition[] {
-    	    			transition(on("instrument__saveStatus"), to("finish"), 
+    	    			transition(on("instrument__statusSave"), to("finish"), 
     						ifReturnedSuccess(new Action[]{
     							invoke("customBind", formAction), 
     							invoke("handleFlowEvent", formAction)}))},

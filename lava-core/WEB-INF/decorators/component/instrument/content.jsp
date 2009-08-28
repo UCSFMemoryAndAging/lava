@@ -204,7 +204,7 @@
 		<c:set var="rightbutton1_text" value="Cancel"/>
 		<c:set var="rightbutton1_action" value="cancel"/>
 		<c:set var="rightbutton2_text" value="Save"/>
-		<c:set var="rightbutton2_action" value="saveStatus"/>
+		<c:set var="rightbutton2_action" value="statusSave"/>
 	</c:when>
 
 	<%-- NOTE: at this time, collect flow is not used --%>
@@ -267,7 +267,7 @@
 		<%-- if collect mode brought back, this image will probably change to "save" and the dv* fields
 			will not be modified in collect flow --%>		
 		<c:set var="rightbutton2_text" value="Verify"/>
-		<c:set var="rightbutton2_action" value="saveCollect"/>
+		<c:set var="rightbutton2_action" value="collectSave"/>
 	</c:when>
 	
 	<%-- the 'review' componentView is used in the 'enterReview', 'upload' and 'collect' flows, but the
