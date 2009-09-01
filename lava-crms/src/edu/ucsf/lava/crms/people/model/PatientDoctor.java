@@ -2,8 +2,9 @@ package edu.ucsf.lava.crms.people.model;
 
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
+import edu.ucsf.lava.crms.model.CrmsEntity;
 
-public class PatientDoctor extends EntityBase {
+public class PatientDoctor extends CrmsEntity {
 	public static EntityManager MANAGER = new EntityBase.Manager(PatientDoctor.class);
 	
 	
