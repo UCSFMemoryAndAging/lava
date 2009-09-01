@@ -58,7 +58,7 @@
 	]]></query>
 	
 	<query name="list.doctor.allDoctors"><![CDATA[
-	   select new edu.ucsf.lava.core.list.model.LabelValueBean(coalesce(d.fullNameRev,'') + ' - ' + coalesce(d.address,'') + ',' + coalesce(d.city,'') + ',' + coalesce(d.state,''), d.id)
+	   select new edu.ucsf.lava.core.list.model.LabelValueBean(coalesce(d.fullNameRev,'') || ' - ' || coalesce(d.address,'') || ',' || coalesce(d.city,'') || ',' || coalesce(d.state,''), d.id)
 	    from Doctor d
 	    where d.lastName != '' and d.lastName is not null
 		order by d.fullNameRev
