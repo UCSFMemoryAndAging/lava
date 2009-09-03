@@ -134,11 +134,9 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 		// unauthorized such that the subflow is terminated and control returns to the parent flow. the
 		// parent flow then uses the "mostRecentViewState" attribute in flow scope to determine which
 		// view state to return to. initially, "mostRecentViewState" should be set to the initial
-		// view state of the flow, which for list flows is the target part of the action, e.g. 
-		// for lava.scheduling.patientCalendar.patientVisits the view state is "patientVisits"
-		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
-		Action action = actionManager.getCurrentAction(request);
-		String initialViewState = ActionUtils.getTarget(action.getId());
+		// view state of the flow, which for list flows is named after the flow event, aka action, 
+		// aka mode, e.g. "view" for standard lists
+		String initialViewState = ActionUtils.getFlowMode(context.getActiveFlow().getId());
 		context.getFlowScope().put("mostRecentViewState", initialViewState);
 		return new Event(this,this.SUCCESS_FLOW_EVENT_ID);
 	}
