@@ -190,6 +190,11 @@ public class Appointment extends CoreEntity {
 
 
 
-
+	public boolean isDateRangeDirty(){
+		if(this.isDirty("endDate")||isDirty("endTime")||isDirty("startDate")||isDirty("startTime")){
+			return true;
+		}
+		return false;
+	}
 	
 }
