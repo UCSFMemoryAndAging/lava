@@ -82,12 +82,12 @@ div.calendarDayHour2IntervalBox{
 div.testAppointment{
 	position:absolute;
 	left:55px;
-	top:150px;
+	top:60px;
 	background-color: #FFFFFF;/*Table Row*/
 	color: #000000;/*Table Row Text*/
 	border: 1px solid #cccccc;/*Table Header  the border of the row is the header background and vise versa */	
 	width: 720px;
-	height: 58px;
+	height: 118px;
 	}
 	
 div.testAppointment2{
