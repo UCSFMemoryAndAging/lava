@@ -101,7 +101,7 @@ public abstract class LavaHibernateCallback implements HibernateCallback {
 				if(entry.getValue()!=null){
 					for (Entry<String,Object>param:entry.getValue().entrySet()){
 						if(param.getValue()!=null && param.getKey()!=null){
-							if(param.getValue().getClass().isInstance(Collection.class)){
+							if(Collection.class.isAssignableFrom(param.getValue().getClass())){
 								authFilter.setParameterList(param.getKey(), (Collection)param.getValue());
 							}else if(param.getValue().getClass().isArray()){
 								authFilter.setParameterList(param.getKey(),(Object[])param.getValue());
@@ -122,7 +122,7 @@ public abstract class LavaHibernateCallback implements HibernateCallback {
 				if(entry.getValue()!=null){
 					for (Entry<String,Object>param:entry.getValue().entrySet()){
 						if(param.getValue()!=null && param.getKey()!=null){
-							if(param.getValue().getClass().isInstance(Collection.class)){
+							if(Collection.class.isAssignableFrom(param.getValue().getClass())){
 								contextFilter.setParameterList(param.getKey(), (Collection)param.getValue());
 							}else if(param.getValue().getClass().isArray()){
 								contextFilter.setParameterList(param.getKey(),(Object[])param.getValue());
