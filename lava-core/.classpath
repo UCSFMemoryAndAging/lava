@@ -6,9 +6,9 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-collections-3.2.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/hibernate3.jar" sourcepath="/Users/jhesse/dev/install/hibernate-distribution-3.3.1.GA/project/core/src/main/java"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/spring.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/spring.jar" sourcepath="D:/Dev/download/spring-framework-2.0.4/src"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/spring-binding-1.0.4.jar"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/spring-webflow-1.0.4.jar" sourcepath="D:/Dev/Install/Spring WebFlow/spring-webflow-1.0.4/"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/spring-webflow-1.0.4.jar" sourcepath="D:/Dev/download/spring-webflow-1.0.4/projects/spring-webflow/src/main/java"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/acegi-security-1.0.7.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-lang.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-math-1.2.jar"/>
