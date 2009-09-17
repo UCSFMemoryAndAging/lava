@@ -1,0 +1,11 @@
+
+  
+ 
+  <decorator name="panel.patientContext" page="panel/patientContext.jsp"/>
+  <decorator name="panel.projectContext" page="panel/projectContext.jsp"/>
+  <decorator name="component.instrument.content" page="component/instrument/content.jsp"/>
+ 
+  <!-- note that instruments use the same section decorator as entities -->
+  <decorator name="component.instrument.section" page="component/entity/section.jsp"/>
+ 
+
