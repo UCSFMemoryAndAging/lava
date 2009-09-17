@@ -11,7 +11,7 @@ note that these filters just ensure that a user has a role in a given projectUni
 may be needed using the authorizationService to ensure that the user has permissions in a given projectUnit -->
 <filter-def name="projectAuth">
     <filter-param name="projectList" type="string"/>
-     ProjName in (Select pr_pu.ProjUnitDesc from projectunit pr_pu where pr_pu.ProjUnitDesc=ProjName and (pr_pu.ProjUnitDesc in (:projectList))
+     ProjName in (Select pr_pu.ProjUnitDesc from projectunit pr_pu where pr_pu.ProjUnitDesc=ProjName and (pr_pu.ProjUnitDesc in (:projectList)))
 </filter-def>
 <filter-def name="patientAuth">
     <filter-param name="projectList" type="string"/>
