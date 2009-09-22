@@ -24,7 +24,7 @@ import edu.ucsf.lava.core.webflow.builder.FlowInfo;
  * lava.assessment.instrument.instrument.* or instrument specific
  * subflows, e.g. lava.assessment.instrument.medications.*
  */
-class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
+public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
 
 	public InstrumentListViewFlowBuilder(LavaFlowRegistrar registry,String actionId) {
 		super(registry, actionId);

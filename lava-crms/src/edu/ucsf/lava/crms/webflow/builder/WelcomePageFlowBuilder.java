@@ -7,7 +7,7 @@ import org.springframework.webflow.execution.Action;
 import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
 import edu.ucsf.lava.core.webflow.builder.BaseFlowBuilder;
 
-class WelcomePageFlowBuilder extends BaseFlowBuilder {
+public class WelcomePageFlowBuilder extends BaseFlowBuilder {
 	
 	public WelcomePageFlowBuilder(LavaFlowRegistrar registry, String actionId) {
     	super(registry, actionId, "welcome");

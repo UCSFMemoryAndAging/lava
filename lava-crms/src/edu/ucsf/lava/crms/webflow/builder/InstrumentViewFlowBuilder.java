@@ -20,7 +20,7 @@ import edu.ucsf.lava.core.webflow.builder.BaseFlowBuilder;
  * typically involved in a larger flow conversation which may include a 
  * list flow, and an edit entity subflow.
  */
-class InstrumentViewFlowBuilder extends BaseFlowBuilder {
+public class InstrumentViewFlowBuilder extends BaseFlowBuilder {
 	public InstrumentViewFlowBuilder(LavaFlowRegistrar registry,String actionId) {
 		super(registry, actionId);
 		setFlowEvent("view");

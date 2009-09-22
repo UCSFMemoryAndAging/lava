@@ -17,7 +17,7 @@ import edu.ucsf.lava.core.webflow.builder.BaseFlowBuilder;
  * typically involved in a larger flow conversation which includes a parent 
  * list flow.
  */
-class InstrumentChangeVersionFlowBuilder extends BaseFlowBuilder {
+public class InstrumentChangeVersionFlowBuilder extends BaseFlowBuilder {
 
 	public InstrumentChangeVersionFlowBuilder(LavaFlowRegistrar registry, String actionId) {
     	super(registry, actionId);

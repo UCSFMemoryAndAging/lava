@@ -19,7 +19,7 @@ import edu.ucsf.lava.core.webflow.builder.BaseFlowBuilder;
  * typically involved in a larger flow conversation which may include a parent
  * list flow and/or a parent view flow
  */
-class InstrumentCollectFlowBuilder extends BaseFlowBuilder {
+public class InstrumentCollectFlowBuilder extends BaseFlowBuilder {
 	public InstrumentCollectFlowBuilder(LavaFlowRegistrar registry,
 			String actionId) {
 		super(registry, actionId);

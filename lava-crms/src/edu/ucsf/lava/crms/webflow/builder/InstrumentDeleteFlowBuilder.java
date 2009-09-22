@@ -17,7 +17,7 @@ import edu.ucsf.lava.core.webflow.builder.BaseFlowBuilder;
  * typically involved in a larger flow conversation which includes a parent 
  * list flow.
  */
-class InstrumentDeleteFlowBuilder extends BaseFlowBuilder {
+public class InstrumentDeleteFlowBuilder extends BaseFlowBuilder {
 
 	public InstrumentDeleteFlowBuilder(LavaFlowRegistrar registry, String actionId) {
     	super(registry, actionId);
