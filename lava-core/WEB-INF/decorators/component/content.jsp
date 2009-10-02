@@ -4,7 +4,6 @@
   <decorator:getProperty property="component"/>
 </c:set>
 
-
 <c:set var="messageCodeComponent">
   <decorator:getProperty property="messageCodeComponent"/>
 </c:set>
@@ -72,16 +71,30 @@
 	<c:set var="pageName" value="${component}"/>
 </c:if>
 
-<!-- note that the focusField is the field id, not the field name -->
-<c:set var="focusField">
-  ${not isInstrument ? component : (componentView == 'doubleEnter' ? 'compareInstrument' : 'instrument')}_<decorator:getProperty property="focusField"/>
-</c:set>
+<%-- set focus --%>
 <c:if test="${not empty focusField}">
-<script type="text/javascript">
-// uitags method to chain an onload event handler with uitags onload event handlers
-uiHtml_Window.getInstance().appendEventHandler("load", function(e) {setFocus('${focusField}')});
-</script>
+  <%-- prepend to the focusField to get the HTML field id, as constructed in createField, but note that
+  the setFocus method does additional prefixing in case the field is an autocomplete field --%> 
+  <c:set var="focusField">
+    ${not isInstrument ? component : (componentView == 'doubleEnter' ? 'compareInstrument' : 'instrument')}_<decorator:getProperty property="focusField"/>
+  </c:set>
 </c:if>
+<script type="text/javascript">
+// if the URL contains an anchor fragment to position the page, then this takes precedence, i.e. ignore
+// the value of focusField, and use the name of the fragment as the field id, i.e. this requires that the
+// fragment passed to eventButton, eventAction, etc. tags is the id of the field for the browser to 
+// position to, which then is also used here as the field to set focus to
+
+// appendEventHandler is the uitags method to chain an onload event handler with uitags onload event handlers
+if (window.location.hash != null && window.location.hash != '') {
+  uiHtml_Window.getInstance().appendEventHandler("load", function(e) {setFocus(window.location.hash.substring(1))});
+}
+else {
+  <c:if test="${not empty focusField}">
+    uiHtml_Window.getInstance().appendEventHandler("load", function(e) {setFocus('${focusField}')});  
+  </c:if>
+}
+</script>
 
 <c:if test="${isInstrument && componentView == 'collect'}">
 <script language="javascript" type="text/javascript" src="javascript/instrument/collect.js"></script>
@@ -107,7 +120,7 @@ uiHtml_Window.getInstance().appendEventHandler("load", function(e) {setFocus('${
 <c:if test="${not empty quicklinks}">
 <div id="quicklinksBox">
   <c:forTokens items="${quicklinks}" delims="," var="sectionId">
-	  <tags:sectionQuicklink requestUrl="${requestUrl}" sectionId="${sectionId}" linkTextKey="${component}.${sectionId}.quicklink"/>
+	  <tags:sectionQuicklink requestUrl="${requestUrl}" sectionId="${sectionId}" linkTextKey="${messageCodeComponent}.${sectionId}.quicklink" linkTextKey2="${component}.${sectionId}.quicklink"/>
   </c:forTokens>
 </div>  
 </c:if>
