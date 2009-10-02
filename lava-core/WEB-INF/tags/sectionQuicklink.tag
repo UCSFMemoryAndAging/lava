@@ -20,7 +20,10 @@
      	[component].[sectionId].quicklink
      	or, if not found
      	[component].[sectionId].section
-     where [sectionid] is also used as the HTML anchor tag link destination name
+     where [sectionid] is also used as the HTML anchor tag link destination name.
+     
+     If linkTextKey does not result in a message being found, then linkTextKey2
+     is tried.
 --%>
 
 <%@ attribute name="requestUrl" required="true" 
@@ -28,6 +31,8 @@
 <%@ attribute name="sectionId" required="true" 
               description="the anchor identifier for local anchors" %>
 <%@ attribute name="linkTextKey" required="true" 
+              description="the text for the hyperlink" %>
+<%@ attribute name="linkTextKey2" required="false" 
               description="the text for the hyperlink" %>
 <%@ attribute name="sourceSectionId" 
               description="[optional] for section quicklinks to top. the id of that section to 
@@ -43,6 +48,13 @@
 	<%-- facilitate using the same name for quicklinks and sections --%>
 	<c:set var="linkTextKey" value="${fn:replace(linkTextKey, '.quicklink', '.section')}"/>
 	<spring:message var="linkText" code="${linkTextKey}" text=""/>
+	<c:if test="${empty linkText}">
+		<spring:message var="linkText" code="${linkTextKey2}" text=""/>
+		<c:if test="${empty linkText}">
+			<c:set var="linkTextKey2" value="${fn:replace(linkTextKey2, '.quicklink', '.section')}"/>
+			<spring:message var="linkText" code="${linkTextKey2}" text=""/>
+		</c:if>
+	</c:if>					
 </c:if>
 
 <c:set var="anchorUrl">
