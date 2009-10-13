@@ -12,6 +12,8 @@
 <%@ attribute name="labelKey" required="false"  
               description="the column label key to use to look up the label text in the resource bundle. if this
                            is not specified, label is used as the label text, and should be specified" %>
+<%@ attribute name="arguments" required="false"
+			  description="arguments for textKey as a comma-separated string" %>                           
 <%@ attribute name="label" required="false"  
               description="the column label. if not specified, labelKey should be specified" %>
 <%@ attribute name="width" required="false"  
@@ -21,7 +23,7 @@
 
 <c:if test="${not empty labelKey}">
 	<c:set var="label">
-		<spring:message code="${labelKey}"/>
+		<spring:message code="${labelKey}" arguments="${arguments}"/>
 	</c:set>
 </c:if>			
 	
