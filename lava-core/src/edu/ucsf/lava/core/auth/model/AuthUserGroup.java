@@ -12,24 +12,15 @@ public class AuthUserGroup extends EntityBase {
 	
 	public static EntityManager MANAGER = new EntityBase.Manager(AuthUserGroup.class);
 
-	private Long id;
 	private AuthUser user;
 	private Long userId;
 	private AuthGroup group;
 	private Long groupId;
 	private String notes;
 
-	
-	
-	
-
-
 	public Object[] getAssociationsToInitialize(String method) {
 		return new Object[]{this.group,this.user};
 	}
-
-
-	
 	
 	
 	public AuthGroup getGroup() {
@@ -42,12 +33,6 @@ public class AuthUserGroup extends EntityBase {
 		}
 	}
 
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
 	public String getNotes() {
 		return notes;
 	}
