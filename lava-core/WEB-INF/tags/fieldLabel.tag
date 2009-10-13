@@ -114,10 +114,10 @@
 		     individual labels that should have the <label> tags. therefore, the group label which 
 		     this tag creates does not use the <label> tag. rather, use a <p> tag --%>
 		<c:when test="${dataElement == 'comboRadioSelect' || dataElement == 'radioButtons'}">
-			<p class="${alignment}${not empty labelStyle ? labelStyle : ''}">
+			<p class="${alignment} ${not empty labelStyle ? labelStyle : ''}">
 		</c:when>
 		<c:otherwise>
-            <label for="${fieldId}" class="${alignment}${not empty labelStyle ? labelStyle : ''}">
+            <label for="${fieldId}" class="${alignment} ${not empty labelStyle ? labelStyle : ''}">
  		</c:otherwise>
   	</c:choose>		
 
