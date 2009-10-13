@@ -4,4 +4,4 @@
 --%>
 <%@ attribute name="name" required="true" 
        description="the component" %>
-command.components['${name}']
+command.components[name]
