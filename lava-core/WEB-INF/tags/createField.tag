@@ -45,9 +45,9 @@
 		     "suggest" = a list of suggested values, a user supplied value is acceptable. 
 		     "string" = value less than 50 chars
 		     "numeric" = numeric value, treated same as "string" except right aligned
-		     "text" = value greater than 50 characters  
+		     "text" = value greater than 50 characters 
 		     "date" = date value
-		     "datetime" = date with time value
+		     "time" = time value
 		     "toggle" = boolean value
 		     "multiple" = list from which multiple values can be selected (the data is bound
 		     	as a comma-separated string)
