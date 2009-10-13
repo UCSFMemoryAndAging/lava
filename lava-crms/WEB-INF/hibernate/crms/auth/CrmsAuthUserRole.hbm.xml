@@ -16,9 +16,12 @@
 			
 	
 	  <!-- queries  -->
+	  
+	  <!-- Users with role 'SYSTEM ADMIN' are not included in staff lists, unless they also have another role -->
+	  
 	<query name="list.authUserRole.projectUnitUserStaff"><![CDATA[
 	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(apr.user.shortUserNameRev, apr.user.shortUserNameRev, 0)
-			from AuthUserRole apr where :projectName IN 
+			from AuthUserRole apr join apr.role r where r.roleName != 'SYSTEM ADMIN' and :projectName IN 
 				(SELECT pu.projUnitDesc from Project pu where apr.project=case when apr.project='*' then '*' else pu.project end and
 								 	(apr.unit is null or apr.unit=case when apr.unit='*' then '*' else pu.unit end))
 		order by apr.user.shortUserNameRev
@@ -26,7 +29,7 @@
 
 	<query name="list.authUserRole.projectUnitGroupStaff"><![CDATA[
 	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(u.shortUserNameRev,u.shortUserNameRev, 0)
-			from AuthUserRole apr join apr.group g join g.users gu join gu.user u where :projectName IN 
+			from AuthUserRole apr join apr.role r join apr.group g join g.users gu join gu.user u where r.roleName != 'SYSTEM ADMIN' and :projectName IN 
 				(SELECT pu.projUnitDesc from Project pu where apr.project=case when apr.project='*' then '*' else pu.project end and
 								 	(apr.unit is null or apr.unit=case when apr.unit='*' then '*' else pu.unit end))
 		order by u.shortUserNameRev
@@ -46,7 +49,7 @@
 	
 	<query name="list.authUserRole.patientUserStaff"><![CDATA[
 	   	SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(apr.user.shortUserNameRev, apr.user.shortUserNameRev, 0)
-		from AuthUserRole apr where :patientId IN (Select es.patient.id from EnrollmentStatus es 
+		from AuthUserRole apr join apr.role r where r.roleName != 'SYSTEM ADMIN' and :patientId IN (Select es.patient.id from EnrollmentStatus es 
 					where :patientId =es.patient.id and es.projName IN 
 					(SELECT pu.projUnitDesc from Project pu where apr.project=case when apr.project='*' then '*' else pu.project end and
 								 	(apr.unit is null or apr.unit=case when apr.unit='*' then '*' else pu.unit end)))
@@ -55,8 +58,8 @@
 	
 	<query name="list.authUserRole.patientGroupStaff"><![CDATA[
 	   	SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(u.shortUserNameRev, u.shortUserNameRev, 0)
-		from AuthUserRole apr join apr.group g join g.users gu join gu.user u where :patientId IN (Select es.patient.id from EnrollmentStatus es 
-					where :patientId =es.patient.id and es.projName IN 
+		from AuthUserRole apr join apr.role r join apr.group g join g.users gu join gu.user u where :patientId IN (Select es.patient.id from EnrollmentStatus es 
+					where r.roleName != 'SYSTEM ADMIN' and :patientId =es.patient.id and es.projName IN 
 					(SELECT pu.projUnitDesc from Project pu where apr.project=case when apr.project='*' then '*' else pu.project end and
 								 	(apr.unit is null or apr.unit=case when apr.unit='*' then '*' else pu.unit end)))
 		order by u.shortUserNameRev
