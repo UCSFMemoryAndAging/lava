@@ -328,9 +328,8 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 	 */
 	public void setSourceFromEntityList(List entityList) {
 		List<ListItem> listItemList = new ArrayList<ListItem>(entityList.size());
-		int i=0;
 		for (Object entity : entityList) {
-			listItemList.add(i, new ListItem(entity));
+			listItemList.add(new ListItem(entity));
 		}
 		this.setSource(listItemList);
 	}
