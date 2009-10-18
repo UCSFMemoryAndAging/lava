@@ -47,6 +47,21 @@ public class CoreActionDelegate extends AbstractScopeActionDelegate {
 				String subActionId = (String)iterator.next();
 				if(registry.containsAction(subActionId)){
 					((Action)registry.getActionInternalCopy(subActionId)).setParentFlow(action.getId());
+					// instance flows that replace lava flows that are parent flows inherit the subFlows from 
+					// the lava flow without having to explictly configure those same subFlows (i.e. an 
+					// instance flow should only have to define relationships that it does not inherit). 
+					
+					// in this loop, any subFlows configured for the lava flow become subFlows of the
+					// instance flow as well, if the instance flow exists
+					
+					// note: instance subFlows are handled via the mechanism in BaseFlowBuilder buildSubFlowStates,
+					// where if a lava subFlow has a corresponding instance subFlow, only a subFlow state for the
+					// instance subFlow is built. so effectively, instance subFlows inherit the parents from
+					// their corresponding lava flow
+					String effectiveActionId = resolveEffectiveAction(actionManager,null,action.getId(),registry).getId();
+					if (!effectiveActionId.equals(action.getId())) {
+						((Action)registry.getActionInternalCopy(subActionId)).setParentFlow(effectiveActionId);
+					}
 				}else{
 					logger.error("subFlow actionId: "+subActionId + " for actionId: " + actionId + " not found in action registry.");
 					iterator.remove();
@@ -57,6 +72,15 @@ public class CoreActionDelegate extends AbstractScopeActionDelegate {
 				String parentActionId = (String)iterator.next();
 				if(registry.containsAction(parentActionId)){
 					((Action)registry.getActionInternalCopy(parentActionId)).setSubFlow(action.getId());
+					// instance flows that replace parent flows implicitly inherit and defined subFlows
+					
+					// in this loop, another flow has designated a flow as a parent and so becomes a subFlow of the parent,
+					// and also becomes a subFlow of the instance flow, if the instance flow exists
+					String effectiveParentActionId = resolveEffectiveAction(actionManager,null,parentActionId,registry).getId();
+					if (!effectiveParentActionId.equals(parentActionId)) {
+						((Action)registry.getActionInternalCopy(effectiveParentActionId)).setSubFlow(action.getId());
+					}
+					
 				}else{
 					logger.error("parentFlow actionId: "+parentActionId + " for actionId: " + actionId + " not found in action registry.");
 					iterator.remove();
@@ -82,6 +106,7 @@ public class CoreActionDelegate extends AbstractScopeActionDelegate {
 				}
 			}
 		}
+
 		//now look at customized Flows and make sure the "customizing" flow has all the subflows of the 
 		//flow that is being customized.  This means that customizing actions do not need to accurately
 		//redefine all the subflows of the action they are customizing (i.e. they will inherit them)
