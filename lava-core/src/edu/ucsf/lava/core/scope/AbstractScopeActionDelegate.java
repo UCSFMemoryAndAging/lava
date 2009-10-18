@@ -35,7 +35,6 @@ public abstract class AbstractScopeActionDelegate implements Comparable<ScopeAct
 		return defaultActionStrategy.getDefaultAction(actionManager,request, actionIn);
 	}
 
-	
 	/**
 	 * Determines what the actual action should be based on the current runtime conditions.  This base method 
 	 * simply determines whether there is an instance specific customization for the action for the current
@@ -45,10 +44,9 @@ public abstract class AbstractScopeActionDelegate implements Comparable<ScopeAct
 	 *  Note: the HttpServletRequest will be null when called outside the context of a current request (e.g. from
 	 *  the flow builders).  Overrides of this method in subclasses need to check the request for null and degrade appropriately. 
 	 */
-	public Action resolveEffectiveAction(ActionManager actionManager,HttpServletRequest request, String actionId){
+	public Action resolveEffectiveAction(ActionManager actionManager, HttpServletRequest request, String actionId, ActionRegistry actionRegistry){
 		
 		//instance scope, e.g. demo.core.admin.auth.authUsers 
-		ActionRegistry actionRegistry = actionManager.getActionRegistry();
 		String instanceActionId = ActionUtils.getActionIdWithInstance(actionId, actionManager.getWebAppInstanceName());
 		if (actionRegistry.containsAction(instanceActionId)){
 			return actionRegistry.getAction(instanceActionId);
@@ -57,6 +55,13 @@ public abstract class AbstractScopeActionDelegate implements Comparable<ScopeAct
 		}else{
 			return null;
 		}
+	}
+
+	/** 
+	 * Use this implementation in call cases except prior to the time the ActionManager registry has been initialized.
+	 */
+	public Action resolveEffectiveAction(ActionManager actionManager,HttpServletRequest request, String actionId){
+		return resolveEffectiveAction(actionManager, request, actionId, actionManager.getActionRegistry());
 	}
 	
 	/**
