@@ -14,6 +14,12 @@
 	<!-- common definition for entity report designs, which may or may not have subReports (i.e. master with details) -->
 	<bean id="crmsEntityBaseReport" class="edu.ucsf.lava.core.reporting.controller.LavaJasperReportsMultiFormatView" abstract="true">
 		<property name="reportDataKey" value="entityReportDataSource"/>
+		<property name="headers">
+			<map>
+				<entry key="Content-Disposition" value="inline;filename=report.pdf"/>
+				<entry key="Content-Type" value="application/pdf"/>		
+			</map>
+		</property>	
 	</bean>
 	<!--  For developement - to recompile each time 
 	<bean id="crmsEntityBaseReport" class="edu.ucsf.lava.core.reporting.controller.RecompilingLavaJasperReportsMultiFormatView" abstract="true">
@@ -24,6 +30,12 @@
 	<!-- common definition for list report designs, for printing the list on a page  -->
 	<bean id="crmsListBaseReport" class="edu.ucsf.lava.core.reporting.controller.LavaJasperReportsMultiFormatView" abstract="true">
 		<property name="reportDataKey" value="listReportDataSource"/>
+		<property name="headers">
+			<map>
+				<entry key="Content-Disposition" value="inline;filename=report.pdf"/>
+				<entry key="Content-Type" value="application/pdf"/>		
+			</map>
+		</property>	
 	</bean>
 	<!--  for development to recompile each time
 	<bean id="crmsListBaseReport" class="edu.ucsf.lava.core.reporting.controller.RecompilingLavaJasperReportsMultiFormatView" abstract="true">
