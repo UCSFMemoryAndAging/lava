@@ -1,4 +1,4 @@
-<%@ include file="/WEB-INF/jsp/includes/include.jsp" %>>
+<%@ include file="/WEB-INF/jsp/includes/include.jsp" %>
 
 <c:set var="component">${param.component}</c:set>
 
