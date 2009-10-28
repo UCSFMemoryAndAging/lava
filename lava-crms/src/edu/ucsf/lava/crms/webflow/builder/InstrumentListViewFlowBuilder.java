@@ -141,8 +141,8 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
     		List<FlowInfo> subFlowInfoList = getSubFlowInfo(subFlowId); 
 				
 			for(FlowInfo subFlowInfo: subFlowInfoList){
-				
-		    	// create subflow transitions to be used for the subflow states created below.
+
+				// create subflow transitions to be used for the subflow states created below.
 				// for the enter and collect subflows, add transitions to support switching
 				// from one to the other and vice versa 
 		    	Transition[] transitions;
@@ -211,10 +211,10 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
 		    	// create the subflow state for a given target (e.g. "instrument" or "medications") and
 		    	// action (e.g. "add","delete","view","enter","collect","upload")
 				addSubflowState(subFlowInfo.getTarget()+"__"+subFlowInfo.getEvent(),
-						flow(subFlowInfo.getActionId()+ "." + subFlowInfo.getEvent()),
+						flow(registry.getActionManager().getEffectiveAction(subFlowInfo.getActionId()).getId() + "." + subFlowInfo.getEvent()),
 						paramMapper,  
 						transitions);
-				
+		
     		}
     	}
 
