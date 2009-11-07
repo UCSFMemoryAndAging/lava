@@ -116,7 +116,7 @@ else {
 <c:set var="quicklinks">
   <decorator:getProperty property="quicklinks"/>
 </c:set>	
-<c:if test="${isInstrument && componentView == 'status'}">
+<c:if test="${isInstrument && (componentView == 'status' || componentView == 'editStatus')}">
 	<%-- all instrument views share the same jsp, but status view should not display the quicklinks --%>
 	<c:set var="quicklinks" value=""/>
 </c:if>	
