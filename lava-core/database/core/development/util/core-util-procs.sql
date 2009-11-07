@@ -242,7 +242,7 @@ END $$
 
 
 DROP PROCEDURE IF EXISTS `util_GetResultFields`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE  `util_GetResultFields`(EntityIn varchar(50), ScopeIn VARCHAR(25))
+CREATE PROCEDURE  `util_GetResultFields`(EntityIn varchar(50), ScopeIn VARCHAR(25))
 BEGIN
 
 SELECT CONCAT('"',`property`,'",')
