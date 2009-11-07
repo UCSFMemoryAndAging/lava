@@ -250,11 +250,11 @@ public class SessionManager extends LavaManager{
 			SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a, zzz");
 			requestWrapper.setLavaSessionMonitoringMessage(
 					metadataManager.getMessage(LavaSessionHttpRequestWrapper.LAVASESSION_EXPIRED_MESSAGE_CODE,
-							new Object[]{dateFormat.format(session.getDisconnectTime()),
-							session.getDisconnectMessage()},Locale.getDefault()));
+							new Object[]{dateFormat.format(session.getExpireTimestamp())},Locale.getDefault()));
 			return requestWrapper;	
 		
 		}
+		
 		public LavaSessionHttpRequestWrapper setDisconnectMessage(LavaSession session,HttpServletRequest request){
 			LavaSessionHttpRequestWrapper requestWrapper = new LavaSessionHttpRequestWrapper(request);
 			SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a, zzz");
