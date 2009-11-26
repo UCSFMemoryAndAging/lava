@@ -1,9 +1,7 @@
 package edu.ucsf.lava.crms.assessment.controller;
 
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,15 +17,10 @@ import edu.ucsf.lava.crms.assessment.InstrumentManager;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
-import edu.ucsf.lava.crms.session.CrmsSessionUtils;
-//import edu.ucsf.lava.service.AssessmentService;
-//import edu.ucsf.lava.service.SessionService;
 
 public class CalculateController extends AbstractController {
-//	protected AssessmentService assessmentService;
-//	protected SessionService sessionService;
-        InstrumentManager instrumentManager;
-        SessionManager sessionManager;
+	InstrumentManager instrumentManager;
+	SessionManager sessionManager;
 	protected LavaDaoFilter filter;
 	protected List<Long> instrIdList; // the list of instrument ids to be calculated
 	protected Class clazz; // the class of the current instrument being calculated.
@@ -36,20 +29,23 @@ public class CalculateController extends AbstractController {
 	protected static final String[] UNSUPPORTED = {"macdiagnosis"};
 	
 	// This controller is invoked via the following URL: https://..IP../INSTANCE/assessment/instrument/calc.lava
-	// TWO paramters are possible:
+	// TWO parameters are possible:
 	//    1) instrTypeEncoded=INSTR_TYPE_ENCODED, where INSTR_TYPE_ENCODED has no spaces and is all lowercase, e.g.
-	//       if this parameters is used, all instruments for this instrument type will be calculated
-	//    2) instrId=INSTR_ID, where INSTR_ID is the InstrId of the instrument you want to calculate
-	//	 this is useful if you only want to call calculate on a single instrument
-        //
+	//       if this parameters is used, ALL instruments for this instrument type will be calculated
+	//	  2) instrIdsArray=INSTR_IDS, where INSTR_IDS are the instrIds (in typical array format, i.e. [123,234,345])
+	//		 of the instruments you want to calculate. the nice thing is that they do not have to all be of a certain
+	//		 instrument type. this is useful if you only want to call calculate on certain records, regardless of instrType
+	//
 	// Here are some examples:
-	// https://mac.ucsf.edu:7630/smd/crms/assessment/instrument/calc.lava?instrTypeEncoded=setshifting
-	// https://mac.ucsf.edu:7630/smd/crms/assessment/instrument/calc.lava?instrId=12345
+	// http://localhost:8080/smd/crms/assessment/instrument/calc.lava?instrTypeEncoded=updrs
+	// https://mac.ucsf.edu/mac/crms/assessment/instrument/calc.lava?instrTypeEncoded=setshifting
+	// https://mac.ucsf.edu/mac/crms/assessment/instrument/calc.lava?instrIdsArray=[12345,12346,12347,12348]
+	// https://mac.ucsf.edu/mac/crms/assessment/instrument/calc.lava?instrIdsArray=[12345] (for a single record)
 	
-	// this should only be invoked after changing the transaction propagation behavior to PROPAGATION_REQUIRES_NEW
+	// for JBoss, this should only be invoked after changing the transaction propagation behavior to PROPAGATION_REQUIRES_NEW
 	// see below for more info
 	
-	// this is typically run on a development instance pointing at a production database server.
+	// this could be run on a development instance pointing at a production database server.
 	// if so, change the JBoss database server configuration, and REMEMBER TO CHANGE IT BACK
 	// after you are done 
 	
@@ -65,8 +61,9 @@ public class CalculateController extends AbstractController {
 		// obtain the string representing array of instrIds from the "instrIdsArray" request parameter, if it exists
 		String instrIdsArrayParam = request.getParameter("instrIdsArray");
 
-		// UPDATE: not clear if the below is applicable to Tomcat using Hibernate transactions, as it
-		// is for JBoss using JTA transactions:
+		// NOTE: if using JBoss and JTA transactions (not clear yet about performance in Tomcat with
+		// Hibernate transactions when instrument has detail records, but fine in Tomcat with Hibernate
+		// transactions for other instruments):
 		// because instrument types with large numbers of instruments and instruments with many details
 		// and instruments with upload files take so long to retrieve, it is not desirable to hold
 		// an open transaction on the entire list (not to mention the fact that a transaction timeout
@@ -77,14 +74,12 @@ public class CalculateController extends AbstractController {
 		// transaction, which is achieved by changing the transaction propagation behavior such that
 		// transaction boundaries are on each service call as opposed to spanning the entire request,
 		// which is the transaction behavior normally used. 
-		
 		// TO BE CLEAR, this means modifying the transaction configuration in lava-dao.xml such that
 		// propagationBehaviorName is changed from PROPAGATION_REQUIRED to PROPAGATION_REQUIRES_NEW and
 		// redeploying the webapp. The typical scenario is to redeploy a development instance of the webapp
 		// with this setting which is pointing to the database on which a instrument calculation should be 
 		// done
 		
-                //// LavaDaoFilter filter = assessmentService.newFilterInstance(sessionService.getCurrentUser(request));
 		this.filter = InstrumentTracking.newFilterInstance(CoreSessionUtils.getCurrentUser(this.sessionManager, request));
 		this.instrIdList = new ArrayList();
 		Instrument instr;
@@ -103,8 +98,6 @@ public class CalculateController extends AbstractController {
 		
 
 	public void calculateByType(String instrTypeEncodedParam) throws Exception {
-	        ////this.instrIdList = this.assessmentService.getInstrumentIdsByType(this.filter, instrTypeEncodedParam);
-		////this.clazz = this.assessmentService.getInstrumentClass(instrTypeEncodedParam);
 		this.clazz = this.instrumentManager.getInstrumentClass(instrTypeEncodedParam);
 		this.instrIdList = InstrumentTracking.MANAGER.getIds(this.clazz, this.filter);
 		
@@ -176,20 +169,14 @@ public class CalculateController extends AbstractController {
 
 	public void calculateInstrId(Long instrId) throws Exception {
 		this.filter.addIdDaoEqualityParam(instrId);
-		////Instrument instr = (Instrument) this.assessmentService.get(this.clazz, this.filter);
 		Instrument instr = (Instrument) Instrument.MANAGER.getOne(this.clazz, this.filter);
-// should not have to call calculate anymore. instead, the call to save will call all of the LavaEntity triggers
-////		instr.calculate();
-		////this.assessmentService.save(instr);
 		instr.save();
 		this.filter.clearDaoParams();
 	}
 	
 	public void setInstrClass(Long instrId) {
-                ////InstrumentTracking instrTracking = this.assessmentService.getInstrumentTracking(instrId, this.filter);
-		////this.clazz = instrTracking==null ? null : this.assessmentService.getInstrumentClass(instrTracking.getInstrTypeEncoded());
-//TRY USING Instrument.MANAGER so the following will obtain an instance of the actual class type, 
-// and will not then have to re-retrieve an instance of that class below			
+//TODO: try using Instrument.MANAGER so the following will obtain an instance of the actual class type, 
+// and will not then have to re-retrieve an instance of the class in calculateInstrId			
 		InstrumentTracking instrTracking = (InstrumentTracking) InstrumentTracking.MANAGER.getById(instrId, this.filter);
 		if (instrTracking == null) {
 		    this.clazz = null;
@@ -207,13 +194,4 @@ public class CalculateController extends AbstractController {
 		return true;
 	}
 
-/**
-	public void setAssessmentService(AssessmentService assessmentService) {
-		this.assessmentService = assessmentService;
-	}
-
-	public void setSessionService(SessionService sessionService) {
-		this.sessionService = sessionService;
-	}
-**/
 }
