@@ -26,6 +26,7 @@ public interface EntityManager {
 		public  void refresh(Object object);
 		public  void save(Object object);
 		public  List findByNamedQuery(String namedQuery, LavaDaoFilter filter);
+		public  Object findOneByNamedQuery(String namedQuery, LavaDaoFilter filter);
 		public List<Long> getIds(LavaDaoFilter filter);
 		public void executeSQLProcedure(String procedureName, Object[] paramValues, int[] paramTypes, char[] paramIOFlags);
 		//useful methods for when we are working with an unknown (at compile time) subclass of EntityBase by specifying the class

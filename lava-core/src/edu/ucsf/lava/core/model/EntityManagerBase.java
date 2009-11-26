@@ -1,8 +1,5 @@
 package edu.ucsf.lava.core.model;
 
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import edu.ucsf.lava.core.auth.model.AuthUser;
@@ -12,9 +9,6 @@ import edu.ucsf.lava.core.spring.LavaBeanUtils;
 
 public class EntityManagerBase {
 
-	
-	
-	
 		protected LavaDao dao;
 		protected String daoBeanId;
 		
@@ -95,6 +89,11 @@ public class EntityManagerBase {
 			
 		}
 		
+		public Object findOneByNamedQuery(String namedQuery, LavaDaoFilter filter) {
+			List results = getDao().findByNamedQuery(namedQuery, filter);
+			return getDao().uniqueResult(results);
+		}
+
 		public List<Long> getIds(Class entityClass){
 			return getIds(entityClass,newFilterInstance());
 		}

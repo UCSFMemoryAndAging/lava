@@ -697,6 +697,10 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 		public List findByNamedQuery(String namedQuery, LavaDaoFilter filter) {
 			return manager.findByNamedQuery(namedQuery, filter);
 		}
+		
+		public  Object findOneByNamedQuery(String namedQuery, LavaDaoFilter filter) {
+			return manager.findOneByNamedQuery(namedQuery, filter);
+		}
 
 		public List get() {
 			return manager.get(entityClass);
