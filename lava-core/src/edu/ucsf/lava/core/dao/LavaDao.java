@@ -1,12 +1,8 @@
 package edu.ucsf.lava.core.dao;
 
-import java.sql.Timestamp;
 import java.util.List;
 
-
 public interface LavaDao {
-	
-	
 	public String getDatabaseName();
 	public void save(Object object) ;
 	public Object create(Class clazz) ;
@@ -16,6 +12,7 @@ public interface LavaDao {
 	public Object findOne(Class clazz, LavaDaoFilter filter);
 	public List find(Class entityClass, LavaDaoFilter filter);
 	public List findByNamedQuery(String namedQuery, LavaDaoFilter filter);
+	public Object uniqueResult(List results);
 	public LavaDaoFilter newFilterInstance();
 	public Integer getResultCount(Class clazz, LavaDaoFilter filter);	
 	public void flushAndEvict(Object entity);
@@ -23,6 +20,4 @@ public interface LavaDao {
 	public void initialize(Object entity);
 	public List<Long> getEntityIds(Class entityClass,LavaDaoFilter filter);
 	public void executeSQLProcedure(String procedureName, Object[] paramValues, int[] paramTypes, char[] paramIOFlags);
-	
-		
 }
