@@ -20,6 +20,7 @@
 		<property name="data"><list>
 			<bean parent="list.data"><constructor-arg value="Defer"/><constructor-arg value="Defer"/></bean>
 			<bean parent="list.data"><constructor-arg value="Skip"/><constructor-arg value="Skip"/></bean>
+			<bean parent="list.data"><constructor-arg value="Verified"/><constructor-arg value="Verified"/></bean>
 			<bean parent="list.data"><constructor-arg value="Verified - Double Entry"/><constructor-arg value="Verified - Double Entry"/></bean>
 			<bean parent="list.data"><constructor-arg value="Verified - Other"/><constructor-arg value="Verified - Other"/></bean>
 			<bean parent="list.data"><constructor-arg value="Verified - Review"/><constructor-arg value="Verified - Review"/></bean>
