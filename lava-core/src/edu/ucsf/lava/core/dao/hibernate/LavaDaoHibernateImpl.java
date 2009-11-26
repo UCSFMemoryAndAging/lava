@@ -1,12 +1,10 @@
 package edu.ucsf.lava.core.dao.hibernate;
 
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.HibernateException;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import edu.ucsf.lava.core.dao.LavaDao;
@@ -14,9 +12,6 @@ import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.LavaEntity;
 
 public class LavaDaoHibernateImpl extends HibernateDaoSupport implements LavaDao {
-	
-	
-	
 	
 	  public String getDatabaseName() {
 			String queryString = "select database() as dbName";
@@ -174,6 +169,10 @@ public class LavaDaoHibernateImpl extends HibernateDaoSupport implements LavaDao
 		
 	}
 	
+	public Object uniqueResult(List results) {
+		return DataAccessUtils.uniqueResult(results);
+	}
+	
 	protected List findByHqlQuery(String hqlQuery, LavaDaoFilter filter){
 		return doInitializeObjectList(new ArrayList(getHibernateTemplate()
 				.executeFind(new HqlQueryHibernateCallback(hqlQuery,filter))),hqlQuery);
@@ -198,9 +197,9 @@ public class LavaDaoHibernateImpl extends HibernateDaoSupport implements LavaDao
 	}
 	
 	public List<Long> getEntityIds(Class entityClass, LavaDaoFilter filter){
-//		 the use of a select clause with the "entity" alias in the following query is necessary so
+		// the use of a select clause with the "entity" alias in the following query is necessary so
 		// that for entities with with details, only the master entities are returned
-		StringBuffer hqlQuery = new StringBuffer("select new java.lang.Long(entity.id) from ").append(entityClass.getSimpleName()).append(" entity where entity.id > 0");
+		StringBuffer hqlQuery = new StringBuffer("select new java.lang.Long(entity.id) from ").append(entityClass.getName()).append(" entity where entity.id > 0");
 		return findByHqlQuery(hqlQuery.toString(),filter);
 	}
 	
