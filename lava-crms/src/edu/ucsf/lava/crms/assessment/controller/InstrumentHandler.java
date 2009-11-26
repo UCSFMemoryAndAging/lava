@@ -854,17 +854,6 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		return returnEvent;
 	}
 
-	// override base class doSave
-	// this is called by all edit-related handlers which save the instrument in order to set audit properties  
-	protected Event doSave(RequestContext context, Object command, BindingResult errors) throws Exception{
-	        Instrument instrument = (Instrument) ((ComponentCommand)command).getComponents().get(INSTRUMENT);
-		// do any calculations
-		instrument.calculate();
-		
-		return super.doSave(context,command,errors);
-	}
-	
-	
 
 	// override base class doReRender
 	// for add instrument, update the pre-populated dcDate and dcStatus based on the visit the user has 
