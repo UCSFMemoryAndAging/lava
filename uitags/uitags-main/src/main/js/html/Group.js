@@ -131,7 +131,8 @@ uiHtml_Group.prototype.hasRegExpValue = function(forValue) {
   // note: the __items array contains multiple items for selectboxes and
   //       radiobutton groups, but for all other types of element this array
   //       just contains a single widget
-  // note: the forValue=null situation has already been handled in Rule._holds,
+  // note: the forValue=null (e.g. when observeForNull tag is used) situation has 
+  //       already been handled in Rule._holds,
   //       so know that forValue is not null at this point, meaning that if
   //       this group represents selectible widgets (i.e. select options, 
   //       radio buttons, checkboxes) that at least one of them is selected.
