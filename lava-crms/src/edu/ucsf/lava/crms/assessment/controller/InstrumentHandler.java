@@ -74,6 +74,9 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 				"enterReviewSave", "upload", "collectSave", "collectReviewRevise", "collectReviewSave", "collectReviewDefer",
 				"statusSave", "cancel","refresh","reRender","save","upload","confirmChangeVersion","cancelChangeVersion",
 				"custom","custom2","custom3","customEnd","customEnd2","customEnd3"}));
+		// set events for which required field validation should be done
+		requiredFieldEvents = new ArrayList(Arrays.asList(new String[]{"applyAdd", "saveAdd", "confirmChangeVersion",
+				"collectSave", "enterSave", "enterVerify", "doubleEnterSave", "statusSave"}));
 		
 		this.setPrimaryComponentContext(CrmsSessionUtils.CURRENT_INSTRUMENT);
 	}
