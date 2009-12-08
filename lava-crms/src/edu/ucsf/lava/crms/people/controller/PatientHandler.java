@@ -55,7 +55,7 @@ public class PatientHandler extends CrmsEntityComponentHandler {
 	// override save to validate 
 	protected Event doSave(RequestContext context, Object command, BindingResult errors) throws Exception {
 		Patient patient = (Patient) ((ComponentCommand)command).getComponents().get(getDefaultObjectName());
-		if (patient.getBirthDate().after(new Date())) {
+		if (patient.getBirthDate() != null && patient.getBirthDate().after(new Date())) {
 			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"patient.futureBirthDate"}, new String[]{new SimpleDateFormat("MM/dd/yyyy").format(patient.getBirthDate())}, ""));
 			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
