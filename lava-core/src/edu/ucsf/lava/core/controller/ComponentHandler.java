@@ -29,6 +29,7 @@ public interface ComponentHandler {
 	public Event handleFlowEvent(RequestContext context, Object command, BindingResult errors) throws Exception;
 	public Event postEventHandled(RequestContext context, Object command, BindingResult errors) throws Exception;
 	public Event preEventHandled(RequestContext context, Object command, BindingResult errors) throws Exception;
+	public boolean validateRequiredFieldsEvent(RequestContext context);
 	public boolean handlesObject(String objectName);
 	public boolean handlesEvent(RequestContext context);
 	public boolean handlesDownload(RequestContext context);
