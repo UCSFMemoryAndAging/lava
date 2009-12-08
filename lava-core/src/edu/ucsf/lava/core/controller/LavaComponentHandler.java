@@ -247,9 +247,9 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 	}
 
 	/*
-	 * Called to determine if required field validation should be performed, based on the event.
+	 * Called to determine if the event is one for which required field validation should be performed.
 	 */
-	public boolean validateRequiredFields(RequestContext context) {
+	public boolean validateRequiredFieldsEvent(RequestContext context) {
 		// note: do not use "String event = ActionUtils.getEventParameter(request)" because it is possible for a flow
 		//  to set an overrideEvent which will be different from the event request parameter
 		String eventId = ActionUtils.getEventId(context);
