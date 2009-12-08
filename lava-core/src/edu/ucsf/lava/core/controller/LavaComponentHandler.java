@@ -64,6 +64,7 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 	protected String primaryComponentContext;
 	protected List<String> handledEvents; //a list of events handled by the handler, set by default, may be specified
 	protected List<String> defaultEvents = new ArrayList(); // a list of default events handled for each object supported...defined in subclasses
+	protected List<String> requiredFieldEvents = new ArrayList(); // a list of events for which required field validation should be done
 	protected List<String> authEvents = new ArrayList(); // a list of the events for which a user must have permission
 	protected Map<String,Class>  handledObjects; //a name, class map of "command" objects handled by this handler, typically just the one object for entity handlers
 	protected String defaultObjectName; //the handled object that is the primary object for default methods, set automatically if just one handled object
@@ -245,6 +246,22 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		return false;
 	}
 
+	/*
+	 * Called to determine if required field validation should be performed, based on the event.
+	 */
+	public boolean validateRequiredFields(RequestContext context) {
+		// note: do not use "String event = ActionUtils.getEventParameter(request)" because it is possible for a flow
+		//  to set an overrideEvent which will be different from the event request parameter
+		String eventId = ActionUtils.getEventId(context);
+		
+		for (String requiredFieldEvent: this.requiredFieldEvents){
+			if (eventId.equals(requiredFieldEvent)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/*
 	 * Called by the controller, determines whether this handler handles the object.
 	 */
@@ -457,8 +474,31 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		//this needed to come out do that we could reset the object name in subclasses and redefine the handled events. 
 		//if (handledEvents == null){
 			setDefaultHandledEvents(defaultObjectName);
+			setDefaultRequiredFieldEvents(defaultObjectName);
 		//}
 	}
+
+	public List getRequiredFieldEvents() {
+		return requiredFieldEvents;
+	}
+
+	// sets up the events for the default object name for which required fields should be validated
+	protected void setDefaultRequiredFieldEvents(String defaultObjectName){
+		List<String> events = new ArrayList<String>();
+
+		StringBuffer event;
+		for(String requiredFieldEvent : this.requiredFieldEvents){
+			event = new StringBuffer().append(defaultObjectName).append(ActionUtils.OBJECT_EVENT_SEPARATOR).append(requiredFieldEvent);
+			events.add(event.toString());
+		}
+		setRequiredFieldEvents(events);
+	}
+	
+	public void setRequiredFieldEvents(List requiredFieldEvents) {
+		this.requiredFieldEvents = requiredFieldEvents;
+	}
+	
+	
 	
 	//Override in subclass for custom required fields functionality
 	public String[] getRequiredFields() {
