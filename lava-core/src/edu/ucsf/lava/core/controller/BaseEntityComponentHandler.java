@@ -41,6 +41,8 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		defaultEvents = new ArrayList(Arrays.asList(new String[]{"view","edit","cancel","save","add","cancelAdd","applyAdd","saveAdd",
 									"close","delete","confirmDelete","cancelDelete","reRender","refresh",
 									"custom","custom2","custom3","customEnd","customEnd2","customEnd3"}));
+		// set events for which required field validation should be done
+		requiredFieldEvents = new ArrayList(Arrays.asList(new String[]{"save", "applyAdd", "saveAdd"}));
 		if(getSupportsAttachedFiles()){
 			defaultEvents.add("download");
 			defaultEvents.add("deleteFile");
@@ -178,6 +180,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		components.putAll(backingObjects);
 	}
 	
+	
     /*
      * The opportunity for this handler to modify the FormAction binder default action. This is the
      * place to add any required fields to the binder.  This is made more complicated by the multiple component 
@@ -186,12 +189,11 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
      */
 	 public void initBinder(RequestContext context, Object command, DataBinder binder) {
 		 // only set validation for required fields on events where displaying field errors makes sense, i.e. 
-		 // an add or save event
+		 // an add or save event, as determined by getRequiredFieldEvents
 		 // do not want required validation when just refreshing the reference data on a page, e.g. Add Visit,
 		 // change projName repopulates visitTypes list
 		 String event = ActionUtils.getEventName(context);
-		 // events starting with "save" covers events in the InstrumentHandler as well
-		 if (event.startsWith("save") || event.equals("applyAdd")) {
+		 if (validateRequiredFieldsEvent(context)) {
 			String[] requiredFields = defineRequiredFields(context, command);
 			if(requiredFields != null && requiredFields.length != 0){
 				String[] existingFields = binder.getRequiredFields();
