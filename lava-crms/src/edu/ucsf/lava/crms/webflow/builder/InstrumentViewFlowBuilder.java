@@ -161,6 +161,7 @@ public class InstrumentViewFlowBuilder extends BaseFlowBuilder {
     	// request parameters when sending the "instrument__switch" event to this flow
     	addEndState("finishSwitch"); 
     	
+    	buildDefaultActionEndState();
     }
     
 	public void buildOutputMapper() throws FlowBuilderException {
