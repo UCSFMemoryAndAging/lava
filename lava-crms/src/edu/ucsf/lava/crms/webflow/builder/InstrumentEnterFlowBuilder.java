@@ -65,18 +65,6 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
 				// skip display of field error checking on hide/show codes, since just returns user to same page
 				ifReturnedSuccess(invoke("customBindResultFieldsIgnoreErrors", formAction))));
     	
-    	enterStateTransitions.add(transition(on("instrument__enterCollect"), to("finishSwitchToCollect"), 
- 				ifReturnedSuccess(new Action[]{
- 					// skip display of field error checking if user switching to collect mode, as they can 
- 					// deal with any field errors once they are in the mode they want to be in. field errors
- 					// are still generated, but the special customBindResultFieldsIgnoreErrors returns the
- 					// success Event so that the transition to collect goes thru, and any field errors will
- 					// then be displayed on the collect view.
- 					// save any edits they	have made before switching             						
- 					invoke("customBindResultFieldsIgnoreErrors", formAction), 
- 					new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, expression("${'instrument__save'}")),
-    				invoke("handleFlowEvent", formAction)})));
-
     	// the "reRender" event is used for re-rendering via uitags, without the need to save
     	enterStateTransitions.add(transition(on("instrument__reRender"), to("enter"),
             	ifReturnedSuccess(new Action[]{
@@ -89,6 +77,32 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
             		invoke("customBindResultFieldsIgnoreErrors", formAction), 
             		invoke("handleFlowEvent", formAction)})));
     	
+    	// the "instrument__switch" event is used to switch to another instrument, where the id for that instrument
+    	// is in the "id" request parameter, and the flow to be used on that instrument is specified as an
+    	// event in the "switchEvent" request parameter. note that id can be the same as the current 
+    	// instrument id, where switchEvent can then be used to switch the current instrument from the
+    	// enter flow to another flow, e.g. to the collect flow
+    	enterStateTransitions.add(transition(on("instrument__switch"), to("finishSwitch"), 
+				ifReturnedSuccess(new Action[]{
+						// special result field custom bind here allows binding user-selected missing data code
+						// to all blank result fields 
+						invoke("customBindResultFields", formAction),
+						// save the instrument so that edits are not lost. this requires setting the event to save
+						// before handleFlowEvent is called
+						// note: for expression, string is treated as an expression, so to return a literal string, must enclose in ',
+						// and actually, the ${} are not necessary since expression treats its parameter as an expression by default,
+						// but just showing this usage to illustrate the point
+	 					new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, expression("${'instrument__save'}")),
+						invoke("handleFlowEvent", formAction),
+						// the request parameter values must be put into flow scope so that the buildOutputMapper
+						// can reference them and pass them back to the parent instrument list flow (it may be
+						// that buildOutputMapper could just reference requestParameters directly instead of
+						// having to put these attributes in flow scope here, but did not try that)
+						// note: the next two calls just demonstrate that with expression, if there is only a single expression within
+						// the string, the ${} are optional, as the string is evaluated as an expression by default
+	    				new SetAction(settableExpression("id"), ScopeType.FLOW,	expression("requestParameters.id")),
+	    				new SetAction(settableExpression("switchEvent"), ScopeType.FLOW, expression("${requestParameters.switchEvent}")),
+						})));
     	
 
     	// custom events
@@ -166,14 +180,13 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
 						invoke("handleFlowEvent", formAction)}))},
    	       		null, null, null);
     	
-    	
-    	
-    	// special flow termination for switching from enter to collect flow. enter flow can only be
-    	// entered from the instrument list flow or the view instrument flow. in either case, know that
-    	// this is a subflow and will return to a parent flow. 
-    	// by signalling "finishSwitchToCollect", the parent flow knows that it should transition into
-    	// the collect flow 
-    	addEndState("finishSwitchToCollect"); 
+    	// special flow termination for switching from this instrument enter subflow to a subflow  
+    	// for another instrument (where that could be the same instrument, but just a different subflow). 
+    	// this termination returns the "finishSwitch" event to the root parent flow, an instrument list flow 
+    	// (possibly via an instrument view flow,/ if this enter flow was entered via instrument view). 
+    	// the instrument list flow then transitions to the instrument subflow that was specified via
+    	// request parameters when sending the "instrument__switch" event to this flow
+    	addEndState("finishSwitch"); 
     }
     
     public void buildGlobalTransitions() throws FlowBuilderException {
@@ -192,12 +205,13 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
    		this.getFlow().getGlobalTransitionSet().add(transition(on("unauthorized"), to("${flowScope.mostRecentViewState}")));
     }
     
-	// for switching from enter to collet, which goes back thru the parent flow 
-	// (InstrumentListViewFlow or InstrumentViewFlow)
 	public void buildOutputMapper() throws FlowBuilderException {
+		// for switching from this instrument enter subflow to another instrument subflow. this flow must pass
+	    // the mapping attributes back to the parent flow to tell it which instrument ("id") and subflow ("switchEvent")
+		// to transition to. these are put into flow scope when the "instrument__switch" event is handled.
 		Mapping idMapping = mapping().source("flowScope.id").target("id").value();
-		Mapping targetMapping = mapping().source("flowScope.target").target("target").value();
-		getFlow().setOutputMapper(new DefaultAttributeMapper().addMapping(idMapping).addMapping(targetMapping));
+		Mapping switchEventMapping = mapping().source("flowScope.switchEvent").target("switchEvent").value();
+		getFlow().setOutputMapper(new DefaultAttributeMapper().addMapping(idMapping).addMapping(switchEventMapping));
 	}
 }
 

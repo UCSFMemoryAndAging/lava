@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.springframework.binding.mapping.DefaultAttributeMapper;
 import org.springframework.binding.mapping.Mapping;
+import org.springframework.webflow.action.SetAction;
 import org.springframework.webflow.engine.Transition;
 import org.springframework.webflow.engine.builder.FlowBuilderException;
 import org.springframework.webflow.engine.support.ConfigurableFlowAttributeMapper;
 import org.springframework.webflow.execution.Action;
+import org.springframework.webflow.execution.ScopeType;
 
 import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
 import edu.ucsf.lava.core.webflow.builder.BaseFlowBuilder;
@@ -23,7 +25,7 @@ import edu.ucsf.lava.core.webflow.builder.FlowInfo;
  * CRUD subflows could be the shared subflows, i.e.
  * lava.assessment.instrument.instrument.* or instrument specific
  * subflows, e.g. lava.assessment.instrument.medications.*
- */
+ */	
 public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
 
 	public InstrumentListViewFlowBuilder(LavaFlowRegistrar registry,String actionId) {
@@ -68,6 +70,15 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
     	
     	viewTransitions.addAll(this.buildSubFlowTransitions());
     	
+    	// the "instrument__switch" event is used to switch from one instrument subflow of this list flow
+    	// to another instrument subflow, with just a single user action. this event should not apply
+    	// to the list flow itself, but for the convenience of being able to use the same actions that
+    	// are available in the instrument subflows (e.g. when the instruments are non-modal and the
+    	// actions appear in the left navigation panel) while the parent list flow is current, have 
+    	// a transition here which simply transitions into the subflow specified by the "switchEvent"
+    	// request parameter
+    	viewTransitions.add(transition(on("instrument__switch"), to("${requestParameters.switchEvent}"))); 
+        
     	// handle patient context change/clear, project context change/clear
       	
         // common actions across instrument entity CRUD subflow transitions below
@@ -130,8 +141,9 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
     }
     
     // override because different transitions and mappers and action states than the base class version
-    // supports, in order to facilitate going from enter subflow to collect subflow, and vice versa, which
-    // involve terminating one subflow and having this parent flow transition into the other subflow
+    // supports, in order to facilitate switching from one instrument subflow to another instrument's
+    // subflow, which involve terminating one subflow and having this parent flow transition into the other 
+    // subflow
     
     // also overriding to support the instrumentGroup subflow, which requires creating an input mapping
     // for the instrumentGroup structure
@@ -151,12 +163,16 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
 		    	// the subFlowReturnState action state, which refreshes the list data before it is redisplayed)
 				Transition subFlowReturnFinishTransition = transition(on("finish"), to("subFlowReturnState"));
 				Transition subFlowReturnFinishCancelTransition = transition(on("finishCancel"), to("subFlowReturnState"));
+
+				// general notes on mappers:
+				// subflow state input mappings put data into the input map for the subflows buildInputMapper method
+				// subflow state output mappings take data from the output map that the subflows buildOutputMapper method put there		    		
 				
 		    	// create attribute-mapper input-mapper to pass entity "id" for subflow states created below, which comes
 		    	// from the request parameter submitted on each list action link
 		        ConfigurableFlowAttributeMapper paramMapper = new ConfigurableFlowAttributeMapper();
-		        // when switching from enter subflow to collect subflow or vice versa, those subflows terminate and 
-		        // this parent subflow resumes. however, there will not be a request parameter. so need an output mapper
+		        // when switching from enter subflow to collect subflow, those subflows terminate and this parent subflow 
+		        // resumes. however, there will not be a request parameter. so need an output mapper
 		        // to get the id from the enter or collect subflow, and then need to map either the requestParameter.id
 		        // if entering the subflows normally (i.e. user clicking on list action), or the flowScope.id (populated
 		        // by the output mapping) if coming thru from enter to collect or vice versa. 
@@ -165,10 +181,8 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
 		        paramMapper.addInputMapping(mapping().source("requestParameters.param").target("param").value());
 		        paramMapper.addInputMapping(mapping().source("requestParameters.param2").target("param2").value());
 		        paramMapper.addInputMapping(mapping().source("requestParameters.param3").target("param3").value());
-
-				
+		        
 		    	if (subFlowInfo.getTarget().equals("instrumentGroup")){
-			        paramMapper.addInputMapping(mapping().source("flowScope.group").target("group").value());
 			        // return the group in an output mapper so that the selected items can be re-selected, since
 			        // they are lost when subFlowReturnState does a refresh (which must be done in case the group
 			        // flow added a missing instrument)
@@ -176,33 +190,33 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
 			        paramMapper.addOutputMapping(mapping().source("group").target("flowScope.group").value());
 		    		transitions = new Transition[]{subFlowReturnFinishTransition, subFlowReturnFinishCancelTransition};
 		    	}
-		    	else if (subFlowInfo.getEvent().equals("enter")) {
-		    		// this only applies to "enter" not "enterReview", because do not have a switch to/from collect
-			        // flow from enterReview flow. the switch is a legacy of switching between enter and collect 
-			        // and since getting rid of "collect" flow will probably get rid of all of this and just go with 
-			        // the superclass behavior only collect and enter flows have output mapper, since they go back thru 
-			        // this flow when going from one to the other. but does not hurt to have unused output mapping.
-		    		
+		    	
+		    	// for now, only implementing the "switchEvent" transition for the subflows which use it. to 
+		    	// add an additional subflow, that flow builder will have to handle the "instrument__switch" event,
+		    	// store the id for the instrument to switch to in flow scope as "id", store the subflow state to 
+		    	// switch toin flow scope as "switchEvent" (because the event names match subflow state ids),
+		    	// do anything that might need to be done before terminating the flow, and transitioning to 
+		    	// a "finishSwitch" end state
+		    	else if (subFlowInfo.getEvent().equals("enter") || subFlowInfo.getEvent().equals("collect")
+		    			|| subFlowInfo.getEvent().equals("view")) {
+
+		    		// note: these subflow definitions can also be used to switch between "enter" and "collect" 
+		    		// flow for an instrument, which was formerly done using a similar but less general technique.
+		    		// to do this, the "id" passed back via the subflow output mapper is the same as the "id"
+		    		// of the instrument in the subflow that is being terminated, i.e. still working with the
+		    		// same instrument, just switching flows.
+		    		// the switching does not apply "enterReview", because do not have a switch to/from collect 
+		    		// flow from enterReview flow. however, getting rid of "collect" flow for now, so this 
+		    		// switching is not used for that purpose right now.
+
+		    		// the subflow must map to the target "id" in its buildOutputMapper method, to pass
+		    		// back the id of the instrument to switch to, and to the target "switchEvent", to 
+		    		// specify which subflow to transition to
 			        paramMapper.addOutputMapping(mapping().source("id").target("flowScope.id").value());
-		    		// since the subflow could be for the "instrument" target or for an instrument specific target,
-		    		// e.g. "medications", when returning from enter subflow, need to know whether to go to the
-		    		// "medications__collect" subflow or the "instrument__collect" subflow. to achieve this, map
-		    		// the target into the subflow, and the subflow in turn maps the target back to this parent
-		    		// flow into flowScope.target (via an output mapper), and this flow scope target value is then
-		    		// used in enterSubFlowReturnState/collectSubFlowReturnState to determine the state to go to 
-		    		paramMapper.addInputMapping(mapping().source(new StringBuffer("'").append(subFlowInfo.getTarget()).append("'").toString()).target("target").value());
-		            paramMapper.addOutputMapping(mapping().source("target").target("flowScope.target").value());
-		    		Transition enterSwitchToCollectTransition = transition(on("finishSwitchToCollect"), to("enterSubFlowReturnState"));
-		    		transitions = new Transition[]{subFlowReturnFinishTransition, subFlowReturnFinishCancelTransition, enterSwitchToCollectTransition};
-		    	}
-		    	else if (subFlowInfo.getEvent().equals("collect")) {
-			        // only collect and enter flows have output mapper, since they go back thru this flow when
-			        // going from one to the other. but does not hurt to have unused output mapping.
-			        paramMapper.addOutputMapping(mapping().source("id").target("flowScope.id").value());
-		    		paramMapper.addInputMapping(mapping().source(new StringBuffer("'").append(subFlowInfo.getTarget()).append("'").toString()).target("target").value());
-		            paramMapper.addOutputMapping(mapping().source("target").target("flowScope.target").value());
-		    		Transition collectSwitchToEnterTransition = transition(on("finishSwitchToEnter"), to("collectSubFlowReturnState"));
-		    		transitions = new Transition[]{subFlowReturnFinishTransition, subFlowReturnFinishCancelTransition, collectSwitchToEnterTransition};
+			        paramMapper.addOutputMapping(mapping().source("switchEvent").target("flowScope.switchEvent").value());
+			        // transition directly to the specified subflow for the specified instrument 
+		    		Transition switchTransition = transition(on("finishSwitch"), to("${flowScope.switchEvent}"));
+		    		transitions = new Transition[]{subFlowReturnFinishTransition, subFlowReturnFinishCancelTransition, switchTransition};
 		    	}
 		    	else {
 		    		transitions = new Transition[]{subFlowReturnFinishTransition, subFlowReturnFinishCancelTransition};
@@ -228,16 +242,7 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
    	addActionState("subFlowReturnState", 
        				invoke("refreshFormObject", formAction), 
    					transition(on("success"), to(getFlowEvent())));
-    	
-    	addActionState("enterSubFlowReturnState", 
-   				invoke("refreshFormObject", formAction), 
-					transition(on("success"), to("${flowScope.target}__collect")));
-    	
-    	addActionState("collectSubFlowReturnState", 
-   				invoke("refreshFormObject", formAction), 
-					transition(on("success"), to("${flowScope.target}__enter")));
-    }
-    
+    }    
 }
 
 
