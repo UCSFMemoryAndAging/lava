@@ -81,7 +81,9 @@ public class CrmsActionDelegate extends AbstractScopeActionDelegate {
 				if(!sectionsDone.contains(ActionUtils.getSection(actionId))){
 					if(!registry.containsAction(ActionUtils.getDefaultActionKey(actionId,DEFAULT_PATIENT_ACTION))){
 						registry.addAction(ActionUtils.getDefaultActionKey(actionId,DEFAULT_PATIENT_ACTION),
-								registry.getActionInternalCopy(ActionUtils.getDefaultActionKey(actionId)));
+								//use default module action for section default because no section default specified
+								//note: we know there is a default module action because we just made sure of that. 								
+								registry.getActionInternalCopy(ActionUtils.getDefaultModuleActionKey(actionId)));
 					}
 					sectionsDone.add(ActionUtils.getSection(actionId));
 				}
