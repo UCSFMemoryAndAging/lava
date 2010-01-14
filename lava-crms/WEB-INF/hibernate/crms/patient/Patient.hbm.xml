@@ -74,7 +74,7 @@
 	
 		<filter name="patientAuth"/> 
 		<filter name="validPatient"/> 
-		<filter name="projectContext" condition="PIDN IN (select p.PIDN from EnrollmentStatus p where PIDN=p.PIDN and p.projName=:projectContext)"/>
+		<filter name="projectContext" condition="PIDN IN (select p.PIDN from enrollmentstatus p where PIDN=p.PIDN and p.projName=:projectContext)"/>
 	    <filter name="patient" condition=":patientId=PIDN"/>	
 		
 		
