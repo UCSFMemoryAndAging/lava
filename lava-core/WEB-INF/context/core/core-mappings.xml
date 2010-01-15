@@ -68,8 +68,8 @@
      
 
 
-	<!-- this is being phased out as all uncaught exceptions should be handled by the CustomFlowExceptionHandler
-	     configured for each flow definition -->
+	<!-- this is for exceptions which are not caught and which generally occur too early to be handled within a flow by
+		CustomFlowExceptionHandler configured for each flow definition -->
     <bean id="exceptionResolver" class="edu.ucsf.lava.core.controller.CustomExceptionResolver"/>
    	
 	<!-- needed to support multipart requests using commons file upload -->
