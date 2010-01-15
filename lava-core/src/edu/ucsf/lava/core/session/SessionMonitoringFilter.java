@@ -5,7 +5,6 @@ import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -13,7 +12,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -104,19 +102,20 @@ public class SessionMonitoringFilter implements Filter, ManagersAware {
     		
     		if(sessionManager.hasSessionExpired(session,httpRequest)){
     			sessionManager.doSessionExpire(session,httpRequest.getSession());
-    			RequestDispatcher dispatcher = httpRequest.getSession().getServletContext().getRequestDispatcher("/");
     			logger.debug("SessionMonitoringFilter: Expired LavaSession="+session.toString());
-    			dispatcher.forward(sessionManager.setExpirationMessage(session,httpRequest), response);
+    			// for some reason, if setting attribute on request, it is not there in login.jsp after
+    			// Acegi redirects there, so setting message as a session attribute
+    			httpRequest.getSession().setAttribute(LavaSessionHttpRequestWrapper.LAVASESSION_TERMINATION_MESSAGE_ATTRIBUTE, sessionManager.getExpirationMessage(session));    			
+    			this.chainDoFilter(request, response, chain, session);
     			return;
     		}
     		
     		if(sessionManager.shouldSessionDisconnect(session,httpRequest)){
     	
     			sessionManager.doSessionDisconnect(session,httpRequest.getSession());
-    			RequestDispatcher dispatcher = httpRequest.getSession().getServletContext().getRequestDispatcher("/");
     			logger.debug("SessionMonitoringFilter: Disconnected LavaSession="+session.toString());
-            	dispatcher.forward(sessionManager.setDisconnectMessage(session,httpRequest), response);
-    			
+    			httpRequest.getSession().setAttribute(LavaSessionHttpRequestWrapper.LAVASESSION_TERMINATION_MESSAGE_ATTRIBUTE, sessionManager.getDisconnectMessage(session));    			
+    			this.chainDoFilter(request, response, chain, session);
     			return;
     		}
     		
@@ -129,6 +128,11 @@ public class SessionMonitoringFilter implements Filter, ManagersAware {
     		if(sessionManager.willSessionDisconnectSoon(session,httpRequest)){
     			logger.debug("SessionMonitoringFilter: Pending Disconnect LavaSession="+session.toString());
             	
+    			// note: could not get messaging to work using an HttpServletRequestWrapper (returned by 
+    			// setPendingDisconnectMessage) for sessionExpires and sessionDisconnect above, so used
+    			// HttpSession attribute instead. but that may have been because the session terminated and
+    			// Acegi was involved, redirecting to the login page. So wrapper may work in this situation,
+    			// but if not, try setting message in HttpRequest or HttpSession attribute 
     			this.chainDoFilter(sessionManager.setPendingDisconnectMessage(session,httpRequest),
     					response, chain, session);
     			return;
