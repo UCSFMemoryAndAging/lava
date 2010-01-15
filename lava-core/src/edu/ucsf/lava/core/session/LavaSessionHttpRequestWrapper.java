@@ -15,6 +15,7 @@ public class LavaSessionHttpRequestWrapper extends HttpServletRequestWrapper {
 	  private String lavaSessionMonitoringMessage;
 	  	protected final Log logger = LogFactory.getLog(getClass());
 	  	public static final String LAVASESSION_MONITORING_MESSAGE_PARAMETER = "lavaSessionMonitoringMessage";
+	  	public static final String LAVASESSION_TERMINATION_MESSAGE_ATTRIBUTE = "lavaSessionTerminationMessage";
 	 	public static final String LAVASESSION_EXPIRED_MESSAGE_CODE = "lavaSession.expired.message";
 	 	public static final String LAVASESSION_DISCONNECTED_MESSAGE_CODE = "lavaSession.disconnected.message";
 	 	public static final String LAVASESSION_PENDING_DISCONNECT_MESSAGE_CODE = "lavaSession.pendingDisconnect.message";
