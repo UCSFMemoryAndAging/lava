@@ -3,6 +3,7 @@ package edu.ucsf.lava.core.controller;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,21 +14,27 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.webflow.execution.repository.NoSuchFlowExecutionException;
 
 import edu.ucsf.lava.core.action.ActionManager;
 import edu.ucsf.lava.core.manager.CoreManagerUtils;
 import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.core.manager.ManagersAware;
+import edu.ucsf.lava.core.metadata.MetadataManager;
 import edu.ucsf.lava.core.session.SessionManager;
 
 
 
 public class CustomExceptionResolver implements HandlerExceptionResolver, ManagersAware {
 	
+	// note that if this is changed the error.jsp which accesses this must be changed
+	private static final String EXCEPTION_MSG = "exceptionMessage";
+	
 	/** Logger for this class and subclasses */
         protected final Log logger = LogFactory.getLog(getClass());
         protected SessionManager sessionManager;
         protected ActionManager actionManager; 
+        protected MetadataManager metadataManager;
        
     
     private String getStackTrace(Throwable t)
@@ -45,16 +52,41 @@ public class CustomExceptionResolver implements HandlerExceptionResolver, Manage
 				       Object handler,
 				       Exception ex) {
 
+		 
 		 HashMap model = new HashMap();
 		 model.put("request", request);
 		 
 		 
-		 if (ex.getMessage() != null) {
-			 model.put("exceptionMessage", ex.getMessage());
+		 if (ex.getClass().isAssignableFrom(NoSuchFlowExecutionException.class)) {
+			 // translate this into a more user-friendly message, since this exception can legitimately
+			 // occur 
+			 
+			 // this occurs in two situations
+			 // a) when user's session has terminated (expired or disconnected) and they request
+			 //    a page that is within the flow that was currently active before termination,
+			 //    after Acegi redirects them to the login page and they authenticate, they are
+			 //    directed to this page, but the flow no longer exists because their session
+			 //    was terminated (note that if the user requests a root flow, e.g. clicks on
+			 //    a tab or section, then this exception is not generated because the they are
+			 //    not requesting a page that is within a currently existing flow)
+			 // b) when the user hits the Back button that takes them to a flow that has 
+			 //    terminated and therefore no longer exists. this currently happens when
+			 //    changing context e.g. patient or project in crms, and if the change in context
+			 //    dictates a new flow execution conversation, the current flow execution is
+			 //    completely terminated. in contrast, when the user is starting new flows by
+			 //    clicking on root flows (e.g. tabs and sections) the existing flow is just
+			 //    not terminated and just left active, so going back to it via Back button works
+			 //    fine
+			 //    TODO: look into modifying context changing so it no longer terminates the 
+			 //          current flow execution conversation
+			 model.put(EXCEPTION_MSG, metadataManager.getMessage("noSuchFlowExecutionException.command", new Object[]{}, Locale.getDefault()));
+		 }
+		 else if (ex.getMessage() != null) {
+			 model.put(EXCEPTION_MSG, ex.getMessage());
 			 logger.error(ex.getMessage());
 		 }
 		 else {
-			 model.put("exceptionMessage", ex.toString());
+			 model.put(EXCEPTION_MSG, ex.toString());
 			 logger.error(ex.toString());
 		 }
 		 
@@ -103,6 +135,7 @@ public class CustomExceptionResolver implements HandlerExceptionResolver, Manage
 	 public void updateManagers(Managers managers) {
 			this.actionManager = CoreManagerUtils.getActionManager(managers);
 			this.sessionManager = CoreManagerUtils.getSessionManager(managers);
+			this.metadataManager = CoreManagerUtils.getMetadataManager(managers);
 		}
 		
 
