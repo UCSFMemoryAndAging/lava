@@ -29,8 +29,8 @@
   <div class="errorHeaderLine"></div>
   <ol class="errorList">
     <c:choose>
-	    <%-- rootCauseException added to model by CustomFlowExceptionHandler (in superclass
-	    	TransitionExecutingStateException handle method --%>
+	    <%-- rootCauseException and stateException are added to model by CustomFlowExceptionHandler 
+	        (in superclass TransitionExecutingStateException handle method --%>
 		<c:when test="${not empty rootCauseException || not empty stateException}">
 			root cause:
 			${rootCauseException}
