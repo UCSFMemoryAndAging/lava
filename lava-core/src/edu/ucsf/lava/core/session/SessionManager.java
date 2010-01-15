@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -15,21 +14,16 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.ucsf.lava.core.environment.ApplicationServerDelegate;
 import edu.ucsf.lava.core.environment.EnvironmentManager;
-import edu.ucsf.lava.core.manager.AppInfo;
-import edu.ucsf.lava.core.manager.LavaManager;
 import edu.ucsf.lava.core.manager.CoreManagerUtils;
+import edu.ucsf.lava.core.manager.LavaManager;
 import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.core.metadata.MetadataManager;
-import edu.ucsf.lava.core.scope.AbstractScopeSessionAttributeHandler;
 import edu.ucsf.lava.core.scope.ScopeManager;
 import edu.ucsf.lava.core.scope.ScopeSessionAttributeHandler;
 import edu.ucsf.lava.core.scope.ScopeSessionAttributeHandlers;
 import edu.ucsf.lava.core.session.model.LavaServerInstance;
 import edu.ucsf.lava.core.session.model.LavaSession;
-import edu.ucsf.lava.core.type.LavaDateUtils;
-
 
 public class SessionManager extends LavaManager{
 	 
@@ -228,6 +222,9 @@ public class SessionManager extends LavaManager{
 
 		
 		protected void invalidateHttpSession(HttpSession httpSession){
+			// invalidating the HTTP session causes Acegi to do the following which clears the authentication,
+			// so do not have to do this here:
+			// SecurityContextHolder.getContext().setAuthentication(null);
 			if(httpSession != null){httpSession.invalidate();}
 		}
 		
@@ -245,26 +242,24 @@ public class SessionManager extends LavaManager{
 			*/
 		}
 		
-		public LavaSessionHttpRequestWrapper setExpirationMessage(LavaSession session,HttpServletRequest request){
-			LavaSessionHttpRequestWrapper requestWrapper = new LavaSessionHttpRequestWrapper(request);
-			SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a, zzz");
-			requestWrapper.setLavaSessionMonitoringMessage(
-					metadataManager.getMessage(LavaSessionHttpRequestWrapper.LAVASESSION_EXPIRED_MESSAGE_CODE,
-							new Object[]{dateFormat.format(session.getExpireTimestamp())},Locale.getDefault()));
-			return requestWrapper;	
 		
+		public String getExpirationMessage(LavaSession session){
+			SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a, zzz");
+			return metadataManager.getMessage(LavaSessionHttpRequestWrapper.LAVASESSION_EXPIRED_MESSAGE_CODE,
+							new Object[]{dateFormat.format(session.getExpireTimestamp())},Locale.getDefault());
 		}
 		
-		public LavaSessionHttpRequestWrapper setDisconnectMessage(LavaSession session,HttpServletRequest request){
-			LavaSessionHttpRequestWrapper requestWrapper = new LavaSessionHttpRequestWrapper(request);
+		public String getDisconnectMessage(LavaSession session) {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a, zzz");
-			requestWrapper.setLavaSessionMonitoringMessage(
-					metadataManager.getMessage(LavaSessionHttpRequestWrapper.LAVASESSION_DISCONNECTED_MESSAGE_CODE,
-							new Object[]{dateFormat.format(session.getDisconnectTime()),
-							session.getDisconnectMessage()},Locale.getDefault()));
-			return requestWrapper;
-		
+			return metadataManager.getMessage(LavaSessionHttpRequestWrapper.LAVASESSION_DISCONNECTED_MESSAGE_CODE,
+					new Object[]{dateFormat.format(session.getDisconnectTime()),
+					session.getDisconnectMessage()},Locale.getDefault());
 		}
+		
+		//NOTE: the messages being set as request parameters via the LavaSessionHttpRequestWrapper
+		//have not worked yet. they did not work for session termination, i.e. were not available
+		//after Acegi redirected to the login page. However, they may work in this situation, where
+		//the session has not been terminated and there is no Acegi redirect involved
 		public LavaSessionHttpRequestWrapper setPendingDisconnectMessage(LavaSession session,HttpServletRequest request){
 			LavaSessionHttpRequestWrapper requestWrapper = new LavaSessionHttpRequestWrapper(request);
 			SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a, zzz");
