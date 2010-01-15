@@ -48,13 +48,11 @@ public class DefaultActionViewSelector implements ViewSelector, Serializable,Man
 		
 		/*
 		 * We convert the action id into a flow id by appending the default mode for the action.
-		 * Also, the Action returned from getDefaultAction may be an instance specific customization
-		 * of a base action, but flows are not instance specific, so replace the instance with 
-		 * the standard lava instance identifier in the flow id
 		 */ 
 		
-		String flowId = new StringBuffer(ActionUtils.getActionIdWithLavaInstance(defaultAction.getId()))
-								.append(".").append(defaultAction.getFlowTypeBuilder().getDefaultFlowMode()).toString();
+		String effectiveActionId = actionManager.getEffectiveAction(request, defaultAction.getId()).getId();
+		
+		String flowId = new StringBuffer(effectiveActionId).append(".").append(defaultAction.getFlowTypeBuilder().getDefaultFlowMode()).toString();
 		Map requestParams = new HashMap<String,String>();
 		if(defaultAction.getParam(defaultAction.getIdParamName())!=null){
 			requestParams.put(defaultAction.getIdParamName(), defaultAction.getParam(defaultAction.getIdParamName()));
