@@ -40,7 +40,9 @@ uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
 	</c:set>  	
 	
 	<%--Context Box --%>
-	<c:import url="/WEB-INF/jsp/navigation/context/${currentAction.scope}Context.jsp"/>
+	<c:if test="${empty isErrorPage}">
+ 		<c:import url="/WEB-INF/jsp/navigation/context/${currentAction.scope}Context.jsp"/>
+	</c:if> 		
 	 
 <div id="tabBar">
   	<c:set var="modulesURL"><spring:message code="${pageContext.request.contextPath}.modulesURL" text="navigation/tabBar/modules.jsp"/></c:set>
