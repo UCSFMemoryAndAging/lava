@@ -28,6 +28,6 @@
 
 
 <tags:autoCompleteSuggest property="${property}" fieldId="${fieldId}"  list="${empty timeList ? lists['datetime.timeInterval30Minute']: timeList}"
-	attributesText="${attributesText}" styleClass="${styleClass}" textBoxSize="${empty textBoxSixe ? 10 : textBoxSize}" maxLength="8" />
+	attributesText="${attributesText}" styleClass="${styleClass}" textBoxSize="${empty textBoxSize ? 10 : textBoxSize}" maxLength="8" />
 		
               
