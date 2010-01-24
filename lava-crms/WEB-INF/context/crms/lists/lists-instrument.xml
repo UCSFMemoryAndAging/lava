@@ -63,10 +63,10 @@
 	<bean id="list.instrumentMetadata.instrTypes" parent="list.standard">
 		<property name="query" value="list.instrumentMetadata.instrTypes"/>
 	</bean>
-		
-	<bean id="list.medications.drugLookup" parent="list.dynamic">
-		<property name="query" value="list.medications.drugLookup"/>
-		<property name="defaultSort" value="none"/>
+
+	<bean id="list.medications.drugLookup" parent="list.standard">
+		<property name="dbListName" value="MultumDrugLookup"/>
+		<property name="defaultSort" value="orderIndex"/>
 		<property name="data"><list>
 		<bean parent="list.data"><constructor-arg value="00000 - clear selection|00000 - clear selection|00000"/>
 									<constructor-arg value="0"/>
@@ -74,4 +74,5 @@
 			</bean>
 		</list></property>
 	</bean>
+	
 </beans>
