@@ -276,7 +276,9 @@
 		<c:choose>
 			<c:when test="${flowMode == 'enterReview'}">
 				<c:choose>
-					<%-- hide/show codes button and switch to collect flow button --%>
+					<%-- with enterReview, if thee user choose to double enter, it is after the review. if
+						double enter is not applicable, the "verify" property should be explicitly set to
+						false in the intrumentConfig --%>
 					<c:when test="${instrumentConfig[instrTypeEncoded].verify}">
 						<c:set var="numLeftButtons" value="1"/>
 						<c:set var="leftbutton1_text" value="Double Entry"/>
