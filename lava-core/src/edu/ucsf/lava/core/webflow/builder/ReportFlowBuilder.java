@@ -30,9 +30,6 @@ class ReportFlowBuilder extends BaseFlowBuilder {
 	}	 
     	
     
-    public void buildInputMapper() throws FlowBuilderException {
-    }
-
     public void buildEventStates() throws FlowBuilderException {
     	String setupViewState = getFlowEvent();
     	ArrayList<Transition> viewTransitions = new ArrayList<Transition>();
