@@ -2,6 +2,7 @@ package edu.ucsf.lava.crms.webflow.builder;
 
 import java.util.ArrayList;
 
+import org.springframework.binding.mapping.AttributeMapper;
 import org.springframework.binding.mapping.DefaultAttributeMapper;
 import org.springframework.binding.mapping.Mapping;
 import org.springframework.webflow.action.SetAction;
@@ -29,6 +30,9 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
 	}
 
     public void buildInputMapper() throws FlowBuilderException {
+	   	super.buildInputMapper();
+	   	AttributeMapper inputMapper = getFlow().getInputMapper();
+
     	// put the "id" into flowScope where it will be accessed in the FormAction (createFormObject)
     	// to retrieve the entity (it is also accessed to set entity context in setContextFromScope)
     	// the "id" attribute in the flow input map could either come from a request parameter 
@@ -41,7 +45,7 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
     	Mapping targetMapping = mapping().source("target").target("flowScope.target").value();
 
     	// set the flow input mapper
-    	getFlow().setInputMapper(new DefaultAttributeMapper().addMapping(idMapping).addMapping(targetMapping));
+	   	getFlow().setInputMapper(((DefaultAttributeMapper)inputMapper).addMapping(idMapping).addMapping(targetMapping));
     }
     
     public void buildEventStates() throws FlowBuilderException {
@@ -92,7 +96,7 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
 						// note: for expression, string is treated as an expression, so to return a literal string, must enclose in ',
 						// and actually, the ${} are not necessary since expression treats its parameter as an expression by default,
 						// but just showing this usage to illustrate the point
-	 					new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, expression("${'instrument__save'}")),
+	 					new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, expression("${'instrument__enterSave'}")),
 						invoke("handleFlowEvent", formAction),
 						// the request parameter values must be put into flow scope so that the buildOutputMapper
 						// can reference them and pass them back to the parent instrument list flow (it may be
@@ -129,6 +133,7 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
 					transition(on("${!flowScope.mandatoryDoubleEnter}"), to("editStatus"))},
 				null, null, null);	
 
+    	
     	addViewState("doubleEnter", 
     			null, formAction.getCustomViewSelector(),
     			new Action[]{invoke("prepareToRender",formAction)},
@@ -145,8 +150,14 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
        				transition(on("${lastEvent.id.equals('instrument__hideCodesDoubleEnter') || lastEvent.id.equals('instrument__showCodesDoubleEnter')}"), 
       					to("doubleEnter"), 
     					// skip display of field error checking on hide/show codes, since just returns user to same page
-      					ifReturnedSuccess(invoke("customBindResultFieldsIgnoreErrors", formAction)))},
-       			null, null, null);
+      					ifReturnedSuccess(invoke("customBindResultFieldsIgnoreErrors", formAction))),
+   					transition(on("instrument__switch"), to("finishSwitch"), 
+						ifReturnedSuccess(new Action[]{
+							new SetAction(settableExpression("id"), ScopeType.FLOW,	expression("requestParameters.id")),
+		    				new SetAction(settableExpression("switchEvent"), ScopeType.FLOW, expression("${requestParameters.switchEvent}")),
+						}))				
+    				},
+      			null, null, null);
 
     	addViewState("doubleEnterCompare", 
     			null, formAction.getCustomViewSelector(),
@@ -167,7 +178,16 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
    						invoke("customBindResultFieldsIgnoreErrors", formAction),
    						// force handling of compare event so that any compare errors are still displayed
      					new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, expression("'instrument__compare'")),
-						invoke("handleFlowEvent", formAction)}))},
+						invoke("handleFlowEvent", formAction)})),
+				transition(on("instrument__switch"), to("finishSwitch"), 
+					ifReturnedSuccess(new Action[]{
+						invoke("customBindResultFields", formAction),
+	 					new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, expression("${'instrument__doubleEnterCompare'}")),
+						invoke("handleFlowEvent", formAction),
+						new SetAction(settableExpression("id"), ScopeType.FLOW,	expression("requestParameters.id")),
+	    				new SetAction(settableExpression("switchEvent"), ScopeType.FLOW, expression("${requestParameters.switchEvent}")),
+					}))				
+    			},
        			null, null, null);
    						
     	addViewState("editStatus", 
@@ -177,7 +197,16 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
     			transition(on("instrument__statusSave"), to("finish"), 
 					ifReturnedSuccess(new Action[]{
 						invoke("customBind", formAction), 
-						invoke("handleFlowEvent", formAction)}))},
+						invoke("handleFlowEvent", formAction)})),
+				transition(on("instrument__switch"), to("finishSwitch"), 
+					ifReturnedSuccess(new Action[]{
+						invoke("customBind", formAction),
+	 					new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, expression("${'instrument__statusSave'}")),
+						invoke("handleFlowEvent", formAction),
+						new SetAction(settableExpression("id"), ScopeType.FLOW,	expression("requestParameters.id")),
+	    				new SetAction(settableExpression("switchEvent"), ScopeType.FLOW, expression("${requestParameters.switchEvent}")),
+					}))				
+    			},
    	       		null, null, null);
     	
     	// special flow termination for switching from this instrument enter subflow to a subflow  
