@@ -7,8 +7,7 @@
 <%@ attribute name="action" required="true" 
        description="the action/event to use" %>
 <%@ attribute name="component" required="true"
-       description="the component for the action. if supplied by empty, indicates an instrument eventButton
-                    until instrument is refactored to component/handler design"%>
+       description="the component used to construct the event name"%>
 <%@ attribute name="pageName" required="false"
        description="the name of the page/form, used for POST, not GET"%>
 <%@ attribute name="buttonText" 
@@ -26,4 +25,4 @@
                     note: 9/25/07 this is not yet supported by Spring Web Flow, so not used yet"%>          
 
 <c:set var="target" value=""/> <%-- somehow in some case this was getting set to something --%>
-<a href="javascript:void" onClick="javascript:document.${pageName}.action='${requestUrl}#${not empty fragment ? fragment : component}';submitForm(document.${pageName}, '${not empty component ? component : ''}${not empty component ? '__' : ''}${action}', '${target}'); return false" class="${(fn:length(buttonText) < 7) ? 'eventButtonSmall ' : (fn:length(buttonText) < 10) ? 'eventButtonMedium ' : (fn:length(buttonText) < 13) ? 'eventButtonLarge ' : 'eventButtonXLarge '} ${empty className ? 'eventButton':className}" style="${empty styleDef ? '':styleDef}">${buttonText}</a>
+<a href="javascript:void" onClick="javascript:document.${pageName}.action='${requestUrl}#${not empty fragment ? fragment : component}';submitForm(document.${pageName}, '${component}__${action}', '${target}'); return false" class="${(fn:length(buttonText) < 7) ? 'eventButtonSmall ' : (fn:length(buttonText) < 10) ? 'eventButtonMedium ' : (fn:length(buttonText) < 13) ? 'eventButtonLarge ' : 'eventButtonXLarge '} ${empty className ? 'eventButton':className}" style="${empty styleDef ? '':styleDef}">${buttonText}</a>
