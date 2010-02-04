@@ -3,6 +3,7 @@ package edu.ucsf.lava.core.webflow.builder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.binding.mapping.AttributeMapper;
 import org.springframework.binding.mapping.DefaultAttributeMapper;
 import org.springframework.binding.mapping.Mapping;
 import org.springframework.webflow.action.SetAction;
@@ -24,10 +25,13 @@ public class GroupFlowBuilder extends BaseFlowBuilder {
 	}
 
     public void buildInputMapper() throws FlowBuilderException {
+    	super.buildInputMapper();
+    	AttributeMapper inputMapper = getFlow().getInputMapper();
+
     	// parent flows map the group structure into input mapper "group" (the action to be 
     	// performed is not mapped in because it can be derived by the flow id for the group flow)
     	Mapping groupMapping = mapping().source(GROUP_MAPPING).target("flowScope." + GROUP_MAPPING).value();
-    	getFlow().setInputMapper(new DefaultAttributeMapper().addMapping(groupMapping));
+    	getFlow().setInputMapper(((DefaultAttributeMapper)inputMapper).addMapping(groupMapping));
     }
     
     public void buildEventStates() throws FlowBuilderException {

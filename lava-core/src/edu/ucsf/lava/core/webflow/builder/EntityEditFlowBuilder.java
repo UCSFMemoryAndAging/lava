@@ -2,6 +2,7 @@ package edu.ucsf.lava.core.webflow.builder;
 
 import java.util.ArrayList;
 
+import org.springframework.binding.mapping.AttributeMapper;
 import org.springframework.binding.mapping.DefaultAttributeMapper;
 import org.springframework.binding.mapping.Mapping;
 import org.springframework.webflow.engine.Transition;
@@ -26,6 +27,9 @@ class EntityEditFlowBuilder extends BaseFlowBuilder {
     }
     
     public void buildInputMapper() throws FlowBuilderException {
+    	super.buildInputMapper();
+    	AttributeMapper inputMapper = getFlow().getInputMapper();
+    	
     	// put the "id" into flowScope where it will be accessed in the FormAction (createFormObject)
     	// to retrieve the entity (it is also accessed to set entity context in setContextFromScope)
     	// the "id" attribute in the flow input map could either come from a request parameter 
@@ -33,7 +37,7 @@ class EntityEditFlowBuilder extends BaseFlowBuilder {
     	// this as input to the subflow. since entity CRUD flows are typically subflows, "id"
     	// here typically comes from a parent flow input mapper
     	Mapping idMapping = mapping().source("id").target("flowScope.id").value();
-    	getFlow().setInputMapper(new DefaultAttributeMapper().addMapping(idMapping));
+    	getFlow().setInputMapper(((DefaultAttributeMapper)inputMapper).addMapping(idMapping));
     }
     
     public void buildEventStates() throws FlowBuilderException {

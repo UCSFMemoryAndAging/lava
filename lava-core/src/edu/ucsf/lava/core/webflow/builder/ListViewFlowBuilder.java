@@ -2,6 +2,7 @@ package edu.ucsf.lava.core.webflow.builder;
 
 import java.util.ArrayList;
 
+import org.springframework.binding.mapping.AttributeMapper;
 import org.springframework.binding.mapping.DefaultAttributeMapper;
 import org.springframework.binding.mapping.Mapping;
 import org.springframework.webflow.engine.Transition;
@@ -30,6 +31,9 @@ class ListViewFlowBuilder extends BaseFlowBuilder {
     	
     
     public void buildInputMapper() throws FlowBuilderException {
+    	super.buildInputMapper();
+    	AttributeMapper inputMapper = getFlow().getInputMapper();
+
     	// put the "id" into flowScope where is will be accessed in the FormAction to set entity 
     	// context (setContextFromScope), which in turn is used by the list handlers to retrieve 
     	// the list
@@ -38,7 +42,7 @@ class ListViewFlowBuilder extends BaseFlowBuilder {
     	// this as input to the subflow. since lists are typically top level flows, the
     	// "id" here typically comes from "requestParameter.id"
     	Mapping idMapping = mapping().source("id").target("flowScope.id").value();
-    	getFlow().setInputMapper(new DefaultAttributeMapper().addMapping(idMapping));
+    	getFlow().setInputMapper(((DefaultAttributeMapper)inputMapper).addMapping(idMapping));
     }
 
     public void buildEventStates() throws FlowBuilderException {
