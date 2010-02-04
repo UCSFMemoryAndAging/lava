@@ -39,13 +39,11 @@ class ReportLauncherFlowBuilder extends BaseFlowBuilder {
 	// the "launcher" state to the state identified by the "param" request parameter
 	
 
-	// map the "param" request parameter which identifies the report to generate into the flow, as
-	// a flowScope variable. if the "param" request paramter does not exist, it indicates that the
-	// report launcher view state should be displayed, rather than going to a specific report subflow
-    public void buildInputMapper() throws FlowBuilderException {
-    	Mapping paramMapping = mapping().source("param").target("flowScope.param").value();
-    	getFlow().setInputMapper(new DefaultAttributeMapper().addMapping(paramMapping));
-    }
+	// the "param" request parameter identifies the report to generate into the flow. it is mapped
+	// into the flow as a flowScope variable by BaseFlowBuilder buildInputMapper. if the "param" request 
+	// paramter does not exist, it indicates that the report launcher view state should be displayed, 
+	// rather than going to a specific report subflow
+	
 
     public void buildEventStates() throws FlowBuilderException {
     	String decisionState = getFlowEvent();
