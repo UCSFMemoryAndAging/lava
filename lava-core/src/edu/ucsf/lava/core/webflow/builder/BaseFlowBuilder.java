@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.binding.mapping.DefaultAttributeMapper;
+import org.springframework.binding.mapping.Mapping;
 import org.springframework.webflow.action.SetAction;
 import org.springframework.webflow.engine.FlowExecutionExceptionHandler;
 import org.springframework.webflow.engine.State;
@@ -99,6 +101,27 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
 // FlowBuilder interface method implementations	(see Interface FlowBuilder javadocs)
 	// The FlowBuilder public methods are invoked by a webflow FlowAssembler to build a flow definition. 
 	// Some of these, like buildInputMapper, are defined in the specific flow subclasses. 
+	
+	/**
+	 * buildInputMapper
+	 * 
+	 * If subclasses override, they should first call this superclass method and then obtain the
+	 * AttributeMapper that was set here, pass it to setInputMapper while calling its add method
+	 * to add additional input mappings, e.g.
+	 *   super.buildInputMapper();
+	 *   AttributeMapper inputMapper = getFlow().getInputMapper();
+	 *   Mapping idMapping = mapping().source("id").target("flowScope.id").value();
+	 *   getFlow().setInputMapper((DefaultAttributeMapper)inputMapper).addMapping(idMapping));
+	 */
+	public void buildInputMapper() throws FlowBuilderException {
+		// make the "param", "param1" and "param2" request parameters available to all subflows.
+		// this means that whenever a subflow state is created, the requestParametersMapper
+		// should be passed as the FlowAttributeMapper
+    	Mapping paramMapping = mapping().source("param").target("flowScope.param").value();
+    	Mapping param2Mapping = mapping().source("param2").target("flowScope.param2").value();
+    	Mapping param3Mapping = mapping().source("param3").target("flowScope.param3").value();
+    	getFlow().setInputMapper(new DefaultAttributeMapper().addMapping(paramMapping).addMapping(param2Mapping).addMapping(param3Mapping));
+	}
 	
     public void buildStates() throws FlowBuilderException {
     	buildStartStates();
