@@ -3,14 +3,13 @@ package edu.ucsf.lava.crms.webflow.builder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.binding.mapping.AttributeMapper;
 import org.springframework.binding.mapping.DefaultAttributeMapper;
 import org.springframework.binding.mapping.Mapping;
-import org.springframework.webflow.action.SetAction;
 import org.springframework.webflow.engine.Transition;
 import org.springframework.webflow.engine.builder.FlowBuilderException;
 import org.springframework.webflow.engine.support.ConfigurableFlowAttributeMapper;
 import org.springframework.webflow.execution.Action;
-import org.springframework.webflow.execution.ScopeType;
 
 import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
 import edu.ucsf.lava.core.webflow.builder.BaseFlowBuilder;
@@ -34,15 +33,11 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
 	}	 
     
     public void buildInputMapper() throws FlowBuilderException {
-    	// put the "id" into flowScope where is will be accessed in the FormAction to set entity 
-    	// context (setContextFromScope), which in turn is used by the list handlers to retrieve 
-    	// the list
-    	// the "id" attribute in the flow input map could either come from a request parameter 
-    	// when the flow is launched as a top level flow or from a parent flow that is providing 
-    	// this as input to the subflow. since lists are typically top level flows, the
-    	// "id" here typically comes from "requestParameter.id"
-    	Mapping idMapping = mapping().source("id").target("flowScope.id").value();
-    	getFlow().setInputMapper(new DefaultAttributeMapper().addMapping(idMapping));
+	   	super.buildInputMapper();
+	   	AttributeMapper inputMapper = getFlow().getInputMapper();
+
+	   	Mapping idMapping = mapping().source("id").target("flowScope.id").value();
+	   	getFlow().setInputMapper(((DefaultAttributeMapper)inputMapper).addMapping(idMapping));
     }
 
     public void buildEventStates() throws FlowBuilderException {

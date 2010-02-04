@@ -2,6 +2,7 @@ package edu.ucsf.lava.crms.webflow.builder;
 
 import java.util.ArrayList;
 
+import org.springframework.binding.mapping.AttributeMapper;
 import org.springframework.binding.mapping.DefaultAttributeMapper;
 import org.springframework.binding.mapping.Mapping;
 import org.springframework.webflow.action.SetAction;
@@ -29,16 +30,16 @@ public class InstrumentEnterReviewFlowBuilder extends BaseFlowBuilder {
 	}
 
     public void buildInputMapper() throws FlowBuilderException {
-    	// put the "id" into flowScope where it will be accessed in the FormAction (createFormObject)
-    	// to retrieve the entity (it is also accessed to set entity context in setContextFromScope)
-    	// the "id" attribute in the flow input map could either come from a request parameter 
-    	// when the flow is launched as a top level flow or from a parent flow that is providing 
-    	// this as input to the subflow. since entity CRUD flows are typically subflows, "id"
-    	// here typically comes from a parent flow input mapper
+	   	super.buildInputMapper();
+	   	AttributeMapper inputMapper = getFlow().getInputMapper();
+
     	Mapping idMapping = mapping().source("id").target("flowScope.id").value();
     	
-    	// set the flow input mapper mappings
-    	getFlow().setInputMapper(new DefaultAttributeMapper().addMapping(idMapping));
+    	// the "target" attribute is used when switching from collect to enter by the instrument list flow  
+    	Mapping targetMapping = mapping().source("target").target("flowScope.target").value();
+
+    	// set the flow input mapper
+	   	getFlow().setInputMapper(((DefaultAttributeMapper)inputMapper).addMapping(idMapping).addMapping(targetMapping));
     }
     
     public void buildEventStates() throws FlowBuilderException {
