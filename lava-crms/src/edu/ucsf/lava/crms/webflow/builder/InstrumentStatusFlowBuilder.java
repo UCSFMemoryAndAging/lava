@@ -63,26 +63,30 @@ public class InstrumentStatusFlowBuilder extends BaseFlowBuilder {
     			},
        	       	null, null, null);
 
-//    	 create attribute-mapper input-mapper to pass "id" from flow scope to edit subflow
-        ConfigurableFlowAttributeMapper idMapper = new ConfigurableFlowAttributeMapper();
-        // note: do not need an output mapping for enter to collect and vice versa like the
-        // InstrumentListViewFlow needs, because the id of the entity is in flow scope since
-        // this is the view entity flow
-        idMapper.addInputMapping(mapping().source("flowScope.id").target("id").value());
+        ConfigurableFlowAttributeMapper paramMapper = new ConfigurableFlowAttributeMapper();
+        paramMapper.addInputMapping(mapping().source("flowScope.id").target("id").value());
 
-    	
+        // add general purpose request parameters passed to all subflows
+        paramMapper.addInputMapping(mapping().source("requestParameters.param").target("param").value());
+        paramMapper.addInputMapping(mapping().source("requestParameters.param2").target("param2").value());
+        paramMapper.addInputMapping(mapping().source("requestParameters.param3").target("param3").value());
+
+    	// add the outputMappings for the enter and collect subflow states needed for instrument__switch
+        paramMapper.addOutputMapping(mapping().source("id").target("flowScope.id").value());
+        paramMapper.addOutputMapping(mapping().source("switchEvent").target("flowScope.switchEvent").value());
         
     	addSubflowState("editStatus", 
     			flow(actionId+".editStatus"), 
-    			this.requestParametersMapper, 
+    			paramMapper, 
     			new Transition[] {
     				transition(on("finishCancel"), to("subFlowReturnState")),
-    				transition(on("finish"), to("subFlowReturnState"))});
+    				transition(on("finish"), to("subFlowReturnState")),
+    				transition(on("finishSwitch"), to("finishSwitch"))});
    	
     	// Finish state used for a canceled version change, just do a normal subflow return.
     	addSubflowState("changeVersion", 
     			flow(actionId+".changeVersion"), 
-    			this.requestParametersMapper, 
+    			paramMapper, 
     			new Transition[] {
     				transition(on("finish"), to("subFlowReturnState")),
     				transition(on("finishCancel"), to("subFlowReturnState")),
@@ -109,12 +113,14 @@ public class InstrumentStatusFlowBuilder extends BaseFlowBuilder {
    		this.getFlow().getGlobalTransitionSet().add(transition(on("unauthorized"), to("${flowScope.mostRecentViewState}")));
     }
     
-	// for switching from enter to collet, which goes back thru the parent flow 
-	// (InstrumentListViewFlow or InstrumentViewFlow)
+    
 	public void buildOutputMapper() throws FlowBuilderException {
+		// for switching from this instrument enter subflow to another instrument subflow. this flow must pass
+	    // the mapping attributes back to the parent flow to tell it which instrument ("id") and subflow ("switchEvent")
+		// to transition to. these are put into flow scope when the "instrument__switch" event is handled.
 		Mapping idMapping = mapping().source("flowScope.id").target("id").value();
-		Mapping targetMapping = mapping().source("flowScope.target").target("target").value();
-		getFlow().setOutputMapper(new DefaultAttributeMapper().addMapping(idMapping).addMapping(targetMapping));
+		Mapping switchEventMapping = mapping().source("flowScope.switchEvent").target("switchEvent").value();
+		getFlow().setOutputMapper(new DefaultAttributeMapper().addMapping(idMapping).addMapping(switchEventMapping));
 	}
 }
 
