@@ -59,6 +59,14 @@ public class InstrumentDeleteFlowBuilder extends BaseFlowBuilder {
     	addEndState("finishSwitch"); 
     }
     
+	public void buildOutputMapper() throws FlowBuilderException {
+		// for switching from this instrument enter subflow to another instrument subflow. this flow must pass
+	    // the mapping attributes back to the parent flow to tell it which instrument ("id") and subflow ("switchEvent")
+		// to transition to. these are put into flow scope when the "instrument__switch" event is handled.
+		Mapping idMapping = mapping().source("flowScope.id").target("id").value();
+		Mapping switchEventMapping = mapping().source("flowScope.switchEvent").target("switchEvent").value();
+		getFlow().setOutputMapper(new DefaultAttributeMapper().addMapping(idMapping).addMapping(switchEventMapping));
+	}
 }
 
 

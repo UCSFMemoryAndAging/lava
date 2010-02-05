@@ -75,12 +75,13 @@ public class InstrumentEditStatusFlowBuilder extends BaseFlowBuilder {
    		this.getFlow().getGlobalTransitionSet().add(transition(on("unauthorized"), to("${flowScope.mostRecentViewState}")));
     }
     
-	// for switching from enter to collet, which goes back thru the parent flow 
-	// (InstrumentListViewFlow or InstrumentViewFlow)
 	public void buildOutputMapper() throws FlowBuilderException {
+		// for switching from this instrument enter subflow to another instrument subflow. this flow must pass
+	    // the mapping attributes back to the parent flow to tell it which instrument ("id") and subflow ("switchEvent")
+		// to transition to. these are put into flow scope when the "instrument__switch" event is handled.
 		Mapping idMapping = mapping().source("flowScope.id").target("id").value();
-		Mapping targetMapping = mapping().source("flowScope.target").target("target").value();
-		getFlow().setOutputMapper(new DefaultAttributeMapper().addMapping(idMapping).addMapping(targetMapping));
+		Mapping switchEventMapping = mapping().source("flowScope.switchEvent").target("switchEvent").value();
+		getFlow().setOutputMapper(new DefaultAttributeMapper().addMapping(idMapping).addMapping(switchEventMapping));
 	}
 }
 
