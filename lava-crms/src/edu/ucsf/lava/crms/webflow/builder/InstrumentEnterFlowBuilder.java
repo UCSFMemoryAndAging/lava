@@ -181,9 +181,6 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
 						invoke("handleFlowEvent", formAction)})),
 				transition(on("instrument__switch"), to("finishSwitch"), 
 					ifReturnedSuccess(new Action[]{
-						invoke("customBindResultFields", formAction),
-	 					new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, expression("${'instrument__doubleEnterCompare'}")),
-						invoke("handleFlowEvent", formAction),
 						new SetAction(settableExpression("id"), ScopeType.FLOW,	expression("requestParameters.id")),
 	    				new SetAction(settableExpression("switchEvent"), ScopeType.FLOW, expression("${requestParameters.switchEvent}")),
 					}))				

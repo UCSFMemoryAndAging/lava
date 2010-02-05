@@ -3,9 +3,11 @@ package edu.ucsf.lava.crms.webflow.builder;
 import org.springframework.binding.mapping.AttributeMapper;
 import org.springframework.binding.mapping.DefaultAttributeMapper;
 import org.springframework.binding.mapping.Mapping;
+import org.springframework.webflow.action.SetAction;
 import org.springframework.webflow.engine.Transition;
 import org.springframework.webflow.engine.builder.FlowBuilderException;
 import org.springframework.webflow.execution.Action;
+import org.springframework.webflow.execution.ScopeType;
 
 import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
 import edu.ucsf.lava.core.webflow.builder.BaseFlowBuilder;
@@ -43,6 +45,11 @@ public class InstrumentDeleteFlowBuilder extends BaseFlowBuilder {
                     	ifReturnedSuccess(invoke("handleFlowEvent", formAction))),
                     transition(on("instrument__cancelDelete"), to("finishCancel"), 
                     	ifReturnedSuccess(invoke("handleFlowEvent", formAction))),
+       				transition(on("instrument__switch"), to("finishSwitch"), 
+       					ifReturnedSuccess(new Action[]{
+           			    	new SetAction(settableExpression("id"), ScopeType.FLOW,	expression("requestParameters.id")),
+       	    				new SetAction(settableExpression("switchEvent"), ScopeType.FLOW, expression("${requestParameters.switchEvent}")),
+   					})),
                     // support a list secondary component for nav events only, since just a reference list
                     buildListNavigationTransitions(getFlowEvent())},
     			null, null, null);

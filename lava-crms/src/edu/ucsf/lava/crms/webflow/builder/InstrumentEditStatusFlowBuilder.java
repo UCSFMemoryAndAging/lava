@@ -3,9 +3,11 @@ package edu.ucsf.lava.crms.webflow.builder;
 import org.springframework.binding.mapping.AttributeMapper;
 import org.springframework.binding.mapping.DefaultAttributeMapper;
 import org.springframework.binding.mapping.Mapping;
+import org.springframework.webflow.action.SetAction;
 import org.springframework.webflow.engine.Transition;
 import org.springframework.webflow.engine.builder.FlowBuilderException;
 import org.springframework.webflow.execution.Action;
+import org.springframework.webflow.execution.ScopeType;
 
 import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
 import edu.ucsf.lava.core.webflow.builder.BaseFlowBuilder;
@@ -42,13 +44,17 @@ public class InstrumentEditStatusFlowBuilder extends BaseFlowBuilder {
     	    			transition(on("instrument__statusSave"), to("finish"), 
     						ifReturnedSuccess(new Action[]{
     							invoke("customBind", formAction), 
-    							invoke("handleFlowEvent", formAction)}))},
+    							invoke("handleFlowEvent", formAction)})),
+						transition(on("instrument__switch"), to("finishSwitch"), 
+							ifReturnedSuccess(new Action[]{
+								invoke("customBind", formAction),
+								new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, expression("${'instrument__statusSave'}")),
+								invoke("handleFlowEvent", formAction),
+								new SetAction(settableExpression("id"), ScopeType.FLOW,	expression("requestParameters.id")),
+						    	new SetAction(settableExpression("switchEvent"), ScopeType.FLOW, expression("${requestParameters.switchEvent}")),
+							}))				
+		    			},
     	   	       		null, null, null);
-    			
-
-    	
-    	
-    	
     }
     
     public void buildGlobalTransitions() throws FlowBuilderException {

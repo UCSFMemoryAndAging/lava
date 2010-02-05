@@ -3,10 +3,12 @@ package edu.ucsf.lava.crms.webflow.builder;
 import org.springframework.binding.mapping.AttributeMapper;
 import org.springframework.binding.mapping.DefaultAttributeMapper;
 import org.springframework.binding.mapping.Mapping;
+import org.springframework.webflow.action.SetAction;
 import org.springframework.webflow.engine.Transition;
 import org.springframework.webflow.engine.builder.FlowBuilderException;
 import org.springframework.webflow.engine.support.ConfigurableFlowAttributeMapper;
 import org.springframework.webflow.execution.Action;
+import org.springframework.webflow.execution.ScopeType;
 
 import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
 import edu.ucsf.lava.core.webflow.builder.BaseFlowBuilder;
@@ -43,7 +45,22 @@ public class InstrumentStatusFlowBuilder extends BaseFlowBuilder {
     			new Transition[] { 
     				transition(on("instrument__changeVersion"), to("changeVersion")), 
     				transition(on("instrument__editStatus"), to("editStatus")), 
-    				transition(on("instrument__close"), to("finish"), ifReturnedSuccess(invoke("handleFlowEvent", formAction)))},
+    				transition(on("instrument__close"), to("finish"), ifReturnedSuccess(invoke("handleFlowEvent", formAction))),
+    		    	// the "instrument__switch" event is used to switch to another instrument, where the id for that instrument
+    		    	// is in the "id" request parameter, and the flow to be used on that instrument is specified as an
+    		    	// event in the "switchEvent" request parameter. note that id can be the same as the current 
+    		    	// instrument id, where switchEvent can then be used to switch the current instrument from the
+    		    	// view flow to another flow, e.g. to the enter flow
+    				transition(on("instrument__switch"), to("finishSwitch"), 
+    					ifReturnedSuccess(new Action[]{
+    					// the request parameter values must be put into flow scope so that the buildOutputMapper
+    					// can reference them and pass them back to the parent instrument list flow (it may be
+    					// that buildOutputMapper could just reference requestParameters directly instead of
+    					// having to put these attributes in flow scope here, but did not try that)
+    			    	new SetAction(settableExpression("id"), ScopeType.FLOW,	expression("requestParameters.id")),
+	    				new SetAction(settableExpression("switchEvent"), ScopeType.FLOW, expression("${requestParameters.switchEvent}")),
+					}))
+    			},
        	       	null, null, null);
 
 //    	 create attribute-mapper input-mapper to pass "id" from flow scope to edit subflow

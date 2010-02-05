@@ -69,7 +69,32 @@ public class InstrumentEnterReviewFlowBuilder extends BaseFlowBuilder {
             		invoke("customBindResultFieldsIgnoreErrors", formAction), 
             		invoke("handleFlowEvent", formAction)})));
 
-    	
+    	// the "instrument__switch" event is used to switch to another instrument, where the id for that instrument
+    	// is in the "id" request parameter, and the flow to be used on that instrument is specified as an
+    	// event in the "switchEvent" request parameter. note that id can be the same as the current 
+    	// instrument id, where switchEvent can then be used to switch the current instrument from the
+    	// enter flow to another flow, e.g. to the collect flow
+    	enterStateTransitions.add(transition(on("instrument__switch"), to("finishSwitch"), 
+				ifReturnedSuccess(new Action[]{
+						// special result field custom bind here allows binding user-selected missing data code
+						// to all blank result fields 
+						invoke("customBindResultFields", formAction),
+						// save the instrument so that edits are not lost. this requires setting the event to save
+						// before handleFlowEvent is called
+						// note: for expression, string is treated as an expression, so to return a literal string, must enclose in ',
+						// and actually, the ${} are not necessary since expression treats its parameter as an expression by default,
+						// but just showing this usage to illustrate the point
+	 					new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, expression("${'instrument__enterSave'}")),
+						invoke("handleFlowEvent", formAction),
+						// the request parameter values must be put into flow scope so that the buildOutputMapper
+						// can reference them and pass them back to the parent instrument list flow (it may be
+						// that buildOutputMapper could just reference requestParameters directly instead of
+						// having to put these attributes in flow scope here, but did not try that)
+						// note: the next two calls just demonstrate that with expression, if there is only a single expression within
+						// the string, the ${} are optional, as the string is evaluated as an expression by default
+	    				new SetAction(settableExpression("id"), ScopeType.FLOW,	expression("requestParameters.id")),
+	    				new SetAction(settableExpression("switchEvent"), ScopeType.FLOW, expression("${requestParameters.switchEvent}")),
+						})));
 
     	// custom events
     	enterStateTransitions.addAll(this.buildCustomEventTransitions("instrument"));
@@ -98,7 +123,13 @@ public class InstrumentEnterReviewFlowBuilder extends BaseFlowBuilder {
     						invoke("handleFlowEvent", formAction)})),
    				transition(on("instrument__enterReviewRevise"), to(getFlowEvent())),
    		    	// user chooses to verify
-   		    	transition(on("instrument__enterReviewVerify"), to("doubleEnter"))},
+   		    	transition(on("instrument__enterReviewVerify"), to("doubleEnter")),
+				transition(on("instrument__switch"), to("finishSwitch"), 
+						ifReturnedSuccess(new Action[]{
+							new SetAction(settableExpression("id"), ScopeType.FLOW,	expression("requestParameters.id")),
+		    				new SetAction(settableExpression("switchEvent"), ScopeType.FLOW, expression("${requestParameters.switchEvent}")),
+						}))
+    			},
        			null, null, null);
 
     	// decide whether user must verify via double enter based on the flag set in the handler per
@@ -125,7 +156,13 @@ public class InstrumentEnterReviewFlowBuilder extends BaseFlowBuilder {
        				transition(on("${lastEvent.id.equals('instrument__hideCodesDoubleEnter') || lastEvent.id.equals('instrument__showCodesDoubleEnter')}"), 
       					to("doubleEnter"), 
     					// skip display of field error checking on hide/show codes, since just returns user to same page
-      					ifReturnedSuccess(invoke("customBindResultFieldsIgnoreErrors", formAction)))},
+      					ifReturnedSuccess(invoke("customBindResultFieldsIgnoreErrors", formAction))),
+   					transition(on("instrument__switch"), to("finishSwitch"), 
+						ifReturnedSuccess(new Action[]{
+						new SetAction(settableExpression("id"), ScopeType.FLOW,	expression("requestParameters.id")),
+	    				new SetAction(settableExpression("switchEvent"), ScopeType.FLOW, expression("${requestParameters.switchEvent}")),
+						}))				
+    				},
        			null, null, null);
 
     	addViewState("doubleEnterCompare", 
@@ -147,7 +184,13 @@ public class InstrumentEnterReviewFlowBuilder extends BaseFlowBuilder {
    						invoke("customBindResultFieldsIgnoreErrors", formAction),
    						// force handling of compare event so that any compare errors are still displayed
      					new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, expression("'instrument__compare'")),
-						invoke("handleFlowEvent", formAction)}))},
+						invoke("handleFlowEvent", formAction)})),
+				transition(on("instrument__switch"), to("finishSwitch"), 
+					ifReturnedSuccess(new Action[]{
+						new SetAction(settableExpression("id"), ScopeType.FLOW,	expression("requestParameters.id")),
+	    				new SetAction(settableExpression("switchEvent"), ScopeType.FLOW, expression("${requestParameters.switchEvent}")),
+					}))				
+    			},
        			null, null, null);
    						
     	addViewState("editStatus", 
@@ -157,7 +200,16 @@ public class InstrumentEnterReviewFlowBuilder extends BaseFlowBuilder {
     			transition(on("instrument__statusSave"), to("finish"), 
 					ifReturnedSuccess(new Action[]{
 						invoke("customBind", formAction), 
-						invoke("handleFlowEvent", formAction)}))},
+						invoke("handleFlowEvent", formAction)})),
+				transition(on("instrument__switch"), to("finishSwitch"), 
+					ifReturnedSuccess(new Action[]{
+						invoke("customBind", formAction),
+						new SetAction(settableExpression("eventOverride"), ScopeType.FLASH, expression("${'instrument__statusSave'}")),
+						invoke("handleFlowEvent", formAction),
+						new SetAction(settableExpression("id"), ScopeType.FLOW,	expression("requestParameters.id")),
+				    	new SetAction(settableExpression("switchEvent"), ScopeType.FLOW, expression("${requestParameters.switchEvent}")),
+					}))				
+    			},
    	       		null, null, null);
     	
     	
