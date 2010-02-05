@@ -213,12 +213,7 @@ public class InstrumentEnterReviewFlowBuilder extends BaseFlowBuilder {
    	       		null, null, null);
     	
     	
-    	// special flow termination for switching from enter to collect flow. enter flow can only be
-    	// entered from the instrument list flow or the view instrument flow. in either case, know that
-    	// this is a subflow and will return to a parent flow. 
-    	// by signalling "finishSwitchToCollect", the parent flow knows that it should transition into
-    	// the collect flow 
-    	addEndState("finishSwitchToCollect"); 
+    	addEndState("finishSwitch"); 
     }
     
     public void buildGlobalTransitions() throws FlowBuilderException {

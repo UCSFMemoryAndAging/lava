@@ -55,6 +55,8 @@ public class InstrumentDeleteFlowBuilder extends BaseFlowBuilder {
     			null, null, null);
 
 
+ 
+    	addEndState("finishSwitch"); 
     }
     
 }

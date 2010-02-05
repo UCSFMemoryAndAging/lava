@@ -55,6 +55,8 @@ public class InstrumentEditStatusFlowBuilder extends BaseFlowBuilder {
 							}))				
 		    			},
     	   	       		null, null, null);
+
+       	addEndState("finishSwitch"); 
     }
     
     public void buildGlobalTransitions() throws FlowBuilderException {

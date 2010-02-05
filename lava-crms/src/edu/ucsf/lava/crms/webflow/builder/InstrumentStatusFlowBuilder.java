@@ -90,7 +90,8 @@ public class InstrumentStatusFlowBuilder extends BaseFlowBuilder {
     	
    
     	
-    }
+    	addEndState("finishSwitch"); 
+   }
     
     public void buildGlobalTransitions() throws FlowBuilderException {
     	// do not need to call super because this flow is modal so not patient/project context events 
