@@ -187,13 +187,21 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
 		    	}
 		    	
 		    	// for now, only implementing the "switchEvent" transition for the subflows which use it. to 
-		    	// add an additional subflow, that flow builder will have to handle the "instrument__switch" event,
-		    	// store the id for the instrument to switch to in flow scope as "id", store the subflow state to 
-		    	// switch toin flow scope as "switchEvent" (because the event names match subflow state ids),
-		    	// do anything that might need to be done before terminating the flow, and transitioning to 
-		    	// a "finishSwitch" end state
+		    	// add an additional subflow, that flow builder will have to:
+		    	// 1) handle the "instrument__switch" event
+		    	// 2) store the id for the instrument to switch to in flow scope as "id"
+		    	// 3) store the subflow state to switch to in flow scope as "switchEvent" (because the event 
+		    	//    names match subflow state ids),
+		    	// 4) do anything that might need to be done before terminating the flow, and transitioning to 
+		    	//    a "finishSwitch" end state.
+		    	// 5) add the "finishSwitch" end state
+		    	// 6) add output mappings to map "id" and "switchEvent" back to the parent flow (not to be
+		    	//    confused with below, which is adding output mappings to receive those mapping values
+		    	//    and map them into this flow)
 		    	else if (subFlowInfo.getEvent().equals("enter") || subFlowInfo.getEvent().equals("collect")
-		    			|| subFlowInfo.getEvent().equals("view")) {
+		    			|| subFlowInfo.getEvent().equals("view") || subFlowInfo.getEvent().equals("enterReview")
+		    			|| subFlowInfo.getEvent().equals("status") || subFlowInfo.getEvent().equals("delete"))
+		    	{
 
 		    		// note: these subflow definitions can also be used to switch between "enter" and "collect" 
 		    		// flow for an instrument, which was formerly done using a similar but less general technique.
