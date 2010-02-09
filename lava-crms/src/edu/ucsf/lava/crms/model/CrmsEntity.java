@@ -86,8 +86,14 @@ public class CrmsEntity extends EntityBase {
 			Calendar end = Calendar.getInstance();
 			end.setTime(endDate);
 			age = end.get(Calendar.YEAR) - birth.get(Calendar.YEAR);
-			if(age <=0){
+			if((age < 0)){
 				age = null;
+			}else if(age==0){
+				if(end.before(birth)){
+					age = null;
+				}else{
+					age = 0;
+				}
 			}else{
 				//add the age to the birth date and check to see if the birthday happened in the year of "endDate"					
 				birth.add(Calendar.YEAR, age);
