@@ -70,7 +70,7 @@ public class AddEnrollmentStatusHandler extends CrmsEntityComponentHandler {
 	}
 
 	
-	protected String[] defineRequiredFields(RequestContext context) {
+	protected String[] defineRequiredFields(RequestContext context, Object command) {
 		if (ActionUtils.getEventName(context).equalsIgnoreCase("saveAdd")) {
 			setRequiredFields(new String[]{
 	 				"enrollmentStatus.projName",
