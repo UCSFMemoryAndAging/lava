@@ -12,6 +12,18 @@
 	
 	<!-- action definitions -->
 	
+	<!-- EMORY change: fixing bug where CrmsAuthUser not created -->
+	<bean id="lava.crms.admin.auth.crmsAuthUser" parent="crmsEntityFlowAction">
+    	<property name="customizedFlow" value="lava.core.admin.auth.authUser"/>
+    </bean>
+    <!-- 
+	<bean id="lava.core.admin.auth.authUser" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+  			<value>lava.core.admin.auth.authUsers</value>
+  		</list></property>
+	</bean>
+	 -->	
+	
     <bean id="lava.crms.admin.auth.crmsAuthRole" parent="crmsEntityFlowAction">
     	<property name="customizedFlow" value="lava.core.admin.auth.authRole"/>
     </bean>
@@ -23,6 +35,13 @@
 	
 	
 	<!-- form actions -->
+	<!-- EMORY change: fixing bug where CrmsAuthUser not created -->
+	<bean id="crmsAuthUserFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.auth.controller.CrmsAuthUserHandler" parent="crmsHandler"/>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthUserAuthUserGroupsHandler" parent="crmsHandler"/>
+		<bean class="edu.ucsf.lava.core.auth.controller.AuthUserAuthUserRolesHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+	
 	<bean id="crmsAuthRoleFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.auth.controller.CrmsAuthRoleHandler" parent="crmsHandler"/>
 		<bean class="edu.ucsf.lava.core.auth.controller.AuthRoleAuthGroupsHandler" parent="crmsHandler"/>

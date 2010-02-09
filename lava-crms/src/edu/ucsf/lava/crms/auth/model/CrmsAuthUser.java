@@ -1,6 +1,7 @@
 package edu.ucsf.lava.crms.auth.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,9 +10,13 @@ import java.util.Set;
 
 import org.hibernate.Hibernate;
 
+import edu.ucsf.lava.core.auth.AuthDaoUtils;
 import edu.ucsf.lava.core.auth.model.AuthRole;
 import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.auth.model.AuthUserRole;
+import edu.ucsf.lava.core.dao.LavaDaoFilter;
+import edu.ucsf.lava.core.model.EntityBase;
+import edu.ucsf.lava.core.model.EntityManager;
 import edu.ucsf.lava.crms.dao.CrmsDaoFilterUtils;
 import edu.ucsf.lava.crms.enrollment.ProjectUnitUtils;
 import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
@@ -23,7 +28,9 @@ import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
  *
  */
 public class CrmsAuthUser extends AuthUser{
-
+	// EMORY change: fixing bug where CrmsAuthUser not created
+	public static CrmsAuthUser.Manager MANAGER = new CrmsAuthUser.Manager();
+	
 	public static final String PROJECT_LIST_PLACEHOLDER = "NO_PROJECTS_IN_LIST"; //if no project access, this value will keep SQL statements valid --this term gets added to an in clause and will return no projects
 	
 	/**
@@ -214,12 +221,20 @@ public Map<String, Map<String, Object>> getAuthDaoFilters() {
 	return authFilters;
 }
 
-
-
-
-
-
-
-
+	// EMORY change: fixing bug where CrmsAuthUser not created
+	static public class Manager extends EntityBase.Manager{
+		
+		public Manager(){
+			super(CrmsAuthUser.class);
+		}
+			
+		public AuthUser getByLogin(String username) {
+			LavaDaoFilter filter = newFilterInstance();
+			filter.addDaoParam(filter.daoEqualityParam("login", username));
+			filter.addDaoParam(AuthDaoUtils.getEffectiveDaoParam(filter));
+			filter.addDaoParam(filter.daoLessThanOrEqualParam("accessAgreementDate", new Date()));
+			return (AuthUser)getOne(AuthUser.class,filter);
+		}
+	}
 
 }
