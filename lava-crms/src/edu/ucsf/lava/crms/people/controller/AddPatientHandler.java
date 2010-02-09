@@ -1,11 +1,13 @@
 package edu.ucsf.lava.crms.people.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
@@ -102,13 +104,19 @@ public class AddPatientHandler extends CrmsEntityComponentHandler {
 
 		Map components = ((ComponentCommand)command).getComponents();
 		AddPatientCommand apc = (AddPatientCommand) components.get("addPatient");
+	
+		Patient p = apc.getPatient();
 		
+		if ((p!=null) && p.getBirthDate().after(new Date())) {
+			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"patient.futureBirthDate"}, new String[]{new SimpleDateFormat("MM/dd/yyyy").format(p.getBirthDate())}, ""));
+			return new Event(this,ERROR_FLOW_EVENT_ID);  // could have continued to next hasErrors() check if there wasn't a getIgnoreMatches() check
+		}
 		
 		if (errors.hasErrors() && !apc.getIgnoreMatches()){
 			//TODO: add object error explaining why returning to page without adding
 			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}	
-		Patient p = apc.getPatient();
+		
 		if (apc.getDeidentified()){
 			p.setLastName(Patient.DEIDENTIFIED);
 			p.setFirstName(apc.getSubjectId());
