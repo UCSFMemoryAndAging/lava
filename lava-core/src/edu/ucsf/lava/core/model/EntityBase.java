@@ -522,9 +522,9 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 			Object oldValue = oldValues.get(property);
 			Object dirtyValue = dirtyValues.get(property);
 			if(oldValue==null && dirtyValue==null){
-				return true;
-			}else if(oldValue==null || dirtyValue==null || !oldValue.equals(dirtyValue)){
 				return false;
+			}else if(oldValue==null || dirtyValue==null || !oldValue.equals(dirtyValue)){
+				return true;
 			}
 		}
 		return true;
