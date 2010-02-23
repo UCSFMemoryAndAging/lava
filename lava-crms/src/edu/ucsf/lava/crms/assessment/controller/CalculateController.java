@@ -18,6 +18,16 @@ import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
 
+/** 
+ * 
+ * @author ctoohey
+ * 
+ * This class is used to invoke the save method on instrument objects. This in turn will invoke any
+ * "calculations" in beforeUpdate (which in turn calls updateCalculatedFields) and afterUpdate. This
+ * is typically used for instruments whose data has been imported into the database where   
+ * calculations on that data need to be done, because it was not persisted via the application. 
+ *
+ */
 public class CalculateController extends AbstractController {
 	InstrumentManager instrumentManager;
 	SessionManager sessionManager;
@@ -25,16 +35,16 @@ public class CalculateController extends AbstractController {
 	protected List<Long> instrIdList; // the list of instrument ids to be calculated
 	protected Class clazz; // the class of the current instrument being calculated.
 	
-	// use this to specify classes whose calculate method is/should not be supported by this controller
+	// use this to specify classes whose save method is/should not be supported by this controller
 	protected static final String[] UNSUPPORTED = {"macdiagnosis"};
 	
 	// This controller is invoked via the following URL: https://..IP../INSTANCE/assessment/instrument/calc.lava
 	// TWO parameters are possible:
 	//    1) instrTypeEncoded=INSTR_TYPE_ENCODED, where INSTR_TYPE_ENCODED has no spaces and is all lowercase, e.g.
-	//       if this parameters is used, ALL instruments for this instrument type will be calculated
+	//       if this parameters is used, ALL instruments for this instrument type will be saved/calculated.
 	//	  2) instrIdsArray=INSTR_IDS, where INSTR_IDS are the instrIds (in typical array format, i.e. [123,234,345])
-	//		 of the instruments you want to calculate. the nice thing is that they do not have to all be of a certain
-	//		 instrument type. this is useful if you only want to call calculate on certain records, regardless of instrType
+	//		 of the instruments you want to save/calculate. the nice thing is that they do not have to all be of a certain
+	//		 instrument type. this is useful if you only want to call save on certain records, regardless of instrType
 	//
 	// Here are some examples:
 	// http://localhost:8080/smd/crms/assessment/instrument/calc.lava?instrTypeEncoded=updrs
@@ -70,7 +80,7 @@ public class CalculateController extends AbstractController {
 		// exception can be thrown). so instead of retrieving the entire list of instruments
 		// of a given type, just obtain the list of id's (which is non-transactional and does not involve
 		// retrieving details or upload files), and then iterate thru the id's, retrieving the instruments
-		// one at a time transactionally, invoking calculate, and then saving the entity in a separate
+		// one at a time transactionally, invoking save, and then saving the entity in a separate
 		// transaction, which is achieved by changing the transaction propagation behavior such that
 		// transaction boundaries are on each service call as opposed to spanning the entire request,
 		// which is the transaction behavior normally used. 
@@ -103,15 +113,15 @@ public class CalculateController extends AbstractController {
 		
 		String className = this.clazz.getSimpleName();
 		if (!isSupported(className)) {
-			logger.info("skipping calculate method for " + className + ". not supported in this controller.");
+			logger.info("skipping save method for " + className + ". not supported in this controller.");
 			return;
 		} else {
-			logger.info("beginning calculate for " + className + ". total objects to be calculated: " + this.instrIdList.size());
+			logger.info("beginning save/calculate for " + className + ". total objects to be calculated: " + this.instrIdList.size());
 			int counter = 0;
 			int total = this.instrIdList.size();
 			for (Long instrId : this.instrIdList) {
 				counter++;
-				logger.info("calling calculate for " + className + " object id=" + instrId + " (" + counter + " of " + total + ")");
+				logger.info("calling save/calculate for " + className + " object id=" + instrId + " (" + counter + " of " + total + ")");
 				calculateInstrId(instrId);
 			}
 			logger.info("calculate complete. calculated " + counter + "/" + this.instrIdList.size() + " objects");
@@ -150,7 +160,7 @@ public class CalculateController extends AbstractController {
 					failed.add(instrId);
 					this.filter.clearDaoParams();
 				} else {
-					logger.info("calling calculate for " + className + " object id=" + instrId + " (" + counter + " of " + total + ")");
+					logger.info("calling save/calculate for " + className + " object id=" + instrId + " (" + counter + " of " + total + ")");
 					calculateInstrId(instrId);
 				}
 			}
@@ -159,7 +169,7 @@ public class CalculateController extends AbstractController {
 		int completed = total - failed.size();
 		logger.info("calculate complete. calculated " + completed + "/" + total + " objects");
 		request.setAttribute("infoMessage", "Calculate complete. Calculated " + completed + "/" + total + " objects.");
-		StringBuffer block = new StringBuffer("objects that could not be calculated: ");
+		StringBuffer block = new StringBuffer("objects that could not be saved/calculated: ");
 		if (failed.size()==0) {
 			block.append("none");
 		} else {
