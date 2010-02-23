@@ -527,9 +527,8 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 				return true;
 			}
 		}
-		return true;
-		
-		
+		// old and new are the same (and neither non-null)
+		return false;
 	}
 	
 	//persistence methods / triggers
