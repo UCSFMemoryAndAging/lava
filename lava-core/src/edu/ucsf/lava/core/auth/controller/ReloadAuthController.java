@@ -14,7 +14,8 @@ public class ReloadAuthController extends AbstractController {
 			HttpServletResponse arg1) throws Exception {
 		// TODO Auto-generated method stub
 		CoreManagerUtils.getAuthManager().reloadRoleCache();
-		return new ModelAndView();
+		arg0.setAttribute("infoMessage", "Auth Role Cache reload complete");
+		return new ModelAndView("/info");
 	}
 
 

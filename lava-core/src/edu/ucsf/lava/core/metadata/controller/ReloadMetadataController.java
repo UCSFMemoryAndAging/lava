@@ -14,7 +14,8 @@ public class ReloadMetadataController extends AbstractController {
 			HttpServletResponse response) throws Exception {
 		// TODO Auto-generated method stub
 		CoreManagerUtils.getMetadataManager().reloadViewProperties();
-		return new ModelAndView();
+		request.setAttribute("infoMessage", "Metadata reload complete");
+		return new ModelAndView("/info");
 	}
 
 

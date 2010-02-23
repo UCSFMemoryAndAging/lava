@@ -15,7 +15,8 @@ public class ReloadProjectsController extends AbstractController {
 	protected ModelAndView handleRequestInternal(HttpServletRequest arg0,
 			HttpServletResponse arg1) throws Exception {
 		CrmsManagerUtils.getProjectManager().reloadProjects();
-		return new ModelAndView();
+		arg0.setAttribute("infoMessage", "Projects reload complete");
+		return new ModelAndView("/info");
 	}
 
 

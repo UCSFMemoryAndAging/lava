@@ -86,18 +86,18 @@ public class CalculateController extends AbstractController {
 		this.clazz = null;
 
 		if (instrIdsArrayParam != null) {
-			calculateByIds(instrIdsArrayParam);
+			calculateByIds(request, instrIdsArrayParam);
 		} else if (instrTypeEncodedParam != null) {
-			calculateByType(instrTypeEncodedParam);
+			calculateByType(request, instrTypeEncodedParam);
 		} else {
 			logger.info("calculate failed. no valid parameters: instrTypeEncoded, instrIdsArray");
 		}
 		
-		return new ModelAndView();
+		return new ModelAndView("/info");
 	}
 		
 
-	public void calculateByType(String instrTypeEncodedParam) throws Exception {
+	public void calculateByType(HttpServletRequest request, String instrTypeEncodedParam) throws Exception {
 		this.clazz = this.instrumentManager.getInstrumentClass(instrTypeEncodedParam);
 		this.instrIdList = InstrumentTracking.MANAGER.getIds(this.clazz, this.filter);
 		
@@ -115,10 +115,11 @@ public class CalculateController extends AbstractController {
 				calculateInstrId(instrId);
 			}
 			logger.info("calculate complete. calculated " + counter + "/" + this.instrIdList.size() + " objects");
+			request.setAttribute("infoMessage", "Calculate complete. Calculated " + counter + "/" + this.instrIdList.size() + " objects.");
 		}
 	}
 
-	public void calculateByIds(String instrIdsArrayParam) throws Exception {
+	public void calculateByIds(HttpServletRequest request, String instrIdsArrayParam) throws Exception {
 		if (instrIdsArrayParam.startsWith("[") && instrIdsArrayParam.endsWith("]")) {
 			String[] instrIdsListStringArray = instrIdsArrayParam.substring(1,instrIdsArrayParam.length()-1).split(",");
 			this.instrIdList.clear();
@@ -157,6 +158,7 @@ public class CalculateController extends AbstractController {
 		
 		int completed = total - failed.size();
 		logger.info("calculate complete. calculated " + completed + "/" + total + " objects");
+		request.setAttribute("infoMessage", "Calculate complete. Calculated " + completed + "/" + total + " objects.");
 		StringBuffer block = new StringBuffer("objects that could not be calculated: ");
 		if (failed.size()==0) {
 			block.append("none");
