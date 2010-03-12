@@ -18,15 +18,21 @@
 <%@ attribute name="locked" 
        description="[optional] whether the action will be disabled.
                     Ideally want to use this attribute when assigning a modifying action"%>
+<%@ attribute name="title" 
+       description="[optional] text used during the mouseover event"%>
        				
 <%-- to avoid image whisker problem, do not leave any white space between end of <a> tag and beginning of <img> tag --%>		
+
+<%-- if title not specified, the buttonImage text is a good default, else eventID, else startMode
+       Note: buttonImage should never be empty, but regardless these others were the old defaults --%>
+<c:if test="${empty title}">
+<c:set var="title" value="${not empty buttonImage ? buttonImage : (not empty eventID ? eventId : (not empty startMode? startMode:'')) }"/>
+</c:if>
 
 <%-- default to not locked --%>
 <c:if test="${empty locked}">
 <c:set var="locked" value="false"/>
 </c:if>
-
-<c:set var="title" value="${not empty eventId? eventId :(not empty startMode? startMode: '')}"/>
 
 <c:choose>
 <c:when test="${locked}">

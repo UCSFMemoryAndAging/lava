@@ -23,9 +23,16 @@
 	the decorator will set the focus to that element" %>       
 <%@ attribute name="locked" 
        description="[optional] whether this action will be disabled" %>
-
+<%@ attribute name="title" 
+       description="[optional] text used during the mouseover event" %>
+       
 <c:set var="target" value=""/> <%-- somehow in some case this was getting set to something --%>
 <c:set var="eventId" value="${not empty component ? component : ''}${not empty component ? '__' : ''}${action}"/>
+
+<%-- if title not specified, the buttonImage text is a good default, else eventID is next best --%>
+<c:if test="${empty title}">
+<c:set var="title" value="${not empty buttonImage ? buttonImage : eventId}"/>
+</c:if>
 
 <%-- default to not locked --%>
 <c:if test="${empty locked}">
@@ -35,13 +42,10 @@
 <c:choose>
 <c:when test="${locked}">
 <%-- when this action is locked, provide no link and a special icon --%>
-<img src="images/ACTION_${buttonImage}_locked.png"  width="16" height="16" border="0" title="${eventId} (locked)"/>
+<img src="images/ACTION_${buttonImage}_locked.png"  width="16" height="16" border="0" title="${title} (locked)"/>
 </c:when>
 <c:otherwise>
 <a href="javascript:void" onClick="javascript:document.${pageName}.action='${requestUrl}#${not empty fragment ? fragment : component}';submitForm(document.${pageName}, '${eventId}', '${target}'); return false"}"><img 
-	src="images/ACTION_${buttonImage}.png"  width="16" height="16" border="0" title="${eventId}"/></a>
+	src="images/ACTION_${buttonImage}.png"  width="16" height="16" border="0" title="${title}"/></a>
 </c:otherwise>
 </c:choose>
-
-
-	
