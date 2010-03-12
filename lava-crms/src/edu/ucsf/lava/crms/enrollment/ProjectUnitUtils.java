@@ -9,7 +9,7 @@ import org.apache.commons.lang.StringUtils;
 
 public class ProjectUnitUtils {
 	public final static String ANY_WILDCARD = "*";
-	public static final String PROJECTUNIT_FORMAT = "(.*)\\[(.*)\\]$";
+	public static final String PROJECTUNIT_FORMAT = "(.*)\\s\\[(.*)\\]$";
 	public static final int PROJ_INDEX = 0;
 	public static final int UNIT_INDEX = 1;
 	
