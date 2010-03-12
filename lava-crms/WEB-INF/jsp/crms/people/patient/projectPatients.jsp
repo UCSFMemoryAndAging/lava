@@ -36,7 +36,7 @@
 	
 	<tags:listRow>
 		<tags:listCell styleClass="actionButton">
-			<tags:listActionURLStandardButtons actionId="lava.crms.people.patient.patient" component="patient" idParam="${item.id}"/>
+			<tags:listActionURLStandardButtons actionId="lava.crms.people.patient.patient" component="patient" idParam="${item.id}" locked="${item.locked}"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="id" component="${component}" listIndex="${iterator.index}" entityType="patient"/>		

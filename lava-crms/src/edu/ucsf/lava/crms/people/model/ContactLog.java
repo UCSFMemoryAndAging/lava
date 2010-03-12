@@ -100,7 +100,12 @@ public class ContactLog extends CrmsEntity {
 	public void setProjName(String projName) {
 		this.projName = projName;
 	}
-
 	
+	@Override
+	public boolean getLocked() {
+		/* lock down this when corresponding patient is locked */
+		if (getPatient() != null) return getPatient().getLocked();
+		return super.getLocked();
+	}
 	
 }

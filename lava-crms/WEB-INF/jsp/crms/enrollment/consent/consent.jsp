@@ -9,6 +9,7 @@
    
 <page:applyDecorator name="component.entity.content">
   <page:param name="component">${component}</page:param>
+  <page:param name="locked">${command.components['consent'].locked}</page:param>
   
  
 	<c:import url="/WEB-INF/jsp/crms/enrollment/consent/consentContent.jsp">

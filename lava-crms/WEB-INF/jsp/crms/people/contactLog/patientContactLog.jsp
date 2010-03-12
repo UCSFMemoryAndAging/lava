@@ -12,7 +12,7 @@
 
 
 <content tag="customActions">
-	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.people.contactLog.contactLog" eventId="contactLog__add" component="${component}"/>	    
+	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.people.contactLog.contactLog" eventId="contactLog__add" component="${component}" locked="${currentPatient.locked}"/>	    
 </content>
 
 <content tag="listColumns">
@@ -33,7 +33,7 @@
 <tags:list component="${component}" >
 	<tags:listRow>
 		<tags:listCell styleClass="actionButton">
-				<tags:listActionURLStandardButtons actionId="lava.crms.people.contactLog.contactLog" component="contactLog" idParam="${item.id}"/>	    	                      
+			<tags:listActionURLStandardButtons actionId="lava.crms.people.contactLog.contactLog" component="contactLog" idParam="${item.id}" locked="${item.locked}"/>	    	                      
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="contactLog"/>	

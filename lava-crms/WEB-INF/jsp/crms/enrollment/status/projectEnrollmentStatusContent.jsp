@@ -55,10 +55,10 @@
 
 <tags:list component="${component}">
 	<tags:listRow>
-		 <tags:listCell styleClass="actionButton">
-			<tags:listActionURLStandardButtons actionId="lava.crms.enrollment.status.enrollmentStatus" component="enrollmentStatus" idParam="${item.id}"/>	    
+		<tags:listCell styleClass="actionButton">
+			<tags:listActionURLStandardButtons actionId="lava.crms.enrollment.status.enrollmentStatus" component="enrollmentStatus" idParam="${item.id}" locked="${item.locked}"/>	    
 		</tags:listCell>
-	   <tags:listCell>
+	    <tags:listCell>
 			<tags:listField property="patient.fullNameRevNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="enrollmentStatus" metadataName="patient.fullNameRevNoSuffix"/>
 			<tags:listActionURLButton buttonImage="view" actionId="lava.crms.people.patient.patient" eventId="patient__view" idParam="${item.patient.id}"/>	    
 		</tags:listCell>

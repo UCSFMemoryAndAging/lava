@@ -450,4 +450,12 @@ public class ContactInfo extends CrmsEntity {
 		}
 		return new ArrayList<ContactInfo>();
 	}
+	
+	@Override
+	public boolean getLocked() {
+		/* lock down this when corresponding patient is locked */
+		if (getPatient() != null) return getPatient().getLocked();
+		return super.getLocked();
+	}
+
 }

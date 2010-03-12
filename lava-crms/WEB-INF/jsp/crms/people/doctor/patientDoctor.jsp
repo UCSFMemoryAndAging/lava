@@ -14,6 +14,7 @@
 <page:applyDecorator name="component.entity.content">
   <page:param name="component">${component}</page:param>
   <page:param name="componentView">${componentView}</page:param>
+  <page:param name="locked">${command.components['patientDoctor'].locked}</page:param>
 
 <page:applyDecorator name="component.entity.section">
   <page:param name="sectionId">anonymous</page:param>

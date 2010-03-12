@@ -27,6 +27,7 @@
   <page:param name="component">${component}</page:param>
   <page:param name="componentView">${componentView}</page:param>
   <page:param name="contextualInfo">${componentView == 'addMany' ? 'patient.fullName,instrument' : 'id,instrument,instrType,instrument,projName,instrument,visit.patient.fullName,instrument,visit.visitDescrip,instrument'}</page:param>
+  <page:param name="locked">${componentView == 'addMany' ? false : command.components['instrument'].locked}</page:param>
 	
 	<c:import url="/WEB-INF/jsp/crms/assessment/instrument/instrumentContent.jsp">
 		<c:param name="component">${component}</c:param>

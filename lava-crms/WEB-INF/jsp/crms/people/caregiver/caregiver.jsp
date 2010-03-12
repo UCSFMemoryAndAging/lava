@@ -11,6 +11,7 @@
 <page:applyDecorator name="component.entity.content">
   <page:param name="component">${component}</page:param>
   <page:param name="contextualInfo">patient.fullNameNoSuffix,caregiver</page:param>
+  <page:param name="locked">${command.components['caregiver'].locked}</page:param>
  
 	<c:import url="/WEB-INF/jsp/crms/people/caregiver/caregiverContent.jsp">
 		<c:param name="component">${component}</c:param>

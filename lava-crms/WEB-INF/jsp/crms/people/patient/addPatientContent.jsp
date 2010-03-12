@@ -23,7 +23,9 @@
 				<tags:createField property="subjectId" component="${component}"/>
 			</c:otherwise>
 		</c:choose>
+		<tags:createField property="patient.gender" component="${component}"/>
 		<tags:createField property="patient.birthDate" component="${component}"/>
+		<tags:createField property="patient.hand" component="${component}"/>
 </tags:contentColumn>
 <tags:contentColumn columnClass="colRight2Col5050">
 	<tags:createField property="enrollmentStatus.projName" component="${component}"/>

@@ -3,7 +3,7 @@
 <c:set var="component">${param.component}</c:set>
 
 <content tag="customActions">
-	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.people.doctor.patientDoctor" eventId="patientDoctor__add" component="${component}"/>	    
+	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.people.doctor.patientDoctor" eventId="patientDoctor__add" component="${component}" locked="${currentPatient.locked}"/>	    
 </content>
 
 <content tag="listColumns">
@@ -20,8 +20,8 @@
 
 <tags:list component="${component}">
 	<tags:listRow>
-		 <tags:listCell styleClass="actionButton">
-			<tags:listActionURLStandardButtons actionId="lava.crms.people.doctor.patientDoctor" component="patientDoctor" idParam="${item.id}"/>	    
+		<tags:listCell styleClass="actionButton">
+			<tags:listActionURLStandardButtons actionId="lava.crms.people.doctor.patientDoctor" component="patientDoctor" idParam="${item.id}" locked="${item.locked}"/>	    
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="doctor.fullNameRev" component="${component}" listIndex="${iterator.index}" entityType="patientDoctor" metadataName="doctor.fullNameRev"/>		

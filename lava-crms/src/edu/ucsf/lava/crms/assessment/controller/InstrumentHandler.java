@@ -181,7 +181,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 						((Instrument)((ComponentCommand)command).getComponents().get(INSTRUMENT)).getPatient().getId(),
 						Long.class);
 				visitList = filterVisitListByPermission(getCurrentUser(request),
-						CoreSessionUtils.getCurrentAction(sessionManager,request), visitList);
+						CoreSessionUtils.getCurrentAction(sessionManager,request), visitList, true);
 				if (visitList.size() == 1) { // there will always be the blank entry, so list size 1 means empty list
 					CoreSessionUtils.addFormError(sessionManager,request, new String[]{"authorization.noInstrumentVisits.command"}, null);
 					return new Event(this,this.UNAUTHORIZED_FLOW_EVENT_ID);
@@ -329,7 +329,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 				((Instrument)command).getPatient().getId(), 
 				Long.class);
 		visitList = filterVisitListByPermission(getCurrentUser(request),
-				CoreSessionUtils.getCurrentAction(sessionManager,request), visitList);
+				CoreSessionUtils.getCurrentAction(sessionManager,request), visitList, true);
 		// save visit list for reference data so do not have to query and filter each time 
 		// an add is done (since the visit list is static for the life of the page)
 		request.getSession().setAttribute(VISIT_LIST, visitList);

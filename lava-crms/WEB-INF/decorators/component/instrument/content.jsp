@@ -408,6 +408,7 @@
 	
 </c:choose>	
 
+
 <%-- PAGE LEVEL ACTION/NAVIGATION BUTTONS - TOP --%>
 <c:set var="actionNavButtons">
 	<%--  note: since right buttons float right, they must go before any buttons to the left, and, put 
@@ -421,8 +422,14 @@
 			<c:set var="action" value="${pageScope[stringAction]}"/>
 			<c:set var="stringDoGet" value="${position}button${current}_doGet"/>
 			<c:set var="doGet" value="${pageScope[stringDoGet]}"/>
+			<%-- Determine locked status for this action
+			       Could have done this while setting up the button, but done here to consolidate the reasoning --%>
+			<c:set var="locked" value="false"/>
+			<c:if test="${fn:startsWith(action, 'enter') || fn:startsWith(action, 'doubleEnter') || fn:startsWith(action, 'collect') || fn:startsWith(action, 'upload') || (action == 'changeVersion') || (action == 'delete') || (action == 'editStatus')}">
+				<c:set var="locked" value="${command.components['instrument'].locked}"/>
+			</c:if>
 			<c:if test="${empty doGet}">
-				<tags:eventButton buttonText="${text}" action="${action}" component="instrument" pageName="${pageName}" className="${position == 'left' ? (current == 1 ? 'pageLevelLeftmostButton' : 'pageLevelLeftButton') : (current == 1 ? 'pageLevelRightmostButton' : 'pageLevelRightButton')}"/>
+				<tags:eventButton buttonText="${text}" action="${action}" component="instrument" pageName="${pageName}" className="${position == 'left' ? (current == 1 ? 'pageLevelLeftmostButton' : 'pageLevelLeftButton') : (current == 1 ? 'pageLevelRightmostButton' : 'pageLevelRightButton')}" locked="${locked}"/>
 			</c:if>
 			<c:if test="${not empty doGet}">
 				<%-- if need button to do a GET instead of POST for some reason, use actionURLButton.tag and first

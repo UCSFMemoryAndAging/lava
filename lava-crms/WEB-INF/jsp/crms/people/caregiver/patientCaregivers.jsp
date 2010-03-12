@@ -10,9 +10,8 @@
 <page:applyDecorator name="component.list.content">
 	<page:param name="component">${component}</page:param>
 
-
 <content tag="customActions">
-	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.people.caregiver.caregiver" eventId="caregiver__add" component="${component}"/>	    
+	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.people.caregiver.caregiver" eventId="caregiver__add" component="${component}" locked="${currentPatient.locked}"/>	    
 </content>
 
 <content tag="listColumns">
@@ -35,7 +34,7 @@
 <tags:list component="${component}" >
 	<tags:listRow>
 		<tags:listCell styleClass="actionButton">
-				<tags:listActionURLStandardButtons actionId="lava.crms.people.caregiver.caregiver" component="caregiver" idParam="${item.id}"/>	    
+			<tags:listActionURLStandardButtons actionId="lava.crms.people.caregiver.caregiver" component="caregiver" idParam="${item.id}" locked="${item.locked}"/>	    
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="fullName" component="${component}" listIndex="${iterator.index}" entityType="caregiver"/>

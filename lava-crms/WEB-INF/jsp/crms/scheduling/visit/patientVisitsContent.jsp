@@ -18,10 +18,10 @@
 	<tags:listRow>
 <%-- remove actions until these CRUD subflows are supported in the CRUD entity flows. for now, this list just serves as
      as secondary component reference list, which is fine; these actions may never be added back in	
-		 <tags:listCell styleClass="actionButton">
-				<tags:listActionURLStandardButtons actionId="lava.crms.scheduling.visit.visit" component="visit" idParam="${item.id}"/>
-				   was commented: going to visitInstruments list starts a new root flow, so do not specify eventId attribute 
-				<tags:listActionURLButton buttonImage="list" actionId="lava.crms.scheduling.visit.visitInstruments" idParam="${item.id}"/>
+		<tags:listCell styleClass="actionButton">
+			<tags:listActionURLStandardButtons actionId="lava.crms.scheduling.visit.visit" component="visit" idParam="${item.id}" locked="${item.locked}"/>
+			   was commented: going to visitInstruments list starts a new root flow, so do not specify eventId attribute 
+			<tags:listActionURLButton buttonImage="list" actionId="lava.crms.scheduling.visit.visitInstruments" idParam="${item.id}"/>
 		</tags:listCell>
 --%>		
 		<tags:listCell>

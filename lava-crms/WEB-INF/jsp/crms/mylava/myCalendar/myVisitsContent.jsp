@@ -25,12 +25,12 @@
 
 <tags:list component="${component}">
 	<tags:listRow>
-		 <tags:listCell styleClass="actionButton">
-				<tags:listActionURLStandardButtons actionId="lava.crms.scheduling.visit.visit" component="visit" idParam="${item.id}"/>
+		<tags:listCell styleClass="actionButton">
+				<tags:listActionURLStandardButtons actionId="lava.crms.scheduling.visit.visit" component="visit" idParam="${item.id}" locked="${item.locked}"/>
 				<%-- going to visitInstruments list starts a new root flow, so do not specify eventId attribute --%>	
 				<tags:listActionURLButton buttonImage="list" actionId="lava.crms.scheduling.visit.visitInstruments" idParam="${item.id}"/>
 		</tags:listCell>
-	   <tags:listCell>
+	    <tags:listCell>
 			<tags:listField property="visitDate" component="${component}" listIndex="${iterator.index}" entityType="visit"/>
 		</tags:listCell>
 		<tags:listCell>

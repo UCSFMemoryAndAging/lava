@@ -72,11 +72,13 @@ public class CrmsEntityComponentHandler extends BaseEntityComponentHandler {
 	 * lists are filtered for project access authorization in the dynamic list creation
 	 * process, but have not been filtered for permission authorization.
 	 * 
+	 * Also optionally filter based on locked status.
+	 * 
 	 * e.g. the add instrument view should not list visits for projects for which the user
-	 *      does not have permission to add instruments
+	 *      does not have permission to add instruments, nor locked
 	 *      
 	 */
-	public Map<String,String> filterVisitListByPermission(AuthUser user, Action action, Map<String,String> visitList) {
+	public Map<String,String> filterVisitListByPermission(AuthUser user, Action action, Map<String,String> visitList, boolean filterByLockedStatus) {
 		
 		Map<String,String> filteredList = new LinkedHashMap<String,String>();
 		
@@ -89,7 +91,9 @@ public class CrmsEntityComponentHandler extends BaseEntityComponentHandler {
 				// visit list has already been filtered for auth access, so no need to pass user when creating new filter
 				Visit v = (Visit)Visit.MANAGER.getById(Long.valueOf(entry.getKey()),Visit.newFilterInstance(user));
 				
-				if (entry.getKey().length() == 0 || authManager.isAuthorized(user, action, new CrmsAuthorizationContext(v.getProjName()))) {
+				if (entry.getKey().length() == 0 || 
+						(authManager.isAuthorized(user, action, new CrmsAuthorizationContext(v.getProjName())) &&
+						 (!filterByLockedStatus ||!v.getLocked()))) {
 					filteredList.put(entry.getKey(), entry.getValue());
 				}
 			}
@@ -98,7 +102,10 @@ public class CrmsEntityComponentHandler extends BaseEntityComponentHandler {
 		return filteredList;
 	}
 	
-
+	public Map<String,String> filterVisitListByPermission(AuthUser user, Action action, Map<String,String> visitList) {
+		return filterVisitListByPermission(user, action, visitList, false);
+	}
+	
 	// helper method. useful in situations where an entity is to be loaded via an id, but the id 
 	// could be a patient id or an entity id, depending upon the user interface constructs used to
 	// load the entity (e.g. if an entity CRUD action is a section default, the entity id is not 

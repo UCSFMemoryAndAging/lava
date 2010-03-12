@@ -10,6 +10,7 @@
   
 <page:applyDecorator name="component.entity.content">
   <page:param name="component">${component}</page:param>
+  <page:param name="locked">${command.components['contactInfo'].locked}</page:param>
  
 	<c:import url="/WEB-INF/jsp/crms/people/contactInfo/contactInfoContent.jsp">
 		<c:param name="component">${component}</c:param>

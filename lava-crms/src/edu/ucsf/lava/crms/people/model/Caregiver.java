@@ -414,4 +414,11 @@ public class Caregiver extends CrmsEntity {
 		this.setRolesDesc(buffer.toString());
 	}
 
+	@Override
+	public boolean getLocked() {
+		/* lock down this when corresponding patient is locked */
+		if (getPatient() != null) return getPatient().getLocked();
+		return super.getLocked();
+	}
+
 }

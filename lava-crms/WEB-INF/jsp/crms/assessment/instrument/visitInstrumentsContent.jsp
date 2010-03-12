@@ -20,10 +20,10 @@
 		 <tags:listCell styleClass="actionButton">
 		 		<c:choose>
 			    <c:when test="${not empty implInstrs[this.instrTypeEncoded]}">
-					<tags:listInstrumentActionURLStandardButtons actionId="lava.crms.assessment.instrument.${item.instrTypeEncoded}" idParam="${item.id}"/>
+					<tags:listInstrumentActionURLStandardButtons actionId="lava.crms.assessment.instrument.${item.instrTypeEncoded}" idParam="${item.id}" locked="${item.locked}"/>
 				</c:when>
 				<c:otherwise>
-					<tags:listActionURLButton buttonImage="delete" actionId="lava.crms.assessment.instrument.instrument" eventId="instrument__delete" idParam="${item.id}"/>	    
+					<tags:listActionURLButton buttonImage="delete" actionId="lava.crms.assessment.instrument.instrument" eventId="instrument__delete" idParam="${item.id}" locked="${item.locked}"/>	    
 				</c:otherwise>
 				</c:choose>
 		</tags:listCell>

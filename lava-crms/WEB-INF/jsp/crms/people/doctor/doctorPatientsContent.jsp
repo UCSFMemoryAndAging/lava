@@ -28,8 +28,8 @@
 <tags:list component="doctorPatients">
 	<tags:listRow>
 <%--	
-		 <tags:listCell styleClass="actionButton">
-				<tags:listActionURLStandardButtons actionId="lava.crms.people.patient.patient" component="patient" idParam="${item.patient.id}"/>	    
+		<tags:listCell styleClass="actionButton">
+			<tags:listActionURLStandardButtons actionId="lava.crms.people.patient.patient" component="patient" idParam="${item.patient.id}" locked="${item.locked}"/>	    
 		</tags:listCell>
 --%>		
 		<tags:listCell>

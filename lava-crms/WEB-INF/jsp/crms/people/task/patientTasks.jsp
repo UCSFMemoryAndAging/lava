@@ -33,7 +33,7 @@
 <tags:list component="${component}" >
 	<tags:listRow>
 		<tags:listCell styleClass="actionButton">
-				<tags:listActionURLStandardButtons actionId="lava.crms.people.task.task" component="task" idParam="${item.id}"/>	    	                      
+			<tags:listActionURLStandardButtons actionId="lava.crms.people.task.task" component="task" idParam="${item.id}" locked="${item.locked}"/>	    	                      
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="task"/>	

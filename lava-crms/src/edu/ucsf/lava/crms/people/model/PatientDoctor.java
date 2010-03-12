@@ -51,6 +51,11 @@ public class PatientDoctor extends CrmsEntity {
 	
 	}
 
-	
+	@Override
+	public boolean getLocked() {
+		/* lock down this when corresponding patient is locked */
+		if (getPatient() != null) return getPatient().getLocked();
+		return super.getLocked();
+	}
 	
 }

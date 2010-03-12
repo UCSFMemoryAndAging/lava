@@ -19,10 +19,10 @@
 
 <tags:list component="${component}">
 	<tags:listRow>
-		 <tags:listCell styleClass="actionButton">
-			<tags:listActionURLStandardButtons actionId="lava.crms.enrollment.consent.consent" component="consent" idParam="${item.id}"/>	    
+		<tags:listCell styleClass="actionButton">
+			<tags:listActionURLStandardButtons actionId="lava.crms.enrollment.consent.consent" component="consent" idParam="${item.id}" locked="${item.locked}"/>	    
 		</tags:listCell>
-	   <tags:listCell>
+	    <tags:listCell>
 			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="consent"/>
 		</tags:listCell>
 		  <tags:listCell>

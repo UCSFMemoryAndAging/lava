@@ -27,7 +27,7 @@
 
 <c:if test="${not empty currentPatient}">
 <content tag="customActions">
-	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.people.caregiver.caregiver" eventId="caregiver__add" component="${component}"/>	    
+	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.people.caregiver.caregiver" eventId="caregiver__add" component="${component}" locked="${currentPatient.locked}"/>	    
 </content>
 </c:if>
 
@@ -52,7 +52,7 @@
 <tags:list component="${component}" >
 	<tags:listRow>
 		<tags:listCell styleClass="actionButton">
-				<tags:listActionURLStandardButtons actionId="lava.crms.people.caregiver.caregiver" component="caregiver" idParam="${item.id}"/>	    
+			<tags:listActionURLStandardButtons actionId="lava.crms.people.caregiver.caregiver" component="caregiver" idParam="${item.id}" locked="${item.locked}"/>	    
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="caregiver" metadataName="patient.fullNameNoSuffix"/>

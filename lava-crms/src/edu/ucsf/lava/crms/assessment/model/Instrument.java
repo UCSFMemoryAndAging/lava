@@ -481,5 +481,17 @@ public class Instrument extends CrmsEntity {
 		MANAGER.executeSQLProcedure(procName.toString(), new Object[] {getId(),getInstrVer()}, new int[] {Types.INTEGER,Types.VARCHAR},new char[] {'i','i'});
 	}
 
+	@Override
+	public boolean getLocked() {
+		// an instrument is considered locked if its parent visit is locked
+		if (getVisit() == null) return super.getLocked();
+		
+		// this instrument is likely holding proxy values, 
+		//   so cannot do a direct lookup; grab visit from id
+		Long visitid = getVisit().getId();
+		Visit visit = (Visit)Visit.MANAGER.getById(visitid, Visit.newFilterInstance());
+		return visit.getLocked();
+
+	}
 
 }

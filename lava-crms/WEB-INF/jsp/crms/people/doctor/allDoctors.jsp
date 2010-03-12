@@ -35,8 +35,8 @@
 
 <tags:list component="${component}">
 	<tags:listRow>
-		 <tags:listCell styleClass="actionButton">
-			<tags:listActionURLStandardButtons actionId="lava.crms.people.doctor.doctor" component="doctor" idParam="${item.id}"/>	    
+		<tags:listCell styleClass="actionButton">
+			<tags:listActionURLStandardButtons actionId="lava.crms.people.doctor.doctor" component="doctor" idParam="${item.id}" locked="${item.locked}"/>	    
 		</tags:listCell>
 
 		<tags:listCell>

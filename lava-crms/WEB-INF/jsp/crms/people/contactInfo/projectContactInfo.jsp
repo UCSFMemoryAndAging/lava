@@ -31,7 +31,7 @@
 
 <content tag="customActions">
 	<c:if test="${not empty currentPatient}">
-		<tags:actionURLButton buttonText="Add"  actionId="lava.crms.people.contactInfo.contactInfo" eventId="contactInfo__add" component="${component}"/>	    
+		<tags:actionURLButton buttonText="Add"  actionId="lava.crms.people.contactInfo.contactInfo" eventId="contactInfo__add" component="${component}" locked="${currentPatient.locked}"/>	    
 	</c:if>
 </content>
 
@@ -53,7 +53,7 @@
 <tags:list component="${component}" >
 	<tags:listRow>
 		<tags:listCell styleClass="actionButton">
-				<tags:listActionURLStandardButtons actionId="lava.crms.people.contactInfo.contactInfo" component="contactInfo" idParam="${item.id}"/>	    	                      
+			<tags:listActionURLStandardButtons actionId="lava.crms.people.contactInfo.contactInfo" component="contactInfo" idParam="${item.id}" locked="${item.locked}"/>	    	                      
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="patient" metadataName="patient.fullNameNoSuffix"/>
