@@ -22,10 +22,10 @@
 			
 		<c:choose>
 			<c:when test="${item.type == 'Resource'}">
-				<tags:listActionURLButton buttonImage="list" actionId="lava.core.calendar.appointment.reservations" idParam="${item.id}"/>
+				<tags:listActionURLButton buttonImage="list" actionId="lava.core.calendar.appointment.reservations" idParam="${item.id}" title="reservations"/>
 			</c:when>
 			<c:otherwise>
-				<tags:listActionURLButton buttonImage="list" actionId="lava.core.calendar.appointment.appointments" idParam="${item.id}"/>
+				<tags:listActionURLButton buttonImage="list" actionId="lava.core.calendar.appointment.appointments" idParam="${item.id}" title="appointments"/>
 			</c:otherwise>
 		</c:choose>
 			
