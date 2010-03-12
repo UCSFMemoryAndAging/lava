@@ -19,8 +19,10 @@
 <c:if test="${empty pageName}">
 	<c:set var="pageName" value="${component}"/>
 </c:if>
-	
 
+<c:set var="locked">
+  <decorator:getProperty property="locked"/>
+</c:set>
 
 <c:set var="numStdEventButtons" value="2"/>
 <c:choose>
@@ -40,12 +42,14 @@
 				<c:set var="button1_text" value="Edit"/>
 				<c:set var="button1_action" value="edit"/>
 				<c:set var="numStdEventButtons" value="1"/>
+				<c:set var="button1_locked" value="${locked}"/>
 			</c:when>
 			<c:otherwise>			
 				<c:set var="button1_text" value="Close"/>
 				<c:set var="button1_action" value="close"/>
 				<c:set var="button2_text" value="Edit"/>
 				<c:set var="button2_action" value="edit"/>
+				<c:set var="button2_locked" value="${locked}"/>
 			</c:otherwise>
 		</c:choose>
 	</c:when>
@@ -72,6 +76,7 @@
 		<c:set var="button1_action" value="cancelDelete"/>
 		<c:set var="button2_text" value="Delete"/>
 		<c:set var="button2_action" value="confirmDelete"/>
+		<c:set var="button2_locked" value="${locked}"/> <%-- should never be true though --%>
 	</c:when>
 </c:choose>
 
@@ -96,11 +101,11 @@ that submits the form (eventButton, eventLink) --%>
 	<c:choose>
 		<%-- see earlier remarks about testing flowIsRoot --%>
 		<c:when test="${numStdEventButtons == 1}">
-			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}"/>
+			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}" locked="${button1_locked}"/>
 		</c:when>
 		<c:otherwise>			
-			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}"/>
-			<tags:eventButton buttonText="${button2_text}" action="${button2_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightButton" target="${button2_target}"/>
+			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}" locked="${button1_locked}"/>
+			<tags:eventButton buttonText="${button2_text}" action="${button2_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightButton" target="${button2_target}" locked="${button2_locked}"/>
 		</c:otherwise>
 	</c:choose>
 	${customActions}
@@ -139,11 +144,11 @@ that submits the form (eventButton, eventLink) --%>
 	<c:choose>
 		<%-- see earlier remarks about testing flowIsRoot --%>
 		<c:when test="${numStdEventButtons == 1}">
-			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}"/>
+			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}" locked="${button1_locked}"/>
 		</c:when>
 		<c:otherwise>			
-			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}"/>
-			<tags:eventButton buttonText="${button2_text}" action="${button2_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightButton" target="${button2_target}"/>
+			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}" locked="${button1_locked}"/>
+			<tags:eventButton buttonText="${button2_text}" action="${button2_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightButton" target="${button2_target}" locked="${button2_locked}"/>
 		</c:otherwise>
 	</c:choose>
   

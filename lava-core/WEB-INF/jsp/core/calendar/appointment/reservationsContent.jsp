@@ -27,10 +27,10 @@
 
 <tags:list component="${component}">
 	<tags:listRow>
-		 <tags:listCell styleClass="actionButton">
-				<tags:listActionURLStandardButtons actionId="lava.core.calendar.appointment.reservation" component="reservation" idParam="${item.id}"/>
+		<tags:listCell styleClass="actionButton">
+			<tags:listActionURLStandardButtons actionId="lava.core.calendar.appointment.reservation" component="reservation" idParam="${item.id}" locked="${item.locked}"/>
 		</tags:listCell>
-	   <tags:listCell>
+	    <tags:listCell>
 			<tags:listField property="startDate" component="${component}" listIndex="${iterator.index}" entityType="appointment"/>
 			<tags:listField property="startTime" component="${component}" listIndex="${iterator.index}" entityType="appointment"/><BR/>
 			<tags:listField property="endDate" component="${component}" listIndex="${iterator.index}" entityType="appointment"/>

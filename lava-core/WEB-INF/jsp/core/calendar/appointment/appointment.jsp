@@ -12,6 +12,7 @@
  
 <page:applyDecorator name="component.entity.content">
   <page:param name="component">${component}</page:param>
+  <page:param name="locked">${command.components['appointment'].locked}</page:param>
  
 	<c:import url="/WEB-INF/jsp/core/calendar/appointment/appointmentContent.jsp">
 		<c:param name="component">${component}</c:param>

@@ -651,11 +651,12 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 		}
 	}
 	
-	
-
-	
-	
-	
+	public boolean getLocked() {
+		/* EMORY change: default to false; innocent until proven "to be locked up"
+		 *   subclasses will determine when entity is to be locked */
+		return false;
+	}
+		
 	
 	
 	public static class Manager implements EntityManager{

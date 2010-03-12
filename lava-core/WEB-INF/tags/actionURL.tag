@@ -22,7 +22,19 @@
 <%@ attribute name="parameters" required="false"
        description="extra parameters, must be supplied as comma delimited pairs of param names and values
        				e.g. paramname1,paramvalue1,paramname2,paramvalue2"%>
-       				
+<%@ attribute name="locked" 
+       description="[optional] whether this action will be disabled" %>   
+
+<%-- default to not locked --%>
+<c:if test="${empty locked}">
+<c:set var="locked" value="false"/>
+</c:if>
+
+<c:choose>
+<c:when test="${locked}">
+javascript:void
+</c:when>
+<c:otherwise>
 <%-- c:url prepends the context path to relative URL's, whether context-relative (starting with '/') or 
 page-relative (not starting with '/') which is what actions[actionId].actionUrl returns --%>       				
 <c:url var="actionUrl" value="${actions[actionId].actionUrl}">   
@@ -34,7 +46,7 @@ page-relative (not starting with '/') which is what actions[actionId].actionUrl 
 			<c:if test="${not empty startMode}"><c:param name="_do" value="${startMode}"/></c:if>
 		</c:when>
 		<c:otherwise>		
-			<%-- construt URL that will participate in existing flow by propagating _flowExecutionKey and _eventId --%>
+			<%-- construct URL that will participate in existing flow by propagating _flowExecutionKey and _eventId --%>
 			<c:param name="_flowExecutionKey" value="${flowExecutionKey}"/>
 			<%-- eventId only pertains to existing flows (if not supplied, web flow will just refresh the page on this link) --%>
 			<c:if test="${not empty eventId}"><c:param name="_eventId" value="${eventId}"/></c:if>
@@ -53,4 +65,6 @@ page-relative (not starting with '/') which is what actions[actionId].actionUrl 
     </c:forTokens>
 </c:url>
 ${actionUrl}
+</c:otherwise>
+</c:choose>
 

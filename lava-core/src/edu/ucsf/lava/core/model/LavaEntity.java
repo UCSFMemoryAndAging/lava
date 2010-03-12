@@ -75,8 +75,9 @@ public interface LavaEntity extends Serializable {
 	public void beforeDelete();
 	public void afterDelete();
 	
-	
-	
+	/* Allow entities to be locked.  Used by the views to determine
+	 *    if view allows access to modifying actions on this entity */
+	public boolean getLocked();
 	
 	
 }

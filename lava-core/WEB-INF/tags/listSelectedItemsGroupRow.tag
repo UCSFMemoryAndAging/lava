@@ -19,6 +19,8 @@ so that the secondary group handler can create the group --%>
        description="The name of the page, i.e. HTML form to post" %>
 <%@ attribute name="selectedCountMsgKey" required="true" 
        description="The message key to display the number of items currently selected" %>
+<%@ attribute name="locked" 
+       description="[optional] whether modifying actions would be disabled" %>
 
 <spring:message var="selectedCountMsg" code="${selectedCountMsgKey}" text=""/>
 
@@ -33,9 +35,9 @@ so that the secondary group handler can create the group --%>
 	<tags:listCell styleClass="actionButton" width="10%">
 		<tags:eventActionButton buttonImage="view" component="${groupComponent}" action="view" pageName="${pageName}"/>
 		<%-- edit event represents "enter", "enterReview", "upload", etc. depending upon the instrument --%>
-		<tags:eventActionButton buttonImage="edit" component="${groupComponent}" action="edit" pageName="${pageName}"/>
+		<tags:eventActionButton buttonImage="edit" component="${groupComponent}" action="edit" pageName="${pageName}" locked="${locked}"/>
 		<tags:eventActionButton buttonImage="status" component="${groupComponent}" action="status" pageName="${pageName}"/>
-		<tags:eventActionButton buttonImage="delete" component="${groupComponent}" action="delete" pageName="${pageName}"/>
+		<tags:eventActionButton buttonImage="delete" component="${groupComponent}" action="delete" pageName="${pageName}" locked="${locked}"/>
 	</tags:listCell> 
 	<tags:listCell colspan="5">
 		<span class="bold" id="numSelectedParent">&nbsp;</span> ${selectedCountMsg}&nbsp;&nbsp;

@@ -16,6 +16,8 @@ so that the secondary handler can create the group --%>
        description="The name of the group component whose handler handles group events" %>
 <%@ attribute name="pageName" required="true" 
        description="The name of the page, i.e. HTML form to post" %>
+<%@ attribute name="locked" 
+       description="[optional] whether modifying actions would be disabled" %>
 
 <%-- instrument group prototype actions --%>
 <c:if test="${not empty groupPrototype}"> 
@@ -31,9 +33,9 @@ so that the secondary handler can create the group --%>
 			which only applies to groups created from prototypes --%>
 		<tags:eventActionButton buttonImage="view" component="${groupComponent}" action="view_prototype" pageName="${pageName}"/>
 		<%-- edit event represents "enter", "enterReview", "upload", etc. depending upon the instrument --%>
-		<tags:eventActionButton buttonImage="edit" component="${groupComponent}" action="edit_prototype" pageName="${pageName}"/>
+		<tags:eventActionButton buttonImage="edit" component="${groupComponent}" action="edit_prototype" pageName="${pageName}" locked="${locked}"/>
 		<tags:eventActionButton buttonImage="status" component="${groupComponent}" action="status_prototype" pageName="${pageName}"/>
-		<tags:eventActionButton buttonImage="delete" component="${groupComponent}" action="bulkDelete" pageName="${pageName}"/>
+		<tags:eventActionButton buttonImage="delete" component="${groupComponent}" action="bulkDelete" pageName="${pageName}" locked="${locked}"/>
 	</tags:listCell> 
 
 	<tags:listCell colspan="5">
@@ -41,5 +43,6 @@ so that the secondary handler can create the group --%>
 	</tags:listCell>
 
 </tags:listRow>
+
 </c:if>
 
