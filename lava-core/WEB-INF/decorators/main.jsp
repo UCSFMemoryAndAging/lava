@@ -29,7 +29,7 @@ uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
 <div id="header">
 
   <div id="logoMAC">
-    <a href="<tags:actionURL actionId="lava.crms.mylava.${empty currentPatient ? 'defaultAction' : 'defaultPatientAction'}" idParam="${not empty currentPatient ? currentPatient.id : ''}"/>"><img src="images/local${pageContext.request.contextPath}${pageContext.request.contextPath}_logo.gif" alt=""  border="0"></a>
+    <a href="<tags:actionURL actionId="lava.defaultScope.home.${empty currentPatient ? 'defaultAction' : 'defaultPatientAction'}" idParam="${not empty currentPatient ? currentPatient.id : ''}"/>"><img src="images/local${pageContext.request.contextPath}${pageContext.request.contextPath}_logo.gif" alt=""  border="0"></a>
   </div>
 
 	<%-- if decorating the error page, the command object (formObject) may not exist if the error
@@ -42,7 +42,7 @@ uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
 	<%--Context Box --%>
 	<c:if test="${empty isErrorPage}">
  		<c:import url="/WEB-INF/jsp/navigation/context/${currentAction.scope}Context.jsp"/>
-	</c:if> 		
+	</c:if>
 	 
 <div id="tabBar">
   	<c:set var="modulesURL"><spring:message code="${pageContext.request.contextPath}.modulesURL" text="navigation/tabBar/modules.jsp"/></c:set>
