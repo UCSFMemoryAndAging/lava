@@ -83,15 +83,6 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		}
 		Action action = actionManager.getCurrentAction(request);
 		AuthUser user = CoreSessionUtils.getCurrentUser(sessionManager,request);
-		
-		// the user should never be null at this point, because if there is no logged in user, Acegi would
-		// force the user to the login page to authenticate. the only time we can get here with a null user
-		// is if the DispatcherServlet is erroneously called before the filter-mapping filters, which appears
-		// to happen when a welcome-file is utilized
-		if (user == null) {
-			return new Event(this,this.SUCCESS_FLOW_EVENT_ID);
-		}
-		
 		// check whether the flow 
 		if (isAuthEvent(context)) {
 			if (!authManager.isAuthorized(user,action,(LavaEntity)entity)) {
