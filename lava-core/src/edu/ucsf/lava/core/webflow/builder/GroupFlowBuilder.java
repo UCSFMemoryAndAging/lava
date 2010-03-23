@@ -11,8 +11,8 @@ import org.springframework.webflow.engine.Transition;
 import org.springframework.webflow.engine.builder.FlowBuilderException;
 import org.springframework.webflow.execution.Action;
 import org.springframework.webflow.execution.ScopeType;
-import static edu.ucsf.lava.core.controller.BaseGroupComponentHandler.GROUP_MAPPING;
 
+import static edu.ucsf.lava.core.controller.BaseGroupComponentHandler.GROUP_MAPPING;
 import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
 
 public class GroupFlowBuilder extends BaseFlowBuilder {
@@ -103,8 +103,11 @@ public class GroupFlowBuilder extends BaseFlowBuilder {
     			null, null, null);
     }
     
-    // override because if subflow is returns "finishCancel", cancel out of the group flow
+    // override because if subflow returns "finishCancel", cancel out of the group flow
     protected void buildSubFlowStates(){
+    	// pass group to subflows in case they need it
+		requestParametersMapper.addInputMapping(mapping().source("flowScope."+GROUP_MAPPING).target(GROUP_MAPPING).value());
+		
     	for(String subFlowId : subFlowActionIds){
     		List<FlowInfo> subFlowInfoList = getSubFlowInfo(subFlowId); 
 				
