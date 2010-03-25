@@ -64,11 +64,11 @@ public class FlowIdCreator extends RequestParameterFlowExecutorArgumentHandler i
 		// also, save the flowId mode part, because if it is not "view" it will need to 
 		// be set as the mode request parameter (_do)
 		StringBuffer flowIdModePart = new StringBuffer();
-		String defaultActionId = ActionUtils.getDefaultActionIdFromFlowId(flowId, flowIdModePart);
-		Action action = actionManager.getAction(defaultActionId);
+		String actionId = ActionUtils.getActionIdFromFlowId(flowId, flowIdModePart);
+		Action action = actionManager.getAction(actionId);
 		
 		// convert the actionId to a URL
-		flowUrl.append(ActionUtils.getActionUrl(defaultActionId));
+		flowUrl.append(ActionUtils.getActionUrl(actionId));
 		
 		if (!flowDefinitionRedirect.getExecutionInput().isEmpty() || !flowIdModePart.toString().equals(action.getDefaultFlowMode())) {
 			flowUrl.append('?');
