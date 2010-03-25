@@ -30,6 +30,7 @@ uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
 
   <div id="logoMAC">
     <a href="<tags:actionURL actionId="lava.defaultScope.home.${empty currentPatient ? 'defaultAction' : 'defaultPatientAction'}" idParam="${not empty currentPatient ? currentPatient.id : ''}"/>"><img src="images/local${pageContext.request.contextPath}${pageContext.request.contextPath}_logo.gif" alt=""  border="0"></a>
+
   </div>
 
 	<%-- if decorating the error page, the command object (formObject) may not exist if the error
@@ -45,7 +46,7 @@ uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
 	</c:if>
 	 
 <div id="tabBar">
-  	<c:set var="modulesURL"><spring:message code="${pageContext.request.contextPath}.modulesURL" text="navigation/tabBar/modules.jsp"/></c:set>
+  	<c:set var="modulesURL"><spring:message code="${webappInstance}.modulesURL" text="navigation/tabBar/modules.jsp"/></c:set>
 	<c:import url="/WEB-INF/jsp/${modulesURL}"/>
 </div>
 
@@ -56,7 +57,7 @@ uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
          
 	</div>
 
- 	<c:set var="sectionsURL"><spring:message code="${pageContext.request.contextPath}.sectionsURL" text="navigation/tabBar/sections.jsp"/></c:set>
+ 	<c:set var="sectionsURL"><spring:message code="${webappInstance}.sectionsURL" text="navigation/tabBar/sections.jsp"/></c:set>
 	<c:import url="/WEB-INF/jsp/${sectionsURL}"/>
 
   </div>
@@ -65,8 +66,8 @@ uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
 </div> <!-- end header -->
 
 <div id="leftNav">
-	<c:set var="navActionsURL"><spring:message code="${pageContext.request.contextPath}.${currentAction.scope}.${currentAction.module}.${currentAction.section}.navActionsURL" text="${currentAction.scope}/${currentAction.module}/${currentAction.section}/actions.jsp"/></c:set>
-	<c:set var="navReportsURL"><spring:message code="${pageContext.request.contextPath}.${currentAction.scope}.${currentAction.module}.${currentAction.section}.navReportsURL" text="${currentAction.scope}/${currentAction.module}/${currentAction.section}/reports.jsp"/></c:set>
+	<c:set var="navActionsURL"><spring:message code="${webappInstance}.${currentAction.scope}.${currentAction.module}.${currentAction.section}.navActionsURL" text="${currentAction.scope}/${currentAction.module}/${currentAction.section}/actions.jsp"/></c:set>
+	<c:set var="navReportsURL"><spring:message code="${webappInstance}.${currentAction.scope}.${currentAction.module}.${currentAction.section}.navReportsURL" text="${currentAction.scope}/${currentAction.module}/${currentAction.section}/reports.jsp"/></c:set>
 	
 	<page:applyDecorator name="panel.actions">
 		<page:applyDecorator name="panel.actionsSection" page="/WEB-INF/jsp/${navActionsURL}"/>
@@ -103,11 +104,11 @@ uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
 <div id="footer">
 <div id="skiBox">
 </div>
-  	<c:set var="footerURL"><spring:message code="${pageContext.request.contextPath}.footerURL" text="navigation/footer/footer.jsp"/></c:set>
+  	<c:set var="footerURL"><spring:message code="${webappInstance}.footerURL" text="navigation/footer/footer.jsp"/></c:set>
 	<c:import url="/WEB-INF/jsp/${footerURL}"/>
 </div> <!-- end footer -->
 <div id="copyright">
-   <spring:message code="${pageContext.request.contextPath}.copyright" text="Copyright &copy; 2005-2010 University of California Regents. All Rights Reserved."/>
+   <spring:message code="${webappInstance}.copyright" text="Copyright &copy; 2005-2010 University of California Regents. All Rights Reserved."/>
 </div>
  
 </div> <!-- end center column (or right, if only two columns) -->

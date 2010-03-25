@@ -41,7 +41,7 @@ confirmExit function to decide whether to prompt user before existing or not --%
 
 
   <div id="logoMAC">
-    <img src="images/local/${pageContext.request.contextPath}/${pageContext.request.contextPath}_logo.gif" alt="" border="0">
+    <img src="images/local/${webappInstance}/${webappInstance}_logo.gif" alt="" border="0">
   </div>
 
 	<%--Context Box --%>
@@ -50,7 +50,7 @@ confirmExit function to decide whether to prompt user before existing or not --%
   
   
   <div id="tabBar">
-	<c:set var="modalModulesURL"><spring:message code="${pageContext.request.contextPath}.modalModulesURL" text="navigation/tabBar/modalModules.jsp"/></c:set>
+	<c:set var="modalModulesURL"><spring:message code="${webappInstance}.modalModulesURL" text="navigation/tabBar/modalModules.jsp"/></c:set>
 	<c:import url="/WEB-INF/jsp/${modalModulesURL}"/>
   </div>
 
@@ -59,7 +59,7 @@ confirmExit function to decide whether to prompt user before existing or not --%
     ${pageContext.request.remoteUser} 
     </div>
   
-	<c:set var="modalSectionsURL"><spring:message code="${pageContext.request.contextPath}.modalSectionsURL" text="navigation/tabBar/modalSections.jsp"/></c:set>
+	<c:set var="modalSectionsURL"><spring:message code="${webappInstance}.modalSectionsURL" text="navigation/tabBar/modalSections.jsp"/></c:set>
 	<c:import url="/WEB-INF/jsp/${modalSectionsURL}"/>
   
   </div>
@@ -76,11 +76,11 @@ confirmExit function to decide whether to prompt user before existing or not --%
 <div id="footer">
 <div id="skiBox">
 </div>
-	<c:set var="modalFooterURL"><spring:message code="${pageContext.request.contextPath}.modalFooterURL" text="navigation/footer/modalFooter.jsp"/></c:set>
+	<c:set var="modalFooterURL"><spring:message code="${webappInstance}.modalFooterURL" text="navigation/footer/modalFooter.jsp"/></c:set>
 	<c:import url="/WEB-INF/jsp/${modalFooterURL}"/>
 </div> <!-- end footer -->
 <div id="copyright">
-  <spring:message code="${pageContext.request.contextPath}.modalCopyright" text="Copyright &copy; 2005-2010 University of California Regents. All Rights Reserved."/>
+  <spring:message code="${webappInstance}.modalCopyright" text="Copyright &copy; 2005-2010 University of California Regents. All Rights Reserved."/>
 </div>
 
 </div> <!-- end center -->
