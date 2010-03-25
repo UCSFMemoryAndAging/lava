@@ -49,8 +49,12 @@ import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 public class InstrumentHandler extends CrmsEntityComponentHandler {
 
 	private Map<String,FileLoader> fileLoaders;
-	protected static final String VERIFY_COMPLETE = "Verified - Double Entry";
-	protected static final String VERIFY_DEFER = "Defer";
+	protected static final String STATUS_SCHEDULED = "Scheduled";
+	protected static final String STATUS_COMPLETE = "Complete";
+	protected static final String STATUS_INCOMPLETE = "Incomplete";
+	protected static final String STATUS_VERIFIED_DOUBLE_ENTRY = "Verified - Double Entry";
+	protected static final String STATUS_VERIFIED_REVIEW = "Verified - Review";
+	protected static final String STATUS_VERIFY_DEFER = "Defer";
 	private static final String VISIT_LIST = "addInstrVisitList";	
     protected static final String DOUBLE_ENTER_MISMATCH_ERROR_CODE = "doubleEnterMismatch";
     protected static final String DOUBLE_ENTER_MISMATCH_AT_POS_ERROR_CODE = "doubleEnterMismatchAtPosition";
@@ -349,7 +353,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 				// as a convenience to user, pre-populate dcDate and dcStatus which are required on the
 				// add instrument view (because they are required columns in the database)
 				((Instrument)command).setDcDate(v.getVisitDate());
-				((Instrument)command).setDcStatus("Scheduled");
+				((Instrument)command).setDcStatus(STATUS_SCHEDULED);
 				
 				// init project to visit's project
 				((Instrument)command).setProjName(v.getProjName());
@@ -879,10 +883,10 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 				instrument.setDcDate(v.getVisitDate());
 				// pre-populate dcStatus
 				if (v.getVisitStatus().equalsIgnoreCase("Came In")) {
-					instrument.setDcStatus("Complete");
+					instrument.setDcStatus(STATUS_COMPLETE);
 				}
-				else if (v.getVisitStatus().equalsIgnoreCase("Scheduled")) {
-					instrument.setDcStatus("Scheduled");
+				else if (v.getVisitStatus().equalsIgnoreCase(STATUS_SCHEDULED)) {
+					instrument.setDcStatus(STATUS_SCHEDULED);
 				}
 			}
 		}
@@ -1053,7 +1057,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		if (instrumentConfig.getVerify()) {
 			// if the instrument has already been successfully double entered then double enter should not be made
 			// mandatory again (but the user will still have the option of doing double enter via the Double Enter button)
-			if (instrument.getDvStatus() != null && instrument.getDvStatus().equals(VERIFY_COMPLETE)) {
+			if (instrument.getDvStatus() != null && instrument.getDvStatus().equals(STATUS_VERIFIED_DOUBLE_ENTRY)) {
 				context.getFlowScope().put("mandatoryDoubleEnter", Boolean.FALSE);
 			}
 			else {
@@ -1109,19 +1113,19 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		if (instrument.getDcBy()==null) instrument.setDcBy(instrument.getVisit().getVisitWith());
 		// default collection date to the visit date
 		if (instrument.getDcDate()==null) instrument.setDcDate(instrument.getVisit().getVisitDate());
-		// since dcStatus is initialized to "Scheduled" for new instruments, consider it the
+		// since dcStatus is initialized to STATUS_SCHEDULED for new instruments, consider it the
 		// same as null in terms of whether dcStatus can be overwritten
-		if (instrument.getDcStatus() == null || instrument.getDcStatus().equals("Scheduled")) {
-			instrument.setDcStatus("Complete");
+		if (instrument.getDcStatus() == null || instrument.getDcStatus().equals(STATUS_SCHEDULED)) {
+			instrument.setDcStatus(STATUS_COMPLETE);
 		}
 	
 		// the data entry fields are whoever is logged in and now			
 		if (instrument.getDeBy()==null) instrument.setDeBy(userName);
 		if (instrument.getDeDate()==null) instrument.setDeDate(new Date());
 		// data entry status is considered complete at this point, because all result fields
-		// are required, and even if "Incomplete" entered for an individual field, the overall
-		// data entry status for the instrument is "Complete"
-		if (instrument.getDeStatus()==null) instrument.setDeStatus("Complete");
+		// are required, and even if STATUS_INCOMPLETE entered for an individual field, the overall
+		// data entry status for the instrument is STATUS_COMPLETE
+		if (instrument.getDeStatus()==null) instrument.setDeStatus(STATUS_COMPLETE);
 	}
 	
 	
@@ -1156,7 +1160,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		Instrument instrument = (Instrument) ((ComponentCommand)command).getComponents().get(INSTRUMENT);
 		// set verification status and proceed to status
 		//TODO: add verification to task list of user or some kind of reminder
-		instrument.setDvStatus(VERIFY_DEFER);
+		instrument.setDvStatus(STATUS_VERIFY_DEFER);
 		return this.doSave(context,command,errors);
 	}	
 
@@ -1281,8 +1285,8 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			String userName = CrmsSessionUtils.getCrmsCurrentUser(sessionManager, request).getShortUserNameRev();
 			if (instrument.getDvBy() == null) instrument.setDvBy(userName);
 			if (instrument.getDvDate() == null) instrument.setDvDate(new Date());
-			if (instrument.getDvStatus() == null || instrument.getDvStatus().equals(VERIFY_DEFER)) {
-				instrument.setDvStatus(VERIFY_COMPLETE);
+			if (instrument.getDvStatus() == null || instrument.getDvStatus().equals(STATUS_VERIFY_DEFER)) {
+				instrument.setDvStatus(STATUS_VERIFIED_DOUBLE_ENTRY);
 			}
 			
 			return this.doSave(context,command,errors);
@@ -1301,7 +1305,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 	protected Event doEnterReviewSaveEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
 		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
 		Instrument instrument = (Instrument) ((ComponentCommand)command).getComponents().get(INSTRUMENT);
-		// infer status values, specific to the "enter" flow 
+		// infer status values, specific to the "enterReview" flow 
 		
 		// ** never ** overwrite status properties that already have a value
 		
@@ -1310,19 +1314,19 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		if (instrument.getDcBy()==null) instrument.setDcBy(instrument.getVisit().getVisitWith());
 		// default collection date to the visit date
 		if (instrument.getDcDate()==null) instrument.setDcDate(instrument.getVisit().getVisitDate());
-		// since dcStatus is initialized to "Scheduled" for new instruments, consider it the
+		// since dcStatus is initialized to STATUS_SCHEDULED for new instruments, consider it the
 		// same as null in terms of whether dcStatus can be overwritten
-		if (instrument.getDcStatus() == null || instrument.getDcStatus().equals("Scheduled")) {
-			instrument.setDcStatus("Complete");
+		if (instrument.getDcStatus() == null || instrument.getDcStatus().equals(STATUS_SCHEDULED)) {
+			instrument.setDcStatus(STATUS_COMPLETE);
 		}
 
 		// the data entry fields are whoever is logged in and now			
 		if (instrument.getDeBy()==null) instrument.setDeBy(userName);
 		if (instrument.getDeDate()==null) instrument.setDeDate(new Date());
 		// data entry status is considered complete at this point, because all result fields
-		// are required, and even if "Incomplete" entered for an individual field, the overall
-		// data entry status for the instrument is "Complete"
-		if (instrument.getDeStatus()==null) instrument.setDeStatus("Complete");
+		// are required, and even if STATUS_INCOMPLETE entered for an individual field, the overall
+		// data entry status for the instrument is STATUS_COMPLETE
+		if (instrument.getDeStatus()==null) instrument.setDeStatus(STATUS_COMPLETE);
 		
 		
 		// save takes place at every state in the flow
@@ -1343,14 +1347,17 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		Instrument instrument = (Instrument) ((ComponentCommand)command).getComponents().get(INSTRUMENT);
 		InstrumentConfig instrumentConfig = instrumentManager.getInstrumentConfig().get(instrument.getInstrTypeEncoded());
 		
-		// determine whether verify (double enter) should be done or skipped 
+		// instrument that use the "enterReview" flow can still be subject to double entry, if applicable (if it is applicable,
+		// the instrument configuration should set verify to "true"). note that in this case, the double enter is done
+		// after the review
+		// if double entry is applicable, check whether verify (double enter) should be done or skipped 
 		
 		// examine the instrument config to see if the verify flag is set for this instrument. if not, 
 		// skip double enter.  
 		if (instrumentConfig.getVerify()) {
 			// if the instrument has already been successfully double entered then double enter should not be made
 			// mandatory again (but the user will still have the option of doing double enter via the Double Enter button)
-			if (instrument.getDvStatus() != null && instrument.getDvStatus().equals(VERIFY_COMPLETE)) {
+			if (instrument.getDvStatus() != null && instrument.getDvStatus().equals(STATUS_VERIFIED_DOUBLE_ENTRY)) {
 				context.getFlowScope().put("mandatoryDoubleEnter", Boolean.FALSE);
 			}
 			else {
@@ -1387,10 +1394,17 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			}
 		}
 		else {
+			// double entry is not applicable, i.e. the instrument verification is a visual review only
+			
 			context.getFlowScope().put("mandatoryDoubleEnter", Boolean.FALSE);
+			
+			// ** never ** overwrite status properties that already have a value
+			String userName = getCurrentUser(request).getShortUserNameRev();
+			if (instrument.getDvBy() == null) instrument.setDvBy(userName); 
+			if (instrument.getDvDate() == null) instrument.setDvDate(new Date());
+			if (instrument.getDvStatus() == null) instrument.setDvStatus(STATUS_VERIFIED_REVIEW);
 		}
 
-		
 		// no need to save, since nothing edited in review state
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
@@ -1428,15 +1442,15 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			if (instrument.getDcBy()==null) instrument.setDcBy(instrument.getVisit().getVisitWith());
 			// default collection date to the the visit date
 			if (instrument.getDcDate()==null) instrument.setDcDate(instrument.getVisit().getVisitDate());
-			// since dcStatus is initialized to "Scheduled" for new instruments, consider it the
+			// since dcStatus is initialized to STATUS_SCHEDULED for new instruments, consider it the
 			// same as null in terms of whether dcStatus can be overwritten
-			if (instrument.getDcStatus() == null || instrument.getDcStatus().equals("Scheduled")) {
-				instrument.setDcStatus("Complete");
+			if (instrument.getDcStatus() == null || instrument.getDcStatus().equals(STATUS_SCHEDULED)) {
+				instrument.setDcStatus(STATUS_COMPLETE);
 			}
 			// the data entry fields are for the upload, so whoever is logged in and now			
 			if (instrument.getDeBy()==null) instrument.setDeBy(userName);
 			if (instrument.getDeDate()==null) instrument.setDeDate(new Date());
-			if (instrument.getDeStatus()==null) instrument.setDeStatus("Complete");
+			if (instrument.getDeStatus()==null) instrument.setDeStatus(STATUS_COMPLETE);
 
 			returnEvent = this.doSave(context,command,errors);
 		}
@@ -1475,7 +1489,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		if (instrument.getDeDate()==null) instrument.setDeDate(new Date());
 		
 		// determine the data collection status by iterating thru all required result fields and making
-		//  sure there are no "Incomplete" fields (all fields will have some value because they
+		//  sure there are no STATUS_INCOMPLETE fields (all fields will have some value because they
 		//  are required fields on the collect page)
 		boolean complete = true;
 		for (String propName : instrument.getRequiredResultFields()) {
@@ -1485,14 +1499,14 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 				complete = false;
 			}
 		}
-		// since dcStatus is initialized to "Scheduled" for new instruments, consider it the
+		// since dcStatus is initialized to STATUS_SCHEDULED for new instruments, consider it the
 		// same as null in terms of whether dcStatus can be overwritten
 		if (complete) {
-			if (instrument.getDcStatus()==null || instrument.getDcStatus().equals("Scheduled")) instrument.setDcStatus("Complete");
+			if (instrument.getDcStatus()==null || instrument.getDcStatus().equals(STATUS_SCHEDULED)) instrument.setDcStatus(STATUS_COMPLETE);
 			if (instrument.getDeStatus()==null) instrument.setDeStatus("Complete (Collect)");
 		}
 		else {
-			if (instrument.getDcStatus()==null || instrument.getDcStatus().equals("Scheduled")) instrument.setDcStatus("Incomplete");
+			if (instrument.getDcStatus()==null || instrument.getDcStatus().equals(STATUS_SCHEDULED)) instrument.setDcStatus(STATUS_INCOMPLETE);
 			if (instrument.getDeStatus()==null) instrument.setDeStatus("Incomplete (Collect)");
 		}
 
@@ -1505,7 +1519,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		//       it depends on what action the user performs on the review page
 		if (instrument.getDvBy() == null) instrument.setDvBy(userName); 
 		if (instrument.getDvDate() == null) instrument.setDvDate(new Date());
-		if (instrument.getDvStatus() == null) instrument.setDvStatus("Verified - Review");
+		if (instrument.getDvStatus() == null) instrument.setDvStatus(STATUS_VERIFIED_REVIEW);
 		
 		return this.doSave(context,command,errors);
 	}
@@ -1519,7 +1533,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 	}
 
 	protected Event doCollectReviewSaveEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
-		// nothing to save here, since review page is not editable, and since dvStatus was set and save in handleCollectSaveEvent
+		// nothing to save here, since review page is not editable, and since dvStatus was set and saved in handleCollectSaveEvent
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
 
@@ -1536,7 +1550,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		Instrument instrument = (Instrument) ((ComponentCommand)command).getComponents().get(INSTRUMENT);
 		// set verification status and proceed to status
 		//TODO: add verification to task list of user or some kind of reminder
-		instrument.setDvStatus("Defer");
+		instrument.setDvStatus(STATUS_VERIFY_DEFER);
 		return this.doSave(context,command,errors);
 	}	
 
