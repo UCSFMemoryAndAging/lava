@@ -244,13 +244,13 @@ public class SessionManager extends LavaManager{
 		
 		
 		public String getExpirationMessage(LavaSession session){
-			SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a, zzz");
+			SimpleDateFormat dateFormat = new SimpleDateFormat("EE, MMMM d, yyyy  hh:mm a");
 			return metadataManager.getMessage(LavaSessionHttpRequestWrapper.LAVASESSION_EXPIRED_MESSAGE_CODE,
 							new Object[]{dateFormat.format(session.getExpireTimestamp())},Locale.getDefault());
 		}
 		
 		public String getDisconnectMessage(LavaSession session) {
-			SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a, zzz");
+			SimpleDateFormat dateFormat = new SimpleDateFormat("EE, MMMM d, yyyy  hh:mm a");
 			return metadataManager.getMessage(LavaSessionHttpRequestWrapper.LAVASESSION_DISCONNECTED_MESSAGE_CODE,
 					new Object[]{dateFormat.format(session.getDisconnectTime()),
 					session.getDisconnectMessage()},Locale.getDefault());
