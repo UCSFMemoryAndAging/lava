@@ -60,6 +60,16 @@ public class Tomcat6Delegate implements ApplicationServerDelegate {
 	        	instanceName = path.substring(beginIndex+1,warIndex);
 	        }
 	       
+	        /*
+	         * now strip anything after an "_" from the name.  This allows running multiple 
+	         * copies of the same instance named app in the same tomcat server, e.g.
+	         *  'instancename' and 'instancename_dev' would both load with the 'dev' instance name
+	         */
+	        int underscoreIndex = instanceName.indexOf("_");
+	        if(underscoreIndex != -1){
+	        	instanceName = instanceName.substring(0, underscoreIndex);
+	        }
+	        
        }
        catch (IOException ex) {
       	logger.error("resourceLoader exception trying to find context path", ex);

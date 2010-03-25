@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
+import edu.ucsf.lava.core.environment.EnvironmentManager;
 import edu.ucsf.lava.core.manager.CoreManagerUtils;
 import edu.ucsf.lava.core.session.SessionManager;
 import edu.ucsf.lava.core.session.model.LavaSession;
@@ -28,7 +29,8 @@ public class LogoutController extends AbstractController {
 			sessionManager.doSessionLogoff(session, request.getSession());
 			logger.info("session logoff: " + session.toString());
 		}
-		return new ModelAndView("redirect:" + request.getScheme() + "://" + request.getHeader("host") + request.getContextPath() + "/security/local" + request.getContextPath() + "/logout.jsp");
+		EnvironmentManager environmentManager = CoreManagerUtils.getEnvironmentManager();
+		return new ModelAndView("redirect:" + request.getScheme() + "://" + request.getHeader("host") + request.getContextPath() + "/security/local/" + environmentManager.getInstanceName() + "/logout.jsp");
 	}
 
 
