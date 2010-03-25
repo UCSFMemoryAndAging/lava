@@ -26,7 +26,7 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 	
 	protected int initialElements = DEFAULT_INITIAL_ELEMENTS; //the number of elements to load 
 	public static final String FILTER_TOGGLE_PARAM_NAME = "filterToggle";
-	public static final int DEFAULT_INITIAL_ELEMENTS = 100;
+	public static final int DEFAULT_INITIAL_ELEMENTS = 99; // use array indexing not row numbering --- will get 100 rows
 	public static final int FIRST_ELEMENT_INDEX = 0;
 	public static final int NAVIGATION_DISPLAY_PAGES_MAX = 50;
 	public static final int NAVIGATION_EXTRA_PAGES_MAX = 50;
@@ -72,8 +72,11 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 			int firstElement = this.getFirstElementOnPage();
 			int lastElement = this.getLastElementOnPage();
 			if (firstElement < 0) {firstElement = 0;}  //first element cannot be less than 1
-			if (lastElement > this.getNrOfElements()) {lastElement = this.getNrOfElements();}  //last element cannot exceed the number of elements in the list
+			if (lastElement > this.getNrOfElements()) {lastElement = this.getNrOfElements() -1;}  //last element cannot exceed the number of elements in the list
 			if (lastElement < firstElement){lastElement = firstElement;} //last element cannot be less than first element...fail gracefully by returning the first element
+			
+			//note: standardize on using array indexes (e.g. 0,1,2,3,4) not row numbers (1,2,3,4)
+			
 			filter.setRows(firstElement,lastElement);
 			loadElements();
 			

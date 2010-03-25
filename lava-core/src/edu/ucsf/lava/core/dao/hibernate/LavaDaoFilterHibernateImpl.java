@@ -426,7 +426,14 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 	
 	public LavaDaoParam daoInIdCacheParam(int firstRow, int lastRow){
 		if(this.idCache!=null){
-			return daoInParam("id",idCache.subList(firstRow,lastRow+1).toArray());
+			//note: everything using array indexing (e.g. 0,1,2) not row numbers (1,2,3)
+			int firstIndex = (firstRow < idCache.size()) ? firstRow : idCache.size()-1;
+			if (firstIndex < 0) firstIndex = 0;
+			
+			int lastIndex = (lastRow > idCache.size()) ? idCache.size()-1 : lastRow;
+			if(lastRow < 0) lastIndex = 0;
+			
+			return daoInParam("id",idCache.subList(firstIndex,lastIndex+1).toArray());
 			}
 		return null;	
 	}

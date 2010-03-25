@@ -42,9 +42,9 @@ public abstract class LavaHibernateCallback implements HibernateCallback {
 		enableFilters();
 		applyAliases();
 		applyParameters();
+		applySorts();
 		if(filter.rowSelectorsSet())
 			getResultsCount();
-		applySorts();
 		Object results = doQuery();	
 		disableFilters();
 		return results;
@@ -60,7 +60,7 @@ public abstract class LavaHibernateCallback implements HibernateCallback {
 	protected void applyAliases(){
 		Map<String,String> aliases = filter.getAliases();
 		for(String collection : aliases.keySet()){
-			applyOuterAlias(collection,aliases.get(collection));
+			applyAlias(collection,aliases.get(collection));
 		}
 		Map<String,String> outerAliases = filter.getOuterAliases();
 		for(String collection : outerAliases.keySet()){
