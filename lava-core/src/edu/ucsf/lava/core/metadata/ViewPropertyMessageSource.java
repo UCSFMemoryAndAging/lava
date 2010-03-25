@@ -45,7 +45,9 @@ public class ViewPropertyMessageSource extends AbstractMessageSource implements 
 	protected EnvironmentManager environmentManager;
 	
 	
-
+	//a runtime cache to store the results of the complicated lookup logic for any particular message code and locale. 
+	protected HashMap<String,String> resolutionCache = new HashMap<String,String>();
+	
 	/**
 	 * utility function...returns LAVA_INSTANCE_IDENTIFIER is environment manager not yet set. 
 	 * @return
@@ -60,7 +62,10 @@ public class ViewPropertyMessageSource extends AbstractMessageSource implements 
 	protected String resolveCodeWithoutArguments(String code, Locale locale) {
 		HashMap map = getMessageMap();
 		String langCode = locale.getLanguage();
-		
+		String codeKey = new StringBuffer(langCode).append(DELIMITER).append(code).toString();
+		if(resolutionCache.containsKey(codeKey)){
+			return resolutionCache.get(codeKey);
+		}
 		//try webapp instance first, then lava instance
 		for (String instance: new String[]{getWebAppInstance(),ActionUtils.LAVA_INSTANCE_IDENTIFIER})
 		{
@@ -72,14 +77,18 @@ public class ViewPropertyMessageSource extends AbstractMessageSource implements 
 			
 			//	lookup exact match to lang.code
 			if(map.containsKey(codeToMatch.toString())){
-				return (String)map.get(codeToMatch.toString());
+				String value = (String)map.get(codeToMatch.toString());
+				resolutionCache.put(codeKey,value);
+				return value;
 			}
 			//lookup match to any prefix  lang.*.code
 			codeToMatch = new StringBuffer(langCode).append(DELIMITER)
 					.append(instance).append(DELIMITER)
 					.append(ANY_PLACEHOLDER).append(DELIMITER).append(code);
 			if(map.containsKey(codeToMatch.toString())){
-				return (String)map.get(codeToMatch.toString());
+				String value = (String)map.get(codeToMatch.toString());
+				resolutionCache.put(codeKey,value);
+				return value;
 			}		
 		
 			//lookup match to any prefix any entity lang.*.*.code
@@ -89,7 +98,9 @@ public class ViewPropertyMessageSource extends AbstractMessageSource implements 
 				.append(ANY_PLACEHOLDER).append(DELIMITER).append(code);
 		
 			if(map.containsKey(codeToMatch.toString())){
-				return (String)map.get(codeToMatch.toString());
+				String value = (String)map.get(codeToMatch.toString());
+				resolutionCache.put(codeKey,value);
+				return value;
 			}		
 		
 			//drop first part of code (assuming an unmatched prefix) and match to any prefix
@@ -100,7 +111,9 @@ public class ViewPropertyMessageSource extends AbstractMessageSource implements 
 					.append(ANY_PLACEHOLDER).append(DELIMITER).append(codeMatcher.group(2));
 	
 				if(map.containsKey(codeToMatch.toString())){
-					return (String)map.get(codeToMatch.toString());
+					String value = (String)map.get(codeToMatch.toString());
+					resolutionCache.put(codeKey,value);
+					return value;
 				}		
 			}
 		}
@@ -111,6 +124,7 @@ public class ViewPropertyMessageSource extends AbstractMessageSource implements 
 		 * same funcation recursively with the default locale
 		 */
 		if(langCode.equalsIgnoreCase(DEFAULT_LOCALE.getLanguage())){
+				resolutionCache.put(codeKey, null);
 				return null;
 		}else{
 			return this.resolveCodeWithoutArguments(code, DEFAULT_LOCALE);
@@ -240,6 +254,7 @@ public class ViewPropertyMessageSource extends AbstractMessageSource implements 
 			
 		}
 		this.setMessageMap(propMap);
+		this.resolutionCache = new HashMap<String,String>();
 	}
 
 

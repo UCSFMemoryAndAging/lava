@@ -257,32 +257,21 @@
 				</c:forTokens>
 			</c:if>					                				     
 			
-			<%-- label-related metadata is only needed for the first property, since there is only one label --%>
-			<c:if test="${status.first && propertyStatus.first}">
-				<tags:metadataValue attribName="label" property="${currentProperty}" section="${section}" 
-				                    entity="${entity}" entityType="${entityType}" metadataName="${currentMetadataName}" defaultVal=""/>
-			    <%-- indentLevel metadata is set in the metadata.properties file, not in the ViewProperty table --%>
-				<tags:metadataValue attribName="indentLevel" property="${currentProperty}" section="${section}" 
-				                    entity="${entity}" entityType="${entityType}" metadataName="${currentMetadataName}" defaultVal="0"/>
-				<tags:metadataValue attribName="required" property="${currentProperty}" section="${section}" 
-				                    entity="${entity}" entityType="${entityType}" metadataName="${currentMetadataName}" defaultVal="No"/>
-			</c:if>			
 			
-			<tags:metadataValue attribName="style" property="${currentProperty}" section="${section}" 
-			                    entity="${entity}" entityType="${entityType}" metadataName="${currentMetadataName}" defaultVal="string"/>
+			<%--create metadataKey for looking up metadata settings in the cache --%>
+			<c:set var="metadataKey">
+				<tags:metadataKey property="${currentProperty}" section="${section}" entity="${entity}" entityType="${entityType}" metadataName="${currentMetadataName}" />
+			</c:set>
+			
+			<%-- get all metadata properties into the page scope (uses cached data if available) --%>
+			<tags:createFieldMetadata metadataKey="${metadataKey}" property="${currentProperty}" section="${section}" 
+				                    entity="${entity}" entityType="${entityType}" metadataName="${currentMetadataName}"/>
+			
 			<c:if test="${empty context}"> <%-- context can be overridden by an attribute --%>
-				<tags:metadataValue attribName="context" property="${currentProperty}" section="${section}" 
-			                    entity="${entity}" entityType="${entityType}" metadataName="${currentMetadataName}" defaultVal="i"/>
+				<c:set var="context" value="${defaultContext}"/>
 			</c:if>	                   	
-
-
-			<%-- note: even numeric style may have a list to translate the numeric value to a text value for display --%>
-			<tags:metadataValue attribName="listRequestId" property="${currentProperty}" section="${section}" 
-			                      entity="${entity}" entityType="${entityType}" metadataName="${currentMetadataName}" defaultVal=""/>
+	
 			
-			<tags:metadataValue attribName="listName" property="${currentProperty}" section="${section}" 
-			                      entity="${entity}" entityType="${entityType}" metadataName="${currentMetadataName}" defaultVal=""/>
-			                      
 			<%-- use the listRequestId or listName to obtain its list data structure, which is of type java.util.Map<String,String> --%>			   
 			<c:if test="${not empty listRequestId || not empty listName}">
 				<%--first try to find a static list--%>			
@@ -293,23 +282,9 @@
 				</c:if>        
 			</c:if>
 			
-			<tags:metadataValue attribName="widgetAttributes" property="${currentProperty}" section="${section}" 
-	                    entity="${entity}" entityType="${entityType}" metadataName="${currentMetadataName}" defaultVal=""/>
 			<c:if test="${disable}">
 				<c:set var="widgetAttributes" value="${widgetAttributes} disabled"/>
 			</c:if>
-			<%-- used to set the max length of text that can be input in textBox and textarea widgets --%>
-			<tags:metadataValue attribName="maxTextLength" property="${currentProperty}" section="${section}" 
-	                    entity="${entity}" entityType="${entityType}" metadataName="${currentMetadataName}" defaultVal=""/>
-		    <%-- used to set the size of widgets that use an HTML text box, i.e. textBox, dateTextBox, datetimeTextBox,
-		         autoComplete and autoCompleteSuggest.
-		         note: the size of textarea widgets can be set using rows and cols in the widgetAttributes (attribues column)
-                         metadata, or alternatively, by creating a style with sizing and passing it into the dataStyle attribute of 
-                         this tag,  e.g. the "instrNote" style 
-                 also used to size the number of options displayed in a multiple select box --%>
-			<tags:metadataValue attribName="textBoxSize" property="${currentProperty}" section="${section}" 
-	                    entity="${entity}" entityType="${entityType}" metadataName="${currentMetadataName}" defaultVal=""/>
-	                    
 			<%-- debugging output of metadata values and mode --%>
 			<%--
 		    <p>
