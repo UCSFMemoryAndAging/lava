@@ -15,7 +15,6 @@
 <page:applyDecorator name="component.instrument.section">
   <page:param name="section"><spring:message code="instrument.dv.section"/></page:param>
   <page:param name="instructions"> </page:param>
- <!-- note the dv fields also appear on verifyContent.jsp -->
 <tags:createField property="dvBy" entity="${param.instrTypeEncoded}" component="instrument" entityType="instrument"/>
 <tags:createField property="dvDate" entity="${param.instrTypeEncoded}" component="instrument" entityType="instrument"/>
 <tags:createField property="dvStatus" entity="${param.instrTypeEncoded}" component="instrument" entityType="instrument"/>
