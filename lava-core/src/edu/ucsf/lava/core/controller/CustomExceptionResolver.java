@@ -80,18 +80,20 @@ public class CustomExceptionResolver implements HandlerExceptionResolver, Manage
 			 //    TODO: look into modifying context changing so it no longer terminates the 
 			 //          current flow execution conversation
 			 model.put(EXCEPTION_MSG, metadataManager.getMessage("noSuchFlowExecutionException.command", new Object[]{}, Locale.getDefault()));
+			 logger.error("Typically caused by either a) requesting a page within a flow after session time out, or b) use of the Back button to a flow that no longer exists"); 
 		 }
 		 else if (ex.getMessage() != null) {
 			 model.put(EXCEPTION_MSG, ex.getMessage());
 			 logger.error(ex.getMessage());
+			 logger.error(getStackTrace(ex));
 		 }
 		 else {
 			 model.put(EXCEPTION_MSG, ex.toString());
 			 logger.error(ex.toString());
+			 logger.error(getStackTrace(ex));
 		 }
 		 
 		 model.put("exceptionStackTrace", getStackTrace(ex));
-		 logger.error(getStackTrace(ex));
 		  
 		 // so that view will know whether there is a current patient and
 		 // tab/subtab links can resolve default actions to URLs
