@@ -44,7 +44,10 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 		super();
 		this.setDefaultMode("lv");
 		defaultEvents = new ArrayList(Arrays.asList(new String[]{"applyFilter","clearFilter","toggleFilter","clearSort","prevPage","nextPage",
-				"recordNav","pageSize","refresh","refreshReturnToPage","close"}));
+				"recordNav","pageSize","refresh","refreshReturnToPage","close","export"}));
+		if(supportsAttachedFiles()){
+			defaultEvents.add("download");
+		}
 		authEvents = new ArrayList(); // none of the list events require explicit permission
 	}
 
@@ -239,16 +242,13 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 	 		this.addListsToModel(model, listManager.getStaticListsForEntity(entityName));
 	 	}
 	 	
-	 	// if entering a Jasper report generated  view state, need to add the list as the report dataSource. since
+	 	// if entering a report generated  view state, need to add the list as the report dataSource. since
 		// List is a Collection, it can serve as the dataSource directly
-		if (state.getId().equals("export") || state.getId().equals("print")) {
+	 	// note that exporting a list, i.e. download, to a .csv file is done via the download event mechanism
+	 	// rather than via reporting, e.g. see ProjectInstrumentsHandler
+		if (state.getId().equals("print")) {
 			model.put("listReportDataSource", ((ScrollablePagedListHolder)((ComponentCommand)command).getComponents().get(getDefaultObjectName())).getSourceAsEntityList());
-			if (state.getId().equals("export")) {
-				model.put("format", "xls");
-			}			
-			if (state.getId().equals("print")) {
-				model.put("format", "pdf");
-			}			
+			model.put("format", "pdf");
 	 		// pass the handler itself as a report parameter
 	 		model.put("handler", this);
 		}
@@ -262,6 +262,9 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 		String event = ActionUtils.getEventName(context);
 		// note: do not use "event = ActionUtils.getEvent(request)" because it is possible for a flow
 		//  to set an overrideEvent which will be different from the event request parameter
+		
+		// handleDownload is called directly from the FormAction (if a handler overrides
+		// supportsAttachedFiles() and returns true), so no need to handle download event here
 		
 		if(event.equals("applyFilter")){
 			return this.handleApplyFilterEvent(context,command,errors);
