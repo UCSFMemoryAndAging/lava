@@ -20,11 +20,15 @@
 		</tags:contentColumn>
 </content>
 
-<c:if test="${not empty currentPatient}">
 <content tag="customActions">
-	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.assessment.instrument.instrument" eventId="instrument__add" component="${component}"/>	    
-</content>
+<%-- currently only ProjectInstruments supports exporting to a .csv file --%>
+<c:if test="${empty currentPatient}">
+	<tags:eventButton buttonText="Export" action="download" component="${component}" pageName="${component}"/>
 </c:if>
+<c:if test="${not empty currentPatient}">
+	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.assessment.instrument.instrument" eventId="instrument__add" component="${component}"/>
+</c:if>
+</content>
 
 <content tag="listColumns">
 <tags:listRow>
