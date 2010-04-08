@@ -65,6 +65,7 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 	protected List<String> handledEvents; //a list of events handled by the handler, set by default, may be specified
 	protected List<String> defaultEvents = new ArrayList(); // a list of default events handled for each object supported...defined in subclasses
 	protected List<String> requiredFieldEvents = new ArrayList(); // a list of events for which required field validation should be done
+	protected List<String> requiredFieldEventsExpanded = new ArrayList(); // a list of events for which required field validation should be done; prefixed by defaultObjectName
 	protected List<String> authEvents = new ArrayList(); // a list of the events for which a user must have permission
 	protected Map<String,Class>  handledObjects; //a name, class map of "command" objects handled by this handler, typically just the one object for entity handlers
 	protected String defaultObjectName; //the handled object that is the primary object for default methods, set automatically if just one handled object
@@ -254,8 +255,8 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		//  to set an overrideEvent which will be different from the event request parameter
 		String eventId = ActionUtils.getEventId(context);
 		
-		for (String requiredFieldEvent: this.requiredFieldEvents){
-			if (eventId.equals(requiredFieldEvent)) {
+		for (String requiredFieldEventExpanded: this.requiredFieldEventsExpanded){
+			if (eventId.equals(requiredFieldEventExpanded)) {
 				return true;
 			}
 		}
@@ -491,14 +492,20 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 			event = new StringBuffer().append(defaultObjectName).append(ActionUtils.OBJECT_EVENT_SEPARATOR).append(requiredFieldEvent);
 			events.add(event.toString());
 		}
-		setRequiredFieldEvents(events);
+		// EMORY change: fix requiredFieldEvents so that expanded event doesn't get prepended multiple times with defaultObjectName
+		setRequiredFieldEventsExpanded(events);
 	}
 	
 	public void setRequiredFieldEvents(List requiredFieldEvents) {
 		this.requiredFieldEvents = requiredFieldEvents;
 	}
 	
-	
+	public List getRequiredFieldEventsExpanded() {
+		return requiredFieldEventsExpanded;
+	} 
+	public void setRequiredFieldEventsExpanded(List requiredFieldEventsExpanded) {
+		this.requiredFieldEventsExpanded = requiredFieldEventsExpanded;
+	}
 	
 	//Override in subclass for custom required fields functionality
 	public String[] getRequiredFields() {
@@ -829,5 +836,10 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		this.environmentManager = CoreManagerUtils.getEnvironmentManager(managers);
 	}		
 	
-	
+	// EMORY change:
+	// Override to attach error message to correct component used in view, not always defaultObjectName 
+	//   E.g. allow binding of UdsMedications' DTO object, instead of the generic case of 'instrument'
+	public String getBindingComponentString() {
+		return this.getDefaultObjectName();
+	}
 }
