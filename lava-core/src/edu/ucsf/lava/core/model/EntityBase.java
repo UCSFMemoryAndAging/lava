@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.type.Type;
 
 import edu.ucsf.lava.core.auth.model.AuthUser;
@@ -29,6 +31,7 @@ import edu.ucsf.lava.core.metadata.MetadataManager;
  *
  */
 public abstract class EntityBase implements LavaEntity, Cloneable {
+    protected final Log logger = LogFactory.getLog(getClass());
 	
 	//Business Manager / Data Access Object Proxy
 	public static EntityManager MANAGER = new EntityBase.Manager(EntityBase.class);
