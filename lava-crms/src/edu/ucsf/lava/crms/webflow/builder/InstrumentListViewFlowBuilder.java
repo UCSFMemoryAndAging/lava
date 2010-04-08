@@ -52,8 +52,9 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
         
     	// print to PDF
     	viewTransitions.add(transition(on(objectName + "__print"), to("print")));
-    	// export to Excel file
-    	viewTransitions.add(transition(on(objectName + "__export"), to("export")));
+
+    	// export to csv file. the "download" viewState prepareToDownload writes the csv String to the HTTP response 
+    	viewTransitions.add(transition(on(objectName + "__download"), to("download")));
     	
     	// list filter events, navigation, etc. need bind and handleFlowEvent actions
     	// note: this is a catch-all transition, so event-specific transitions should appear before this
@@ -88,6 +89,27 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
     			null,
     			null);
 
+    	
+    	// for report engine generated view states, the getCustomReportSelector returns the generated
+    	// report view name, i.e. the same view name generated for jsp view with "Report" appended, which
+    	// is mapped to the report design file in lava-reports.xml
+    	// note that the actual render format (pdf, xls, etc.) is determined by setting the "format" key
+    	// in the model, and for lists this is done in addReferenceData based upon the name of the view state
+    	addViewState("print", 
+    			null, formAction.getCustomReportSelector(), 
+    			new Action[]{invoke("prepareToRender",formAction)},
+    			null, // no transitions since PDF not accepting input. user uses Back button to get back to previous state (could
+    			      // construct hyperlinks in PDF report to link back to flow)
+    			null,null,null); 
+
+    	addViewState("download", 
+    			null, 
+    			null, // no view selector as writing download directly to the HTTP response 
+    			new Action[]{invoke("prepareDownload",formAction)},
+    			null, // no transitions since this does not change the view, i.e. the user either downloads the .csv file
+    				  // or opens it in an application external to the browser (e.g. Excel)
+    			null,null,null); 
+    	
     	buildDefaultActionEndState();
     }
     
