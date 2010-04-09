@@ -11,17 +11,15 @@ import edu.ucsf.lava.core.webflow.builder.BaseFlowBuilder;
 class HomeFlowBuilder extends BaseFlowBuilder {
 	
 	public HomeFlowBuilder(LavaFlowRegistrar registry, String actionId) {
+		// now sure why "home" is explicity passed as the formActionName (which means that even if there
+		// is an instance specific home action, its form action should just be homeFormAction and not
+		// INSTANCEHomeFormAction). could be because the HomeFlowBuilder was used for both "welcome" and
+		// "home" action target parts.
     	super(registry, actionId, "home");
     	setFlowEvent("homeView");
- 
     }
     
-    // the welcome page flow just handles patient/project context events, which make the
-    // context change and just return to the welcome page, because the welcome page is both the 
-    // defaultPatientAction and defaultProjectAction for the module/section of the welcome
-    // page (mylava/welcome)
     public void buildEventStates() throws FlowBuilderException {
-    	
     	
     	addViewState("homeView", null, formAction.getCustomViewSelector(),
     			// setupForm called in flowSetupState so no need to call here
