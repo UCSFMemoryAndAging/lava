@@ -119,17 +119,13 @@ public class FlowListener extends FlowExecutionListenerAdapter implements Manage
 		// correct module tab and section link
 		
 		
-		// convert the flow id to an action id, possibly with customized scope part
-		// e.g. flowId=lava.scheduling.patientCalendar.patientVisits
-		//      actionId=SCOPE.scheduling.patientCalendar.patientVisits
+		// convert the flow id to an action id
+		// e.g. flowId=lava.crms.scheduling.visit.vist.edit
+		//      actionId=lava.crms.scheduling.visit.visit (with mode="edit")
 		// also, get the flowId mode part to set as an Action parameter
 		StringBuffer flowIdModePart = new StringBuffer();
-		// get the default scope flow id because later it will be passed to ActionService getAction
-		// which will convert it to its project or instance scope if it should
-		String flowActionId = ActionUtils.getDefaultActionIdFromFlowId(flowId, flowIdModePart);
-		
-		// call getAction to determine whether there is an instance specific customization of the action
-		Action currentAction = actionManager.getEffectiveAction(request,  flowActionId);
+		String flowActionId = ActionUtils.getActionIdFromFlowId(flowId, flowIdModePart);
+		Action currentAction = actionManager.getAction(flowActionId);
 		
 		// at moment, only the action id parts are used from the currentAction, 
 		// i.e. scope.module.section.target
