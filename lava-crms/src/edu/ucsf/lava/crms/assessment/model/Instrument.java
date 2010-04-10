@@ -520,7 +520,7 @@ public class Instrument extends CrmsEntity {
 	}
 	
 	public String getCsvCommonColumnHeaders() {
-		return "PATIENT,MEASURE,COLLECTION STATUS,DATA ENTRY STATUS,VERIFY STATUS";
+		return "PATIENT,VISIT,MEASURE,COLLECTION STATUS,DATA ENTRY STATUS,VERIFY STATUS";
 	}
 	
 	public String getCsvSummaryColumnHeaders() {
@@ -529,7 +529,8 @@ public class Instrument extends CrmsEntity {
 	
 	public String getCsvCommonData() {
 		StringBuffer commonData = new StringBuffer();
-	    commonData.append(getPatient().getFullNameNoSuffix()).append(",");
+	    commonData.append(getPatient().getFullNameRevNoSuffix()).append(",");
+	    commonData.append(getVisit().getVisitType()).append(",");
 	    commonData.append(getInstrType()).append(",");
 		// since status includes username, e.g. dcBy, which include a comma, enclose in quotes
 		commonData.append("\"").append(getCollectionStatusBlock()).append("\"").append(",");
