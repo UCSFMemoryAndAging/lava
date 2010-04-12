@@ -520,7 +520,7 @@ public class Instrument extends CrmsEntity {
 	}
 	
 	public String getCsvCommonColumnHeaders() {
-		return "PATIENT,VISIT,MEASURE,COLLECTION STATUS,DATA ENTRY STATUS,VERIFY STATUS";
+		return "PATIENT,DATE,VISIT,MEASURE,COLLECTION STATUS,DATA ENTRY STATUS,VERIFY STATUS";
 	}
 	
 	public String getCsvSummaryColumnHeaders() {
@@ -529,7 +529,9 @@ public class Instrument extends CrmsEntity {
 	
 	public String getCsvCommonData() {
 		StringBuffer commonData = new StringBuffer();
-	    commonData.append(getPatient().getFullNameRevNoSuffix()).append(",");
+	    commonData.append("\"").append(getPatient().getFullNameRevNoSuffix()).append("\"").append(",");
+	    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	    commonData.append(dateFormat.format(getVisit().getVisitDate())).append(",");
 	    commonData.append(getVisit().getVisitType()).append(",");
 	    commonData.append(getInstrType()).append(",");
 		// since status includes username, e.g. dcBy, which include a comma, enclose in quotes
