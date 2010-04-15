@@ -148,7 +148,9 @@ public class InstrumentComponentFormAction extends CrmsComponentFormAction {
 		}
 		// in all other cases, process the "instrument" instrument object 
 		else {
-			component = INSTRUMENT;
+			// EMORY change:
+			// allow binding of alternate objects (like DTO), not just the default "instrument"
+			component = getBindingComponentString();
 		}
 		instrument = (Instrument)((ComponentCommand)componentCommand).getComponents().get(component);
 		
@@ -207,10 +209,7 @@ public class InstrumentComponentFormAction extends CrmsComponentFormAction {
 		for (String propName : instrument.getRequiredResultFields()) {
 			// create version of fullPropName without the quotes around the component name because
 			// when adding fieldError, Spring matches without the single quotes (which seems like a bug)
-
-			// EMORY change:
-			// allow binding of alternate objects (like DTO), not just the default 'instrument'
-			StringBuffer fullPropNameNoQuotes = new StringBuffer("components[").append(getBindingComponentString()).append("].").append(propName);
+			StringBuffer fullPropNameNoQuotes = new StringBuffer("components[").append(component).append("].").append(propName);
 			
 			// BeanUtils getProperty returns property value as a String
 			String propValue = BeanUtils.getProperty(instrument, propName);
@@ -265,6 +264,5 @@ public class InstrumentComponentFormAction extends CrmsComponentFormAction {
 	}
 }
 	
-
 
 
