@@ -24,5 +24,8 @@
 		<property name="query" value="list.consent.consentTypes"/>
 	</bean>
 	
+	<bean id="list.consent.allConsentTypes" parent="list.dynamicSortValue">
+		<property name="query" value="list.consent.allConsentTypes"/>
+	</bean>
 				
 </beans>

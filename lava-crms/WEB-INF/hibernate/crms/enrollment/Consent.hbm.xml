@@ -64,4 +64,13 @@
 		order by lv.orderIndex, lv.valueDesc
 	]]></query>
 
+	<query name="list.consent.allConsentTypes"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv 
+		where list.listName = 'ConsentType'
+		group by lv.valueDesc, lv.orderIndex
+		order by lv.orderIndex, lv.valueDesc
+	]]></query>
+
 </hibernate-mapping>
