@@ -40,9 +40,15 @@ public class ProjectConsentsHandler extends CrmsListComponentHandler {
 		//load up dynamic lists for the list filter
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
-		String project = CrmsSessionUtils.getCurrentProject(sessionManager,request)==null ? "%": CrmsSessionUtils.getCurrentProject(sessionManager,request).getName();
-		dynamicLists.put("consent.consentTypes", listManager.getDynamicList("consent.consentTypes", 
-				"projectName",project,String.class));
+		if (CrmsSessionUtils.getCurrentProject(sessionManager,request)==null) {
+			// if no current project, include consent types across all projects
+			dynamicLists.put("consent.consentTypes", listManager.getDynamicList("consent.allConsentTypes")); 
+		}
+		else {
+			dynamicLists.put("consent.consentTypes", listManager.getDynamicList("consent.consentTypes", 
+					"projectName",CrmsSessionUtils.getCurrentProject(sessionManager,request).getName(),String.class));
+		}
+		
 		model.put("dynamicLists", dynamicLists);
 		return super.addReferenceData(context, command, errors, model);
 	}
