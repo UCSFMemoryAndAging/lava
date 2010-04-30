@@ -24,9 +24,9 @@ public class ViewPropertyAttributeParser {
 	  while ( parser.hasMoreTokens() ) {
 	      token = parser.nextToken(delimiters);
 	      //if the token found is not a double quote then it is either a property or a value
-	      if ( !token.equals(DOUBLE_QUOTE) ){
+	      if ( !token.equals(DOUBLE_QUOTE) && !token.equals(EQUALS_SIGN)){
 	        result.add(token.trim());
-	      } else { //if the token is a double quote then flip the delimiters so we we either grab the next property or the full quote delimited value
+	      } else if (token.equals(DOUBLE_QUOTE)){ //if the token is a double quote then flip the delimiters so we we either grab the next property or the full quote delimited value
 	        delimiters = (delimiters.equals(DOUBLE_QUOTE))? ALL_DELIMITERS : DOUBLE_QUOTE;
 	      }
 	    }
