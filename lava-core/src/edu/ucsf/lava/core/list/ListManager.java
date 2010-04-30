@@ -288,7 +288,13 @@ public class ListManager extends LavaManager{
 						}else if(entry.getKey().equals(ViewProperty.LIST_FORMAT_PARAM_NAME)){
 							request.setFormat(entry.getValue());
 						}else if(entry.getKey().equals(ViewProperty.LIST_CODES_PARAM_NAME)){
-							BaseListConfig codes = staticListDefinitions.get(entry.getValue().concat(".codes"));
+							// e.g. to add a list to an instrument that does not have codes, have to use the custom
+							// ViewProperty listAttributes (codes=noCodes), because otherwise, below, the ListRequest 
+							// will default to using the instrument's codes list for the list (even if the list configuration 
+							// does not have codes or explicitly sets defaultCodes=list.noCodes, because when the list
+							// is generated (BaseListConfig getList) the codes set on the ListRequest take precedence
+							// over any codes set in the list's configuration)
+							BaseListConfig codes = staticListDefinitions.get(entry.getValue());
 							if(codes != null){ 
 								request.setCodes(codes);
 							}
