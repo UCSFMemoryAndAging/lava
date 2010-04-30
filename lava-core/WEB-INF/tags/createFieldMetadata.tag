@@ -31,6 +31,8 @@
               description="value of the label metadata attribute" %>
 <%@ variable name-given="listName" variable-class="java.lang.String" scope="AT_END"
               description="value of the label metadata attribute" %>
+<%@ variable name-given="listAttributes" variable-class="java.lang.String" scope="AT_END"
+              description="value of the label metadata attribute" %>
 <%@ variable name-given="widgetAttributes" variable-class="java.lang.String" scope="AT_END"
               description="value of the label metadata attribute" %>
 <%@ variable name-given="maxTextLength" variable-class="java.lang.String" scope="AT_END"
@@ -59,6 +61,7 @@
 	<c:set var="defaultContext"><%= cachedData.get("defaultContext") %></c:set>
 	<c:set var="listRequestId"><%= cachedData.get("listRequestId") %></c:set>
 	<c:set var="listName"><%= cachedData.get("listName") %></c:set>
+	<c:set var="listAttributes"><%= cachedData.get("listAttributes") %></c:set>
 	<c:set var="widgetAttributes"><%= cachedData.get("widgetAttributes") %></c:set>
 	<c:set var="maxTextLength"><%= cachedData.get("maxTextLength") %></c:set>
 	<c:set var="textBoxSize"><%= cachedData.get("textBoxSize") %></c:set>
@@ -87,6 +90,8 @@
 		<tags:metadataValue attribName="listName"  property="${property}" section="${section}" 
 		             entity="${entity}" entityType="${entityType}" metadataName="${metadataName}" defaultVal=""/>
 	
+		<tags:metadataValue attribName="listAttributes"  property="${property}" section="${section}" 
+		             entity="${entity}" entityType="${entityType}" metadataName="${metadataName}" defaultVal=""/>
 	
 		<tags:metadataValue attribName="widgetAttributes"  property="${property}" section="${section}" 
 	                 entity="${entity}" entityType="${entityType}" metadataName="${metadataName}" defaultVal=""/>
@@ -109,6 +114,7 @@
 		cachedData.put("defaultContext",jspContext.getAttribute("defaultContext",PageContext.PAGE_SCOPE));
 		cachedData.put("listRequestId",jspContext.getAttribute("listRequestId",PageContext.PAGE_SCOPE));
 		cachedData.put("listName",jspContext.getAttribute("listName",PageContext.PAGE_SCOPE));
+		cachedData.put("listAttributes",jspContext.getAttribute("listAttributes",PageContext.PAGE_SCOPE));
 		cachedData.put("widgetAttributes",jspContext.getAttribute("widgetAttributes",PageContext.PAGE_SCOPE));
 		cachedData.put("maxTextLength",jspContext.getAttribute("maxTextLength",PageContext.PAGE_SCOPE));
 		cachedData.put("textBoxSize",jspContext.getAttribute("textBoxSize",PageContext.PAGE_SCOPE));
