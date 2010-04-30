@@ -15,6 +15,8 @@
               description="id for the field" %>
 <%@ attribute name="list" type="java.util.Map" required="true" 
               description="a Map where entry key is list item value and entry value is list item label" %>
+<%@ attribute name="listAttributes" 
+              description="attributes which enhance the list" %>
 <%@ attribute name="attributesText" 
               description="[optional] attributes for the HTML element" %>
 <%@ attribute name="styleClass"
@@ -37,9 +39,24 @@
         </c:forEach>
         <%-- if the entity has a value that is not in the list, add it to the list --%>
         <c:if test="${empty valueFoundInList}">
-            <%-- if currently hiding missing data codes, but value is a missing data code, still
-                 want to show the text of that missing data code as the option value, not the code itself --%>
-        	<option value="${status.value}" selected>${not empty missingCodesMap[status.value] ? missingCodesMap[status.value] : status.value}</option> 
+        	<%-- if the value is an instrument error code, display the corresponding error code text (this situation occurs
+        		when the user has chosen to hide codes such that the code/text are not in the underlying list). look up the 
+        		error code text in the missingCodesMap (only instruments have a missingCodesMap). 
+        		there is one exception: when it can be determined that the property being displayed does not have codes 
+        		in its list (e.g. because the property can legitimately have a negative value used by an error code) --%>
+			<c:choose>
+				<c:when test="${not empty missingCodesMap[status.value]}">
+					<c:if test="${empty listAttributes || !fn:contains(listAttributes, 'noCodes')}">
+			        	<option value="${status.value}" selected>${not empty missingCodesMap[status.value] ? missingCodesMap[status.value] : status.value}</option> 
+					</c:if>
+					<c:if test="${fn:contains(listAttributes, 'noCodes')}">
+			        	<option value="${status.value}" selected>${status.value}</option> 
+					</c:if>			
+				</c:when>	       		
+		       	<c:otherwise>
+		        	<option value="${status.value}" selected>${status.value}</option> 
+	       		</c:otherwise>	 
+	       	</c:choose>
         </c:if>
         	
     </select>
