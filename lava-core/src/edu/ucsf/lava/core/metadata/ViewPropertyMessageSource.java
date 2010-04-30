@@ -193,6 +193,13 @@ public class ViewPropertyMessageSource extends AbstractMessageSource implements 
 				.append("listName");
 			propMap.put(key.toString(), prop.getList() != null ? prop.getList() : "");
 
+			//list attributes
+			key = new StringBuffer(prop.getLocale()).append(DELIMITER)
+				.append(prop.getInstance()).append(DELIMITER)
+				.append(prop.getMessageCode()).append(DELIMITER)
+				.append("listAttributes");
+			propMap.put(key.toString(), prop.getListAttributes() != null ? prop.getListAttributes() : "");
+
 			//list request id
 			key = new StringBuffer(prop.getLocale()).append(DELIMITER)
 				.append(prop.getInstance()).append(DELIMITER)
