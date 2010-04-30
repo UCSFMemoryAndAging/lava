@@ -296,7 +296,8 @@
 		    label=${label}<br>
 		    indentLevel=${indentLevel}<br>
 		    required=${required}<br>
-		    widgetListName=${listName}<br>
+		    listName=${listName}<br>
+		    listAttributes=${listAttributes}<br>
             widgetAttributes=${widgetAttributes}<br>
    		    maxTextLength=${maxTextLength}<br>
    		    textBoxSize=${textBoxSize}<br>
@@ -612,13 +613,13 @@
 	   			    	<tags:unlimitedTextarea property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}${mode == 'vw'? ' readonly':''}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}"/>
 					</c:when>
 					<c:when test="${dataElement == 'singleSelect'}">
-						<tags:singleSelect property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}" list="${widgetList}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}"/>
+						<tags:singleSelect property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}" list="${widgetList}" listAttributes="${listAttributes}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}"/>
 					</c:when>
 					<c:when test="${dataElement == 'autoComplete'}">
-		   				<tags:autoComplete property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}" list="${widgetList}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}" textBoxSize="${textBoxSize}"/>
+		   				<tags:autoComplete property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}" list="${widgetList}" listAttributes="${listAttributes}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}" textBoxSize="${textBoxSize}"/>
 					</c:when>
 					<c:when test="${dataElement == 'autoCompleteSuggest'}">
-		   				<tags:autoCompleteSuggest property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}" list="${widgetList}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}" textBoxSize="${textBoxSize}" maxLength="${maxTextLength}"/>
+		   				<tags:autoCompleteSuggest property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}" list="${widgetList}" listAttributes="${listAttributes}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}" textBoxSize="${textBoxSize}" maxLength="${maxTextLength}"/>
 					</c:when>
 					<%-- for multipleSelect the textBoxSize for select boxes is set in pixels, so the value passed in is multipled by 10. maxLength is passed in as the number of options to display in the select box at one time. --%>
 					<c:when test="${dataElement == 'multipleSelect'}">
