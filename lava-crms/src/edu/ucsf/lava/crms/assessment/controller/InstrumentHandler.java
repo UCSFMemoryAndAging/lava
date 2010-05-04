@@ -280,20 +280,16 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			backingObjects.put(COMPARE_INSTRUMENT, compareInstrObj);
 			
 			
-//TODO: override getBackingObjects in a CbtInstrumentHandler and do this because as more instruments with
-// details come along, they will each handler their detail component(s) separately (i.e. they will have
-// put the details into a ScrollablePagedListHolder with whatever component name they want, and in fact could
-// have multiple detail sections so multiple ScrollablePagedListHolder components), while InstrumentHandler
-// just generically handles list navigation events (using wildcard to match any details component in the
-// regexp matching of handlesEvent) and then in the event handlers using the event prefix to direct the list 
-// navigation to the correct component
-// then, get rid of detail flag in instrument configuration			
 			// special handling for  instruments with detail records, where the detail records
 			// are added as a component to the command object (but without a handler, as the only event handling
 			// needed is taken care of in this handler, i.e. prevPage and nextPage)
 			// note: right now, this only pertains to file upload instruments. during the upload flow, the
 			// detail records are added to the command object in the instrument specific FileLoader bean method
-			// that parses and loads the data from the uploaded file(s) 
+			// that parses and loads the data from the uploaded file(s)
+			
+			//TODO: refactor this as done in lava where if instrument supports upload flow, obtain the FileLoader
+			//and call the getDetailComponents method on the file loader. this facilitates instruments that have
+			//multiple detail lists, as in the lava Info Processing Speed instrument
 			InstrumentConfig instrumentConfig = instrumentManager.getInstrumentConfig().get(instrument.getInstrTypeEncoded());
 			if (instrumentConfig != null && instrumentConfig.getDetails()) { 
 				// put the detail records into a ScrollablePagedListHolder and add that to the command components
