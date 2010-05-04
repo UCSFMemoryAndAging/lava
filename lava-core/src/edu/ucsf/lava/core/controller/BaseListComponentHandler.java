@@ -11,9 +11,11 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.support.SortDefinition;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
@@ -45,9 +47,6 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 		this.setDefaultMode("lv");
 		defaultEvents = new ArrayList(Arrays.asList(new String[]{"applyFilter","clearFilter","toggleFilter","clearSort","prevPage","nextPage",
 				"recordNav","pageSize","refresh","refreshReturnToPage","close","export"}));
-		if(supportsAttachedFiles()){
-			defaultEvents.add("download");
-		}
 		authEvents = new ArrayList(); // none of the list events require explicit permission
 	}
 
@@ -263,9 +262,6 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 		// note: do not use "event = ActionUtils.getEvent(request)" because it is possible for a flow
 		//  to set an overrideEvent which will be different from the event request parameter
 		
-		// handleDownload is called directly from the FormAction (if a handler overrides
-		// supportsAttachedFiles() and returns true), so no need to handle download event here
-		
 		if(event.equals("applyFilter")){
 			return this.handleApplyFilterEvent(context,command,errors);
 		}
@@ -301,6 +297,9 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 		}	
 		else if(event.equals("refreshReturnToPage")){
 			return this.handleRefreshReturnToPageEvent(context,command,errors);
+		}	
+		else if(event.equals("export")){
+			return this.handleExportEvent(context,command,errors);
 		}	
 		else {
 			return this.handleCustomEvent(context,command,errors);
@@ -701,6 +700,43 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 		
 		return returnEvent;
 	}
+	
+	
+	public Event handleExportEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
+		return doExport(context,command,errors);
+	}
+
+	//Override this in subclass to provide custom "export" handler 
+	protected Event doExport(RequestContext context, Object command, BindingResult errors) throws Exception {
+		Map components = ((ComponentCommand)command).getComponents();
+		HttpServletResponse response = ((ServletExternalContext)context.getExternalContext()).getResponse();
+		ScrollablePagedListHolder plh = (ScrollablePagedListHolder) components.get(this.getDefaultObjectName());
+		if (plh.getListSize() == 0) {
+//TODO: set object error msg
+			return new Event(this,ERROR_FLOW_EVENT_ID);
+		}
+
+		StringBuffer defaultFilename = new StringBuffer();
+		// handlers override getExportContent to generate an export string, e.g. a .csv string.
+		// this method also sets a defaultFilename for the export as an output parameter, since the 
+		// processing to generate the export string can be utilized to generate the filename
+		String exportString = getExportContent(context, command, errors, defaultFilename); 
+		response.setHeader("Content-Disposition","attachment; filename=\"" + defaultFilename.toString() + "\"");
+		//response.setContentType(file.getContentType());
+		response.setContentLength(exportString.length());
+		FileCopyUtils.copy(exportString.getBytes(),response.getOutputStream());
+		return new Event(this,SUCCESS_FLOW_EVENT_ID);
+	}
+
+	//Override this in subclass to generate the String to be exported
+	protected String getExportContent(RequestContext context, Object command, BindingResult errors, StringBuffer defaultFilename) throws Exception {
+		// default to .csv for now. if other formats, will have a property designate the format which can
+		// be checked here for proper default 
+		defaultFilename.append("export.csv");
+		return new String();
+	}
+	
+	
 
 
 	public ScrollableListSourceProvider getSourceProvider() {
@@ -783,7 +819,6 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 			return ScrollablePagedListHolder.createSourceList(
 					listHandler.getList(entityClass,daoFilter),daoFilter);
     	}
-    	
     	
 	}
 }
