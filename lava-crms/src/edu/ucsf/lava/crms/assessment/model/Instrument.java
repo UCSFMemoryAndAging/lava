@@ -3,6 +3,7 @@ package edu.ucsf.lava.crms.assessment.model;
 import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -511,34 +512,38 @@ public class Instrument extends CrmsEntity {
 	 * The default filename when exporting an instrument list. Instrument-specific subclasses
 	 * can override this to provide an instrument-specific filename;
 	 * 
-	 * @return the default filename
+	 * @return the default filename, not including a filename extension
 	 */
-	public String getCsvListDefaultFilename() {
+	public String getExportListDefaultFilename() {
 		Date today = new Date();
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-		return new StringBuffer("instruments").append(dateFormat.format(today)).append(".csv").toString();
+		return new StringBuffer("instruments").append(dateFormat.format(today)).toString();
 	}
 	
-	public String getCsvCommonColumnHeaders() {
-		return "PATIENT,DATE,VISIT,MEASURE,COLLECTION STATUS,DATA ENTRY STATUS,VERIFY STATUS";
+	public String[] getExportCommonColHeaders() {
+		return new String[]{"PATIENT","DATE","VISIT","MEASURE","COLLECTION STATUS","DATA ENTRY STATUS","VERIFY STATUS"};
 	}
 	
-	public String getCsvSummaryColumnHeaders() {
-		return ",SUMMARY";
+	public String[] getExportSummaryColHeaders() {
+		return new String[]{"SUMMARY"};
 	}
 	
-	public String getCsvCommonData() {
+	public String[] getExportCommonData() {
+		List data = new ArrayList();
 		StringBuffer commonData = new StringBuffer();
-	    commonData.append("\"").append(getPatient().getFullNameRevNoSuffix()).append("\"").append(",");
+		data.add(commonData.append("\"").append(getPatient().getFullNameRevNoSuffix()).append("\"").toString());
 	    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-	    commonData.append(dateFormat.format(getVisit().getVisitDate())).append(",");
-	    commonData.append(getVisit().getVisitType()).append(",");
-	    commonData.append(getInstrType()).append(",");
+		data.add(dateFormat.format(getVisit().getVisitDate()));
+		data.add(getVisit().getVisitType());
+		data.add(getInstrType());
 		// since status includes username, e.g. dcBy, which include a comma, enclose in quotes
-		commonData.append("\"").append(getCollectionStatusBlock()).append("\"").append(",");
-		commonData.append("\"").append(getEntryStatusBlock()).append("\"").append(",");
-		commonData.append("\"").append(getVerifyStatusBlock()).append("\"").append(",");
-		return commonData.toString();
+		commonData.setLength(0);
+		data.add(commonData.append("\"").append(getCollectionStatusBlock()).append("\"").toString());
+		commonData.setLength(0);
+		data.add(commonData.append("\"").append(getEntryStatusBlock()).append("\"").toString());
+		commonData.setLength(0);
+		data.add(commonData.append("\"").append(getVerifyStatusBlock()).append("\"").toString());
+		return (String[]) data.toArray(new String[]{});
 	}
 
 	/**
@@ -548,8 +553,8 @@ public class Instrument extends CrmsEntity {
 	 * @param instrument
 	 * @return
 	 */
-	public String getCsvSummaryData(Instrument instrument) {
-		return new StringBuffer().append("\"").append(StringUtils.defaultString(instrument.getSummary())).append("\"").toString();
+	public String[] getExportSummaryData() {
+		return new String[]{new StringBuffer().append("\"").append(StringUtils.defaultString(this.getSummary())).append("\"").toString()};
 	}
 
 }
