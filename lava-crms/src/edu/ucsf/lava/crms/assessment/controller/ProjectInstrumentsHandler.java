@@ -76,8 +76,6 @@ public class ProjectInstrumentsHandler extends CrmsCalendarComponentHandler {
 		// iterate thru the ScrollablePagedListHolder, creating a csv String for each record
 		ScrollablePagedListHolder plh = (ScrollablePagedListHolder) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
 		LavaDaoFilter filter = (LavaDaoFilter) plh.getFilter();
-		List<InstrumentTracking> instrList = plh.getSourceAsEntityList();
-		List list = plh.getSource();
 		
 		// when the Filter is used to specify an instrument type, such that all of the instruments in
 		// the list are the same (or related) it is possible that an instrument specific export could 
@@ -101,37 +99,19 @@ public class ProjectInstrumentsHandler extends CrmsCalendarComponentHandler {
  		String filterInstrType = (String) filter.getParams().get("instrType");
  		if (!org.apache.commons.lang.StringUtils.isEmpty(filterInstrType)) {
  			LavaDaoFilter instrFilter = InstrumentTracking.newFilterInstance(CoreSessionUtils.getCurrentUser(this.sessionManager, request));
- 			Instrument instrument = (Instrument) ((ListItem) list.iterator().next()).getEntity();
-			instrFilter.addIdDaoEqualityParam(instrument.getId());
- 			instrSpecificInstrument = (Instrument) Instrument.MANAGER.getOne(this.instrumentManager.getInstrumentClass(instrument.getInstrTypeEncoded()), instrFilter);
+ 			InstrumentTracking firstInstrTrackingObj = (InstrumentTracking) ((ListItem)plh.getSource().iterator().next()).getEntity();
+			instrFilter.addIdDaoEqualityParam(firstInstrTrackingObj.getId());
+ 			instrSpecificInstrument = (Instrument) Instrument.MANAGER.getOne(this.instrumentManager.getInstrumentClass(firstInstrTrackingObj.getInstrTypeEncoded()), instrFilter);
  			if (instrSpecificInstrument.isFilterInstrSpecific(filterInstrType)) {
  				instrSpecificExport = true;
  			}
  		}
  		
- 		// default export filename
- 		if (instrSpecificExport) {
- 			defaultFilename.append(instrSpecificInstrument.getExportListDefaultFilename()).append(".csv");
- 		}
- 		else {
- 			// use the instrument tracking object
- 			defaultFilename.append(((Instrument)((ListItem) list.iterator().next()).getEntity()).getExportListDefaultFilename()).append(".csv");
- 		}
- 		
-
  		StringBuffer csvString = new StringBuffer();
- 		
-		// column headers
- 		csvString.append(StringUtils.arrayToCommaDelimitedString(((Instrument)((ListItem) list.iterator().next()).getEntity()).getExportCommonColHeaders()));
- 		if (instrSpecificExport) {
- 			csvString.append(",").append(StringUtils.arrayToCommaDelimitedString(instrSpecificInstrument.getExportSummaryColHeaders()));
- 		}
- 		else {
- 			csvString.append(",").append(StringUtils.arrayToCommaDelimitedString(((Instrument)((ListItem) list.iterator().next()).getEntity()).getExportSummaryColHeaders()));
- 		}
- 		csvString.append("\n");
-		
- 		// column data
+		// obtain a full list of either the instrument specfic instrument objects, or if the list is
+		// not instrument specific, a list of InstrumentTracking objects (while ScrollablePagedListHolder
+		// already has a List<InstrumentTracking> it may not be completely populated since only the first
+		// N list objects are retrieved for performance purposes)
  		List<Instrument> fullInstrList;
 		LavaDaoFilter instrFilter = EntityBase.newFilterInstance(getCurrentUser(request));
 		instrFilter = prepareFilter(context,instrFilter,((ComponentCommand)command).getComponents());
@@ -143,18 +123,26 @@ public class ProjectInstrumentsHandler extends CrmsCalendarComponentHandler {
 			Entry entry = (Entry) iter.next();
 			instrFilter.addSort((String)entry.getKey(), ((Boolean)entry.getValue()).booleanValue());
 		}
-		// obtain a full list of either the instrument specfic instrument objects, or if the list is
-		// not instrument specific, and list of InstrumentTracking objects (while ScrollablePagedListHolder
-		// already has a List<InstrumentTracking> it may not be completely populated since only the first
-		// N list objects are retrieved for performance purposes)
  		if (instrSpecificExport) {
  			fullInstrList = Instrument.MANAGER.get(instrSpecificInstrument.getClass(), instrFilter);
  		}
  		else {
  			fullInstrList = Instrument.MANAGER.get(InstrumentTracking.class, instrFilter);
  		}
- 		// for each instrument, append a CSV record
+ 		// iterate over the instrument list. for each instrument, append a CSV record
+ 		boolean firstRecord = true;
 		for (Instrument instr : fullInstrList) {
+			if (firstRecord) {
+		 		// default export filename
+	 			defaultFilename.append(instr.getExportListDefaultFilename()).append(".csv");
+		 		
+	 			// column headers
+	 	 		csvString.append(StringUtils.arrayToCommaDelimitedString(instr.getExportCommonColHeaders()));
+ 	 			csvString.append(",").append(StringUtils.arrayToCommaDelimitedString(instr.getExportSummaryColHeaders()));
+	 	 		csvString.append("\n");
+	 	 		
+	 	 		firstRecord = false;
+			}
  			csvString.append(StringUtils.arrayToCommaDelimitedString(instr.getExportCommonData()));
  			csvString.append(",").append(StringUtils.arrayToCommaDelimitedString(instr.getExportSummaryData()));
 	 		csvString.append("\n");
