@@ -22,7 +22,7 @@
 
 <content tag="customActions">
 <%-- currently only ProjectInstruments supports exporting to a .csv file --%>
-<tags:eventButton buttonText="Export" action="download" component="${component}" pageName="${component}"/>
+<tags:eventButton buttonText="Export" action="export" component="${component}" pageName="${component}"/>
 <c:if test="${not empty currentPatient}">
 	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.assessment.instrument.instrument" eventId="instrument__add" component="${component}"/>
 </c:if>
