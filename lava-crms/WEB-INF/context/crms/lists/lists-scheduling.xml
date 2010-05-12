@@ -11,10 +11,12 @@
 	
 	<bean id="list.visit.patientProjectVisits" parent="list.dynamic">
 		<property name="query" value="list.visit.patientProjectVisits"/>
+		<property name="defaultSort" value="none"/>
 	</bean>
 	
 	<bean id="list.visit.patientVisits" parent="list.dynamic">
 		<property name="query" value="list.visit.patientVisits"/>
+		<property name="defaultSort" value="none"/>
 	</bean>
 	
 	<bean id="list.visit.visitTypes" parent="list.dynamic">
