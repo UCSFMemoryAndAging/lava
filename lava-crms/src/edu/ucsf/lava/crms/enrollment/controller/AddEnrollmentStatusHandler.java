@@ -13,6 +13,7 @@ import org.springframework.webflow.execution.RequestContext;
 import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
+import edu.ucsf.lava.crms.auth.CrmsAuthUtils;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 import edu.ucsf.lava.crms.people.model.AddPatientCommand;
@@ -39,7 +40,7 @@ public class AddEnrollmentStatusHandler extends CrmsEntityComponentHandler {
 			Map<String,String> projList = listManager.getDynamicList(CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request),
 					"enrollmentStatus.patientUnassignedProjects", "patientId",
 	                ((AddPatientCommand)((ComponentCommand)command).getComponents().get("addEnrollmentStatus")).getPatient().getId(), Long.class);
-			projList = filterProjectListByPermission(CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request),
+			projList = CrmsAuthUtils.filterProjectListByPermission(CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request),
 					CoreSessionUtils.getCurrentAction(sessionManager,request), projList);
 			if (projList.size() == 1) { // there will always be the blank entry, so list size 1 means empty list
 				CoreSessionUtils.addFormError(sessionManager,request, new String[]{"authorization.noEnrollmentProjects.command"}, null);
@@ -115,7 +116,7 @@ public class AddEnrollmentStatusHandler extends CrmsEntityComponentHandler {
 		Map<String,String> projList = listManager.getDynamicList(getCurrentUser(request),
 				"enrollmentStatus.patientUnassignedProjects", "patientId",
                 ((AddPatientCommand)((ComponentCommand)command).getComponents().get("addEnrollmentStatus")).getPatient().getId(), Long.class);
-		projList = filterProjectListByPermission(CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request),
+		projList = CrmsAuthUtils.filterProjectListByPermission(CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request),
 				CoreSessionUtils.getCurrentAction(sessionManager,request), projList);
 		dynamicLists.put("enrollmentStatus.patientUnassignedProjects", projList);
 	

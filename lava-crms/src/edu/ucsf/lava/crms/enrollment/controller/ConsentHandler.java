@@ -11,6 +11,7 @@ import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
+import edu.ucsf.lava.crms.auth.CrmsAuthUtils;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.enrollment.model.Consent;
 import edu.ucsf.lava.crms.people.model.Patient;
@@ -50,7 +51,7 @@ public class ConsentHandler extends CrmsEntityComponentHandler {
 
 		Map<String,String> projList = listManager.getDynamicList(getCurrentUser(request),
 				"enrollmentStatus.patientProjects", "patientId", CrmsSessionUtils.getCurrentPatient(sessionManager,request).getId(), Long.class);
-		projList = filterProjectListByPermission(CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request),
+		projList = CrmsAuthUtils.filterProjectListByPermission(CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request),
 				CoreSessionUtils.getCurrentAction(sessionManager,request), projList);
 		dynamicLists.put("enrollmentStatus.patientProjects", projList);
 

@@ -21,6 +21,7 @@ import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
+import edu.ucsf.lava.crms.auth.CrmsAuthUtils;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
@@ -72,7 +73,7 @@ public class VisitHandler extends CrmsEntityComponentHandler {
 		Map<String,String> projList = listManager.getDynamicList(getCurrentUser(request),
 				"enrollmentStatus.patientProjects",	"patientId", 
                 ((Visit)((ComponentCommand)command).getComponents().get("visit")).getPatient().getId(), Long.class);
-		projList = filterProjectListByPermission(getCurrentUser(request),
+		projList = CrmsAuthUtils.filterProjectListByPermission(getCurrentUser(request),
 				CoreSessionUtils.getCurrentAction(sessionManager,request), projList);
 		dynamicLists.put("enrollmentStatus.patientProjects", projList);
 		// if adding new visit, and there is no project specified yet, visit types list is empty and

@@ -39,29 +39,6 @@ public class CrmsEntityComponentHandler extends BaseEntityComponentHandler {
 	}
 
 
-	/**
-	 * filterProjectListByPermission
-	 * 
-	 * Views which contain lists of projects need to make sure that the list does not
-	 * contain a project for which the user does not have permission. The lists are filtered
-	 * for project access authorization in the dynamic list creation process, but have not 
-	 * been filtered for permission authorization. 
-	 * 
-	 * e.g. add consent view should only list those projects in which the user has
-	 *      permission to add consents
-	 * 
-	 * @return
-	 */
-	public Map<String,String> filterProjectListByPermission(AuthUser user, Action action,Map<String,String> projectList) {
-	
-		Map<String,String> filteredList = new LinkedHashMap<String,String>();
-		for (Entry<String,String> entry : projectList.entrySet()) {
-			if (entry.getKey().length() == 0 || authManager.isAuthorized(user, action, new CrmsAuthorizationContext(entry.getKey()))) {
-				filteredList.put(entry.getKey(), entry.getValue());
-			}
-		}
-		return filteredList;
-	}
 
 	
 	/**

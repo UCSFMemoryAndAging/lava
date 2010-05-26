@@ -14,6 +14,7 @@ import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
+import edu.ucsf.lava.crms.auth.CrmsAuthUtils;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.people.model.ContactLog;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
@@ -49,7 +50,7 @@ public class ContactLogHandler extends CrmsEntityComponentHandler {
 		//get list using project name
 		Map<String,String> projList = listManager.getDynamicList(getCurrentUser(request),
 				"context.projectList");
-		projList = filterProjectListByPermission(getCurrentUser(request),
+		projList = CrmsAuthUtils.filterProjectListByPermission(getCurrentUser(request),
 				CoreSessionUtils.getCurrentAction(sessionManager,request), projList);
 		dynamicLists.put("context.projectList", projList);
 		
