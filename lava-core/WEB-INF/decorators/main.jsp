@@ -29,7 +29,7 @@ uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
 <div id="header">
 
   <div id="logoMAC">
-    <a href="<tags:actionURL actionId="lava.defaultScope.home.${empty currentPatient ? 'defaultAction' : 'defaultPatientAction'}" idParam="${not empty currentPatient ? currentPatient.id : ''}"/>"><img src="images/local${pageContext.request.contextPath}${pageContext.request.contextPath}_logo.gif" alt=""  border="0"></a>
+    <a href="<tags:actionURL actionId="lava.defaultScope.home.${empty currentPatient ? 'defaultAction' : 'defaultPatientAction'}" idParam="${not empty currentPatient ? currentPatient.id : ''}"/>"><img src="images/local/${webappInstance}/${webappInstance}_logo.gif" alt=""  border="0"></a>
 
   </div>
 
