@@ -17,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.webflow.execution.repository.NoSuchFlowExecutionException;
 
 import edu.ucsf.lava.core.action.ActionManager;
+import edu.ucsf.lava.core.environment.EnvironmentManager;
 import edu.ucsf.lava.core.manager.CoreManagerUtils;
 import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.core.manager.ManagersAware;
@@ -35,6 +36,7 @@ public class CustomExceptionResolver implements HandlerExceptionResolver, Manage
         protected SessionManager sessionManager;
         protected ActionManager actionManager; 
         protected MetadataManager metadataManager;
+        protected EnvironmentManager environmentManager;
        
     
     private String getStackTrace(Throwable t)
@@ -95,6 +97,7 @@ public class CustomExceptionResolver implements HandlerExceptionResolver, Manage
 		 
 		 model.put("exceptionStackTrace", getStackTrace(ex));
 		  
+		 model.put("webappInstance", environmentManager.getInstanceName());
 		 // so that view will know whether there is a current patient and
 		 // tab/subtab links can resolve default actions to URLs
 		 model.put("actions",actionManager.getActionRegistry().getActions());
@@ -138,6 +141,7 @@ public class CustomExceptionResolver implements HandlerExceptionResolver, Manage
 			this.actionManager = CoreManagerUtils.getActionManager(managers);
 			this.sessionManager = CoreManagerUtils.getSessionManager(managers);
 			this.metadataManager = CoreManagerUtils.getMetadataManager(managers);
+			this.environmentManager = CoreManagerUtils.getEnvironmentManager(managers);
 		}
 		
 
