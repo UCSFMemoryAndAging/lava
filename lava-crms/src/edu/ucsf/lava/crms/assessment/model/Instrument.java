@@ -501,11 +501,20 @@ public class Instrument extends CrmsEntity {
 	 * type of instrument because of the user filtering that has been applied (in which case,
 	 * instrument specific functionality can be applied, e.g. if exporting the list).
 	 * 
-	 *  Subclasses should override this to make the determination.
+	 * A simple default implementation is provided which compares the user Filter instrType
+	 * to the instrType of the first instrument in the list. 
 	 * 
 	 */
 	public boolean isFilterInstrSpecific(String filterInstrType) {
-		return false;
+		// since startsWith is used, if this would result in two or more instrument types
+		// matching that can not be exported together then each of those instrument subclasses
+		// should override this method to be more specific
+		if (this.getInstrTypeEncoded().startsWith(filterInstrType.toLowerCase())) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	/**
@@ -517,7 +526,7 @@ public class Instrument extends CrmsEntity {
 	public String getExportListDefaultFilename() {
 		Date today = new Date();
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-		return new StringBuffer("instruments").append(dateFormat.format(today)).toString();
+		return new StringBuffer("instruments_").append(dateFormat.format(today)).toString();
 	}
 	
 	public String[] getExportCommonColHeaders() {
