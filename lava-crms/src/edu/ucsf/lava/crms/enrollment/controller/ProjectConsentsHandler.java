@@ -9,6 +9,7 @@ import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
+import edu.ucsf.lava.core.dao.LavaDateRangeParamHandler;
 import edu.ucsf.lava.crms.controller.CrmsListComponentHandler;
 import edu.ucsf.lava.crms.enrollment.model.Consent;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
@@ -27,6 +28,7 @@ public class ProjectConsentsHandler extends CrmsListComponentHandler {
 		LavaDaoFilter filter = Consent.newFilterInstance(getCurrentUser(request));
 		filter.addDefaultSort("patient.fullNameRevNoSuffix",true);
 		filter.setAlias("patient", "patient");
+		filter.addParamHandler(new LavaDateRangeParamHandler("consentDate"));
 		return CrmsSessionUtils.setFilterProjectContext(sessionManager,request,filter);
 	}
 	
