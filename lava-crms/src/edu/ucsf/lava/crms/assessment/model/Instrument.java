@@ -416,15 +416,14 @@ public class Instrument extends CrmsEntity {
 	public void updateAgeAtDC(){
 		if(getPatient()!=null){
 			Integer age = calcAge(getPatient().getBirthDate(),getDcDate());
-			if(age > getPatient().getAge()){
+			if((age != null) && (getPatient().getAge() != null) && (age > getPatient().getAge())){
 				age = getPatient().getAge();
 			}
 			setAgeAtDC((age==null)?null:age.shortValue());
 		}else{
 			setAgeAtDC(null);
 		}
-	}
-	
+	}	
 	/** clear
 	 * 
 	 *  Clear every field. Typically used to clear fields in a command object before the
