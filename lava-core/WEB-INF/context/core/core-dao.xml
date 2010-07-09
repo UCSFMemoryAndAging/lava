@@ -3,16 +3,7 @@
 
 <beans>
 
-	<bean id="propertyConfigurer" 
-      class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location">
-			<value>/WEB-INF/hibernate.properties</value>
-		</property>
-	</bean>
-	
-	
-	<!-- note: dataSource bean is in the instance specific dao config files -->
-	
+	<!-- note: the localDataSource bean is typically defined in the app config files -->
 
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
@@ -32,6 +23,13 @@
 	    	<ref bean="sessionFactoryHibernateProperties"/>
  		</property>
     	<property name="configurationClass"><value>edu.ucsf.lava.core.dao.hibernate.LavaConfiguration</value></property>
+    	<!-- Hibernate filter definitions must be loaded before entity mappings (note that the definitions are processed
+    		twice since they are also incl. in the mappingDirectory below, but does no harm) -->
+    	<property name="mappingLocations">
+    	  		<list>
+    	  			<value>WEB-INF/hibernate/crms/assessment/Filters.hbm.xml</value>
+    			</list>
+    	</property>
     	<property name="mappingDirectoryLocations">
     	  		<list>
     	  			<value>WEB-INF/hibernate/</value>
