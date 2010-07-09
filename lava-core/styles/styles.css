@@ -1532,6 +1532,7 @@ div.verticalSpace30 {
 
 /* use for a very small input box that just shows 1 characters, i.e. smaller than the HTML size="1" */
 input.onecharInput {
+	font-family: "Arial Black";
 	width: 1em;
 }
 
