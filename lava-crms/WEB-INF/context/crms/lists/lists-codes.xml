@@ -19,6 +19,20 @@
 	<bean id="list.ref.skipErrorCodesDecimal" parent="list.standardDecimal">
 		<property name="dbListName" value="SkipErrorCodes"/>
 	</bean>			
+
+	<bean id="list.ref.stdAndSkipErrorCodes" parent="list.standard">
+		<property name="staticReferenceLists"><list>
+			<ref bean="list.ref.stdErrorCodes"/>
+			<ref bean="list.ref.skipErrorCodes"/>
+		</list></property>
+	</bean>
+
+	<bean id="list.ref.stdAndSkipErrorCodesDecimal" parent="list.standardDecimal">
+		<property name="staticReferenceLists"><list>
+			<ref bean="list.ref.stdErrorCodesDecimal"/>
+			<ref bean="list.ref.skipErrorCodesDecimal"/>
+		</list></property>
+	</bean>			
 	
 	<bean id="list.ref.totalErrorCode" parent="list.dataOnly">
 		<property name="data"><list>
