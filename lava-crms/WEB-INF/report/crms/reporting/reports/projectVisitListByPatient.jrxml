@@ -44,7 +44,7 @@
 					 		 $X{IN, Project, authPatientAllUnitsProjectList} OR $X{IN, ProjUnitDesc, authPatientProjectAccessList})) 
 	                 ORDER BY ProjName, FullNameRev, VDateNoTime, VDate]]></queryString>
 
-	<field name="PIDN" class="java.lang.Long"/>
+	<field name="PIDN" class="java.lang.Integer"/>
 	<field name="FullNameRev" class="java.lang.String"/>
 	<field name="TransLanguage" class="java.lang.String"/>
 	<field name="Gender" class="java.lang.Byte"/>

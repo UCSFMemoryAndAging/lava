@@ -43,8 +43,8 @@
 	<field name="ProjUnitDesc" class="java.lang.String"/>
 	<field name="Project" class="java.lang.String"/>
 	<field name="FullNameRev" class="java.lang.String"/>
-	<field name="PIDN" class="java.lang.Long"/>
-	<field name="Age" class="java.lang.Integer"/>
+	<field name="PIDN" class="java.lang.Integer"/>
+	<field name="AGE" class="java.lang.Integer"/>
 	<field name="Gender" class="java.lang.Byte"/>
 	<field name="StatusDate" class="java.sql.Timestamp"/>
 	<field name="Status" class="java.lang.String"/>
@@ -334,7 +334,7 @@
 					<textElement>
 						<font/>
 					</textElement>
-				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{PIDN}]]></textFieldExpression>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$F{PIDN}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
 					<reportElement
@@ -349,7 +349,7 @@
 					<textElement>
 						<font/>
 					</textElement>
-				<textFieldExpression   class="java.lang.Integer"><![CDATA[$F{Age}]]></textFieldExpression>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$F{AGE}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
 					<reportElement
