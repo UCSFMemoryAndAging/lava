@@ -221,10 +221,20 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
     	String customSubFlowId = null;
     	String customSubFlow = null;
     	if(iterator.hasNext()){
+    		// what this is doing is that if the flow has a customizing flow, that customizing
+    		// flow will be given the opportunity to handle the flow, where handling the flow
+    		// means a) the customizing flow handler will be used, and b) the current action will
+    		// be set for the customizing flow which will in turn result in using the view (jsp)
+    		// corresponding to the customizing flow 
+    		// note: to handle the flow, the customizing flow handler must override and return the 
+    		// success event from preSetupFlowDirector and the continue event from postSetupFlowDirector
     		customSubFlowId = iterator.next();
     		customSubFlow = ActionUtils.getTarget(customSubFlowId) + "__" + getFlowEvent();
     		nextEventTransition = transition(on("continue"),to(customSubFlow));
     	}else{
+    		// if there is not a customizing flow, then all of the flowSetupState actions will
+    		// execute and postSetupFlowDirector will return the continue event resulting in
+    		// a transition to the initial view state for the flow
     		nextEventTransition = transition(on("continue"),to(getFlowEvent()));
     	}
     	
@@ -233,6 +243,17 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
     	// flow for this situation.
     	//Action States execute a series of Actions until a transition matches the event
     	//returned by the Action (i.e. invoke) or, until the list of Actions is exhausted
+    	
+    	// TODO: currently, even if a customizing flow will take effect, the following actions are
+    	// all executed for the base flow first, which is unnecessary. instead, a "hasCustomizingFlow" 
+    	// method could be the first method invoked and if it returns true then it should transition to that
+    	// customizing flow (i.e. to the subflow state for the customizing flow), skipping all of these actions. 
+    	// however, just because a customizing flow exists does not mean it will handle the flow in a given 
+    	// case, so if it does not, then these actions need to be executed for the base action in the case 
+    	// where no customizing flow handles it. 
+    	// since there are relatively few customizing flows, this was not done initially and the performance hit 
+    	// has not been large
+    	
     	addActionState("flowSetupState", null,
        			new Action[]{
        				// returns "success", "unhandled" or global transition event
@@ -313,9 +334,12 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
     	return transitions;
     }
     
-    // InstrumentListViewFlowBuilder overrides this since the instrument list has some differences
-    // from a standard list
     protected void buildSubFlowStates(){
+    	// this buildSubFlowStates method handles the "automated" building of subFlow states based on
+    	// action parent/child relationships defined for actions. but additional subFlow states which
+    	// are not reflected in those relationships may be needed, and so there may be subFlow states
+    	// beyond those created in this method, in the buildEventStates method of subclasses
+    	
     	for(String subFlowId : subFlowActionIds){
     		List<FlowInfo> subFlowInfoList = getSubFlowInfo(subFlowId); 
 				
@@ -339,7 +363,7 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
     	buildSubFlowReturnStates();
     }
     
-	// this implemenation covers the simple case where all of a flow's subflows return to the same 
+	// this implementation covers the simple case where all of a flow's subflows return to the same 
     // state and that state does a refresh and returns to the flowEvent state. otherwise, override.
     protected void buildSubFlowReturnStates() {
     	addActionState("subFlowReturnState", 
