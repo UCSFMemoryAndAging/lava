@@ -37,6 +37,7 @@ public class PatientHandler extends CrmsEntityComponentHandler {
 				setRequiredFields(new String[]{
 		 				"subjectId",
 		 				"birthDate",
+		 				"gender",
 		 				"deceased",
  						"dupNameFlag"});
 			}else{		
@@ -44,6 +45,7 @@ public class PatientHandler extends CrmsEntityComponentHandler {
 	 				"firstName",
 	 				"lastName",
 	 				"birthDate",
+	 				"gender",
 	 				"deceased",
 	 				"dupNameFlag"});
 			}

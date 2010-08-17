@@ -47,6 +47,7 @@ public class AddPatientHandler extends CrmsEntityComponentHandler {
 				setRequiredFields(new String[]{
 		 				"subjectId",
 		 				"patient.birthDate",
+		 				"patient.gender",
 		 				"enrollmentStatus.projName",
 		 				"status",
 		 				"statusDate"});
@@ -55,6 +56,7 @@ public class AddPatientHandler extends CrmsEntityComponentHandler {
 	 				"patient.firstName",
 	 				"patient.lastName",
 	 				"patient.birthDate",
+	 				"patient.gender",
 	 				"enrollmentStatus.projName",
 	 				"status",
 	 				"statusDate"});
