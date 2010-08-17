@@ -61,7 +61,7 @@
     <!-- Creates the registry of Java-based flow definitions for this application -->
 	<bean id="flowRegistry" class="edu.ucsf.lava.core.webflow.FlowRegistryFactoryBean" depends-on="webflowManager,actionManager"/> 
 
-        
+    <bean id="coreHomeFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.HomeFlowTypeBuilder"/>
     <bean id="coreEntityFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.EntityFlowTypeBuilder"/>
     <bean id="coreListFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.ListFlowTypeBuilder"/>
   	<bean id="coreReportFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.ReportFlowTypeBuilder"/>
