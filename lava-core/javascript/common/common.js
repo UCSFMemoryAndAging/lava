@@ -94,8 +94,8 @@ function onlyNumsAllowed(e) {
 	{
 		iKeyCode = e.which;
 	}
-	/* accept numeric '0' thru '9'(ASCII keycodes 48 thru 57) or backspace(8), or '.' for decimals (46) */
-	if( iKeyCode > 47 && iKeyCode < 58 || iKeyCode == 8 || iKeyCode == 46 || iKeyCode == undefined ) return;
+	/* accept numeric '0' thru '9'(ASCII keycodes 48 thru 57) or backspace(8), or '.' for decimals (46) or negative (45) */
+	if( iKeyCode > 47 && iKeyCode < 58 || iKeyCode == 8 || iKeyCode == 46 || iKeyCode == 45 || iKeyCode == undefined ) return;
 	else
 		if (window.event)
 			window.event.returnValue = null;
