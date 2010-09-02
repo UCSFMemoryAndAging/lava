@@ -72,14 +72,19 @@
 </c:if>
 
 <%-- set focus --%>
+<c:set var="focusField">
+  <decorator:getProperty property="focusField"/>
+</c:set>
 <c:if test="${not empty focusField}">
-  <%-- prepend to the focusField to get the HTML field id, as constructed in createField, but note that
+  <%-- prepend to the focusField to get the HTML field id (not field name), as constructed in createField, but note that
   the setFocus method does additional prefixing in case the field is an autocomplete field --%> 
   <c:set var="focusField">
     ${not isInstrument ? component : (componentView == 'doubleEnter' ? 'compareInstrument' : 'instrument')}_<decorator:getProperty property="focusField"/>
   </c:set>
 </c:if>
 <script type="text/javascript">
+//appendEventHandler is the uitags method to chain an onload event handler with uitags onload event handlers
+
 // if the URL contains an anchor fragment to position the page, then this takes precedence, i.e. ignore
 // the value of focusField, and use the name of the fragment as the field id, i.e. this requires that the
 // fragment passed to eventButton, eventAction, etc. tags is the id of the field for the browser to 
@@ -87,8 +92,6 @@
 // note: the reason that use of a fragment takes precedence over setting the focus field to the one passed
 // to the decorator is that setting the focus to that field would then re-position the page from the fragment
 // to the focus field, thereby rendering useless the effect of the fragment 
-
-// appendEventHandler is the uitags method to chain an onload event handler with uitags onload event handlers
 if (window.location.hash != null && window.location.hash != '') {
   uiHtml_Window.getInstance().appendEventHandler("load", function(e) {setFocus(window.location.hash.substring(1))});
 }
