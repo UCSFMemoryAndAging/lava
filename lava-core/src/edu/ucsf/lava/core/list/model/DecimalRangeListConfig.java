@@ -126,7 +126,7 @@ public class DecimalRangeListConfig extends BaseListConfig {
 		DecimalFormat decimalFormat = new DecimalFormat("#0.0");
         int orderIndex = 0;
 		
-        for(float i = minValue.floatValue(); i < maxValue.floatValue();){
+        for(float i = minValue.floatValue(); i <= maxValue.floatValue() + 0.01f;){
 			String value = decimalFormat.format(i);
 			results.add(new LabelValueBean(value,value,Integer.valueOf(orderIndex++)));
 			i = i + 0.1f;
