@@ -123,8 +123,7 @@ public class DecimalRangeListConfig extends BaseListConfig {
 		
 		
 		List<LabelValueBean> results = new ArrayList<LabelValueBean>(resultSize < 0 ? 0 : resultSize);
-		
-		DecimalFormat decimalFormat = new DecimalFormat("#0.0,-#0.0");
+		DecimalFormat decimalFormat = new DecimalFormat("#0.0");
         int orderIndex = 0;
 		
         for(float i = minValue.floatValue(); i < maxValue.floatValue();){
