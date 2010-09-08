@@ -17,7 +17,7 @@ initialProject was set --%>
 </c:choose>
 <%-- but if user just set the Initial Project, want focus set to Initial Status --%>
 <c:if test="${flowEvent == 'addPatient__reRender'}">
-	<c:if test="${not empty command.components[component].projName}">
+	<c:if test="${not empty command.components[component].enrollmentStatus.projName}">
 		<c:set var="focusField" value="status"/>
 	</c:if>
 </c:if>		
