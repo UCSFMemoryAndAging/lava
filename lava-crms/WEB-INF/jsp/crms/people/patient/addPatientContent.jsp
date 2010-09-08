@@ -23,9 +23,11 @@
 				<tags:createField property="subjectId" component="${component}"/>
 			</c:otherwise>
 		</c:choose>
-		<tags:createField property="patient.gender" component="${component}" metadataName="patient.gender"/>
+		<%-- note that for nested fields, the '.' must be encoded as an '_' because the metadata
+			 can not handle a '.' within the name, so e.g. entity="addPatient", property="patient_gender" --%>
+		<tags:createField property="patient.gender" component="${component}"/>
 		<tags:createField property="patient.birthDate" component="${component}"/>
-		<tags:createField property="patient.hand" component="${component}" metadataName="patient.hand"/>
+		<tags:createField property="patient.hand" component="${component}"/>
 </tags:contentColumn>
 <tags:contentColumn columnClass="colRight2Col5050">
 	<tags:createField property="enrollmentStatus.projName" component="${component}"/>
