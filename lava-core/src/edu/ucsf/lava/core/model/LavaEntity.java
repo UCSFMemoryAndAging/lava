@@ -17,10 +17,11 @@ public interface LavaEntity extends Serializable {
 	public static Long DATA_CODES_UNUSED = new Long(-8);
 	public static Long DATA_CODES_MISSING = new Long(-9);
 	
-	
-
-	
-	
+	public static Float DATA_CODES_CANNOT_TOTAL_FLOAT = new Float(-5.0);
+	public static Float DATA_CODES_LOGICAL_SKIP_FLOAT = new Float(-6.0);
+	public static Float DATA_CODES_INCOMPLETE_FLOAT = new Float(-7.0);
+	public static Float DATA_CODES_UNUSED_FLOAT = new Float(-8.0);
+	public static Float DATA_CODES_MISSING_FLOAT = new Float(-9.0);
 	
 	//identity methods
 	public Long getId();

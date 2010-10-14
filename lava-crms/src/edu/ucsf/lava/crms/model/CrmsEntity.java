@@ -12,6 +12,9 @@ public class CrmsEntity extends EntityBase {
 	public static Long DATA_CODES_PATIENT_FACTOR = new Long(-1);
 	public static Long DATA_CODES_SITUATIONAL_FACTOR = new Long(-2);
 	public static Long DATA_CODES_ALTERNATE_TEST_GIVEN = new Long(-3);
+	public static Float DATA_CODES_PATIENT_FACTOR_FLOAT = new Float(-1.0);
+	public static Float DATA_CODES_SITUATIONAL_FACTOR_FLOAT = new Float(-2.0);
+	public static Float DATA_CODES_ALTERNATE_TEST_GIVEN_FLOAT = new Float(-3.0);
 	protected boolean patientAuth;
 	protected boolean projectAuth;
 	
