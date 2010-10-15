@@ -13,6 +13,7 @@ import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.springframework.dao.DataAccessException;
 
 import edu.ucsf.lava.core.action.ActionManager;
+import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.action.model.Action;
 import edu.ucsf.lava.core.auth.model.AuthPermission;
 import edu.ucsf.lava.core.auth.model.AuthUser;
@@ -88,6 +89,26 @@ public class AuthManager extends LavaManager implements UserDetailsService {
 		return delegate.isAuthorized(rolePermissionCache, user, action, entity);
 	}
 
+	/**
+	 * Method to authorize on action and entity, but to allow a different mode
+	 * to be substituted for the action mode. This facilitates finer granularity  of 
+	 * permissions than flow granularity, where action and mode are constant for the lifetime
+	 * of the flow --- so events within the flow can be substituted for the mode and
+	 * permissions can then be configured at the event level.
+	 * See BaseEntityComponentHandler authCustomEvent.
+	 * 
+	 * @param user
+	 * @param action
+	 * @param mode
+	 * @param entity
+	 * @return
+	 */
+	public boolean isAuthorized(AuthUser user, Action action, String mode, LavaEntity entity) {
+		// modify the action's mode, replacing it with the mode supplied by the caller
+		action.setParam(ActionUtils.MODE_PARAMETER_NAME, mode);
+		return this.isAuthorized(user, action, entity);
+	}
+	
 	public boolean isAuthorized(AuthUser user, Action action, ScrollablePagedListHolder list) {
 		//get the authorization delegate that handles the action's scope.
 		ScopeAuthorizationDelegate delegate = scopeManager.getAuthorizationDelegate(action);
@@ -96,8 +117,6 @@ public class AuthManager extends LavaManager implements UserDetailsService {
 		return delegate.isAuthorized(rolePermissionCache, user, action, list);
 	}
 
-	
-	
 	public synchronized AuthRolePermissionCache  getRolePermissionCache() {
 		return rolePermissionCache;
 	}
