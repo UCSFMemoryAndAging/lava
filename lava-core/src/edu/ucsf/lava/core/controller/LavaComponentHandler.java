@@ -79,7 +79,8 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 	protected static final String COMPONENT_COMMAND_SUFFIX = "]";
 	
     protected static final String COMMAND_AUTHORIZATION_ERROR_CODE = "authorization.command";
-	
+    protected static final String COMMAND_EVENT_AUTHORIZATION_ERROR_CODE = "authorization.event.command";
+    
 	protected String defaultMode = "vw";
 	protected String defaultView = "view";
 	
