@@ -52,12 +52,13 @@ public class CalculateController extends AbstractController {
 	// https://mac.ucsf.edu/mac/crms/assessment/instrument/calc.lava?instrIdsArray=[12345,12346,12347,12348]
 	// https://mac.ucsf.edu/mac/crms/assessment/instrument/calc.lava?instrIdsArray=[12345] (for a single record)
 	
-	// for JBoss, this should only be invoked after changing the transaction propagation behavior to PROPAGATION_REQUIRES_NEW
-	// see below for more info
-	
-	// this could be run on a development instance pointing at a production database server.
-	// if so, change the JBoss database server configuration, and REMEMBER TO CHANGE IT BACK
-	// after you are done 
+	// if the calculations are resulting in a database transaction timeout (e.g. if the instrument is a computer
+	// based testing instrument with master/detail structure and many details rows), change the transaction propagation 
+	// behavior to PROPAGATION_REQUIRES_NEW (see below for more info). since do not want to change the transaction
+	// behavior on production, run the app in development but pointing at a production database server, but REMEMBER
+	// TO CHANGE IT BACK TO the development database when done
+	// UPDATE: appears that the transaction timeouts only occurred when using JBoss and JTA transactions,
+	// so probably will never have to do this with Tomcat using Hibernate transactions
 	
 	// NOTE: MacDiagnosis has its own CalculateController. See MacDiagnosisCalculateController.java
 	
