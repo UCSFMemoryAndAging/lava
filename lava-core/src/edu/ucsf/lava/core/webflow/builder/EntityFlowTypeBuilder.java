@@ -7,15 +7,20 @@ import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
 
 public class EntityFlowTypeBuilder extends BaseFlowTypeBuilder {
+	// the events array is used by the authorization system to build a permissions cache
+	// (on application deployment) based on action/event 
+	
+	// NOTE: it is not clear as to whether all of the custom events should be subject to authorization, but do so for now.
+	// there are no flows built for the custom events, but they are listed here so that they are subject to 
+	// authorization. custom events are events that take place within a given flow. since authorization is
+	// enforced with flow granularity, the handler authCustomEvent method allows overriding this and enforcing
+	// authorization for a given event within the flow
+	public static final String[] ENTITY_EVENTS = new String[]{"view","edit","delete","add","download","upload",
+		"custom","custom2","custom3","custom4","custom5"};
 
 	public EntityFlowTypeBuilder() {
 		super("entity");
-		setEvents(new String[]{
-				"view",
-				"edit",
-				"delete",
-				"add",
-				"download"});
+		setEvents(ENTITY_EVENTS);
 		setDefaultFlowMode("view");
 	}
 
