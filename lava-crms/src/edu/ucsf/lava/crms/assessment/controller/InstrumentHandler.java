@@ -3,12 +3,12 @@ package edu.ucsf.lava.crms.assessment.controller;
 import static edu.ucsf.lava.crms.assessment.controller.InstrumentComponentFormAction.COMPARE_INSTRUMENT;
 import static edu.ucsf.lava.crms.assessment.controller.InstrumentComponentFormAction.INSTRUMENT;
 import static edu.ucsf.lava.crms.session.CrmsSessionUtils.INSTRUMENT_CODES_DISPLAY_PREF;
+import static edu.ucsf.lava.crms.webflow.builder.InstrumentFlowTypeBuilder.INSTRUMENT_EVENTS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,21 +30,15 @@ import edu.ucsf.lava.core.action.model.Action;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
-import edu.ucsf.lava.core.manager.CoreManagerUtils;
-import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
-import edu.ucsf.lava.crms.assessment.InstrumentDefinitions;
-import edu.ucsf.lava.crms.assessment.InstrumentManager;
 import edu.ucsf.lava.crms.assessment.controller.upload.FileLoader;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentConfig;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
-import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
-
 
 public class InstrumentHandler extends CrmsEntityComponentHandler {
 
@@ -62,7 +56,6 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
     protected static final String COMMAND_DOUBLE_ENTER_MATCH_INFO_CODE = "info.doubleEnterMatch.command";
     protected static final String INCOMPLETE_MISSING_DATA_CODE = "-7"; 
     public static final String INSTRUMENT_DETAILS = "instrumentDetails";
-	HashSet<String> instrEditEvents = new HashSet<String>(Arrays.asList("enter", "enterReview", "collect", "upload"));
 	
 	public static final String ANY_PROJECT_KEY="ANY";
 	public static final String ANY_INSTRUMENT_KEY="ANY";
@@ -81,6 +74,8 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		// set events for which required field validation should be done
 		requiredFieldEvents = new ArrayList(Arrays.asList(new String[]{"applyAdd", "saveAdd", "confirmChangeVersion",
 				"collectSave", "enterSave", "enterVerify", "doubleEnterSave", "statusSave"}));
+
+		authEvents = new ArrayList(Arrays.asList(INSTRUMENT_EVENTS));
 		
 		this.setPrimaryComponentContext(CrmsSessionUtils.CURRENT_INSTRUMENT);
 	}
@@ -198,26 +193,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		}
 	}
 	
-	// override to funnel various instrument editing flows into the "edit" event for the purpose
-	// of checking permissions
-	public boolean isAuthEvent(RequestContext context) {
-		// in this case, event refers to the action or flow mode, where for actions, the
-		// mode is stored within the Action, and for flow's the mode is the final part of the flow id 
-		String event = ActionUtils.getFlowMode(context.getActiveFlow().getId());
-		
-		if (instrEditEvents.contains(event)) {
-			event = "edit";
-		}
-		
-		for (String authEvent: authEvents){
-			if (event.equals(authEvent)){
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	
+
 	public Map getBackingObjects(RequestContext context, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		Class instrClass = null;
