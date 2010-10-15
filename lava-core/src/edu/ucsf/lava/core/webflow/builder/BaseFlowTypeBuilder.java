@@ -15,6 +15,7 @@ import edu.ucsf.lava.core.action.model.Action;
 abstract public class BaseFlowTypeBuilder implements FlowTypeBuilder {
 
 	private String type;
+	// events are used by the AuthRolePermissionCache when caching the permissions for every action
 	private String[] events;
 	private String defaultFlowMode;
 	
