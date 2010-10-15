@@ -1,5 +1,7 @@
 package edu.ucsf.lava.core.controller;
 
+import static edu.ucsf.lava.core.webflow.builder.EntityFlowTypeBuilder.ENTITY_EVENTS;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,7 +51,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 			defaultEvents.add("uploadFile");
 		}
 		
-		authEvents = new ArrayList(Arrays.asList(new String[]{"view","edit","add","delete"}));
+		authEvents = new ArrayList(Arrays.asList(ENTITY_EVENTS));
 	}
 	
 	/*
@@ -86,10 +88,11 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		// check whether the flow 
 		if (isAuthEvent(context)) {
 			if (!authManager.isAuthorized(user,action,(LavaEntity)entity)) {
+				String event = ActionUtils.getFlowMode(context.getActiveFlow().getId()); 
 				if (context.getFlowExecutionContext().getActiveSession().isRoot()) {
-					throw new RuntimeException(this.getMessage(COMMAND_AUTHORIZATION_ERROR_CODE));
+					throw new RuntimeException(this.getMessage(COMMAND_EVENT_AUTHORIZATION_ERROR_CODE, new Object[]{event}));
 				}else{
-					CoreSessionUtils.addFormError(sessionManager, request, new String[]{COMMAND_AUTHORIZATION_ERROR_CODE}, null);
+					CoreSessionUtils.addFormError(sessionManager, request, new String[]{COMMAND_EVENT_AUTHORIZATION_ERROR_CODE}, new Object[]{event});
 					return new Event(this,this.UNAUTHORIZED_FLOW_EVENT_ID);
 				}
 			}
@@ -97,6 +100,51 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		
 		return new Event(this,this.SUCCESS_FLOW_EVENT_ID);
 	}
+	
+	/**
+	 * Because the granularity for "built-in" authorization is at the level of the flow, operations
+	 * that should be governed by authorization that are performed within a given flow are not
+	 * automatically authorized through the existing infrastructure. Furthermore, because the 
+	 * action and mode (event) are constant within the life of a given flow, any such operations
+	 * can not be subject to authorization based upon the current action. Therefore, this method
+	 * allows for manually authorizing a given event, where the event itself is used in place
+	 * of the mode for the authorization.
+	 * 
+	 * e.g. lava.assessment.instrument.neuroimaging.view has a number of custom events that should
+	 * be subject to authorization, such as "custom", "custom2", etc.  
+	 * since module="assessment", section="instrument", target="neuroimaging", mode="view" is 
+	 * authorized via the infrastructure (when entering the "view" flow), this action can not
+	 * be used to authorize each custom event. so instead, the event "custom" is substituted
+	 * and replaced "view" as the value of mode. thus, to set up permissions for the "custom"
+	 * operation, the mode in the permissions table should be set to "custom"
+	 *  
+	 * @param context
+	 * @param command
+	 * @param event this is typically the actual event submitted to the flow, which can be obtained
+	 *              via ActionUtils.getEventName(context), but it is left to the caller to supply
+	 *              in case that is not the name of the event/mode that should be authorized 
+	 * @param eventDescrip since the events "custom", "custom2", etc. are not descriptive, this name
+	 *                     describes the event for the purposes of the authorization failure message
+	 * @return
+	 */
+	protected Event authCustomEvent(RequestContext context, Object command, String event, String eventDescrip) {
+		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
+		Object entity = getEntityForAuthorizationCheck(context, command);
+		Action action = CoreSessionUtils.getCurrentAction(sessionManager, request);
+		AuthUser user = CoreSessionUtils.getCurrentUser(sessionManager, request);
+		
+		// obtain the event name as this is what will be used as the mode in the authorization
+		// check
+		if (!authManager.isAuthorized(user,action,event, (LavaEntity) entity)) {
+			// know where we are so know we can display the auth failure via returning the auth failure event
+			CoreSessionUtils.addFormError(sessionManager, request, new String[]{COMMAND_EVENT_AUTHORIZATION_ERROR_CODE}, new Object[]{eventDescrip});
+			return new Event(this,this.UNAUTHORIZED_FLOW_EVENT_ID);
+		}
+		else {
+			return new Event(this, this.SUCCESS_FLOW_EVENT_ID);
+		}
+	}
+	
 	
 	public Event initMostRecentViewState(RequestContext context) throws Exception {
 		// the most recent view state is used when a view state transitions to a subflow which is 
