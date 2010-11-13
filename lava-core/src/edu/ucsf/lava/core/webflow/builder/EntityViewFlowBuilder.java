@@ -56,6 +56,9 @@ class EntityViewFlowBuilder extends BaseFlowBuilder {
     
         // support a list secondary component for nav events only, since just a reference list
         viewTransitions.add(buildListNavigationTransitions(getFlowEvent()));
+        
+        // custom event support
+        viewTransitions.addAll(this.buildCustomEventTransitions(this.objectName));
     	
     	addViewState(getFlowEvent(), 
     			null, formAction.getCustomViewSelector(),

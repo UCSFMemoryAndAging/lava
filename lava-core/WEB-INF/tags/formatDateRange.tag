@@ -1,8 +1,6 @@
 <%@ include file="/WEB-INF/tags/tags-include.jsp" %>
 
-<%-- formatDateRange
-
---%>
+<%-- formatDateRange --%>
 
 <%@ attribute name="range" required="true" 
               description="the range, i.e. Day, Week, Month" %>
@@ -33,4 +31,3 @@
     	<fmt:formatDate value="${beginDate}" pattern="MMMM yyyy"/>
     </c:when>
 </c:choose>        		
-	

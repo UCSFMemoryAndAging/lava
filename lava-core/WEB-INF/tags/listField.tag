@@ -41,11 +41,11 @@
 	                'inputData' or 'inputDataNumeric' or 'readonlyData' or 'readonlyDataNumeric' style
 	                (assuming that the specificity of the rules in the stylesheet are the same)"%>
 
+
 <c:set var="escapedProperty"><tags:escapeProperty property="${property}"/></c:set>
 <c:if test="${empty metadataName}">
 	<c:set var="metadataName" value="${empty entityType ? '':entityType}${empty entityType?'':'.'}${escapedProperty}"/>
 </c:if>
-	
 
 <tags:createField property="pageList[${listIndex}].entity.${property}" component="${component}" entityType="${empty entityType?'':entityType}" 
 		metadataName="${metadataName}" mode="${empty mode  ? '':mode}" fieldStyle="${empty fieldStyle ?'':fieldStyle}" labelAlignment="${empty labelAlignment ?'':labelAlignment}" 

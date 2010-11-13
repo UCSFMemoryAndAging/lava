@@ -1,10 +1,11 @@
 package edu.ucsf.lava.core.calendar.model;
 
 
+import java.lang.reflect.Array;
+import java.sql.Time;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-
 import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.calendar.CalendarDaoUtils;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
@@ -12,28 +13,36 @@ import edu.ucsf.lava.core.model.CoreEntity;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
 import edu.ucsf.lava.core.type.DateRange;
+import edu.ucsf.lava.core.type.LavaDateUtils;
+
 
 public class Calendar extends CoreEntity {
 	public static EntityManager MANAGER = new Calendar.Manager();
 	public static String CALENDAR_TYPE = "Calendar";
+	public static Time DEFAULT_WORK_BEGIN_TIME = LavaDateUtils.getTime("09:00:00");
+	public static Time DEFAULT_WORK_END_TIME = LavaDateUtils.getTime("17:00:00");
 	
-	
-	public Calendar(){
+	public Calendar() throws Exception{
 		super();
 		setType(CALENDAR_TYPE);
+		this.workBeginTime = DEFAULT_WORK_BEGIN_TIME;
+		this.workEndTime = DEFAULT_WORK_END_TIME;
 	}
 	
 	protected String name;
 	protected String type;
 	protected String description;
 	protected String notes;
+	protected Time workBeginTime;
+	protected Time workEndTime;
+	protected String workDays;
+	
 	public String getDescription() {
 		return description;
 	}
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
 	
 	public String getName() {
 		return name;
@@ -48,14 +57,35 @@ public class Calendar extends CoreEntity {
 		this.notes = notes;
 	}
 	
-	
-	
 	public String getType() {
 		return type;
 	}
 	public void setType(String type) {
 		this.type = type;
 	}
+	
+	public String getWorkDays() {
+		return workDays;
+	}
+	public void setWorkDays(String workDays) {
+		this.workDays = workDays;
+	}
+	public Time getWorkBeginTime() {
+		return workBeginTime;
+	}
+	
+	public void setWorkBeginTime(Time workBeginTime) {
+		this.workBeginTime = workBeginTime;
+	}
+	
+	public Time getWorkEndTime() {
+		return workEndTime;
+	}
+	
+	public void setWorkEndTime(Time workEndTime) {
+		this.workEndTime = workEndTime;
+	}
+		
 	/**
 	 * Get all appointments for this calendar
 	 * @return
@@ -74,6 +104,7 @@ public class Calendar extends CoreEntity {
 		if(appointment.getId()!=null && appointment.getId() > 0 ){
 			filter.addDaoParam(filter.daoNot(filter.daoEqualityParam("id",appointment.getId())));
 		}
+
 		return getAppointments(null,appointment.getDateRange(),filter);
 	}
 
@@ -121,6 +152,12 @@ public class Calendar extends CoreEntity {
 		if(range!=null && range.hasRange()){
 			filter.addDaoParam(CalendarDaoUtils.getDateRangeOverlapParam(range,filter));
 		}
+		
+		// exclude canceled appointments by default
+		if (!filter.getParams().containsKey("status")){
+			filter.addDaoParam(filter.daoNot(filter.daoEqualityParam("status", Appointment.STATUS_CANCELED)));
+		}
+		
 		return Appointment.MANAGER.get(filter);
 	}
 	
@@ -130,8 +167,7 @@ public class Calendar extends CoreEntity {
 			super(Calendar.class);
 		}
 		
-		
+	}
 
-	}	
-	
+
 }

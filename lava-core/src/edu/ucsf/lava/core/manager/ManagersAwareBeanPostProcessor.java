@@ -7,7 +7,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * bean using an observer pattern.  This post processor is designed to make 
  * the spring configuration as simple as possible, in that there is no need
  * to inject the managers bean as a property on ManagersAware beans and there
- * is no assumption about precidence of bean loading.  
+ * is no assumption about precedence of bean loading.  
  * 
  * 
  * @author jhesse

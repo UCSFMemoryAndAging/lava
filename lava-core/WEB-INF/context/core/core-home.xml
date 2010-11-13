@@ -7,24 +7,41 @@
 <!-- actions -->
 
 
-	<bean id="lava.core.home.prefs.changePassword" parent="corePasswordFlowAction">
+	<bean id="lava.core.home.user.changePassword" parent="corePasswordFlowAction">
 		<property name="parentFlows"><list>
-  			<value>lava.core.home.prefs.userPreferences</value>
+  			<value>lava.core.home.user.userInfo</value>
   		</list></property>
   	</bean>
-	<bean id="lava.core.home.prefs.userPreferences" parent="coreEntityFlowAction">
+  	
+  	<bean id="lava.core.home.user.userInfo" parent="coreEntityFlowAction">
+  		<property name="sectionDefault" value="true"/>
+  	</bean>
+  	
+	<bean id="lava.core.home.prefs.userPreferences" parent="coreListFlowAction">
+		<property name="subFlows"><list>
+  			<value>lava.core.home.prefs.preference</value>
+  		</list></property>
 		<property name="sectionDefault" value="true"/>
 	</bean>
+	
+	<bean id="lava.core.home.prefs.preference" parent="coreEntityFlowAction"/>
+	
 <!--  form action definitions  -->
 
+ 	<bean id="userInfoFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.home.controller.UserInfoHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+   	
  	<bean id="changePasswordFormAction" parent="coreComponentFormAction"><constructor-arg><list>
    		<bean class="edu.ucsf.lava.core.home.controller.ChangePasswordHandler" parent="coreHandler"/>
    	</list></constructor-arg></bean>
-	
 
- 	<bean id="userPreferencesFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+ 	<bean id="userPreferencesFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
    		<bean class="edu.ucsf.lava.core.home.controller.UserPreferencesHandler" parent="coreHandler"/>
    	</list></constructor-arg></bean>
 			 
-
+ 	<bean id="preferenceFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.core.home.controller.PreferenceHandler" parent="coreHandler"/>
+   	</list></constructor-arg></bean>
+   	
 </beans>

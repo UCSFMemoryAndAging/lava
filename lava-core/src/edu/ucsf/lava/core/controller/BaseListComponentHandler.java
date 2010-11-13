@@ -46,7 +46,8 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 		super();
 		this.setDefaultMode("lv");
 		defaultEvents = new ArrayList(Arrays.asList(new String[]{"applyFilter","clearFilter","toggleFilter","clearSort","prevPage","nextPage",
-				"recordNav","pageSize","refresh","refreshReturnToPage","close","export"}));
+				"recordNav","pageSize","refresh","refreshReturnToPage","close","export",
+				"custom","custom2","custom3","customEnd","customEnd2","customEnd3"}));
 		authEvents = new ArrayList(); // none of the list events require explicit permission
 	}
 

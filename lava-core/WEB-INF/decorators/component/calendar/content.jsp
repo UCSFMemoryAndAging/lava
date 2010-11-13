@@ -1,6 +1,5 @@
 <%@ include file="/WEB-INF/jsp/includes/include.jsp" %>
 
-
 <%--javascript file includes JSP so must include it on the server side so
     it will be processed, rather than using standard technique for including
     external javascript (specifying src= ) --%>
@@ -21,39 +20,50 @@
 <c:set var="listTitle">
   <decorator:getProperty property="listTitle"/>
 </c:set>
-<%-- get field name used for the calendar control if specified then calendar formatting is applied --%> 
-<c:set var="calendarField">
-  <decorator:getProperty property="calendarField"/>
-</c:set>	
-
 <c:set var="widthClass">
   <decorator:getProperty property="widthClass"/>
 </c:set>
 <c:if test="${empty widthClass}">
 	<c:set var="widthClass" value="normal"/>
 </c:if>
+<c:set var="dayActionId">
+  	<decorator:getProperty property="dayActionId"/>
+</c:set>
+<c:set var="dayEventId">
+  	<decorator:getProperty property="dayEventId"/>
+</c:set>
+<c:set var="timeActionId">
+  	<decorator:getProperty property="timeActionId"/>
+</c:set>
+<c:set var="timeEventId">
+  	<decorator:getProperty property="timeEventId"/>
+</c:set>
+<c:set var="calendarDateField">
+  	<decorator:getProperty property="calendarDateField"/>
+</c:set>	
 
-<c:if test="${not empty calendarField}">
+<c:if test="${not empty calendarDateField}">
+
+	<c:set var="calendarDateStartField">
+	  ${calendarDateField}Start
+	</c:set>	
+	<c:set var="calendarDateEndField">
+	  ${calendarDateField}End
+	</c:set>
 	
-	<c:set var="calendarDateStart">
-	  ${calendarField}Start
+	<c:set var="calendarDateRange">
+  	<decorator:getProperty property="calendarDateRange"/>
 	</c:set>	
-	<c:set var="calendarDateEnd">
-	  ${calendarField}End
+	
+	<c:set var="dayLength">
+  	<decorator:getProperty property="dayLength"/>
 	</c:set>	
-
-	<c:set var="displayRange">
-		${command.components[component].filter.params['displayRange']}
-	</c:set>
-	<c:set var="showDayLength">
-		${command.components[component].filter.params['showDayLength']}
-	</c:set>
 	
 	<c:set var="displayRangeDesc">
-	  <tags:formatDateRange range="${displayRange}" beginDate="${displayRange=='All' ? null : command.components[component].filter.params[calendarDateStart]}" endDate="${displayRange=='All' ? null : command.components[component].filter.params[calendarDateEnd]}"/>
+	<tags:formatDateRange range="${calendarDateRange}" beginDate="${calendarDateRange=='All' ? null : command.components[component].filter.params[calendarDateStartField]}" endDate="${calendarDateRange=='All' ? null : command.components[component].filter.params[calendarDateEndField]}"/>
 	</c:set>  
-</c:if> <%--CalendarField defined--%>
 
+</c:if>
 
 <c:if test="${not empty listTitle}">
 <div class="listControlBar">
@@ -115,12 +125,13 @@ ${customActions}
 
 <c:set var="appointments"> 
 	<decorator:getProperty property="page.appointments"/>
-</c:set>	
+</c:set>
 
-<tags:calendar component="${component}" pageName="${pageName}" description="${displayRangeDesc}" range="${displayRange}" dayLength="${showDayLength}">
-	${appointments}
-</tags:calendar>
-
+<c:if test="${not empty calendarDateField}">
+	<tags:calendar component="${component}" calendar="${command.components['calendar']}" pageName="${pageName}" description="${displayRangeDesc}" calendarDateRange="${calendarDateRange}" calendarDateStart="${command.components[component].filter.params[calendarDateStartField]}" dayLength="${dayLength}" dayActionId="${dayActionId}" dayEventId="${dayEventId}" timeActionId="${timeActionId}" timeEventId="${timeEventId}">
+		${appointments}
+	</tags:calendar>
+</c:if>
 
 
 <div class="listControlBar">

@@ -4,8 +4,11 @@ package edu.ucsf.lava.core.type;
 import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Utility class for dealing with ascending date ranges 
@@ -16,7 +19,7 @@ import java.util.Date;
  * @author jhesse
  *
  */
-public class DateRange {
+public class DateRange implements Comparable<DateRange> {
 	
 	
 	protected Date start;
@@ -168,23 +171,13 @@ public class DateRange {
 	public boolean isWithinOneDay(){
 		if (!hasRange()){return false;}
 		
-		Date midnight = getMidnightOfDate(getStart());
+		Date midnight = LavaDateUtils.getMidnightOfDate(getStart());
 		if(getEnd().before(midnight) || getEnd().equals(midnight)){
 			return true;
 		}
 		return false;
 	}
 	
-	
-	public static Date getMidnightOfDate(Date date){
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		calendar.add(Calendar.DAY_OF_MONTH,1);
-		calendar.set(Calendar.HOUR_OF_DAY,00);
-		calendar.set(Calendar.MINUTE,00);
-		calendar.set(Calendar.SECOND,00);
-		return calendar.getTime();
-	}
 	/**
 	 * Return the length of the date range converted to minutes
 	 * @return
@@ -242,7 +235,22 @@ public class DateRange {
 	}
 	
 	
-	
+	/**
+	 * Return a list of ranges with one range per day within original range
+	 */
+	public List<DateRange> getDailyRanges(){
+		List<DateRange> dailyRanges = new ArrayList<DateRange>();
+		DateRange dayRange = new DateRange(LavaDateUtils.getDayStartDate(this.getStart()),
+				LavaDateUtils.getDayEndDate(this.getStart()));
+		DateRange dayOverlap = this.getOverlap(dayRange);
+		while (dayOverlap.hasRange()){
+			dailyRanges.add(dayOverlap);
+			dayRange = new DateRange(LavaDateUtils.addDays(dayRange.getStart(), 1),
+					LavaDateUtils.addDays(dayRange.getEnd(), 1));
+			dayOverlap = this.getOverlap(dayRange);
+		}
+		return dailyRanges;
+	}
 	
 	
 	/**
@@ -262,6 +270,18 @@ public class DateRange {
 	 */
 	public long getMinutesUntilStart(){
 		return getMinutesUntilStart(new Date());
+	}
+	
+	/**
+	 * Return true if date passed falls before start of this range
+	 * @param dateIn
+	 * @return
+	 */
+	public Boolean isAfterStart(Date dateIn){
+		if (dateIn==null || this.getStart()==null){
+			return null;
+		}
+		return (dateIn.after(this.getStart()));
 	}
 	
 	/**
@@ -362,7 +382,39 @@ public class DateRange {
 		
 	}
 	
+	/* 
+	 * Compares based on the start field (natural ordering).
+	 */
+	public int compareTo(DateRange dateRangeIn) {
+		// compares based on start date field by default
+		return DateRange.startDateComparator.compare(this, dateRangeIn);
+	}
 	
+	/*
+	 * Compares based on the start field.
+	 * 
+	 * note: this is an anonymous inner class, not a static inner class, so there
+	 *       is no "class" and class name specified. valueComparator is the name 
+	 *       of a static member field of the LabelValueBean class
+	 */
+	public static Comparator<DateRange> startDateComparator = new Comparator<DateRange>() {
+	    public int compare(DateRange dateRange1, DateRange dateRange2) {
+			return dateRange1.getStart().compareTo(dateRange2.getStart());   
+		}
+	};
+	
+	/*
+	 * Compares based on the end field.
+	 * 
+	 * note: this is an anonymous inner class, not a static inner class, so there
+	 *       is no "class" and class name specified. valueComparator is the name 
+	 *       of a static member field of the LabelValueBean class
+	 */
+	public static Comparator<DateRange> endDateComparator = new Comparator<DateRange>() {
+	    public int compare(DateRange dateRange1, DateRange dateRange2) {
+			return dateRange1.getEnd().compareTo(dateRange2.getEnd());   
+		}
+	};
 	
 	
 }

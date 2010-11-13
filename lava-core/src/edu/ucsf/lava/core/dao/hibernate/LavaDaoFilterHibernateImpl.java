@@ -384,6 +384,10 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 	public void clearParamHandlers() {
 		paramHandlers.clear();
 	}
+	
+	public ArrayList<LavaParamHandler> getParamHandlers(){
+		return paramHandlers;
+	}
 
 	public void convertParamsToDaoParams() {
 		this.clearDaoParams();

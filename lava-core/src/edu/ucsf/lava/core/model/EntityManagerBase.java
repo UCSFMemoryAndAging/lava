@@ -46,6 +46,10 @@ public class EntityManagerBase {
 		public  List get(Class entityClass) {
 			return getDao().find(entityClass,newFilterInstance(null));
 		}
+		public Object getById(Class entityClass, Long id){
+			LavaDaoFilter filter = getDao().newFilterInstance();
+			return getDao().findOne(entityClass, filter.addIdDaoEqualityParam(id));
+		}
 		public  Object getById(Class entityClass, Long id, LavaDaoFilter filter) {
 			return getDao().findOne(entityClass, filter.addIdDaoEqualityParam(id));
 		}

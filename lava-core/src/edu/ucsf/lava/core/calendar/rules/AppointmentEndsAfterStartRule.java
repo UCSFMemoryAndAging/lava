@@ -10,7 +10,7 @@ import edu.ucsf.lava.core.type.DateRange;
  * @author jhesse
  *
  */
-public class AppointmentEndsAfterStartRule implements AppointmentRule {
+public class AppointmentEndsAfterStartRule extends AbstractAppointmentRule {
 
 	public static String ENDS_AFTER_START_ERROR_MESSAGE_CODE = "appointmentEndsAfterStartRule.errorMessage";
 	public boolean appliesTo(Appointment appointment) {

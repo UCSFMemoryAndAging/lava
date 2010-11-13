@@ -13,7 +13,6 @@ import edu.ucsf.lava.core.calendar.model.Calendar;
 import edu.ucsf.lava.core.calendar.model.Appointment;
 import edu.ucsf.lava.core.calendar.model.ResourceCalendar;
 import edu.ucsf.lava.core.controller.BaseListComponentHandler;
-import edu.ucsf.lava.core.controller.CalendarHandlerUtils;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 
 public class ResourceCalendarsHandler extends BaseListComponentHandler {

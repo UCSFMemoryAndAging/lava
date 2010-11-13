@@ -286,9 +286,13 @@
 				<c:set var="widgetAttributes" value="${widgetAttributes} disabled"/>
 			</c:if>
 			<%-- debugging output of metadata values and mode --%>
-			<%--
+			<%-- 
 		    <p>
+		    entity=${entity}<br>
+		    entityType=${entityType}<br>
 		    currentMetadataName=${currentMetadataName}<br>
+		    section=${section}<br>
+		    currentProperty=${currentProperty}<br>
 		    mode=${mode}<br>
 		    showCodes=${showCodes}<br>
 		    style=${style}<br>

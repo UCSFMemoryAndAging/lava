@@ -41,7 +41,12 @@
  convertElement to convert selected id to Bean object (and Bean may need to implement toString to output id
  as String) --%>
 
+<c:if test="${empty size}">
+	<c:set var="size" value="20"/>
+</c:if>
+
 <spring:bind path="${property}">
+	<input type="hidden" name="_${status.expression}"/> <%-- necessary to bind a null value when no items are selected --%>
     <select id="${fieldId}" name="${status.expression}" autocomplete="off" STYLE="width: ${size * 10}px" class="${styleClass}" ${attributesText} size="${length}" multiple>
         <c:forEach items="${list}" var="entry">
            <c:if test="${not empty entry.key}">
@@ -55,13 +60,14 @@
                  <c:if test="${selected}">selected="selected"</c:if>>
                 ${entry.value}
               </option>
-	   </c:if>	        
+	   		</c:if>	        
            <c:remove var="selected"/>
         </c:forEach>
     </select>
   
 	<c:set var="errorFlag" value="${status.error}"/>
     <c:set var="errorMessages" value="${status.errorMessages}"/>
+    
 </spring:bind>
 
 

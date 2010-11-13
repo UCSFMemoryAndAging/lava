@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.home.model.Preference" table="preference" select-before-update="true">
+		
+		<id name="id" type="long">
+			<column name="preference_id" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+		<timestamp name="modified" column="modified"/>
+		<many-to-one name="user" column="user_id" class="edu.ucsf.lava.core.auth.model.AuthUser" lazy="false"/>
+		<property name="context" column="context" type="string" length="255"/>
+		<property name="name" column="name" type="string" length="255"/>
+		<property name="description" column="description" type="string" length="1000"/>
+		<property name="value" column="value" type="string" length="255"/>
+		<property name="visible" column="visible" type="short"/>
+	
+	</class>
+	
+</hibernate-mapping>

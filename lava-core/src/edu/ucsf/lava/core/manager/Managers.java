@@ -22,7 +22,7 @@ public class Managers extends Observable{
 	}
 	/**
 	 * Adds a manager to the managers collection.  The current assumption is that each 
-	 * manager in the system will have a unique name.  This method overrights
+	 * manager in the system will have a unique name.  This method overwrites
 	 * existing managers. 
 	 * @param manager
 	 */

@@ -22,7 +22,7 @@
 <%@ attribute name="lastSection" required="false" 
 			  description="indicates that this section is the last one for the module and no trailing '|' should be displayed"%>
      
- 
+
 <c:if test="${currentAction.module == module}">    
 	<tags:navSection text="${text}" textCode="${textCode}" selected="${currentAction.section == section ? true : false}" 
 			actionId="lava.defaultScope.${module}.${section}.${empty defaultTargetIdentifier ? 'defaultAction' : defaultTargetIdentifier}" 

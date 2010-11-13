@@ -2,6 +2,7 @@ package edu.ucsf.lava.core.calendar.controller;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import edu.ucsf.lava.core.session.CoreSessionUtils;
@@ -21,6 +22,7 @@ import edu.ucsf.lava.core.auth.model.AuthUserGroup;
 import edu.ucsf.lava.core.calendar.model.Calendar;
 import edu.ucsf.lava.core.calendar.model.Appointment;
 import edu.ucsf.lava.core.calendar.model.ResourceCalendar;
+import edu.ucsf.lava.core.calendar.rules.AppointmentRule;
 import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 
@@ -46,6 +48,11 @@ public class ReservationHandler extends AppointmentHandler {
 			a.setType(APPOINTMENT_TYPE_RESERVATION);
 		}
 		return a;
+	}
+
+
+	protected List<AppointmentRule> getRules(Appointment appointment) {
+		return super.getRules(appointment);
 	}
 	
 	

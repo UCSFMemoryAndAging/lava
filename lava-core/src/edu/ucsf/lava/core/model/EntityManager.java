@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
+import edu.ucsf.lava.core.home.model.Preference;
 
 public interface EntityManager {
 
@@ -15,7 +16,7 @@ public interface EntityManager {
 		public List get(LavaDaoFilter filter);
 		public List get();
 		public Object getById(Long id, LavaDaoFilter filter);
-		
+		public Object getById(Long id);
 		public Object getOne(LavaDaoFilter filter);
 		public void flushAndEvict(Object entity);
 		public Integer getResultCount(LavaDaoFilter filter);

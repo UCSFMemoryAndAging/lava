@@ -9,9 +9,11 @@
 
 	   <key column="calendar_id"/>
 		<property name="resourceType" column="resource_type" type="string" length="25" not-null="true"/>
+		<property name="peakUsageDays" column="peak_usage_days" type="string" length="100"/>
+		<property name="peakUsageBeginTime" column="peak_usage_begin_time" type="time"/>
+        <property name="peakUsageEndTime" column="peak_usage_end_time" type="time"/>
 		<property name="location" column="location" type="string" length="100"/>
 		<many-to-one name="contact" column="contact_id" class="edu.ucsf.lava.core.auth.model.AuthUser" not-null="true" lazy="false"/>
-	    		
     
 </joined-subclass>
 	

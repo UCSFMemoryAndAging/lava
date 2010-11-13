@@ -13,8 +13,10 @@
 			<generator class="identity"/>
 		</id>
 		<timestamp name="modified" column="modified"/>
-
         <property name="type" column="type" type="string" length="25" not-null="true"/>
+        <property name="workDays" column="work_days" type="string" length="100"/>
+        <property name="workBeginTime" column="work_begin_time" type="time"/>
+        <property name="workEndTime" column="work_end_time" type="time"/>
         <property name="name" column="name" type="string" length="100" not-null="true"/>
         <property name="description" column="description" type="string" length="255"/>
         <property name="notes" column="notes" type="string"/>

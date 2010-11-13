@@ -223,7 +223,7 @@ a:hover {
 	left: 0;
 }
 
-#logoMAC {
+#logoImage {
 	position: absolute;
 	top: 8px;
 	left: 0;
@@ -1849,6 +1849,10 @@ table.listing th,table.shortListing th,table.wideListing th,table.veryWideListin
 	border: 1px solid #eeeeee;/*Table Row  the border of the header is the color of the rows and vise versa */
 	/* border-style, border-width, border-color */
 	text-align: left; /* defaults to center */
+}
+
+table th.centeredLabel {
+	text-align:center; /* restore center alignment when specified (e.g. in styleclass attribute of listColumnHeader tag) */
 }
 
 /* table data */

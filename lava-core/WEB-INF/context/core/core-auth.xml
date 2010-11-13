@@ -18,7 +18,7 @@
 <!-- actions -->
 
 
-	<bean id="lava.core.home.prefs.changePassword" parent="corePasswordFlowAction">
+	<bean id="lava.core.home.user.changePassword" parent="corePasswordFlowAction">
 		<property name="sectionDefault" value="true"/>
 	</bean>
 	

@@ -8,15 +8,15 @@
        description="the property" %>
 <%@ attribute name="property2" 
        description="a second property to dereference" %>
-<%@ attribute name="listIndex"
+<%@ attribute name="listIndex" type="java.lang.Integer"
        description="list index for derefencing the entity from the list'"%>
        
 
 <c:choose>
 	<c:when test="${empty property2}">
-		${command.components[component].pageList[$listIndex].entity[property]}
+		${command.components[component].pageList[listIndex].entity[property]}
 	</c:when>
 	<c:otherwise>
-		${command.components[component].pageList[$listIndex].entity[property][property2]}
+		${command.components[component].pageList[listIndex].entity[property][property2]}
 	</c:otherwise>
 </c:choose>

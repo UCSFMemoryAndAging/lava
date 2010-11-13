@@ -16,7 +16,9 @@
 	<tags:createField property="id" component="${component}"/>
 	<tags:createField property="name" component="${component}"/>
 	<tags:createField property="description" component="${component}"/>
-	<tags:createField property="type" component="${component}"/>
+	<tags:createField property="workDays" component="${component}"/>
+	<tags:createField property="workBeginTime" component="${component}"/>
+	<tags:createField property="workEndTime" component="${component}"/>
 
 </page:applyDecorator>  
  

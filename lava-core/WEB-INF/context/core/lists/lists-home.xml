@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	<bean id="list.preference.calendar.displayRange" parent="list.dataOnly">
+			<property name="data"><list>	
+				<bean parent="list.data"><constructor-arg value="Month"/><constructor-arg value="Month"/></bean>
+				<bean parent="list.data"><constructor-arg value="Week"/><constructor-arg value="Week"/></bean>
+				<bean parent="list.data"><constructor-arg value="Day"/><constructor-arg value="Day"/></bean>
+			</list></property>
+	</bean>
+	
+	<bean id="list.preference.calendar.showDayLength" parent="list.dataOnly">
+			<property name="data"><list>	
+				<bean parent="list.data"><constructor-arg value="Full Day"/><constructor-arg value="Full Day"/></bean>
+				<bean parent="list.data"><constructor-arg value="Work Day"/><constructor-arg value="Work Day"/></bean>
+			</list></property>
+	</bean>
+
+</beans>

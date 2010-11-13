@@ -9,6 +9,11 @@
 				<bean parent="list.data"><constructor-arg value="Resource"/><constructor-arg value="Resource"/></bean>
 			</list></property>
 	</bean>
+	
+	<bean id="list.calendar.daysOfWeek" parent="list.standardNumericValue">
+		<property name="dbListName" value="daysOfWeek"/>
+	</bean>	
+	
 	<bean id="list.resourceCalendar.resourceType" parent="list.dataOnly">
 			<property name="data"><list>	
 				<bean parent="list.data"><constructor-arg value="Equipment"/><constructor-arg value="Equipment"/></bean>

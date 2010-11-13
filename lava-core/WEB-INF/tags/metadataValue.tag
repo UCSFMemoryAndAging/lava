@@ -85,9 +85,10 @@
 
 <c:if test="${empty metadataName}">
 	<%-- try entity.property.attribName --%>
+	
 	<spring:message code="${entity}.${property}.${attribName}" var="attribValue" scope="page" text=""/>
 		<c:if test="${empty attribValue}">
-
+		
 	    <%-- try entity.section.attribName --%>
     	<spring:message code="${entity}.${section}.${attribName}" var="attribValue" scope="page" text=""/>
 

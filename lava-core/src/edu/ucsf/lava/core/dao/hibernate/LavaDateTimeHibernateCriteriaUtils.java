@@ -62,8 +62,8 @@ public class LavaDateTimeHibernateCriteriaUtils {
 		 * 
 		 */
 	Criterion criterion = Restrictions.and(
-								daoLessThanOrEqual(startDatePropertyName, startTimePropertyName, LavaDateUtils.getDatePart(dateParam), (timeParam == null)?LavaDateUtils.getDayEndTime():timeParam),
-								daoGreaterThanOrEqual(endDatePropertyName, endTimePropertyName, LavaDateUtils.getDatePart(dateParam), (timeParam == null)? LavaDateUtils.getDayStartTime():timeParam)
+								daoLessThan(startDatePropertyName, startTimePropertyName, LavaDateUtils.getDatePart(dateParam), (timeParam == null)?LavaDateUtils.getDayEndTime():timeParam),
+								daoGreaterThan(endDatePropertyName, endTimePropertyName, LavaDateUtils.getDatePart(dateParam), (timeParam == null)? LavaDateUtils.getDayStartTime():timeParam)
 								);
 			return criterion;
 		
@@ -104,8 +104,8 @@ public class LavaDateTimeHibernateCriteriaUtils {
 			 * 
 			 */
 		Criterion criterion = Restrictions.and(
-									daoGreaterThanOrEqual(datePropertyName, timePropertyName, LavaDateUtils.getDatePart(startDateParam), (startTimeParam == null)?LavaDateUtils.getDayStartTime():startTimeParam),
-									daoLessThanOrEqual(datePropertyName, timePropertyName, LavaDateUtils.getDatePart(endDateParam), (endTimeParam == null)? LavaDateUtils.getDayEndTime():endTimeParam)
+									daoGreaterThan(datePropertyName, timePropertyName, LavaDateUtils.getDatePart(startDateParam), (startTimeParam == null)?LavaDateUtils.getDayStartTime():startTimeParam),
+									daoLessThan(datePropertyName, timePropertyName, LavaDateUtils.getDatePart(endDateParam), (endTimeParam == null)? LavaDateUtils.getDayEndTime():endTimeParam)
 									);
 				return criterion;
 		

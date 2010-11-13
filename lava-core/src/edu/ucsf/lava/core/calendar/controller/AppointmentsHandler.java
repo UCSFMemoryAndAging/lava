@@ -3,7 +3,6 @@ package edu.ucsf.lava.core.calendar.controller;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
@@ -12,13 +11,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.execution.RequestContext;
 
+import edu.ucsf.lava.core.calendar.CalendarDaoUtils;
 import edu.ucsf.lava.core.calendar.model.Calendar;
 import edu.ucsf.lava.core.calendar.model.Appointment;
-import edu.ucsf.lava.core.controller.BaseCalendarComponentHandler;
-import edu.ucsf.lava.core.controller.CalendarHandlerUtils;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
+import edu.ucsf.lava.core.dao.LavaDateRangeOverlapParamHandler;
+import edu.ucsf.lava.core.dao.LavaIgnoreParamHandler;
 
+import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.core.type.LavaCustomDateEditor;
 
@@ -29,13 +30,9 @@ public class AppointmentsHandler extends BaseCalendarComponentHandler {
 	public AppointmentsHandler() {
 		super();
 		this.setHandledList("appointments","appointment");
-		this.setDatePropertyName("startDate");
-		this.setDefaultDisplayRange(CalendarHandlerUtils.DISPLAY_RANGE_WEEK);
+		this.setDatePropertyName("overlapDateRange");
 		this.setEntityForStandardSourceProvider(Appointment.class);
 	}
-	
-
-
 	
 	public Map getBackingObjects(RequestContext context, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
@@ -56,7 +53,7 @@ public class AppointmentsHandler extends BaseCalendarComponentHandler {
 
 
 
-		public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter, Map components) {
+	public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 	
 			if(components.containsKey(CALENDAR_COMPONENT_NAME)){
@@ -76,4 +73,6 @@ public class AppointmentsHandler extends BaseCalendarComponentHandler {
 	}
 	
 
+	
+	
 }

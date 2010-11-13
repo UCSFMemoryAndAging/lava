@@ -9,6 +9,7 @@ import edu.ucsf.lava.core.metadata.MetadataManager;
 import edu.ucsf.lava.core.scope.ScopeManager;
 import edu.ucsf.lava.core.session.SessionManager;
 import edu.ucsf.lava.core.spring.LavaBeanUtils;
+import edu.ucsf.lava.core.view.ViewManager;
 import edu.ucsf.lava.core.webflow.WebflowManager;
 
 
@@ -95,5 +96,13 @@ public class CoreManagerUtils extends LavaBeanUtils {
 
 	public static WebflowManager getWebflowManager(){
 		return getWebflowManager(getManagers());
+	}
+	
+	public static ViewManager getViewManager(Managers managers){
+		return (ViewManager) managers.get(ViewManager.VIEW_MANAGER_NAME);
+	}
+
+	public static ViewManager getViewManager(){
+		return getViewManager(getManagers());
 	}
 }

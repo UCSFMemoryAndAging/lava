@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- the view manager bean -->
+    <bean id="viewManager" class="edu.ucsf.lava.core.view.ViewManager">
+	</bean>
+	
+	<!--  view renderers  -->	
+	<bean id="calendarRenderer" class="edu.ucsf.lava.core.calendar.view.CalendarRenderer"/>
+	
+</beans>

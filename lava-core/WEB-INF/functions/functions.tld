@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee web-jsptaglibrary_2_0.xsd"
+    version="2.0">
+    <tlib-version>1.0</tlib-version>
+    <short-name>lavaFn</short-name>
+	<function>
+  		<name>generateRenderCode</name>
+  		<function-class>edu.ucsf.lava.core.view.ViewManager</function-class>
+  		<function-signature>
+  			String generateRenderCode(java.lang.Object, java.lang.String, edu.ucsf.lava.core.view.model.RenderParams)
+  		</function-signature>
+	</function> 
+
+	<function>
+  		<name>generateDefaultObjectRenderCode</name>
+  		<function-class>edu.ucsf.lava.core.view.ViewManager</function-class>
+  		<function-signature>
+  			String generateDefaultObjectRenderCode(java.lang.Object, edu.ucsf.lava.core.view.model.RenderParams)
+  		</function-signature>
+	</function> 
+	
+	<function>
+  		<name>setRenderParams</name>
+  		<function-class>edu.ucsf.lava.core.view.ViewManager</function-class>
+  		<function-signature>
+  			void setRenderParams(edu.ucsf.lava.core.view.model.RenderParams, java.lang.String)
+  		</function-signature>
+	</function> 
+	
+	
+	<function>
+  		<name>setRenderParam</name>
+  		<function-class>edu.ucsf.lava.core.view.ViewManager</function-class>
+  		<function-signature>
+  			void setRenderParam(edu.ucsf.lava.core.view.model.RenderParams, java.lang.String, java.lang.Object)
+  		</function-signature>
+	</function> 
+	
+		<function>
+  		<name>addRenderParamElement</name>
+  		<function-class>edu.ucsf.lava.core.view.ViewManager</function-class>
+  		<function-signature>
+  			void addRenderParamElement(edu.ucsf.lava.core.view.model.RenderParams, java.lang.String, java.lang.Object)
+  		</function-signature>
+	</function> 
+</taglib>

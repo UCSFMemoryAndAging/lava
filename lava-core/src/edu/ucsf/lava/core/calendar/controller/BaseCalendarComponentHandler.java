@@ -1,25 +1,31 @@
-package edu.ucsf.lava.core.controller;
+package edu.ucsf.lava.core.calendar.controller;
 
 
-import static edu.ucsf.lava.core.controller.CalendarHandlerUtils.*;
+import static edu.ucsf.lava.core.calendar.controller.CalendarHandlerUtils.*;
 
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.validation.BindingResult;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
+import edu.ucsf.lava.core.calendar.CalendarDaoUtils;
+import edu.ucsf.lava.core.calendar.view.CalendarRenderParams;
+import edu.ucsf.lava.core.controller.BaseListComponentHandler;
+import edu.ucsf.lava.core.controller.ComponentCommand;
+import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
-import edu.ucsf.lava.core.dao.LavaDateRangeParamHandler;
+import edu.ucsf.lava.core.dao.LavaDateRangeOverlapParamHandler;
 import edu.ucsf.lava.core.dao.LavaIgnoreParamHandler;
 import edu.ucsf.lava.core.model.EntityBase;
+import edu.ucsf.lava.core.view.model.RenderParams;
 
 abstract public class BaseCalendarComponentHandler extends BaseListComponentHandler {
-	protected String defaultDisplayRange=DISPLAY_RANGE_MONTH;
-	protected String defaultDayLength=SHOW_DAYLENGTH_WORKDAY;
+	protected String defaultDisplayRange=CalendarDaoUtils.DISPLAY_RANGE_MONTH;
+	protected String defaultDayLength=CalendarDaoUtils.SHOW_DAYLENGTH_FULLDAY;
 	protected String datePropertyName;
 	protected String startDateParam;
 	protected String endDateParam;
@@ -27,6 +33,7 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 	public BaseCalendarComponentHandler() {
 		super();
 		defaultEvents.addAll(CalendarHandlerUtils.getDefaultEvents());
+		this.setPageSize(99999); // set to a high number to prevent paging from occurring in the absence of paging controls
 	}
 
 	public String getDatePropertyName() {
@@ -43,11 +50,11 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter = EntityBase.newFilterInstance(getCurrentUser(request));
 	
-		filter.addParamHandler(new LavaDateRangeParamHandler(datePropertyName));
-		filter.addParamHandler(new LavaIgnoreParamHandler(DISPLAY_RANGE_PARAM));
-		filter.addParamHandler(new LavaIgnoreParamHandler(SHOW_DAYLENGTH_PARAM));
-		filter.addParamHandler(new LavaIgnoreParamHandler(CUSTOM_DATE_FILTER_START_PARAM));
-		filter.addParamHandler(new LavaIgnoreParamHandler(CUSTOM_DATE_FILTER_END_PARAM));
+		filter.addParamHandler(new LavaDateRangeOverlapParamHandler());
+		filter.addParamHandler(new LavaIgnoreParamHandler(CalendarDaoUtils.DISPLAY_RANGE_PARAM));
+		filter.addParamHandler(new LavaIgnoreParamHandler(CalendarDaoUtils.SHOW_DAYLENGTH_PARAM));
+		filter.addParamHandler(new LavaIgnoreParamHandler(CalendarDaoUtils.CUSTOM_DATE_FILTER_START_PARAM));
+		filter.addParamHandler(new LavaIgnoreParamHandler(CalendarDaoUtils.CUSTOM_DATE_FILTER_END_PARAM));
 		filter = prepareFilter(context,filter,components);
 		filter = this.setDayLengthParam(context, filter);
 		return this.setDateFilterParams(context,filter);
@@ -121,9 +128,6 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 		this.defaultDisplayRange = defaultDisplayRange;
 	}
 
-	
-	
-	
 
 	public String getDefaultDayLength() {
 		return defaultDayLength;
@@ -145,6 +149,15 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 	public void updateFilterFromContext(LavaDaoFilter filter, RequestContext context, Map components) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public Map addReferenceData(RequestContext context, Object command,
+			BindingResult errors, Map model) {
+		Map refData = super.addReferenceData(context, command, errors, model);
+		CalendarRenderParams apptRenderParams = new CalendarRenderParams();
+		refData.put("renderParams", apptRenderParams);
+		return refData;
 	}
 
 

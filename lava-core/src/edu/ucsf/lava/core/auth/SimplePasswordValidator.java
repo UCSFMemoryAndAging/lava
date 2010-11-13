@@ -42,7 +42,8 @@ public class SimplePasswordValidator implements
 		
 		//if length is less than 7 then false
 		if(password.length()< this.getMinLength()){
-			errors.put("simple.passwordValidator.passwordTooShortError", null);
+			errorArgs.add(this.getMinLength());
+			errors.put("simple.passwordValidator.passwordTooShortError",errorArgs);
 			return false;
 			}
 	

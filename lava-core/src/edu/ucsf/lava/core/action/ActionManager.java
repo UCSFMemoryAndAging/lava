@@ -60,7 +60,7 @@ public class ActionManager extends LavaManager {
 		ActionRegistry registry = new ActionRegistry();
 		registry.setActions(actionDefinitions.getDefinitionsCopy());
 		
-		//pass the registry to each scope delgate (in order)
+		//pass the registry to each scope delegate (in order)
 		for(ScopeActionDelegate delegate : scopeManager.getActionDelegates().getOrderedDelegates()){
 			registry = delegate.onReloadActionDefinitions(this,registry);
 		}

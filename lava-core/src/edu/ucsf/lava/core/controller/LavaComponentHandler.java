@@ -42,6 +42,7 @@ import edu.ucsf.lava.core.model.LavaEntity;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.core.session.LavaSessionHttpRequestWrapper;
 import edu.ucsf.lava.core.session.SessionManager;
+import edu.ucsf.lava.core.view.ViewManager;
 
 
 
@@ -60,6 +61,7 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 	protected ActionManager actionManager; 
 	protected SessionManager sessionManager; 
 	protected EnvironmentManager environmentManager;
+	protected ViewManager viewManager;
 	
 	protected String primaryComponentContext;
 	protected List<String> handledEvents; //a list of events handled by the handler, set by default, may be specified
@@ -835,6 +837,7 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		this.metadataManager = CoreManagerUtils.getMetadataManager(managers);
 		this.sessionManager = CoreManagerUtils.getSessionManager(managers);
 		this.environmentManager = CoreManagerUtils.getEnvironmentManager(managers);
+		this.viewManager = CoreManagerUtils.getViewManager(managers);
 	}		
 	
 	// EMORY change:

@@ -15,11 +15,19 @@
 
 	<tags:createField property="id" component="${component}" entity="calendar"/>
 	<tags:createField property="name" component="${component}" entity="calendar"/>
-	<tags:createField property="description" component="${component}" entity="calendar"/>
-	<tags:createField property="type" component="${component}" entity="calendar"/>
 	<tags:createField property="resourceType" component="${component}"/>
 	<tags:createField property="location" component="${component}"/>
+	<tags:createField property="description" component="${component}" entity="calendar"/>
+	<tags:createField property="workDays" component="${component}" entity="calendar"/>
+	<tags:createField property="workBeginTime" component="${component}" entity="calendar"/>
+	<tags:createField property="workEndTime" component="${component}" entity="calendar"/>
+	<tags:createField property="peakUsageDays" component="${component}"/>
+	<tags:createField property="peakUsageBeginTime" component="${component}"/>
+	<tags:createField property="peakUsageEndTime" component="${component}"/>
 	<tags:createField property="contactId" component="${component}"/>
+	<tags:createField property="contact.phone" component="${component}"/>
+	<tags:createField property="contact.email" component="${component}"/>
+	
 </page:applyDecorator>  
  
 <page:applyDecorator name="component.entity.section">
@@ -29,4 +37,8 @@
 
 </page:applyDecorator>  
  
-
+ 
+<ui:formGuide ignoreDoOnLoad="true" >
+	  <ui:observe elementIds="contactId" component="${component}" forValue=".+"/>
+	<ui:submitForm form="${component}" event="${component}__reRender"/>
+</ui:formGuide>

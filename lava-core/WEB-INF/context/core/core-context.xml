@@ -27,6 +27,7 @@
 <import resource="core-security.xml"/>
 <import resource="core-session.xml"/>
 <import resource="core-scope.xml"/>
+<import resource="core-view.xml"/>
 <import resource="core-webflow.xml"/>
 
 

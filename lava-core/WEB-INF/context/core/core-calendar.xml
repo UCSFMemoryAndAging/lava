@@ -56,51 +56,79 @@
 		
 	<bean id="lava.core.calendar.appointment.selectCalendar" parent="coreModuleListAction"/>
 	
+	
+	<!-- handlers  -->
+	
+	<bean id="calendarHandler" parent="coreHandler" 
+			class="edu.ucsf.lava.core.calendar.controller.CalendarHandler"/>
 
+	<bean id="calendarsHandler" parent="coreHandler" 
+			class="edu.ucsf.lava.core.calendar.controller.CalendarsHandler"/>
+				
+	<bean id="resourceCalendarHandler" parent="coreHandler" 
+			class="edu.ucsf.lava.core.calendar.controller.ResourceCalendarHandler"/>	
+
+	<bean id="resourceCalendarsHandler" parent="coreHandler" 
+			class="edu.ucsf.lava.core.calendar.controller.ResourceCalendarsHandler"/>
+				
+	<bean id="appointmentHandler" parent="coreHandler" 
+			class="edu.ucsf.lava.core.calendar.controller.AppointmentHandler"/>
+
+	<bean id="appointmentsHandler" parent="coreHandler" 
+			class="edu.ucsf.lava.core.calendar.controller.AppointmentsHandler"/>
+			
+	<bean id="reservationHandler" parent="coreHandler" 
+			class="edu.ucsf.lava.core.calendar.controller.ReservationHandler"/>	
+
+	<bean id="reservationsHandler" parent="coreHandler" 
+			class="edu.ucsf.lava.core.calendar.controller.ReservationsHandler"/>		
+	
+	<bean id="selectCalendarHandler" parent="coreHandler" 
+			class="edu.ucsf.lava.core.calendar.controller.SelectCalendarHandler"/>		
+	
 	
 	<!--  form action definitions -->
 	<bean id="calendarFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
-			<bean class="edu.ucsf.lava.core.calendar.controller.CalendarHandler" parent="coreHandler"/>
+			<ref bean="calendarHandler"/>
 		</list></constructor-arg>
 	</bean>
 	
 	 <bean id="calendarsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
-   		<bean class="edu.ucsf.lava.core.calendar.controller.CalendarsHandler" parent="coreHandler"/>
-   	</list></constructor-arg></bean>
-	
+   			<ref bean="calendarsHandler"/>
+   		</list></constructor-arg>
+   	</bean>
 	
 	<bean id="resourceCalendarFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
-			<bean class="edu.ucsf.lava.core.calendar.controller.ResourceCalendarHandler" parent="coreHandler"/>
+			<ref bean="resourceCalendarHandler"/>
 		</list></constructor-arg>
 	</bean>
 	
 	<bean id="resourceCalendarsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
-   		<bean class="edu.ucsf.lava.core.calendar.controller.ResourceCalendarsHandler" parent="coreHandler"/>
+   			<ref bean="resourceCalendarsHandler"/>
    	</list></constructor-arg></bean>
 	
 	<bean id="appointmentFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
-			<bean class="edu.ucsf.lava.core.calendar.controller.AppointmentHandler" parent="coreHandler"/>
+			<ref bean="appointmentHandler"/>
 		</list></constructor-arg>
 	</bean>
 	
 	<bean id="appointmentsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
-   		<bean class="edu.ucsf.lava.core.calendar.controller.AppointmentsHandler" parent="coreHandler"/>
+   		<ref bean="appointmentsHandler"/>
    	</list></constructor-arg></bean>
    	
    	<bean id="reservationFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
-			<bean class="edu.ucsf.lava.core.calendar.controller.ReservationHandler" parent="coreHandler"/>
+			<ref bean="reservationHandler"/>
 		</list></constructor-arg>
 	</bean>
 	
 	<bean id="reservationsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
-   		<bean class="edu.ucsf.lava.core.calendar.controller.ReservationsHandler" parent="coreHandler"/>
+   		<ref bean="reservationsHandler"/>
    	</list></constructor-arg></bean>
 	
   	<bean id="selectCalendarFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
-   		<bean class="edu.ucsf.lava.core.calendar.controller.SelectCalendarHandler" parent="coreHandler"/>
+   		<ref bean="selectCalendarHandler"/>
    	</list></constructor-arg></bean>
 	
-  	
-	
+		
 	
 </beans>

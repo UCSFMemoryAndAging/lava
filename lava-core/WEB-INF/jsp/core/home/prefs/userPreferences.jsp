@@ -8,8 +8,8 @@
 <page:applyDecorator name="component.content">
   <page:param name="component">${component}</page:param>
   <page:param name="quicklinks"></page:param>
-  <page:param name="pageHeadingArgs"><tags:componentProperty component="${component}" property="userName"/></page:param>
- 
+  <page:param name="pageHeadingArgs">${currentUser.userName}</page:param>
+
 <page:applyDecorator name="component.entity.content">
   <page:param name="component">${component}</page:param>
   <page:param name="locked">${command.components['userPreferences'].locked}</page:param>
@@ -17,7 +17,6 @@
 	<c:import url="/WEB-INF/jsp/core/home/prefs/userPreferencesContent.jsp">
 		<c:param name="component">${component}</c:param>
 	</c:import>
-	
 	
 </page:applyDecorator>    
 </page:applyDecorator>	    

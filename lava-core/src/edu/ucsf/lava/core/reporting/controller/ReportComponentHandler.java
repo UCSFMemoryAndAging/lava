@@ -1,11 +1,5 @@
 package edu.ucsf.lava.core.reporting.controller;
 
-import static edu.ucsf.lava.core.controller.CalendarHandlerUtils.CUSTOM_DATE_FILTER_END_PARAM;
-import static edu.ucsf.lava.core.controller.CalendarHandlerUtils.CUSTOM_DATE_FILTER_START_PARAM;
-import static edu.ucsf.lava.core.controller.CalendarHandlerUtils.DISPLAY_RANGE_ALL;
-import static edu.ucsf.lava.core.controller.CalendarHandlerUtils.DISPLAY_RANGE_MONTH;
-import static edu.ucsf.lava.core.controller.CalendarHandlerUtils.DISPLAY_RANGE_PARAM;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,7 +23,8 @@ import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.action.model.Action;
 import edu.ucsf.lava.core.auth.CoreAuthorizationContext;
 import edu.ucsf.lava.core.auth.model.AuthUser;
-import edu.ucsf.lava.core.controller.CalendarHandlerUtils;
+import edu.ucsf.lava.core.calendar.CalendarDaoUtils;
+import edu.ucsf.lava.core.calendar.controller.CalendarHandlerUtils;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentHandler;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
@@ -59,7 +54,7 @@ import edu.ucsf.lava.crms.reporting.model.ReportSetup;
 public class ReportComponentHandler extends LavaComponentHandler {
 	protected Boolean dateCriteria;
 	// subclasses can override the defaultDisplayRange in their configuration
-	protected String defaultDisplayRange=DISPLAY_RANGE_MONTH;
+	protected String defaultDisplayRange=CalendarDaoUtils.DISPLAY_RANGE_MONTH;
 	protected String selectedProjListPropName = "projectList";
 	// the dateProperyName dictates naming for the java.util.Date filter date range fields, startDateParam
 	// and endDateParam
@@ -133,7 +128,7 @@ public class ReportComponentHandler extends LavaComponentHandler {
 			// transfer the default date range to the custom date params used as filter fields in the view. this
 			// must be done separately from the above call because the Calendar handler does not want this to happen
 			// (see updateCustomParamsFromDateParams comments)
-			CalendarHandlerUtils.updateCustomParamsFromDateParams(filter, this.startDateParam, this.endDateParam, Boolean.FALSE);	
+			CalendarDaoUtils.updateCustomParamsFromDateParams(filter, this.startDateParam, this.endDateParam, Boolean.FALSE);	
 			
 		}
 		
@@ -175,8 +170,8 @@ public class ReportComponentHandler extends LavaComponentHandler {
 		String[] required = new String[0];
 
 		if (this.dateCriteria) {
-			if (! ((String) reportSetup.getFilter().getParam(DISPLAY_RANGE_PARAM)).equalsIgnoreCase(DISPLAY_RANGE_ALL)) {
-				required = StringUtils.concatenateStringArrays(required, new String[]{CUSTOM_DATE_FILTER_START_PARAM, CUSTOM_DATE_FILTER_END_PARAM});
+			if (! ((String) reportSetup.getFilter().getParam(CalendarDaoUtils.DISPLAY_RANGE_PARAM)).equalsIgnoreCase(CalendarDaoUtils.DISPLAY_RANGE_ALL)) {
+				required = StringUtils.concatenateStringArrays(required, new String[]{CalendarDaoUtils.CUSTOM_DATE_FILTER_START_PARAM, CalendarDaoUtils.CUSTOM_DATE_FILTER_END_PARAM});
 			}
 		}
 		
@@ -280,7 +275,7 @@ public class ReportComponentHandler extends LavaComponentHandler {
 					CalendarHandlerUtils.setDefaultFilterParams(reportSetup.getFilter(), this.defaultDisplayRange, this.startDateParam, this.endDateParam);
 				}
 				
-				if (! ((String) reportSetup.getFilter().getParam(DISPLAY_RANGE_PARAM)).equalsIgnoreCase(DISPLAY_RANGE_ALL)) {
+				if (! ((String) reportSetup.getFilter().getParam(CalendarDaoUtils.DISPLAY_RANGE_PARAM)).equalsIgnoreCase(CalendarDaoUtils.DISPLAY_RANGE_ALL)) {
 				    // within the report design, parameters must be defined and named this.startDateParam, this.endDateParam 
 				    model.put(this.startDateParam, reportSetup.getFilter().getParam(this.startDateParam));
 				    model.put(this.endDateParam, reportSetup.getFilter().getParam(this.endDateParam));
@@ -329,7 +324,7 @@ public class ReportComponentHandler extends LavaComponentHandler {
 		ReportSetup reportSetup = (ReportSetup) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());		
 		CalendarHandlerUtils.setDateFilterParams(context,(LavaDaoFilter)reportSetup.getFilter(), this.defaultDisplayRange, this.startDateParam, this.endDateParam);
 		// reflect the new date param values in the view by updating the custom date params
-		CalendarHandlerUtils.updateCustomParamsFromDateParams(reportSetup.getFilter(), this.startDateParam, this.endDateParam, Boolean.FALSE);	
+		CalendarDaoUtils.updateCustomParamsFromDateParams(reportSetup.getFilter(), this.startDateParam, this.endDateParam, Boolean.FALSE);	
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
 	
