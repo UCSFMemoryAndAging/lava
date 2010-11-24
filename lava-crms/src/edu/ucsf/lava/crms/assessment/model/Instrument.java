@@ -538,6 +538,8 @@ public class Instrument extends CrmsEntity {
 	
 	public String[] getExportCommonData() {
 		List data = new ArrayList();
+		// enclose data in double quotes so any internal separators (commas) or newlines will not
+		// interfere with export
 		StringBuffer commonData = new StringBuffer();
 		data.add(commonData.append("\"").append(getPatient().getFullNameRevNoSuffix()).append("\"").toString());
 	    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
