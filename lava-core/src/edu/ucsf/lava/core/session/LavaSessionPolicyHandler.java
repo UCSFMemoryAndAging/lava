@@ -16,6 +16,7 @@ public class LavaSessionPolicyHandler {
 	public static final Long DEFAULT_EXPIRATION_MINUTES = new Long(30);
 	public static final Long DEFAULT_WARNING_MINUTES = new Long(5);
 	public static final long MILLIS_PER_MINUTE = 60000;
+	// note: this is overridden by bean configuration in core-session.xml
 	protected Long expireMinutes = DEFAULT_EXPIRATION_MINUTES;  // number of seconds until a session expires
 	protected Long warningMinutes = DEFAULT_WARNING_MINUTES;
 	private static  Timestamp defaultExpDate;
