@@ -199,7 +199,7 @@ public class LavaDaoHibernateImpl extends HibernateDaoSupport implements LavaDao
 	public List<Long> getEntityIds(Class entityClass, LavaDaoFilter filter){
 		// the use of a select clause with the "entity" alias in the following query is necessary so
 		// that for entities with with details, only the master entities are returned
-		StringBuffer hqlQuery = new StringBuffer("select new java.lang.Long(entity.id) from ").append(entityClass.getName()).append(" entity where entity.id > 0");
+		StringBuffer hqlQuery = new StringBuffer("select new java.lang.Long(entity.id) from ").append(entityClass.getName()).append(" entity where entity.id > 0 order by entity.id");
 		return findByHqlQuery(hqlQuery.toString(),filter);
 	}
 	
