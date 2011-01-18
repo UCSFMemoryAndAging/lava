@@ -1,6 +1,6 @@
 package edu.ucsf.lava.crms.controller;
 
-import edu.ucsf.lava.core.controller.BaseCalendarComponentHandler;
+import edu.ucsf.lava.core.calendar.controller.BaseCalendarComponentHandler;
 import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.crms.assessment.InstrumentManager;
 import edu.ucsf.lava.crms.enrollment.EnrollmentManager;

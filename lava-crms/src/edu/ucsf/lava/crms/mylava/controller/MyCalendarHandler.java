@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.execution.RequestContext;
 
-import edu.ucsf.lava.core.controller.CalendarHandlerUtils;
+import edu.ucsf.lava.core.calendar.CalendarDaoUtils;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.crms.controller.CrmsCalendarComponentHandler;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
@@ -21,7 +21,7 @@ public class MyCalendarHandler extends CrmsCalendarComponentHandler {
 		super();
 		this.setHandledList("myVisits","visit");
 		this.setDatePropertyName("visitDate");
-		this.setDefaultDisplayRange(CalendarHandlerUtils.DISPLAY_RANGE_WEEK);
+		this.setDefaultDisplayRange(CalendarDaoUtils.DISPLAY_RANGE_WEEK);
 		this.setEntityForStandardSourceProvider(Visit.class);
 	}
 	
