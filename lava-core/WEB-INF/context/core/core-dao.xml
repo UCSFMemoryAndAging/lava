@@ -5,12 +5,7 @@
 
 <!-- note: the localDataSource bean is typically defined in the app config files -->
 
-	<bean id="propertyConfigurer" 
-      class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location">
-			<value>/WEB-INF/hibernate.properties</value>
-		</property>
-	</bean>
+	
 	
 	<bean id="propertyOverrideConfigurer" 
       class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
