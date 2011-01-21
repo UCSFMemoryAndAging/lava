@@ -19,6 +19,7 @@ import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.dao.LavaDateRangeOverlapParamHandler;
+import edu.ucsf.lava.core.dao.LavaDateRangeParamHandler;
 import edu.ucsf.lava.core.dao.LavaIgnoreParamHandler;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.view.model.RenderParams;
@@ -29,11 +30,13 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 	protected String datePropertyName;
 	protected String startDateParam;
 	protected String endDateParam;
+	protected Boolean oldStyleCalendar = true; //flag used to segment functionality in this base class to support the new and old style calendars.
+	
 	
 	public BaseCalendarComponentHandler() {
 		super();
 		defaultEvents.addAll(CalendarHandlerUtils.getDefaultEvents());
-		this.setPageSize(99999); // set to a high number to prevent paging from occurring in the absence of paging controls
+		
 	}
 
 	public String getDatePropertyName() {
@@ -46,19 +49,31 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 		this.endDateParam = datePropertyName.concat("End");    
 	}
 
+	
+	
 	public LavaDaoFilter extractFilterFromRequest(RequestContext context, Map components){
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter = EntityBase.newFilterInstance(getCurrentUser(request));
 	
-		filter.addParamHandler(new LavaDateRangeOverlapParamHandler());
-		filter.addParamHandler(new LavaIgnoreParamHandler(CalendarDaoUtils.DISPLAY_RANGE_PARAM));
+		if(isOldStyleCalendar()){
+			filter.addParamHandler(new LavaDateRangeParamHandler(datePropertyName));
+		}else{
+			filter.addParamHandler(new LavaDateRangeOverlapParamHandler());
+		}
+			filter.addParamHandler(new LavaIgnoreParamHandler(CalendarDaoUtils.DISPLAY_RANGE_PARAM));
 		filter.addParamHandler(new LavaIgnoreParamHandler(CalendarDaoUtils.SHOW_DAYLENGTH_PARAM));
 		filter.addParamHandler(new LavaIgnoreParamHandler(CalendarDaoUtils.CUSTOM_DATE_FILTER_START_PARAM));
 		filter.addParamHandler(new LavaIgnoreParamHandler(CalendarDaoUtils.CUSTOM_DATE_FILTER_END_PARAM));
 		filter = prepareFilter(context,filter,components);
-		filter = this.setDayLengthParam(context, filter);
+		if(isOldStyleCalendar()){
+			filter = this.setDayLengthParam(context, filter);
+		}
 		return this.setDateFilterParams(context,filter);
 	}
+	
+   
+	
+	
 	
 	//override in subclass to do additional Filter initialization
 	// e.g. adding custom param handlers or default sorts. 
@@ -74,17 +89,23 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 		CalendarHandlerUtils.handleCustomDateFilter(filter, this.startDateParam, this.endDateParam);
 	}
 	
+
 	protected void setDefaultFilterParams(LavaDaoFilter filter){
 		CalendarHandlerUtils.setDefaultFilterParams(filter, this.defaultDisplayRange, this.startDateParam, this.endDateParam);
-		CalendarHandlerUtils.setDefaultDayLengthParam(filter, this.defaultDayLength);
+		if(this.isOldStyleCalendar()){
+			CalendarHandlerUtils.setDefaultDayLengthParam(filter, this.defaultDayLength);
+		}
 	}
+	
 	
 	protected Event handleCustomEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
 		//	handle filter events
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		ScrollablePagedListHolder plh = (ScrollablePagedListHolder) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
 		setDateFilterParams(context,(LavaDaoFilter)plh.getFilter());
-		setDayLengthParam(context, (LavaDaoFilter)plh.getFilter());
+		if(this.isOldStyleCalendar()){
+			setDayLengthParam(context, (LavaDaoFilter)plh.getFilter());
+		}
 		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
 		((BaseListSourceProvider)plh.getSourceProvider()).setListHandler(this);
 		try {
@@ -128,6 +149,14 @@ abstract public class BaseCalendarComponentHandler extends BaseListComponentHand
 		this.defaultDisplayRange = defaultDisplayRange;
 	}
 
+
+	public Boolean isOldStyleCalendar() {
+		return oldStyleCalendar;
+	}
+
+	public void setOldStyleCalendar(Boolean oldStyleCalendar) {
+		this.oldStyleCalendar = oldStyleCalendar;
+	}
 
 	public String getDefaultDayLength() {
 		return defaultDayLength;

@@ -29,6 +29,8 @@ public class AppointmentsHandler extends BaseCalendarComponentHandler {
 	
 	public AppointmentsHandler() {
 		super();
+		this.setOldStyleCalendar(false);
+		this.setPageSize(99999); // set to a high number to prevent paging from occurring in the absence of paging controls
 		this.setHandledList("appointments","appointment");
 		this.setDatePropertyName("overlapDateRange");
 		this.setEntityForStandardSourceProvider(Appointment.class);
@@ -68,6 +70,7 @@ public class AppointmentsHandler extends BaseCalendarComponentHandler {
 		filter.addDefaultSort("startTime",true);
 		return filter;
 	}
+	
 	
 	public void updateFilterFromContext(LavaDaoFilter filter, RequestContext context, Map components){
 	}
