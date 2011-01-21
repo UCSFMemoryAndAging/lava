@@ -541,8 +541,15 @@ public class Instrument extends CrmsEntity {
 		// enclose data in double quotes so any internal separators (commas) or newlines will not
 		// interfere with export
 		StringBuffer commonData = new StringBuffer();
+		
+		//There is a bug where the instrument verify uses an uninitialized instrument copy to 
+		//compare double entry results and this method gets called by the BeanUtils iterating over properties
+		//This is a hack to get past it for now. 
+		if(getPatient()==null){
+			return (String[])data.toArray(new String[]{});
+		}
 		data.add(commonData.append("\"").append(getPatient().getFullNameRevNoSuffix()).append("\"").toString());
-	    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		data.add(dateFormat.format(getVisit().getVisitDate()));
 		data.add(getVisit().getVisitType());
 		data.add(getInstrType());
