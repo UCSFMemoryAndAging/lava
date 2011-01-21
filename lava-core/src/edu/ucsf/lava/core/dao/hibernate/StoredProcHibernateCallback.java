@@ -78,7 +78,9 @@ public class StoredProcHibernateCallback implements HibernateCallback {
 	// HibernateCallback converts Hibernate and SQL checked exceptions to unchecked org.springframework.dao 
 	//  DataAccessExceptions which propagate up to the service layer and view layer, so need not be handled here
 	finally{
-	    proc.close();
+	    if(proc!=null){
+	    	proc.close();
+	    	}
     	}
 	return null;
     }
