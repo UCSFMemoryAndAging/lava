@@ -102,8 +102,8 @@ else {
 }
 </script>
 
-<c:if test="${isInstrument && componentView == 'collect'}">
 <script language="javascript" type="text/javascript" src="javascript/instrument/collect.js"></script>
+<c:if test="${isInstrument && componentView == 'collect'}">
 </c:if>
 
 <!-- QUICKLINKS -->
