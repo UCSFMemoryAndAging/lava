@@ -37,9 +37,9 @@
  	</bean>	
 	
 	<bean id="lava.crms.reporting.reports.projectPatientStatus" parent="crmsReportFlowAction"/>
-	<bean id="lava.crms.reporting.reports.projectVisitListByDate" parent="crmsReportFlowAction"/>
 	<bean id="lava.crms.reporting.reports.researchVisitListByDate" parent="crmsReportFlowAction"/>
 	<bean id="lava.crms.reporting.reports.researchVisitListByPatient" parent="crmsReportFlowAction"/>
+	<bean id="lava.crms.reporting.reports.projectVisitListByDate" parent="crmsReportFlowAction"/>
 	<bean id="lava.crms.reporting.reports.projectVisitListByPatient" parent="crmsReportFlowAction"/>
 
 <!--  Form Action Definitions -->					
@@ -64,7 +64,6 @@
 		<property name="projectCriteria"><value>true</value></property>
 	</bean>
 	
-	
 	<bean id="projectPatientStatusFormAction"  parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean parent="crmsProjectCriteriaReportHandler"/>
 	</list></constructor-arg></bean>	
@@ -80,9 +79,9 @@
 	<bean id="projectVisitListByDateFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean parent="crmsDateProjectCriteriaReportHandler"/>
 	</list></constructor-arg></bean>	
-	
+ 	
 	<bean id="projectVisitListByPatientFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean parent="crmsProjectCriteriaReportHandler"/>
+		<bean parent="crmsDateProjectCriteriaReportHandler"/>
 	</list></constructor-arg></bean>	
 	
 </beans>
