@@ -138,6 +138,15 @@ public class VisitHandler extends CrmsEntityComponentHandler {
 			i.setVisit(visitDaoObj);
 			i.save();
 		}
+						
+		/* Custom handling may be desired on the instruments (just created) belonging
+		 *   to custom visits.  To provide this, we add a hook here, overridable by a
+		 *   subclass of visit.  This is preferred over subclassing the instruments themselves
+		 *   when no new fields are to be added to the instrument model (requiring new database
+		 *   tables).  We also could not use VisitHandler subclasses for this, since they are
+		 *   not used during an 'add' event, by design (a visit's project type not known 
+		 *   until "saveAdd").  */
+		visitDaoObj.afterCreatePrototypedInstruments();
 		
 		
 		

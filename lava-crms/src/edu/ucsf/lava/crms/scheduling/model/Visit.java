@@ -251,5 +251,9 @@ public class Visit extends CrmsEntity {
 		return false;
 	}
 	
-	
+	/* provide a hook for custom processing after visit and instruments have been
+	 *   created through prototypes. See VisitHandler.doSaveAdd() for details. */ 
+	public void afterCreatePrototypedInstruments() {
+		// override for custom handling
+	}
 }
