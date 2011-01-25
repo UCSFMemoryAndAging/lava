@@ -43,8 +43,9 @@
 
 
 <tags:componentListColumnHeader component="${component}" label="Action" width="8%"/>
-<tags:componentListColumnHeader component="${component}" label="Name" width="25%" sort="userName" />
-<tags:componentListColumnHeader component="${component}" label="Login" width="25%" sort="login"/>
+<tags:componentListColumnHeader component="${component}" label="Name" width="20%" sort="userName" />
+<tags:componentListColumnHeader component="${component}" label="Login" width="20%" sort="login"/>
+<tags:componentListColumnHeader component="${component}" label="Auth Type" width="10%"/>
 <tags:componentListColumnHeader component="${component}" label="Access Agreement" width="14%" sort="accessAgreementDate"/>
 <tags:componentListColumnHeader component="${component}" label="Effective/<br/>Expiration" width="12%" sort="effectiveDate"/>
 <tags:componentListColumnHeader component="${component}" label="Notes" width="20%"/>
@@ -66,7 +67,10 @@
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="login" component="${component}" listIndex="${iterator.index}" entityType="authUser"/>
-			</tags:listCell>
+		</tags:listCell>
+		<tags:listCell>
+			<tags:listField property="authenticationType" component="${component}" listIndex="${iterator.index}" entityType="authUser"/>
+		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="accessAgreementDate" component="${component}" listIndex="${iterator.index}" entityType="authUser"/>
 		</tags:listCell>
