@@ -103,8 +103,6 @@ else {
 </script>
 
 <script language="javascript" type="text/javascript" src="javascript/instrument/collect.js"></script>
-<c:if test="${isInstrument && componentView == 'collect'}">
-</c:if>
 
 <!-- QUICKLINKS -->
 <%-- the quicklinks are passed to the decorator, as comma-separated strings (sectionId's) representing 
