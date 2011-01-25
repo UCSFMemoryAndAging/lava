@@ -1,19 +1,26 @@
-DROP TABLE IF EXISTS `preference` ;
+SET FOREIGN_KEY_CHECKS=0;
+-- ----------------------------                                                                                                                       
+-- Table structure for preference                                                                                                                     
+-- ----------------------------                                                                                                                       
+DROP TABLE IF EXISTS `preference`;
+CREATE TABLE `preference` (
+  `preference_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) DEFAULT NULL,
+  `context` varchar(255) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` varchar(1000) DEFAULT NULL,
+  `value` varchar(255) DEFAULT NULL,
+  `visible` int(11) NOT NULL DEFAULT '1',
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`preference_id`),
+  KEY `preference__user_id` (`user_id`),
+  CONSTRAINT `preference__user_id` FOREIGN KEY (`user_id`) REFERENCES `authuser` (`UID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=latin1;
 
-CREATE  TABLE IF NOT EXISTS `preference` (
-  `preference_id` INT NOT NULL AUTO_INCREMENT ,
-  `user_id` INT(10) NULL ,
-  `context` VARCHAR(255) NULL ,
-  `name` VARCHAR(255) NOT NULL ,
-  `description` VARCHAR(1000) NULL ,
-  `value` VARCHAR(255) NULL ,
-  `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  PRIMARY KEY (`preference_id`) ,
-  INDEX `preference__user_id` (`user_id` ASC) ,
-  CONSTRAINT `preference__user_id`
-    FOREIGN KEY (`user_id` )
-    REFERENCES `authuser` (`UID` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+-- ----------------------------                                                                                                                       
+-- Records                                                                                                                         
+-- ----------------------------                                                                                                                       
+INSERT INTO `preference` VALUES ('1', null, 'calendar', 'displayRange', 'Default View (e.g. Month, Week)', 'Month', '0', '2010-01-26 14:10:06');
+INSERT INTO `preference` VALUES ('2', null, 'calendar', 'showDayLength', 'Sets day length in week or day views to display either full day or work day', 'Work Day', '0', '2010-01-26 17:13:23');
+INSERT INTO `preference` VALUES ('3', null, 'CFR_confocal_calendar', 'receive_cancellation_alert', 'Set to YES if you wish to receive an email alert when a scheduled reservation for the confocal microscope has been cancelled', '1', '1', '2010-02-08 13:20:46');
 
