@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRDataSourceProvider;
+import net.sf.jasperreports.engine.JRExporter;
 
 import org.springframework.web.servlet.view.jasperreports.JasperReportsCsvView;
 
@@ -30,4 +31,11 @@ public class LavaJasperReportsCsvView extends JasperReportsCsvView {
 		parameters.put("net.sf.jasperreports.engine.export.JRCsvExporterParameter.RECORD_DELIMITER", "\r\n");
 		super.setExporterParameters(parameters);
 	}
+
+	// EMORY change:
+	// must change default handling of double quotes within csv rows
+	protected JRExporter createExporter() {
+		return new LavaJRCsvExporter();
+	}
+
 }
