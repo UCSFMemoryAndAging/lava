@@ -102,6 +102,29 @@ function onlyNumsAllowed(e) {
 		else e.preventDefault();
 }
 
+// TODO: this function needs to be refactored later into scope-specific javascript
+function UDS_onlyNaccCharactersAllowed(e) {
+	var iKeyCode;
+	if(window.event) // IE
+	{
+		iKeyCode = event.keyCode;
+	}
+	else if(e.which) // Firefox
+	{
+		iKeyCode = e.which;
+	}
+	/* accept backspace(8) and all printable characters(ASCII keycodes 32 thru 126)
+	 *   except single quotes (39), double quotes (34), ampersands (38), and percentage signs (37)
+	 *   Use overlapping conditions for readability (since will be a quick evaluation anyway).
+	 */
+	if( (iKeyCode > 31 && iKeyCode < 127 || iKeyCode == 8|| iKeyCode == undefined)
+		&&
+		!(iKeyCode == 34 || iKeyCode == 37 || iKeyCode == 38 || iKeyCode == 39) ) return;
+	else
+		if (window.event)
+			window.event.returnValue = null;
+		else e.preventDefault();
+}
 
 function textareaMaxLength(textareaElement, maxLength) {
 	var length = textareaElement.value.length;
