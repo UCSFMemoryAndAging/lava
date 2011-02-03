@@ -72,7 +72,11 @@ public class ReportComponentHandler extends LavaComponentHandler {
 	
 	public ReportComponentHandler() {
 		super();
-		defaultEvents = new ArrayList(Arrays.asList(new String[]{"generate", "close"}));
+		// the refresh event does nothing in this case, but must be handled because project context changes
+		// execute a refresh (and if "refresh" is not a handled event the event will not return
+		// success and project context changes will be stuck in a decision state forever, until
+		// stack overflow)
+		defaultEvents = new ArrayList(Arrays.asList(new String[]{"generate", "close", "refresh"}));
 		defaultEvents.addAll(CalendarHandlerUtils.getDefaultEvents());
 		authEvents = new ArrayList(); // none of the report events require explicit permission
 
