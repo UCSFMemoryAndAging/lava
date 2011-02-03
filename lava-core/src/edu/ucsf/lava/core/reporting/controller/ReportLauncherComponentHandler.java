@@ -1,6 +1,7 @@
 package edu.ucsf.lava.core.reporting.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +28,12 @@ public class ReportLauncherComponentHandler extends LavaComponentHandler {
 	public ReportLauncherComponentHandler() {
 		super();
 		authEvents = new ArrayList(); // none of the report events require explicit permission
+		
+		// the refresh event does nothing in this case, but must be handled because project context changes
+		// execute a refresh (and if "refresh" is not a handled event the event will not return
+		// success and project context changes will be stuck in a decision state forever, until
+		// stack overflow)
+		defaultEvents = new ArrayList(Arrays.asList(new String[]{"refresh"}));
 		
 		// there is no command object for this handler, since there is no data to bind, but still
 		// need a default object name to set the component mode/view for the view layer, and a command
