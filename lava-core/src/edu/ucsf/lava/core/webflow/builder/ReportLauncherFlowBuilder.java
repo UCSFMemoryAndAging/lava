@@ -21,6 +21,11 @@ class ReportLauncherFlowBuilder extends BaseFlowBuilder {
 	public ReportLauncherFlowBuilder(LavaFlowRegistrar registry, String actionId) {
 		super(registry, actionId);
 		
+		// hard-code object name because there is currently no CrmsReportLauncherComopnentHandler
+		// so the lava-core ReportLauncherComponentHandler is used for both lava-core and lava-crms,
+		// so want the events which are based on the objectName to be prefixed "reportLauncher_"
+		this.objectName = "reportLauncher";
+		
 		// this is essentially the name of the initial state, used by many of
 		// the core transitions in the BaseFlowBuilder
 		setFlowEvent("decision");
