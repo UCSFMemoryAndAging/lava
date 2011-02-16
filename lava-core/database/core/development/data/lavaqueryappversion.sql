@@ -1,0 +1,1 @@
+INSERT INTO VersionHistory() VALUES('LAVAQUERYAPP','3.0.0',NOW(),3,0,0,1);
