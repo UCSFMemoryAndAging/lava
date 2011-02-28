@@ -3,6 +3,8 @@
 <%-- list
 
 	 Iterate Over the items of a list, each item in the list is put in "item" and iteration status variable is put in 'iterator'
+	 
+	 The list must be a ScrollablePagedListHolder.
 --%>
 <%@ attribute name="component" required="true"  
               description="the list component" %>
