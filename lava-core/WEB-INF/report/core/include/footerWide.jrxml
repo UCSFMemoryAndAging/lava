@@ -38,7 +38,7 @@
 				<reportElement x="2" y="1" width="200" height="10" style="pageFooterWide"/>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{webappInstance}.equals("mac") ? "UCSF Memory and Aging Center" :
 						($P{webappInstance}.equals("nam53") ? "NAM-53: Memantine/FTD" :
-						($P{webappInstance}.equals("examiner") ? "NINDS: Examiner" : ""))]]></textFieldExpression>
+						($P{webappInstance}.equals("examiner") ? "NINDS: Examiner" : "UCSF LAVA"))]]></textFieldExpression>
 			</textField>
 
 			<line direction="TopDown">
