@@ -50,8 +50,6 @@
   <page:param name="sectionId">assessment</page:param>
   <page:param name="sectionNameKey">reportLauncher.assessment.section</page:param>
   <page:param name="quicklinkPosition">none</page:param>
-<a href="<tags:actionURL actionId="lava.crms.reporting.reports.crmsReportLauncher" parameters="param,udsExtract" flowExecutionKey="${flowExecutionKey}" eventId="reportLauncher__view"/>">
-<spring:message code="action.lava.crms.reporting.reports.udsExtract.report"/></a><br/>
 
 </page:applyDecorator>  
 </tags:contentColumn>
