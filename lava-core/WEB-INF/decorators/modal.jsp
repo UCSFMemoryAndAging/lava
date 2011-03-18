@@ -80,7 +80,7 @@ confirmExit function to decide whether to prompt user before existing or not --%
 	<c:import url="/WEB-INF/jsp/${modalFooterURL}"/>
 </div> <!-- end footer -->
 <div id="copyright">
-  <spring:message code="${webappInstance}.modalCopyright" text="Copyright &copy; 2005-2010 University of California Regents. All Rights Reserved."/>
+  <spring:message code="${webappInstance}.modalCopyright" text="Copyright &copy; 2005-2011 University of California Regents. All Rights Reserved."/>
 </div>
 
 </div> <!-- end center -->
