@@ -8,13 +8,30 @@ import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.crms.people.model.Patient;
 
 public class CrmsEntity extends EntityBase {
+	// Skip Error Codes
+	public static final Short DATA_CODES_PATIENT_FACTOR = (short) -1;
+	public static final Short DATA_CODES_SITUATIONAL_FACTOR = (short) -2;
+	public static final Short DATA_CODES_ALTERNATE_TEST_GIVEN = (short) -3;
+	public static final Short DATA_CODES_REFUSED = (short) -4;
+	public static final Float DATA_CODES_PATIENT_FACTOR_FLOAT = new Float(-1.0);
+	public static final Float DATA_CODES_SITUATIONAL_FACTOR_FLOAT = new Float(-2.0);
+	public static final Float DATA_CODES_ALTERNATE_TEST_GIVEN_FLOAT = new Float(-3.0);
+	public static final Float DATA_CODES_REFUSED_FLOAT = (float) -4.0;
 	
-	public static Long DATA_CODES_PATIENT_FACTOR = new Long(-1);
-	public static Long DATA_CODES_SITUATIONAL_FACTOR = new Long(-2);
-	public static Long DATA_CODES_ALTERNATE_TEST_GIVEN = new Long(-3);
-	public static Float DATA_CODES_PATIENT_FACTOR_FLOAT = new Float(-1.0);
-	public static Float DATA_CODES_SITUATIONAL_FACTOR_FLOAT = new Float(-2.0);
-	public static Float DATA_CODES_ALTERNATE_TEST_GIVEN_FLOAT = new Float(-3.0);
+	// Standard Error Codes
+	public static final Short DATA_CODES_LOGICAL_SKIP = (short) -6;
+	public static final Short DATA_CODES_INCOMPLETE = (short) -7;
+	public static final Short DATA_CODES_UNUSED_VARIABLE= (short) -8;
+	public static final Short DATA_CODES_MISSING_DATA = (short) -9;
+	public static final Float DATA_CODES_LOGICAL_SKIP_FLOAT = (float) -6.0;
+	public static final Float DATA_CODES_INCOMPLETE_FLOAT = (float) -7.0;
+	public static final Float DATA_CODES_UNUSED_VARIABLE_FLOAT = (float) -8.0;
+	public static final Float DATA_CODES_MISSING_DATA_FLOAT = (float) -9.0;
+	
+	// Total (Calculation) Error Codes
+	public static final Short TOTAL_ERROR_CODE = (short) -5;
+	public static final Float TOTAL_ERROR_CODE_FLOAT = -5.0f;	
+	
 	protected boolean patientAuth;
 	protected boolean projectAuth;
 	
