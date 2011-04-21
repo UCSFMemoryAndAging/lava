@@ -1,5 +1,8 @@
 package net.sf.uitags.js;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -14,6 +17,8 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockServletContext;
 
 public class JsFilesTest extends TestCase {
+  private static final Log log = LogFactory.getLog(JsFilesTest.class);
+    
   private JsFiles jsFiles;
 
   protected void tearDown() throws Exception {
@@ -40,11 +45,15 @@ public class JsFilesTest extends TestCase {
 
     ResourceLoader fileSystemResourceLoader = new ResourceLoader() {
       public Resource getResource(String location) {
-        return new FileSystemResource("." + location);
+  		// ctoohey. modifications required for test to succeed on Ubuntu Linux. obviously this code
+  		// is development platform specific, so may need to change dependant on the developer's
+  		// environment
+	  log.info("JsFilesTest getResource CQT location=" + location);
+	  	  return new FileSystemResource(location);
       }
     };
     FileFinder fileFinder = FileFinder.getInstance(
-        new MockServletContext(fileSystemResourceLoader), "uitags-main/src/main/js");
+        new MockServletContext(fileSystemResourceLoader), "/home/ctoohey/workspace/uitags/uitags-main/src/main/js");
 
     this.jsFiles = new JsFiles(suites, fileFinder);
   }
@@ -104,8 +113,11 @@ public class JsFilesTest extends TestCase {
   /////////////////////////////////
 
   public void testUsesLatestLastModifiedOfAllFiles() throws IOException {
+	// ctoohey. modifications required for test to succeed on Ubuntu Linux. obviously this code
+	// is development platform specific, so may need to change dependant on the developer's
+	// environment
     Resource resource = new FileSystemResourceLoader().getResource(
-        "./uitags-main/src/main/js/html/Element.js");
+        "file:/home/ctoohey/workspace/uitags/uitags-main/src/main/js/html/Element.js");
     File fileToTouch = resource.getFile();
     long latestTimestamp = new Date().getTime();
     assertTrue(fileToTouch.setLastModified(latestTimestamp));
