@@ -37,7 +37,7 @@
     <input type="text" name="${status.expression}" id="${fieldId}" value="${status.value}" autocomplete="off" class="${styleClass}" ${attributesText} 
         size="${empty textBoxSize ? 20 : textBoxSize}"
     	onchange="javascript:validateDateEntry(document.getElementById('${fieldId}'));return false;" onBlur="javascript: validateDateEntry(document.getElementById('${fieldId}'));return false;">
-    <A href=""  onClick="submitted=true;cal_${fieldId}.select(document.getElementById('${fieldId}'),'${fieldId}_Calendar','MM/dd/yyyy'); return false;"  NAME="${fieldId}_Calendar" ID="${fieldId}_Calendar">
+    <A href=""  onClick="submitted=true;cal_${fieldId}.select(document.getElementById('${fieldId}'),'${fieldId}_Calendar','MM/dd/yyyy'); return false;"  NAME="${fieldId}_Calendar" ID="${fieldId}_Calendar" tabIndex="-1">
     <img src="images/1day.png" border="0"/></A>
  
 	<c:set var="errorFlag" value="${status.error}"/>
