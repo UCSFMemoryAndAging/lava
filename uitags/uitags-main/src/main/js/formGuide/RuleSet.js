@@ -137,13 +137,13 @@ uiFormGuide_RuleSet.prototype._allIgnoreRulesHold = function() {
   }
   for (var i = 0; i < this.__ignoreRules.length; ++i) {
     var ruleHolds = this.__ignoreRules[i]._holds();
-    if (this.__observeAndOr == "and") {
+    if (this.__ignoreAndOr == "and") {
       // at least one rule does not hold, so rules do not hold
       if (!ruleHolds) {
         return false;
       }  
     }
-    else if (this.__observeAndOr == "or") {
+    else if (this.__ignoreAndOr == "or") {
       // at least one rule holds, so rules hold
       if (ruleHolds) {
         return true;
@@ -151,11 +151,11 @@ uiFormGuide_RuleSet.prototype._allIgnoreRulesHold = function() {
     }    
   }
 
-  if (this.__observeAndOr == "and") {
+  if (this.__ignoreAndOr == "and") {
 	// all of the rules held
     return true;
   }
-  else if (this.__observeAndOr == "or") {
+  else if (this.__ignoreAndOr == "or") {
     // none of the rules held
     return false;
   }  
