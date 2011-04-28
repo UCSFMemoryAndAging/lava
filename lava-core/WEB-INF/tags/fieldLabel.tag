@@ -21,7 +21,10 @@
 <%@ attribute name="requiredField" required="true"
               description="value of 'true' means to denote the field as required" %>
 <%@ attribute name="labelAlignment"
-              description="[optional] override the label alignment that would ordinarily be computed" %>
+              description="[optional] override the label alignment that would ordinarily be computed. it is
+              				important to note that 'shortRight' and 'tightRight' embellish 'right' so must
+              				be used in combination e.g. 'right shortRight'. the same is true for 'longLeft'
+              				and 'longLongLeft' with respect to 'left'" %>
 <%@ attribute name="labelStyle"
               description="[optional] CSS style to style the label" %>
 <%@ attribute name="inOptionsAlignment"
@@ -54,11 +57,15 @@
 		<c:when test="${not empty labelAlignment}">
 			<c:set var="alignment" value="${labelAlignment}"/>
 		</c:when>
-		<%-- checkbox labels do not need styling, as the natural flow handles them well for
-		     our application, which does not need checkboxes to line up, i.e. they typically
-		     exist alone. the label is output, and then the checkbox is output so it immediately
-		     follows the label. so label is always to the left, regardess of context, mode, etc. --%>
 		<c:when test="${dataElement == 'checkbox'}">
+			<%-- the default label alignment for a checkbox is the natural browser alignment, i.e.
+				the label is to the left of the checkbox immediately followed by the checkbox. this
+				works fine for individual checkboxes, but if there are multiple checkboxes in a row
+				the checkboxes will not be vertically aligned (unless the labels all happen to be of
+				the same length. to align multiple checkboxes, pass in one of the following for
+				labelAlignment to override the default behavior:
+				'right checkboxRight'
+			--%>
 		</c:when>
 		<%-- if context is info data, put label to left, and if context is result data put 
     	     label to top or right, depending upon the data element (unless in vw mode, in
