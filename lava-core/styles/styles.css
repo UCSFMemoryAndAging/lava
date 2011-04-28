@@ -1175,11 +1175,13 @@ form div.indentField label.right,form div.indentField p.right {
 /* short right labels, e.g. for instrument where two fields and one label, all horizontal across page,
    or, instrument with field whose textBoxSize 50 characters instead of the default of 20, i.e. pass
    labelStyle="shortRight" textBoxSize="50" into createField
-   labels with "shortRight" style also have "right", so pick up attributes above and override width
-   note: the term shortRight may be misleading. it means the space for the label to the right is 
-   shorter, making the space for the input field on the left larger */
+   NOTE: the term shortRight may be misleading. it means the space for the label to the right is 
+         shorter, making the space for the input field on the left larger. this is in contrast
+         to "tightRight" defined below, which makes the space for input field on left smaller
+         then "right"
+   NOTE: this must be used WITH the "right" style defined above, as this just overrides the width */
 form label.shortRight,form div.cr p.shortRight {
-	width: 590px;
+		width: 590px;
 }
 
 * html form label.shortRight,* html form div.cr p.shortRight {
@@ -1213,7 +1215,8 @@ form div.colLeft2Col5050 div.indentField label.right,form div.colRight2Col5050 d
 
 /* tight right labels ...these reduce the space between the data element and the beggining of the label by 
 	increasing the size of the label.   The assumption is that the data that might be present in the field
-	will never be so wide as to overlap the labels...we will see about that. */
+	will never be so wide as to overlap the labels...we will see about that.
+	NOTE: this must be used WITH the "right" style defined above, as this just overrides the width */
 form label.tightRight,form div.cr p.tightRight {
 	width: 860px;
 }
@@ -1242,6 +1245,44 @@ form div.colLeft2Col5050 div.indentField label.tightRight,form div.colRight2Col5
 	{
 	width: 355px;
 }
+
+
+/* by default, checkbox labels are to the left of the checkbox, followed immediately by the
+checkbox. this will not result in vertical alignment of the checkbox when a number of checkbox
+fields follow one another down a form (unless the labels all happen to be the exact same length).
+to align mulitple checkboxes vertically, display the checkbox is on the left followed immediately
+by the label. to do so, use the checkboxRight style in combination with teh right style. 
+*/
+form label.checkboxRight,form div.cr p.checkboxRight {
+	width: 950px;
+}
+
+* html form label.checkboxRight,* html form div.cr p.checkboxRight {
+	width: 960px;
+}
+
+form div.indentField label.checkboxRight,form div.indentField p.checkboxRight
+	{
+	width: 940px;
+	/* override width of right labels for indented fields to give data element more space */
+}
+
+* html form div.indentField label.checkboxRight,* html form div.indentField lp.checkboxRight
+	{
+	width: 950px;
+}
+
+/* TODO: these widths have used in production so may need adjustment */
+form div.colLeft2Col5050 div.field label.checkboxRight,form div.colLeft2Col5050 div.field div.cr p.checkboxRight,form div.colRight2Col5050 div.field label.checkboxRight,form div.colRight2Col5050 div.field div.cr p.checkboxRight
+	{
+	width: 410px; /* from right edge of column block, since float right */
+}
+
+form div.colLeft2Col5050 div.indentField label.checkboxRight,form div.colRight2Col5050 div.indentField p.checkboxRight
+	{
+	width: 400px;
+}
+
 
 /* 'left' field labels that are to the left of the corresponding data element. 
 
@@ -1322,15 +1363,6 @@ form div.colLeft2Col5050 label.longLongLeft,form div.colRight2Col5050 label.long
 	width: 325px;
 }
 
-/* note: checkbox labels are not given a style, because the natural flow works best for our
-         application where checkboxes do not need to be lined up with other properties; they
-         typically exist alone. 
-         the label is output, and then the checkbox is output, flowing after the label. this
-         works well because the length of the label is unknown, and the width of a checkbox
-         is so small that there could be a big gap between label and checkbox if label is
-         small, and we attempted to style the checkbox label choosing some width.
-         all checkboxes are handled the same, regardless of where they are, i.e. all checkboxes
-         have left labels with the checkbox immediately following. */
 	/* radio button individual labels */
 	/* for radio button individual labels that stack vertically, where the group label (handled by 
    the rule above) is to the left. the margin-left here should match the width of the above rule */
