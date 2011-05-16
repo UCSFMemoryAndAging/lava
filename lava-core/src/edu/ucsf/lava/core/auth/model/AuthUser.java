@@ -556,7 +556,16 @@ public class AuthUser extends EntityBase implements UserDetails {
 		filter.setOuterAlias("group", "group");
 		filter.setOuterAlias("group.users", "groupUsers");
 		filter.setOuterAlias("groupUsers.user", "groupUser");
-		filter.addDaoParam(AuthDaoUtils.getEffectiveDaoParam("group",filter));
+		// EMORY change: b/c an effective group parameter was given, any roles assigned directly
+		//   to users (i.e. role not given through group) was filtered out.  That authuserrole entry
+		//   had GID=NULL, so getEffectiveDaoParam("group",filter) evaluated to false.
+		//   Get around this (without changing the getEffectiveDaoParam function for now) by adding
+		//   a NULL check.
+		//filter.addDaoParam(AuthDaoUtils.getEffectiveDaoParam("group",filter));
+		filter.addDaoParam(
+				filter.daoOr(
+						filter.daoNull("group"),
+						AuthDaoUtils.getEffectiveDaoParam("group",filter)));
 		filter.addDaoParam(
 				filter.daoOr(
 					filter.daoEqualityParam("user.id", this.getId()),
