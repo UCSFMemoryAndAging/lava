@@ -1145,6 +1145,8 @@ form div label.top,form div.cr p.top {
    
    note: the same widths work when within centerModal and centerLeftNav, so do need
          to differentiate and hence do not have selectors for these 
+         update: not for checkboxRight labels. see different settings for modal vs.
+                 leftNav below 
          
    note: div.field is float:left and has specified width, and the result of positioning
          div.field differs in Mozilla and IE6, such that IE6 seems to ignore the width
@@ -1253,34 +1255,64 @@ fields follow one another down a form (unless the labels all happen to be the ex
 to align mulitple checkboxes vertically, display the checkbox is on the left followed immediately
 by the label. to do so, use the checkboxRight style in combination with teh right style. 
 */
-form label.checkboxRight,form div.cr p.checkboxRight {
+
+/* centerLeftNav vs. centerModal makes a difference with checkboxRight labels */
+#centerLeftNav form label.checkboxRight,#centerLeftNav form div.cr p.checkboxRight {
+	width: 730px;
+}
+
+* html #centerLeftNav form label.checkboxRight,* html #centerLeftNav form div.cr p.checkboxRight {
+	width: 740px;
+}
+
+#centerLeftNav form div.indentField label.checkboxRight,#centerLeftNav form div.indentField p.checkboxRight
+	{
+	width: 720px;
+	/* override width of right labels for indented fields to give data element more space */
+}
+
+* html #centerLeftNav form div.indentField label.checkboxRight,* html #centerLeftNav form div.indentField lp.checkboxRight
+	{
+	width: 730px;
+}
+	
+#centerModal form label.checkboxRight,#centerModal form div.cr p.checkboxRight {
 	width: 950px;
 }
 
-* html form label.checkboxRight,* html form div.cr p.checkboxRight {
+* html #centerModal form label.checkboxRight,* html #centerModal form div.cr p.checkboxRight {
 	width: 960px;
 }
 
-form div.indentField label.checkboxRight,form div.indentField p.checkboxRight
+#centerModal form div.indentField label.checkboxRight,#centerModal form div.indentField p.checkboxRight
 	{
 	width: 940px;
 	/* override width of right labels for indented fields to give data element more space */
 }
 
-* html form div.indentField label.checkboxRight,* html form div.indentField lp.checkboxRight
+* html #centerModal form div.indentField label.checkboxRight,* html #centerModal form div.indentField lp.checkboxRight
 	{
 	width: 950px;
 }
 
-/* TODO: these widths have used in production so may need adjustment */
-form div.colLeft2Col5050 div.field label.checkboxRight,form div.colLeft2Col5050 div.field div.cr p.checkboxRight,form div.colRight2Col5050 div.field label.checkboxRight,form div.colRight2Col5050 div.field div.cr p.checkboxRight
+#centerLeftNav form div.colLeft2Col5050 div.field label.checkboxRight,#centerLeftNav form div.colLeft2Col5050 div.field div.cr p.checkboxRight,#centerLeftNav form div.colRight2Col5050 div.field label.checkboxRight,#centerLeftNav form div.colRight2Col5050 div.field div.cr p.checkboxRight
 	{
-	width: 410px; /* from right edge of column block, since float right */
+	width: 340px; /* from right edge of column block, since float right */
 }
 
-form div.colLeft2Col5050 div.indentField label.checkboxRight,form div.colRight2Col5050 div.indentField p.checkboxRight
+#centerLeftNav form div.colLeft2Col5050 div.indentField label.checkboxRight,#centerLeftNav form div.colRight2Col5050 div.indentField p.checkboxRight
 	{
-	width: 400px;
+		width: 330px;
+}
+
+#centerModal form div.colLeft2Col5050 div.field label.checkboxRight,#centerModal form div.colLeft2Col5050 div.field div.cr p.checkboxRight,#centerModal form div.colRight2Col5050 div.field label.checkboxRight,#centerModal form div.colRight2Col5050 div.field div.cr p.checkboxRight
+	{
+		width: 440px; /* from right edge of column block, since float right */
+}
+
+#centerModal form div.colLeft2Col5050 div.indentField label.checkboxRight,#centerModal form div.colRight2Col5050 div.indentField p.checkboxRight
+	{
+		width: 430px;
 }
 
 
