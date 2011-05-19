@@ -4,12 +4,14 @@ import java.util.Map;
 
 import edu.ucsf.lava.core.manager.LavaManager;
 import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
+import edu.ucsf.lava.crms.scheduling.model.Visit;
 
 /**
  * @author jhesse
  *
  */
 public class EnrollmentManager extends LavaManager  {
+	public static final String ANY_PROJECT_KEY="ANY";
 	public static String ENROLLMENT_MANAGER_NAME="enrollmentManager";
 	
 	protected Map<String,EnrollmentStatus> enrollmentStatusPrototypes;
@@ -41,6 +43,14 @@ public class EnrollmentManager extends LavaManager  {
 				
 			}
 		}
+		
+		//try ANY_PROJECT_KEY (this is useful when configuring a custom EnrollmentStatus, as 
+		//opposed to a customizing EnrollmentStatus, where the custom EnrollmentStatus is used
+		//for all projects
+		if(enrollmentStatusPrototypes.containsKey(ANY_PROJECT_KEY)){
+			return (EnrollmentStatus) enrollmentStatusPrototypes.get(ANY_PROJECT_KEY).deepClone();
+		}
+
 		return (EnrollmentStatus) prototype.deepClone();
 		
 	}
