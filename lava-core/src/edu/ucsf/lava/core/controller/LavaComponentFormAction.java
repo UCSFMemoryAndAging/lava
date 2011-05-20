@@ -166,6 +166,20 @@ public class LavaComponentFormAction extends BaseComponentFormAction {
 	}
 
 	
+	/**
+	 * This is an enhanced version of Spring binding the request parameters to the form, i.e. the Spring command
+	 * object. The enhancement is to create a command error (i.e. an error at  the level of the page rather than 
+	 * for an individual field) after doing the standard Spring binding, so that the view will display
+	 * an error if there were any bind errors.
+	 * 
+	 * This is called from Spring Web Flow flows and so must conform to the SWF Action method signature.
+	 * 
+	 * @param context
+	 * @return Event the event returned to the flow. a success event will result in the flow transition
+	 * 				 proceeding to another flow state, while an error event (any non-success event) will 
+	 * 				 result in remaining in the same flow view state (with the command error displayed) 
+	 * @throws Exception
+	 */
 	// this is a Spring Web Flow Action method so must conform to that signature
 	public Event customBind(RequestContext context) throws Exception {
 		
@@ -290,6 +304,10 @@ public class LavaComponentFormAction extends BaseComponentFormAction {
 	
 	public static void createCommandError(BindingResult errors, String msgKey, Object[] msgArgs) throws Exception {
 		errors.addError(new ObjectError(errors.getObjectName(),	new String[]{msgKey}, msgArgs, ""));
+	}
+
+	public static void createCommandError(BindingResult errors, String errorMsg) throws Exception {
+		errors.addError(new ObjectError(errors.getObjectName(),	new String[]{}, new Object[]{}, errorMsg));
 	}
 
 	// this is modeled after required field error creation done in Spring MVC code
