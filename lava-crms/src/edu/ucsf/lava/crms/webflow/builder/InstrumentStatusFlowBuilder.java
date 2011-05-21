@@ -70,6 +70,7 @@ public class InstrumentStatusFlowBuilder extends BaseFlowBuilder {
         paramMapper.addInputMapping(mapping().source("requestParameters.param").target("param").value());
         paramMapper.addInputMapping(mapping().source("requestParameters.param2").target("param2").value());
         paramMapper.addInputMapping(mapping().source("requestParameters.param3").target("param3").value());
+        paramMapper.addInputMapping(mapping().source("requestParameters.param4").target("param4").value());
 
     	// add the outputMappings for the enter and collect subflow states needed for instrument__switch
         paramMapper.addOutputMapping(mapping().source("id").target("flowScope.id").value());

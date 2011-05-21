@@ -198,6 +198,7 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
 		        paramMapper.addInputMapping(mapping().source("requestParameters.param").target("param").value());
 		        paramMapper.addInputMapping(mapping().source("requestParameters.param2").target("param2").value());
 		        paramMapper.addInputMapping(mapping().source("requestParameters.param3").target("param3").value());
+		        paramMapper.addInputMapping(mapping().source("requestParameters.param4").target("param4").value());
 		        
 		    	if (subFlowInfo.getTarget().equals("instrumentGroup")){
 			        // return the group in an output mapper so that the selected items can be re-selected, since
