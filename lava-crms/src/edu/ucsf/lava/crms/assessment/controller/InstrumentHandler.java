@@ -31,7 +31,7 @@ import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
-import edu.ucsf.lava.crms.assessment.controller.upload.FileLoader;
+import edu.ucsf.lava.crms.assessment.controller.cbt.FileLoader;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentConfig;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
@@ -255,27 +255,16 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			compareInstrObj.markUnusedFields(); // marks all result fields not used by this specific version
 			backingObjects.put(COMPARE_INSTRUMENT, compareInstrObj);
 			
-			
-			// special handling for  instruments with detail records, where the detail records
-			// are added as a component to the command object (but without a handler, as the only event handling
-			// needed is taken care of in this handler, i.e. prevPage and nextPage)
-			// note: right now, this only pertains to file upload instruments. during the upload flow, the
-			// detail records are added to the command object in the instrument specific FileLoader bean method
-			// that parses and loads the data from the uploaded file(s)
-			
-			//TODO: refactor this as done in lava where if instrument supports upload flow, obtain the FileLoader
-			//and call the getDetailComponents method on the file loader. this facilitates instruments that have
-			//multiple detail lists, as in the lava Info Processing Speed instrument
+	
+			// special handling for CBT instruments, which have may have one or more detail components
 			InstrumentConfig instrumentConfig = instrumentManager.getInstrumentConfig().get(instrument.getInstrTypeEncoded());
-			if (instrumentConfig != null && instrumentConfig.getDetails()) { 
-				// put the detail records into a ScrollablePagedListHolder and add that to the command components
-				// so that the view can display the detail records as a paged list
-				// note: even though just need basic navigation for the detail records list, and no filtering or
-				//  sorting, still need a ScrollablePagedListHolder vs. PagedListHolder to support the record set
-				//  navigation, e.g. "1-10 of 121"
-				ScrollablePagedListHolder detailRecordsListHolder = new ScrollablePagedListHolder();
-				detailRecordsListHolder.setSourceFromEntityList(instrument.getDetails());
-				backingObjects.put(INSTRUMENT_DETAILS, detailRecordsListHolder);
+			if (instrumentConfig.getUploadFlow()) {
+				// obtain the bean to perform instrument specific file loading
+				FileLoader fileLoader = fileLoaders.get(instrTypeEncoded + "FileLoader");
+				// note that it is possible for CBT instruments to not have a details table. the base 
+				// BaseCbt class still instantiates a details collection, but even though it is added to 
+				// the backingObjects here it is ignored and does no harm
+				fileLoader.setDetailComponents(context, backingObjects);
 			}
 		}
 
@@ -886,6 +875,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			// "doubleEnterSave" - doubleEnter state - transitions to compare state
 			// "doubleEnterDefer" - doubleEnter state - transitions to editStatus state
 			// "doubleEnterCompare" - compare" state - transitions to editStatus state
+			// "upload" - enter state - transitions back to enter state after uploading file and populating properties
 
 			if(event.equals("enterSave")){
 				return this.handleEnterSaveEvent(context,command,errors);
@@ -901,6 +891,9 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			}	
 			else if(event.equals("doubleEnterCompare")){
 				return this.handleDoubleEnterCompareEvent(context,command,errors);
+			}
+			if(event.equals("upload")){
+				return this.handleUploadEvent(context,command,errors);
 			}
 			else {
 				handlerFound = false;
@@ -1400,8 +1393,8 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		// obtain the bean to perform instrument specific file loading
 		FileLoader fileLoader = fileLoaders.get(instrTypeEncoded + "FileLoader");
 		
-		// load the file(s) into the command object
-		Event returnEvent = fileLoader.loadFile(context, command, errors);
+		// load the data from selected file(s) into the command object
+		Event returnEvent = fileLoader.loadData(context, command, errors);
 		
 		if (returnEvent.getId().equals(SUCCESS_FLOW_EVENT_ID)) {
 
