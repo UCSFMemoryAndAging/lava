@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"
+    [<!ENTITY instrInclude SYSTEM "classpath://../hibernate/crms/assessment/instrInclude.xml" >
+     <!ENTITY instrInclude2 SYSTEM "classpath://../hibernate/crms/assessment/instrInclude2.xml" >]>
+    
+<!-- Instrument is never instantiated, but must be mapped so that other mappings can have an 
+association to instruments, i.e. any type of instrument, and Instrument is the superclass of all instruments.
+ -->
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.crms.assessment.model.Instrument" table="instrumenttracking" select-before-update="true">
+
+		&instrInclude;
+		
+		&instrInclude2;
+		
+	</class>		
+		
+</hibernate-mapping>
+
+
