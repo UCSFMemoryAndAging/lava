@@ -75,6 +75,7 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
         requestParametersMapper.addInputMapping(mapping().source("requestParameters.param").target("param").value());
         requestParametersMapper.addInputMapping(mapping().source("requestParameters.param2").target("param2").value());
         requestParametersMapper.addInputMapping(mapping().source("requestParameters.param3").target("param3").value());
+        requestParametersMapper.addInputMapping(mapping().source("requestParameters.param4").target("param4").value());
         this.formActionName = formActionName;
         if (actionId == null){
         	logger.error("FlowBuilder created without actionId");
@@ -120,7 +121,8 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
     	Mapping paramMapping = mapping().source("param").target("flowScope.param").value();
     	Mapping param2Mapping = mapping().source("param2").target("flowScope.param2").value();
     	Mapping param3Mapping = mapping().source("param3").target("flowScope.param3").value();
-    	getFlow().setInputMapper(new DefaultAttributeMapper().addMapping(paramMapping).addMapping(param2Mapping).addMapping(param3Mapping));
+    	Mapping param4Mapping = mapping().source("param4").target("flowScope.param4").value();
+    	getFlow().setInputMapper(new DefaultAttributeMapper().addMapping(paramMapping).addMapping(param2Mapping).addMapping(param3Mapping).addMapping(param4Mapping));
 	}
 	
     public void buildStates() throws FlowBuilderException {
@@ -380,6 +382,14 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
         // custom events that return to the view, while "customEnd", "customEnd2" or "customEnd3"
     	// provide a generic way for handling custom events that finish the flow, i.e. transition
     	// to the "finish" end state
+    	
+    	// note: all of the transitions invoke customBind so that Spring will bind the request parameters
+    	// to the form properties, i.e. the model object or DTO properties. if using these events with
+    	// an instrument, because customBind is being used instead of customBindResultFields, there
+    	// will be no required field errors detected, and any comboRadioSelect controls will not be
+    	// bound properly. if either of these become an issue, then we will need a set of custom events
+    	// for standard entities and a separate set of custom events for instruments
+    	
     	ArrayList<Transition> transitions = new ArrayList<Transition>();
     	transitions.add(transition(on(objectName + "__custom"), to(getFlowEvent()), 
            	ifReturnedSuccess(new Action[]{
