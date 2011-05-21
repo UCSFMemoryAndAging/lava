@@ -264,7 +264,8 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 	}
 
 	// validate is called prior to saving an entity. if there is validation that can be done within
-	// the entity itself, override this and throw a RuntimeException if validation fails.
+	// the entity itself, override this and throw a ValidationException with an error message
+	// if validation fails.
 	public void validate(MetadataManager metadataManager) {
 		
 	}
