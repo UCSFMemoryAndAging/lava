@@ -87,9 +87,7 @@
 				
 			
 	
-	<!-- most instruments share common flows (assessment.instrument.instrument.*) and the flow 
-	    listener sets the specific instrument type in the current action. the exception is instruments
-		that require their own handler which are configured below -->
+	<!-- action for adding an instrument where the type of instrument to add is not known ahead of time -->
 	<bean id="lava.crms.assessment.instrument.instrument" parent="crmsInstrumentFlowAction"/>
 	
 	<bean id="lava.crms.assessment.instrument.instrumentGroup" parent="crmsInstrumentGroupFlowAction"/>				
@@ -197,19 +195,27 @@
 	   		 					"enterReview" is data entry followed by review (readonly) possibly followed by verify (double enter)
 	   		 						followed by edit status
 	   		 					"upload" is file upload followed by review followed by edit status
-                                note: until all instruments can be printed, temporarily also use "print" as a supported flow for
+	 							note: until all instruments can be printed, temporarily also use "print" as a supported flow for
                                 those instruments that can be printed
                                 
                                 ** "enter" and "enterReview" are mutually exclusive so only one of them can be supported
                  
-			 "verify" = instrument supports verify via double entry (defaults to true)
+			 "verify" = true|false
+			            instrument supports verify via double entry (defaults to true)
 	         			note: if an instrument supports verify then a) it will have a verify action button ("Double Entry")
 	         			to allow the user to verify whenever they want, and b) a configured verify rate (configured in the 
 	         			projectInstrumentVerifyRates bean) will determine whether verify is mandatory some percentage of the time
+	         			
+			 "hidden" = true|false (default: false)
+			 			the instrument will not be listed anywhere. intended for instruments that are stored in the instrument
+			 			tables but are not implemented in this application, e.g. instruments whose data is uploaded from data
+			 			files for analysis by an application that interfaces with the instrument tables, such as Lava Query 
+                        ** requires also defining the "instrType" property with full instrument name (i.e. not instrTypeEncoded)                                 
          				
-	         "details" = instrument has a single details collection which is displayed in a ScrollablePagedListHolder.
-	         			 e.g. the CBT instruments, but not medications which displays details as editable controls
-	         			 (defaults to false)
+			 "diagnosis" = true|false (default: false)
+			               flags the instrument as a diagnosis, which can then be used at will if a distinction is needed  
+	                       ** requires also defining the "instrType" property with full instrument name (i.e. not 
+	                       instrTypeEncoded), so that a persistent property is available to use in queries 						         					
 	         -->
 	
 	
