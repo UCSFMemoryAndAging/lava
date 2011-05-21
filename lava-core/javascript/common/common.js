@@ -83,8 +83,8 @@ function setFocus(focusFieldId) {
 	}
 }
 
-
-function onlyNumsAllowed(e) {
+// for keyboard input of signed decimal values
+function onlyNumsAllowed(e, allowDecimal, allowNegative) {
 	var iKeyCode;
 	if(window.event) // IE
 	{
@@ -94,13 +94,20 @@ function onlyNumsAllowed(e) {
 	{
 		iKeyCode = e.which;
 	}
-	/* accept numeric '0' thru '9'(ASCII keycodes 48 thru 57) or backspace(8), or '.' for decimals (46) or negative (45) */
-	if( iKeyCode > 47 && iKeyCode < 58 || iKeyCode == 8 || iKeyCode == 46 || iKeyCode == 45 || iKeyCode == undefined ) return;
+	/* accept numeric '0' thru '9'(ASCII keycodes 48 thru 57) or backspace(8)  */
+	if( iKeyCode > 47 && iKeyCode < 58 || iKeyCode == 8 || iKeyCode == undefined ) return;
 	else
-		if (window.event)
-			window.event.returnValue = null;
-		else e.preventDefault();
+		/* optionally allow decimal point (46) for decimals */
+		if (allowDecimal == true && iKeyCode == 46) return;
+		else
+			/* optionally allow minus sign (45) for negative numbers */
+			if (allowNegative == true && iKeyCode == 45) return;
+			else 
+				if (window.event)
+					window.event.returnValue = null;
+				else e.preventDefault();
 }
+
 
 // TODO: this function needs to be refactored later into scope-specific javascript
 function UDS_onlyNaccCharactersAllowed(e) {
