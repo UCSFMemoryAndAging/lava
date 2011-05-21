@@ -4,21 +4,32 @@ import edu.ucsf.lava.crms.assessment.InstrumentDefinitions;
 
 // instrument configuration data structure
 public class InstrumentConfig {
-	String instrTypeEncoded;
-	InstrumentDefinitions instrumentDefinitions;
-	String className;
-	Class clazz;
+	private String instrTypeEncoded;
+	private InstrumentDefinitions instrumentDefinitions;
+	private String className;
+	private Class clazz;
 	// possible flows are: "enter", "enterReview", "upload" (temporarily, "print" indicates that
 	// the instrument has a CRUD report design file allowing user to print the instrument)
-	String supportedFlows; // comma-separated values
-	Boolean enterFlow = false;
-	Boolean enterReviewFlow = false;
-	Boolean collectFlow = false;
-	Boolean uploadFlow = false; 
-	Boolean crudReport; // temporary, until all instruments have CRUD reports
-	Boolean details = false; // does the instrument have detail records 
-	Boolean verify = true; // can the instrument be verified (via double entry) 
-	String currentVersionAlias;
+	private String supportedFlows; // comma-separated values
+	private Boolean enterFlow = false;
+	private Boolean enterReviewFlow = false;
+	private Boolean collectFlow = false;
+	private Boolean uploadFlow = false; 
+	// used to hide instrument from user interface altogether, where the instrument exists in the instrument 
+	// metadata table containing the list of instrument names for use by other applications, e.g. lava query
+	private Boolean hidden = false; 
+	// diagnosis is treated like an instrument as it is instrument-like in terms of being associated with 
+	// a visit, being versionable, having an enhanced flow, and having multiple types (requiring
+	// the user to specify which type to Add and mapping that to a Java class via instrumentConfig). however,
+	// there may be a need to identify a diagnosis as distinct from an instrument, e.g. a listing that includes
+	// or excludes diagnoses. this flag facilitates such a distinction. when flagging a diagnosis instrument,
+	// set the instrType as well so that a persistent property is available for queries.
+	private Boolean diagnosis = false;
+	private String instrType; // currently only used hidden or diagnosis set "true"
+	private Boolean crudReport; // temporary, until all instruments have CRUD reports
+	private Boolean verify = true; // can the instrument be verified (via double entry)
+	private String currentVersionAlias;
+	
 	public InstrumentConfig() {};
 	
 	public String getInstrTypeEncoded() {
@@ -134,6 +145,14 @@ public class InstrumentConfig {
 		return this.collectFlow;
 	}
 	
+	public Boolean getHidden() {
+		return hidden;
+	}
+
+	public void setHidden(Boolean hidden) {
+		this.hidden = hidden;
+	}
+
 	public void setUploadFlow(Boolean uploadFlow) {
 		this.uploadFlow = uploadFlow;
 	}
@@ -142,20 +161,20 @@ public class InstrumentConfig {
 		return this.uploadFlow;
 	}
 
+	public String getInstrType() {
+		return instrType;
+	}
+
+	public void setInstrType(String instrType) {
+		this.instrType = instrType;
+	}
+
 	public void setCrudReport(Boolean crudReport) {
 		this.crudReport = crudReport;
 	}
 	
 	public Boolean getCrudReport() {
 		return this.crudReport;
-	}
-
-	public void setDetails(Boolean details) {
-		this.details = details;
-	}
-	
-	public Boolean getDetails() {
-		return this.details;
 	}
 
 	public void setVerify(Boolean verify) {
@@ -174,6 +193,13 @@ public class InstrumentConfig {
 		this.currentVersionAlias = currentVersionAlias;
 	}
 
+	public Boolean getDiagnosis() {
+		return diagnosis;
+	}
+
+	public void setDiagnosis(Boolean diagnosis) {
+		this.diagnosis = diagnosis;
+	}
 
 	public InstrumentDefinitions getInstrumentDefinitions() {
 		return instrumentDefinitions;
