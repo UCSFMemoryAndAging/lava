@@ -1,7 +1,7 @@
 package edu.ucsf.lava.crms.assessment.controller;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,6 +22,7 @@ import edu.ucsf.lava.core.dao.LavaDateRangeParamHandler;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
+import edu.ucsf.lava.crms.assessment.model.InstrumentConfig;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.controller.CrmsCalendarComponentHandler;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
@@ -51,6 +52,31 @@ public class ProjectInstrumentsHandler extends CrmsCalendarComponentHandler {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		CrmsSessionUtils.setFilterProjectContext(sessionManager,request,filter);
 	}
+	
+	
+	/**
+	 * Exclude hidden and diagnosis instruments.
+	 */
+	public LavaDaoFilter onPostFilterParamConversion(LavaDaoFilter daoFilter) {
+		Map<String,InstrumentConfig> instrConfigMap = instrumentManager.getInstrumentConfig();
+		List<String> dxInstrTypes = null;
+		for (InstrumentConfig instrConfig : instrConfigMap.values()) {
+			if (instrConfig.getHidden()) {
+				daoFilter.addDaoParam(daoFilter.daoNot(daoFilter.daoEqualityParam("instrType", instrConfig.getInstrType())));
+			}
+			if (instrConfig.getDiagnosis()) {
+				if (dxInstrTypes == null) {
+					dxInstrTypes = new ArrayList<String>();
+				}
+				dxInstrTypes.add(instrConfig.getInstrType());
+			}
+		}
+		if (dxInstrTypes != null) {
+			daoFilter.addDaoParam(daoFilter.daoNot(daoFilter.daoInParam("instrType", dxInstrTypes.toArray())));
+		}
+		return daoFilter;
+	}
+	
 	
 	public Map addReferenceData(RequestContext context, Object command, BindingResult errors, Map model) {
 		model.put("instrumentConfig", instrumentManager.getInstrumentConfig());

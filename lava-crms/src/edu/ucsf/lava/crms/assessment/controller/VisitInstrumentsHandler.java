@@ -1,5 +1,7 @@
 package edu.ucsf.lava.crms.assessment.controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +17,7 @@ import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.dao.LavaEqualityParamHandler;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
+import edu.ucsf.lava.crms.assessment.model.InstrumentConfig;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.assessment.controller.InstrumentGroupHandler;
 import edu.ucsf.lava.crms.controller.CrmsListComponentHandler;
@@ -71,6 +74,29 @@ public class VisitInstrumentsHandler extends CrmsListComponentHandler {
 				filter.setParam("visit.id", visitId);
 			}
 		}
+	}
+
+	/**
+	 * Exclude hidden and diagnosis instruments.
+	 */
+	public LavaDaoFilter onPostFilterParamConversion(LavaDaoFilter daoFilter) {
+		Map<String,InstrumentConfig> instrConfigMap = instrumentManager.getInstrumentConfig();
+		List<String> dxInstrTypes = null;
+		for (InstrumentConfig instrConfig : instrConfigMap.values()) {
+			if (instrConfig.getHidden()) {
+				daoFilter.addDaoParam(daoFilter.daoNot(daoFilter.daoEqualityParam("instrType", instrConfig.getInstrType())));
+			}
+			if (instrConfig.getDiagnosis()) {
+				if (dxInstrTypes == null) {
+					dxInstrTypes = new ArrayList<String>();
+				}
+				dxInstrTypes.add(instrConfig.getInstrType());
+			}
+		}
+		if (dxInstrTypes != null) {
+			daoFilter.addDaoParam(daoFilter.daoNot(daoFilter.daoInParam("instrType", dxInstrTypes.toArray())));
+		}
+		return daoFilter;
 	}
 	
 	public Map addReferenceData(RequestContext context, Object command, BindingResult errors, Map model) {
