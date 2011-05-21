@@ -35,6 +35,11 @@ public static final String CONTEXT_CHANGE_RESULT_KEY = "contextChangeResult";
 	}
 
 
+	protected boolean isDoDefaultActionFlag(RequestContext context){
+		String result = (String) context.getRequestScope().get(CONTEXT_CHANGE_RESULT_KEY);
+		return (result == null ? false : (result.equals("defaultAction") ? true : false));
+	}
+	
 	protected void setDoDefaultActionFlag(RequestContext context){
 		this.setContextChangeResult(context, "defaultAction");
 	}
@@ -44,7 +49,6 @@ public static final String CONTEXT_CHANGE_RESULT_KEY = "contextChangeResult";
 	}
 	protected void setContextChangeResult(RequestContext context,String result){
 		context.getRequestScope().put(CONTEXT_CHANGE_RESULT_KEY,result);
-		
 	}
 	
 	
