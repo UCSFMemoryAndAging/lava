@@ -142,6 +142,9 @@
         			used for retrieving metadata"%>
 <%@ attribute name="mode"
        description="[optional] a mode to use to override the page mode"%>
+<%@ attribute name="componentView"
+       description="[optional] a componentView to use if the component passed in is not the primary component such that
+       				componentView will not be evaluated correctly"%>
 <%@ attribute name="context"
        description="[optional] context to use to override the metadata context"%>
 <%@ attribute name="metadataName"
@@ -209,9 +212,14 @@
 	</c:if>
 
 	<%-- obtain the componentView --%>
-	<c:set var="view_string" value="${component}_view"/>
-	<c:set var="componentView" value="${requestScope[view_string]}"/>
-
+	<%-- WARNING: if the component passed in is not the primary component from which the componentView variable
+		is composed, e.g. a DTO component separate from the primary component, then componentView here could
+		evaluate and be set to null (and therefore also set to null in the calling jsp), so should pass in 
+		componentView in this case. --%>
+	<c:if test="${empty componentView}">
+		<c:set var="view_string" value="${component}_view"/>
+		<c:set var="componentView" value="${requestScope[view_string]}"/>
+	</c:if>
 
 	<%-- if instrument data entry, setup to iterate over property twice --%>
 	<c:set var="inputFields" value="1"/> 
