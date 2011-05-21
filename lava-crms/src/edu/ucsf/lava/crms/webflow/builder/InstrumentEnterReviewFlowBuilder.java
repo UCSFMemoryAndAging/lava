@@ -121,6 +121,10 @@ public class InstrumentEnterReviewFlowBuilder extends BaseFlowBuilder {
     						invoke("customBind", formAction),
     						// saveReview event handler updates dvStatus and saves
     						invoke("handleFlowEvent", formAction)})),
+				transition(on("instrument__enterReviewSaveNoStatus"), to("finish"), 
+    					ifReturnedSuccess(new Action[]{
+    						invoke("customBind", formAction),
+    						invoke("handleFlowEvent", formAction)})),
    				transition(on("instrument__enterReviewRevise"), to(getFlowEvent())),
    		    	// user chooses to verify
    		    	transition(on("instrument__enterReviewVerify"), to("doubleEnter")),

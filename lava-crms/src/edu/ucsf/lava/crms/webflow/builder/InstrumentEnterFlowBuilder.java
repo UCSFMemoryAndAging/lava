@@ -51,6 +51,12 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
     public void buildEventStates() throws FlowBuilderException {
     	ArrayList<Transition> enterStateTransitions = new ArrayList<Transition>();
     	
+    	// this allows for a file to be uploaded to populate data and remain in the enter view 
+    	enterStateTransitions.add(transition(on("instrument__upload"), to("enter"), 
+				ifReturnedSuccess(new Action[]{
+						invoke("customBindResultFieldsIgnoreErrors", formAction), 
+						invoke("handleFlowEvent", formAction)})));
+    	
     	enterStateTransitions.add(transition(on("instrument__enterSave"), to("mandatoryVerifyDecision"), 
 				ifReturnedSuccess(new Action[]{
 						// special result field custom bind here allows binding user-selected missing data code
