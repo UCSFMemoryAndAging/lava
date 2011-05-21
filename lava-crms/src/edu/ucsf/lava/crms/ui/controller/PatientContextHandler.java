@@ -164,6 +164,18 @@ public class PatientContextHandler extends CrmsContextChangeComponentHandler {
 		}
 		//if there is a result list, do not want to set patient in the filter yet because
 		//the search is in process; the user is in the process of selecting 
+		
+		//If patient context changed, check to see if the duplicate name warning is turned on for the patient then 
+		//display a warning message.
+		if (isDoDefaultActionFlag(context)) {
+			Patient p = CrmsSessionUtils.getCurrentPatient(sessionManager, request);
+			if(p!=null && p.getDupNameFlag()){
+				// add form error to the session
+				CoreSessionUtils.addFormError(sessionManager,request, new String[]{"info.patientSearch.duplicateNameWarning"}, null);
+			}
+		}
+		
+		
 	}
 	
 	protected void doContextClear(RequestContext context, Object command, BindingResult errors) throws Exception {
