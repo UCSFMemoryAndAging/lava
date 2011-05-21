@@ -302,7 +302,11 @@ public class ListManager extends LavaManager{
 							request.addParam(filter.daoNamedParam(entry.getKey(), entry.getValue()));
 						}
 					}
-					//if custom codes not set and there is a codes list registered for the entity, use that
+					//if custom codes not set and there is a codes list registered for the entity, use that.
+					//this is the mechanism by which the default codes are added to a list configuration, i.e. if
+					//an entity has a .codes list, then codes are added to all the lists defined for that entity
+					//in the metadata. since most instruments have a .codes list all the lists the instrument
+					//uses has codes by default
 					BaseListConfig entityCodes = staticListDefinitions.get(property.getEntity().concat(".codes"));
 					if(request.getCodes() == null && entityCodes!= null){
 						request.setCodes(entityCodes);
