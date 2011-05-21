@@ -50,21 +50,19 @@ public class InstrumentComponentFormAction extends CrmsComponentFormAction {
 		super(handlers);
 	}
 	
-    // the instrument type is used for two purposes:
+    // the encoded instrument type (instrTypeEncoded) is used for two purposes:
     // 1) to determine the jsp page name for the instrument flow to display (since there is only one of
-    //    each instrument CRDU flow shared across all instruments, the flows are effectively parameterized by
-    //    the instrument type which appears in the request URL, except where an instrument has its own
-	//    custom flow definition)
-    // 2) to obtain the commmand class, i.e. the instrument-specific class, used for retrieving the instrument
+    //    each instrument CRUD flow shared across all instruments, the flows are effectively parameterized by
+    //    the instrument type which appears in the request URL)
+    // 2) to obtain the command class, i.e. the instrument-specific class, used for retrieving the instrument
     //    from the DAO, or if adding, for instantiating a new instrument (as such, this controller and the
     //    InstrumentHandler are effectively parameterized by the instrument type)
-    // the instrument type is obtained from the current action (which parsed it from the requested URL) and
-	// used by the flow to generate the jsp to display (in CustomViewSelector), and by the handler,
-    // to look up the instrument-specific class (which it is able to do via a service from configuration data
-    // in lava-dao.xml which maps instrument types to instrument model classes. this technique facilitates
-    // using one FormAction class and one handler class for all instruments, unless an instrument requires
-	// a custom flow definition which uses a custom FormAction injected with the custom instrument specific
-	// handler)
+    // instrTypeEncoded is obtained from the current action (which parsed it from the requested URL).
+	// this class is the FormAction class shared by all instruments (and thus its methods are invoked
+	// by all instrument flows). this class in turn calls a handler for the instrument, which is 
+	// InstrumentHandler, unless the instrument has specialized needs for its own handler which subclasses
+	// InstrumentHandler (to configure this, the FormAction bean for a given instrument specifies its
+	// own handler)
 
     // regarding instruments with versions, each version has its own jsp page. however, all versions use the
     // same model class/Hibernate mapping, so all versions are mapped to that class in lava-dao.xml
@@ -156,11 +154,11 @@ public class InstrumentComponentFormAction extends CrmsComponentFormAction {
 		
 		
 		// iterate thru the properties of the instrument to do any custom binding for comboRadioSelectFields
-		PropertyDescriptor[] propDescriptors = PropertyUtils.getPropertyDescriptors(instrument);
-		for (PropertyDescriptor propDescrip : propDescriptors) {
-
-			// BeanUtils getProperty returns property value as a String
-			String propValue = BeanUtils.getProperty(instrument, propDescrip.getName());
+		// TODO: create a cache of all entity properties in ViewProperty metadata (see ListManager
+		// initializeMetadataListRequestCache for approach) and iterate thru the instruments properties
+		// from that because this current technique restricts comboRadioSelect to requiredResultFields
+		for (String propName : instrument.getRequiredResultFields()) {
+			String propValue = BeanUtils.getProperty(instrument, propName);
 			if (propValue != null && 
 					(propValue.equals(COMBO_RADIO_SELECT_USE_SELECT) || propValue.equals(COMBO_RADIO_SELECT_USE_SELECT_FLOAT))) {
 				// Handle comboRadioSelect input widgets.
@@ -186,18 +184,18 @@ public class InstrumentComponentFormAction extends CrmsComponentFormAction {
 
 				// logger.error("propValue is -9999, so getting value from select box");
 				StringBuffer fullPropName = new StringBuffer("components['");
-				fullPropName.append(component).append("'].").append(propDescrip.getName());
+				fullPropName.append(component).append("'].").append(propName);
 				String codeValue = request.getParameter(fullPropName.toString() + "_CODE");
 				if (codeValue.equals("")) {
 					//logger.error("select box (codeValue) is empty string, so set prop to null");
 					// set the property value to null
 					// note: using BeanUtils.setProperty here does not properly set numeric types to null, but
 					//       rather sets them to 0, so switched to PropertyUtils and it does set them to null
-					PropertyUtils.setProperty(instrument, propDescrip.getName(), null);
+					PropertyUtils.setProperty(instrument, propName, null);
 				}
 				else {
 					// set the property value to the comboRadioSelect select box value 
-					BeanUtils.setProperty(instrument, propDescrip.getName(), codeValue);
+					BeanUtils.setProperty(instrument, propName, codeValue);
 					//logger.error("select box (codeValue) is NOT empty string, so set prop to codeValue");
 				}
 			}
