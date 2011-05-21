@@ -26,7 +26,9 @@ import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.dao.file.LavaFile;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.LavaEntity;
+import edu.ucsf.lava.core.model.ValidationException;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
+import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 
 /*
  * This class serves as the base class for classes that handler entity-based "components" that
@@ -434,7 +436,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 	// loops through the command map and refreshes the command objects handled by this
 	// note: lists and views invoke FormAction refreshFormObject (which calls handler refreshBackingObjects)
 	// instead of using this refresh techique. see comments in refreshBackingObjects
-	protected Event refreshHandledObjects(RequestContext context, Map objects, BindingResult errors) {
+	protected Event refreshHandledObjects(RequestContext context, Map objects, BindingResult errors) throws Exception {
 		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
 		try {
 			for(String objectName : handledObjects.keySet())
@@ -474,15 +476,14 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 	}
 
 	//loops through the command map and saves the command objects handled by this handler
-	protected Event saveHandledObjects(RequestContext context, Map objects, BindingResult errors){
+	protected Event saveHandledObjects(RequestContext context, Map objects, BindingResult errors) throws Exception {
 		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
 		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
 		try {
 			for(String objectName : handledObjects.keySet())
 			{
 				// entities which have internal validation logic checks should override
-				// validate and throw a RuntimeException if validation fails
-				// additionally, any conditional required field validation
+				// validate and throw a ValidationException if validation fails
 				//TODO: look into replacing this technique with Validator objects
 				LavaEntity object = (LavaEntity)objects.get(objectName);
 				object.validate(metadataManager);
@@ -490,7 +491,12 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 			}
 		}					
 		catch (Exception e) {
-			addObjectErrorForException(errors, e);
+			if (e.getClass().equals(ValidationException.class)) {
+				LavaComponentFormAction.createCommandError(errors,e.getMessage());
+			}
+			else {
+				addObjectErrorForException(errors, e);
+			}
 			returnEvent = new Event(this,ERROR_FLOW_EVENT_ID);
 		}
 		return returnEvent;
@@ -556,7 +562,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 	}
 
 	//loops through the command map and deletes the command objects handled by this handler
-	protected Event deleteHandledObjects(RequestContext context, Map objects, BindingResult errors){
+	protected Event deleteHandledObjects(RequestContext context, Map objects, BindingResult errors) throws Exception {
 		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
 		try {
 			LavaEntity object;
