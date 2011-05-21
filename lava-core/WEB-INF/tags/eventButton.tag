@@ -25,6 +25,8 @@
                     note: 9/25/07 this is not yet supported by Spring Web Flow, so not used yet"%>          
 <%@ attribute name="locked" 
        description="[optional] whether modifying actions would be disabled" %>
+<%@ attribute name="javascript" 
+       description="[optional] javascript to execute onClick, must end in semi-colon" %>
 
 <c:if test="${empty locked}">
 	<c:set var="locked" value="false"/>
@@ -44,6 +46,7 @@
 </c:when>
 <c:otherwise>
 <c:set var="target" value=""/> <%-- somehow in some case this was getting set to something --%>
-<a href="javascript:void" onClick="javascript:document.${pageName}.action='${requestUrl}#${not empty fragment ? fragment : component}';submitForm(document.${pageName}, '${component}__${action}', '${target}'); return false" class="${(fn:length(buttonText) < 7) ? 'eventButtonSmall ' : (fn:length(buttonText) < 10) ? 'eventButtonMedium ' : (fn:length(buttonText) < 13) ? 'eventButtonLarge ' : 'eventButtonXLarge '} ${empty className ? 'eventButton':className}" style="${empty styleDef ? '':styleDef}">${buttonText}</a>
+<%-- onClick return false means do not go to the href destination. rather, the javascript submitForm function is doing an HTTP Post --%>
+<a href="javascript:void" onClick="javascript:${javascript}document.${pageName}.action='${requestUrl}#${not empty fragment ? fragment : component}';submitForm(document.${pageName}, '${component}__${action}', '${target}'); return false" class="${(fn:length(buttonText) < 7) ? 'eventButtonSmall ' : (fn:length(buttonText) < 10) ? 'eventButtonMedium ' : (fn:length(buttonText) < 13) ? 'eventButtonLarge ' : 'eventButtonXLarge '} ${empty className ? 'eventButton':className}" style="${empty styleDef ? '':styleDef}">${buttonText}</a>
 </c:otherwise>
 </c:choose>
