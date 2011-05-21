@@ -1,5 +1,9 @@
 <%@ include file="/WEB-INF/jsp/includes/include.jsp" %>
 
+<c:set var="isInstrument">
+  <decorator:getProperty property="isInstrument"/>
+</c:set>
+
 <c:set var="component">
   <decorator:getProperty property="component"/>
 </c:set>
@@ -8,12 +12,13 @@
   <decorator:getProperty property="messageCodeComponent"/>
 </c:set>
 <c:if test="${empty messageCodeComponent}">
-	<c:set var="messageCodeComponent" value="${component}"/>
+	<c:if test="${isInstrument}">
+		<c:set var="messageCodeComponent" value="instrument"/>
+	</c:if>
+	<c:if test="${empty isInstrument}">
+		<c:set var="messageCodeComponent" value="${component}"/>
+	</c:if>
 </c:if>
-
-<c:set var="isInstrument">
-  <decorator:getProperty property="isInstrument"/>
-</c:set>
 
 <c:set var="viewString" value="${component}_view"/>
 <c:set var="componentView" value="${requestScope[viewString]}"/>
@@ -45,8 +50,7 @@
 
 
 <!-- get page text from metadata -->
-<%-- special case: when doing add diagnosis, it is not an instrument, but its component is 'instrument' so change to 'diagnosis' to get correct page title --%>
-<c:set var="pageHeading"><spring:message code="${componentView}.${isInstrument ? 'instrument' : (messageCodeComponent == 'instrument' ? 'diagnosis' : messageCodeComponent)}.pageTitle" arguments="${pageHeadingArgs}" text=""/></c:set>
+<c:set var="pageHeading"><spring:message code="${componentView}.${messageCodeComponent}.pageTitle" arguments="${pageHeadingArgs}" text=""/></c:set>
 <c:set var="instructions"><spring:message code="${componentView}.${messageCodeComponent}.instructions" text=""/></c:set>
 <c:set var="instructionsCol2"><spring:message code="${componentView}.${messageCodeComponent}.instructionsCol2" text=""/></c:set>
 <c:set var="deleteWarning"><spring:message code="${componentView}.${isInstrument ? 'instrument' : messageCodeComponent}.deleteWarning" text=""/></c:set>
