@@ -30,53 +30,15 @@
 			<c:when test="${flowMode == 'enter'}">
 				<%-- left buttons --%>
 				<c:choose>
-					<%-- macdiagnosis property's lists do not have codes so no need for hide/show buttons --%>
-					<c:when test="${not fn:startsWith(instrTypeEncoded, 'macdiagnosis')}">
-						<c:set var="hideShowCodes" value="true"/>
-					</c:when>					
-					<c:otherwise>						
-						<c:set var="hideShowCodes" value="false"/>
-					</c:otherwise>
-				</c:choose>					
-			
-				<c:choose>
-					<%-- hide/show codes button and double enter button --%>
-					<c:when test="${hideShowCodes && instrumentConfig[instrTypeEncoded].verify}">
-						<c:set var="numLeftButtons" value="2"/>
-						<c:if test="${showCodes}">
-							<c:set var="leftbutton1_text" value="Hide Codes"/>
-							<c:set var="leftbutton1_action" value="hideCodes"/>
-						</c:if>			
-						<c:if test="${!showCodes}">
-							<c:set var="leftbutton1_text" value="Show Codes"/>
-							<c:set var="leftbutton1_action" value="showCodes"/>
-						</c:if>
-						<c:set var="leftbutton2_text" value="Double Entry"/>
-						<c:set var="leftbutton2_action" value="enterVerify"/>
-					</c:when>
-					
 					<%--  verify button only --%>
-					<c:when test="${!hideShowCodes && instrumentConfig[instrTypeEncoded].verify}">
+					<c:when test="${instrumentConfig[instrTypeEncoded].verify}">
 						<c:set var="numLeftButtons" value="1"/>
-						<c:set var="leftbutton2_text" value="Double Entry"/>
-						<c:set var="leftbutton2_action" value="enterVerify"/>
+						<c:set var="leftbutton1_text" value="Double Entry"/>
+						<c:set var="leftbutton1_action" value="enterVerify"/>
 					</c:when>
 				
-					<%--  hide/show codes button only --%>
-					<c:when test="${hideShowCodes && !instrumentConfig[instrTypeEncoded].verify}">
-						<c:set var="numLeftButtons" value="1"/>
-						<c:if test="${showCodes}">
-							<c:set var="leftbutton1_text" value="Hide Codes"/>
-							<c:set var="leftbutton1_action" value="hideCodes"/>
-						</c:if>			
-						<c:if test="${!showCodes}">
-							<c:set var="leftbutton1_text" value="Show Codes"/>
-							<c:set var="leftbutton1_action" value="showCodes"/>
-						</c:if>
-					</c:when>
-					
 					<%-- no buttons --%>
-					<c:when test="${!hideShowCodes && !instrumentConfig[instrTypeEncoded].verify}">
+					<c:when test="${!instrumentConfig[instrTypeEncoded].verify}">
 						<c:set var="numLeftButtons" value="0"/>
 					</c:when>					
 				</c:choose>			
@@ -92,35 +54,7 @@
 					flow transitions to a review state (as opposed to the doubleEnter or editStatus states) and
 					b) there is no verify button on the left, because it appears in the review state, i.e. if
 					the user choose to double enter, it is after the review --%>
-				<c:choose>
-					<%-- macdiagnosis property's lists do not have codes so no need for hide/show buttons --%>
-					<c:when test="${not fn:startsWith(instrTypeEncoded, 'macdiagnosis')}">
-						<c:set var="hideShowCodes" value="true"/>
-					</c:when>					
-					<c:otherwise>						
-						<c:set var="hideShowCodes" value="false"/>
-					</c:otherwise>
-				</c:choose>					
-				
-				<c:choose>
-					<%--  hide/show codes button only --%>
-					<c:when test="${hideShowCodes}">
-						<c:set var="numLeftButtons" value="1"/>
-						<c:if test="${showCodes}">
-							<c:set var="leftbutton1_text" value="Hide Codes"/>
-							<c:set var="leftbutton1_action" value="hideCodes"/>
-						</c:if>			
-						<c:if test="${!showCodes}">
-							<c:set var="leftbutton1_text" value="Show Codes"/>
-							<c:set var="leftbutton1_action" value="showCodes"/>
-						</c:if>
-					</c:when>
-					
-					<%-- no buttons --%>
-					<c:when test="${!hideShowCodes}">
-						<c:set var="numLeftButtons" value="0"/>
-					</c:when>					
-				</c:choose>			
+				<c:set var="numLeftButtons" value="0"/>
 		
 		        <c:set var="numRightButtons" value="2"/>
 				<c:set var="rightbutton1_text" value="Cancel"/>
@@ -134,18 +68,7 @@
 	<%-- the 'doubleEnter' componentView is used in both the 'enter' and 'enterReview' flows, and
 		has the same left/right buttons in each flow --%>	
 	<c:when test="${componentView == 'doubleEnter'}">
-		<%-- macdiagnosis property's lists do not have codes so no need for hide/show buttons --%>
-		<c:if test="${not fn:startsWith(instrTypeEncoded, 'macdiagnosis')}">
-			<c:set var="numLeftButtons" value="1"/>
-			<c:if test="${showCodes}">
-				<c:set var="leftbutton1_text" value="Hide Codes"/>
-				<c:set var="leftbutton1_action" value="hideCodesDoubleEnter"/>
-			</c:if>
-			<c:if test="${!showCodes}">
-				<c:set var="leftbutton1_text" value="Show Codes"/>
-				<c:set var="leftbutton1_action" value="showCodesDoubleEnter"/>
-			</c:if>			
-		</c:if>			
+		<c:set var="numLeftButtons" value="0"/>
 
         <c:set var="numRightButtons" value="2"/>
 		<c:set var="rightbutton1_text" value="Defer"/>
@@ -157,15 +80,7 @@
 	<%-- the 'compare' componentView is used in both the 'enter' and 'enterReview' flows, and
 		has the same left/right buttons in each flow --%>	
 	<c:when test="${componentView == 'compare'}">	
-		<c:set var="numLeftButtons" value="1"/>
-		<c:if test="${showCodes}">
-			<c:set var="leftbutton1_text" value="Hide Codes"/>
-			<c:set var="leftbutton1_action" value="hideCodes"/>
-		</c:if>
-		<c:if test="${!showCodes}">
-			<c:set var="leftbutton1_text" value="Show Codes"/>
-			<c:set var="leftbutton1_action" value="showCodes"/>
-		</c:if>			
+		<c:set var="numLeftButtons" value="0"/>
 
         <c:set var="numRightButtons" value="2"/>
 		<c:set var="rightbutton1_text" value="Cancel"/>
@@ -481,6 +396,10 @@ note: these are defined as context fields in the metadata so are output readonly
 </fieldset>  
 
 <!-- SPECIFIC CONTENT -->
+
+<!-- facilitate app-specific instrumentStatusContent page -->
+<c:set var="statusContentURL"><spring:message code="${webappInstance}.instrumentStatusContentURL" text="crms/assessment/instrument/statusContent.jsp"/></c:set>
+
 <div id="contentBox">
 <c:choose>
 	<c:when test="${componentView == 'collect' || componentView == 'enter' || componentView == 'upload'}">
@@ -493,12 +412,12 @@ note: these are defined as context fields in the metadata so are output readonly
 		<decorator:body/>
 	</c:when>	
 	<c:when test="${componentView == 'editStatus' || componentView == 'status'}">	
-		<c:import url="/WEB-INF/jsp/crms/assessment/instrument/statusContent.jsp">
+		<c:import url="/WEB-INF/jsp/${statusContentURL}">
 			<c:param name="instrTypeEncoded" value="${instrTypeEncoded}"/>
 		</c:import>
 	</c:when>
 	<c:when test="${componentView == 'delete'}">	
-		<c:import url="/WEB-INF/jsp/crms/assessment/instrument/statusContent.jsp">
+		<c:import url="/WEB-INF/jsp/${statusContentURL}">
 			<c:param name="instrTypeEncoded" value="${instrTypeEncoded}"/>
 		</c:import>
 		<decorator:body/>
