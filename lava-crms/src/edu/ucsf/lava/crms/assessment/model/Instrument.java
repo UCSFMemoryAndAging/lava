@@ -305,19 +305,6 @@ public class Instrument extends CrmsEntity {
 	public String getSummary() {return this.summary;}
 	public void setSummary(String summary) {this.summary = summary;}
 	
-	// UploadedFiles table
-	public String getFilename() {return this.filename;}
-	public void setFilename(String filename) {this.filename = filename;}
-	
-	public String getFileContents() {return this.fileContents;}
-	public void setFileContents(String fileContents) {this.fileContents = fileContents;}
-	
-
-		// override in instruments which have details
-	public List getDetails() {
-		return null;
-	}
-		
 
 	
 
