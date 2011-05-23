@@ -40,7 +40,8 @@
 	
 	<!-- actions -->
 
-	<!-- TODO: redesign so that actions defined in lava-crms-nacc are configured in that project -->	
+	<!-- TODO: redesign so that the uds actions defined in lava-crms-nacc are configured in that project. for now,
+		a non-UDS app gives error messages in the log file on startup but no runtime damage -->	
 	<bean id="crmsInstrumentFlowAction" abstract="true" parent="crmsAction">
 		<property name="flowTypeBuilder"><ref bean="crmsInstrumentFlowTypeBuilder"/></property>
 		<property name="parentFlows"><list>
