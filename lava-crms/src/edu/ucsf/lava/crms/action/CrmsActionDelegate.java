@@ -80,18 +80,14 @@ public class CrmsActionDelegate extends AbstractScopeActionDelegate {
 			
 				if(!sectionsDone.contains(ActionUtils.getSection(actionId))){
 					if(!registry.containsAction(ActionUtils.getDefaultActionKey(actionId,DEFAULT_PATIENT_ACTION))){
-						//use default module action for section default because no section default specified
-						//note: we know there is a default module action because we just made sure of that. 								
-
-						//EMORY change: since section defaultPatientAction was not found, our next best action
-						// is the module _defaultPatientAction_, not the module defaultAction
+						// since section defaultPatientAction was not found, our next best action
+						//   is the module defaultPatientAction
 						if(registry.containsAction(ActionUtils.getDefaultModuleActionKey(actionId,DEFAULT_PATIENT_ACTION))){
 							registry.addAction(ActionUtils.getDefaultActionKey(actionId,DEFAULT_PATIENT_ACTION),
 								registry.getActionInternalCopy(ActionUtils.getDefaultModuleActionKey(actionId,DEFAULT_PATIENT_ACTION)));
 						} else {
-							// EMORY note: possible TODO: we may wish the default action to now be the _section_ defaultAction
-							//   before assigning it the module defaultAction
-
+							// since no module defaultPatientAction is found, use module defaultAction, our last resort
+							//note: we know there is a default module action because we just made sure of that. 
 							registry.addAction(ActionUtils.getDefaultActionKey(actionId,DEFAULT_PATIENT_ACTION),
 								registry.getActionInternalCopy(ActionUtils.getDefaultModuleActionKey(actionId)));
 						}
