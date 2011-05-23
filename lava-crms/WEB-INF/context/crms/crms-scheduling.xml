@@ -38,11 +38,36 @@
 
 	<bean id="lava.crms.scheduling.visit.visitInstruments" parent="crmsInstrumentListFlowAction"/>
 
+
+	<bean id="lava.crms.scheduling.visit.visitInstruments" parent="crmsInstrumentListFlowAction"/>
+
+	<!--  projectCalendar and patientCalendar default actions can be confusing, so here is the breakdown:
+		When current patient is set:
+			scheduling module default = patientVisits
+			patientCalendar section default = patientVisits
+			projectCalendar section default = projectVisits
+		When current patient is not set:
+			scheduling module default = projectVisits
+			patientCalendar section default = <not selectable: disabled in navigation/tabBar/sections.jsp>
+			projectCalendar section default = projectVisits
+		Thus projectCalendar.projectVisits default settings are:
+			moduleDefault (of scheduling module) 
+			sectionDefault (of projectCalendar section) 
+			patientSectionDefault (of projectCalendar section)
+			The first two are taken care of by subclassing crmsModuleListAction.
+			The last is taken care of by overriding patientSectionDefault.
+		And patientCalendar.patientVisits default settings are:
+			patientModuleDefault (of scheduling module)
+			patientSectionDefault (of patientCalendar section)
+			These two are taken care of by subclassing crmsPatientModuleListAction.
+	 -->
+
 	<bean id="lava.crms.scheduling.patientCalendar.patientVisits" parent="crmsPatientModuleListAction"/>
 
 	<bean id="lava.crms.scheduling.projectCalendar.projectVisits" parent="crmsModuleListAction">
 		<property name="patientSectionDefault" value="true"/>
 	</bean>			
+			
 			
 
 	<!-- form action definitions -->
