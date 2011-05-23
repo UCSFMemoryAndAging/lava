@@ -38,9 +38,6 @@
 
 	<bean id="lava.crms.scheduling.visit.visitInstruments" parent="crmsInstrumentListFlowAction"/>
 
-
-	<bean id="lava.crms.scheduling.visit.visitInstruments" parent="crmsInstrumentListFlowAction"/>
-
 	<!--  projectCalendar and patientCalendar default actions can be confusing, so here is the breakdown:
 		When current patient is set:
 			scheduling module default = patientVisits
