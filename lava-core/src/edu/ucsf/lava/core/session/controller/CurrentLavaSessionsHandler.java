@@ -5,6 +5,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.webflow.context.servlet.ServletExternalContext;
+import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.controller.BaseListComponentHandler;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
@@ -18,27 +24,24 @@ public class CurrentLavaSessionsHandler extends BaseLavaSessionsHandler {
 	public CurrentLavaSessionsHandler() {
 	super();
 	this.setHandledList("currentLavaSessions","lavaSession");
-	CurrentLavaSessionsSourceProvider sourceProvider = new CurrentLavaSessionsSourceProvider(this);
-	sourceProvider.setSessionManager(this.sessionManager);
-	this.setSourceProvider(sourceProvider);
+	this.setSourceProvider(new CurrentLavaSessionsSourceProvider(this));
+}
+	
+public SessionManager getSessionManager() {
+	return sessionManager;
 }
 
+public void setSessionManager(SessionManager sessionManager) {
+	this.sessionManager = sessionManager;
+}
+
+
 public static class CurrentLavaSessionsSourceProvider extends BaseListComponentHandler.BaseListSourceProvider {
-	protected SessionManager sessionManager;
-	
 	public CurrentLavaSessionsSourceProvider(BaseListComponentHandler listHandler) {
 		super(listHandler);
 		this.listHandler.setPageSize(1000);
 	}
 	
-	public SessionManager getSessionManager() {
-		return sessionManager;
-	}
-
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-
 	public List loadElements(Locale locale, Object filter) {
 			//LavaDaoFilter daoFilter = (LavaDaoFilter)filter;
 			//LavaServerInstance serverInstance = ((CurrentLavaSessionsHandler)listHandler).getServerInstance();
@@ -46,7 +49,7 @@ public static class CurrentLavaSessionsSourceProvider extends BaseListComponentH
 			//daoFilter.convertParamsToDaoParams();
 			//return 	LavaSession.MANAGER.getCurrent(serverInstance,daoFilter);
 		List results = new ArrayList<LavaSession>();
-		results.addAll(sessionManager.getLavaSessions().values());
+		results.addAll(((CurrentLavaSessionsHandler)listHandler).getSessionManager().getLavaSessions().values());
 		
 		//sort is descending order by time
 		Collections.sort(results, 
@@ -64,7 +67,7 @@ public static class CurrentLavaSessionsSourceProvider extends BaseListComponentH
 		//daoFilter.convertParamsToDaoParams();
 		
 		List results = new ArrayList<LavaSession>();
-		results.addAll(sessionManager.getLavaSessions().values());
+		results.addAll(((CurrentLavaSessionsHandler)listHandler).getSessionManager().getLavaSessions().values());
 		//sort in descending order by time
 		Collections.sort(results, 
 						new Comparator<LavaSession>() {
