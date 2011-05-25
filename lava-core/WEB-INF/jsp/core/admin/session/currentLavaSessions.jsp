@@ -35,7 +35,7 @@
 	<tags:listRow>
 		<tags:listCell styleClass="actionButton">
 				<tags:listActionURLButton buttonImage="view" actionId="lava.admin.session.lavaSession" eventId="lavaSession__view" parameters="sessionId,${item.httpSessionId}"/>	    
-				<tags:listActionURLButton buttonImage="edit" actionId="lava.admin.session.lavaSession" eventId="lavaSession__edit" parameteres="sessionId,${item.httpSessionId}"/>	
+				<tags:listActionURLButton buttonImage="edit" actionId="lava.admin.session.lavaSession" eventId="lavaSession__edit" parameters="sessionId,${item.httpSessionId}"/>	
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="id" component="${component}" listIndex="${iterator.index}" entityType="lavaSession"/>
