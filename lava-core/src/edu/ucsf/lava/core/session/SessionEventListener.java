@@ -29,7 +29,7 @@ public class SessionEventListener implements HttpSessionListener {
 		lavaSession.setHttpSessionId(httpSession.getId());
 		getSessionManager().hasSessionExpired(lavaSession,null);
 		
-		lavaSession.save();
+		sessionManager.saveLavaSession(lavaSession);
 		
 		logger.info("session created. id=" + lavaSession.toString());
 		
