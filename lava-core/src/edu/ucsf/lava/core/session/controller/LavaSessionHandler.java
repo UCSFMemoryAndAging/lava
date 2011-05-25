@@ -78,4 +78,9 @@ public class LavaSessionHandler extends BaseEntityComponentHandler {
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
 	
+	protected Event doCancel(RequestContext context, Object command,
+			BindingResult errors) throws Exception {
+		// do nothing, since LavaSession is persisted as memory-resident, not to disk
+		return new Event(this,SUCCESS_FLOW_EVENT_ID);
+	}	
 }
