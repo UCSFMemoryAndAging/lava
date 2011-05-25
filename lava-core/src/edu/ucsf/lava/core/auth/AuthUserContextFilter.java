@@ -65,7 +65,7 @@ public class AuthUserContextFilter implements Filter, ManagersAware {
 					session.setUsername(user.getShortUserNameRev());
 					session.setHostname(request.getRemoteAddr());
 					session.setAccessTimestamp(new Timestamp(new Date().getTime()));
-					session.save();
+					sessionManager.saveLavaSession(session);
 				}
 				
 				
