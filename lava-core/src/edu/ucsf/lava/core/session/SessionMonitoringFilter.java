@@ -85,7 +85,8 @@ public class SessionMonitoringFilter implements Filter, ManagersAware {
     		//first time through if not initialized
     		if(lsi.getServerDescription().equals(LavaServerInstance.SERVER_UNINITIALIZED)){
     			lsi.setServerDescription(appInfo);
-    			lsi.save();
+    			//do not persist LavaServerInstance for now
+    			//lsi.save();
     		}
     		
     		
