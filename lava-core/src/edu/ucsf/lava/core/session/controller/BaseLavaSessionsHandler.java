@@ -1,12 +1,9 @@
 package edu.ucsf.lava.core.session.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.PropertyEditorRegistry;
 import org.springframework.validation.BindingResult;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.execution.RequestContext;
@@ -16,14 +13,9 @@ import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.session.SessionManager;
 import edu.ucsf.lava.core.session.model.LavaServerInstance;
 import edu.ucsf.lava.core.session.model.LavaSession;
-import edu.ucsf.lava.core.type.LavaCustomDateEditor;
 
 public abstract class BaseLavaSessionsHandler extends BaseListComponentHandler {
 	
-
-	
-	
-
 	public void setSessionMonitor(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
 	}
