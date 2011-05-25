@@ -9,7 +9,7 @@
   <page:param name="subHeaderKey"></page:param>  
 	
 	<tags:contentColumn columnClass="colLeft2Col5050">
-		<tags:createField property="httpSessionId" component="${component}"/>
+		<tags:createField property="httpSessionId" component="${component}" metadataName="lavaSession.id"/>
 		<tags:createField property="currentStatus" component="${component}"/>
 		<tags:createField property="createTimestamp" component="${component}"/>
 		<tags:createField property="accessTimestamp" component="${component}"/>

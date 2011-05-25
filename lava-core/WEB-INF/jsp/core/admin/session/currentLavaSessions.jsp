@@ -38,7 +38,7 @@
 				<tags:listActionURLButton buttonImage="edit" actionId="lava.admin.session.lavaSession" eventId="lavaSession__edit" parameters="sessionId,${item.httpSessionId}"/>	
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="id" component="${component}" listIndex="${iterator.index}" entityType="lavaSession"/>
+			<tags:listField property="httpSessionId" component="${component}" listIndex="${iterator.index}" metadataName="lavaSession.id"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="createTimestamp" component="${component}" listIndex="${iterator.index}" entityType="lavaSession"/>
