@@ -8,6 +8,9 @@
 
 <class name="edu.ucsf.lava.core.session.model.LavaSession" table="lava_session" select-before-update="true">
 
+		<!-- AT THIS TIME, SESSIONS ARE NOT BEING PERSISTED TO THE DATABASE ANYMORE, ONLY TO MEMORY,
+			BUT LEAVING THIS FILE HERE IN CASE CHANGE BACK -->
+
 		<id name="id" type="long">
 			<column name="lava_session_id" not-null="true"/> 
 			<generator class="identity"/>
