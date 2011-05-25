@@ -4,6 +4,7 @@ package edu.ucsf.lava.core.session;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class SessionManager extends LavaManager{
 		protected MetadataManager metadataManager;
 		protected ScopeManager scopeManager;
 		protected EnvironmentManager environmentManager;
-		
+		protected Map<String,LavaSession> lavaSessions = new HashMap<String,LavaSession>();
 		
 		
 		public SessionManager(){
@@ -82,7 +83,8 @@ public class SessionManager extends LavaManager{
 			LavaSession session = getLavaSession(request.getSession());
 			if(session == null){return null;}
 			initializeUserAndHostNames(session, request);
-			session.save();
+			
+			saveSession(session);
 			return session;
 		}
 		
@@ -91,18 +93,25 @@ public class SessionManager extends LavaManager{
 			if(httpSession == null){
     			return null;
     			}
-    		
-    		LavaSession session = LavaSession.MANAGER.getLavaSession(getLavaServerInstance(),httpSession.getId());
-			if (session == null){
-    			return null;
-    			}
-			return session;
+			if(lavaSessions.containsKey(httpSession.getId())){
+				return lavaSessions.get(httpSession.getId());
+			}else{
+				return null;
+			}
 		}
 	
 	
 		public void removeLavaSessionFromCache(LavaSession session){
-			
-			session.release(true);
+			//session.release(true);
+		}
+
+		public void saveLavaSession(LavaSession session) {
+			saveSession(session);
+		}
+		
+		protected LavaSession saveSession(LavaSession session){
+			lavaSessions.put(session.getHttpSessionId(), session);
+			return session;
 		}
 	
 		
@@ -133,7 +142,7 @@ public class SessionManager extends LavaManager{
 			for (LavaSessionPolicyHandler handler: policyHandlers){
 				if(handler.handlesSession(session, request)){
 					boolean result = handler.hasSessionExpired(session, request);
-					session.save();
+					saveSession(session);
 					return result;
 				}
 			}
@@ -145,7 +154,7 @@ public class SessionManager extends LavaManager{
 			for (LavaSessionPolicyHandler handler: policyHandlers){
 				if(handler.handlesSession(session, request)){
 					boolean result = handler.shouldSessionDisconnect(session, request);
-					session.save();
+					saveSession(session);
 					return result;
 				}
 			}
@@ -162,7 +171,7 @@ public class SessionManager extends LavaManager{
 					//already have been called before this method...but this is to make sure. 
 					handler.shouldSessionDisconnect(session, request);
 					boolean result = handler.isDisconnectTimeWithinWarningWindow(session, request);
-					session.save();
+					saveSession(session);
 					return result;
 				}
 			}
@@ -176,7 +185,7 @@ public class SessionManager extends LavaManager{
 				session.setExpireTimestamp(new Timestamp(new Date().getTime()));
 			}
 			session.setCurrentStatus(LavaSession.LAVASESSION_STATUS_EXPIRED);
-			session.save();
+			saveSession(session);
 			invalidateHttpSession(httpSession);
 			
 		}
@@ -185,7 +194,7 @@ public class SessionManager extends LavaManager{
 				if(session.getCurrentStatus().equals(LavaSession.LAVASESSION_STATUS_ACTIVE)){
 					session.setDisconnectDateTime(new Date());
 					session.setCurrentStatus(LavaSession.LAVASESSION_STATUS_LOGOFF);
-					session.save();
+					saveSession(session);
 				}
 				invalidateHttpSession(httpSession);
 			}
@@ -196,7 +205,7 @@ public class SessionManager extends LavaManager{
 				session.setDisconnectDateTime(new Date());
 			}
 			session.setCurrentStatus(LavaSession.LAVASESSION_STATUS_DISCONNECTED);
-			session.save();
+			saveSession(session);
 			invalidateHttpSession(httpSession);
 			
 		}
@@ -205,14 +214,14 @@ public class SessionManager extends LavaManager{
 		
 		public void setSessionAccessTimeToNow(LavaSession session,HttpServletRequest request){
 			session.setAccessTimestamp(new Timestamp(new Date().getTime()));
-			session.save();
+			saveSession(session);
 		}
 		
 		public void updateSessionExpiration(LavaSession session, HttpServletRequest request){
 			for (LavaSessionPolicyHandler handler: policyHandlers){
 				if(handler.handlesSession(session, request)){
 					session.setExpireTimestamp(handler.determineExpireTime(session, request));
-					session.save();
+					saveSession(session);
 					updateHttpSessionExpiration(session,request);
 					return;
 				}
@@ -225,7 +234,12 @@ public class SessionManager extends LavaManager{
 			// invalidating the HTTP session causes Acegi to do the following which clears the authentication,
 			// so do not have to do this here:
 			// SecurityContextHolder.getContext().setAuthentication(null);
-			if(httpSession != null){httpSession.invalidate();}
+			if(httpSession != null){
+				if(lavaSessions.containsKey(httpSession.getId())){
+					lavaSessions.remove(httpSession.getId());
+				}
+				httpSession.invalidate();
+			}
 		}
 		
 		protected void updateHttpSessionExpiration(LavaSession session,HttpServletRequest request){
@@ -280,8 +294,8 @@ public class SessionManager extends LavaManager{
 		 */
 		public LavaServerInstance createLavaServerInstance(){
 			serverInstance = (LavaServerInstance)LavaServerInstance.MANAGER.create();
-			serverInstance.save();
-			serverInstance.refresh();
+			//serverInstance.save();
+			//serverInstance.refresh();
 			return serverInstance;
 		}
 		
@@ -304,13 +318,17 @@ public class SessionManager extends LavaManager{
 			}
 		}
 
+		public Map<String, LavaSession> getLavaSessions() {
+			return lavaSessions;
+		}
 
 
+		public void setLavaSessions(Map<String, LavaSession> lavaSessions) {
+			this.lavaSessions = lavaSessions;
+		}
 
-	
-
-		
-		
-		
+		public LavaSession getLavaSession(String sessionId) {
+			return lavaSessions.get(sessionId);
+		}
 
 }
