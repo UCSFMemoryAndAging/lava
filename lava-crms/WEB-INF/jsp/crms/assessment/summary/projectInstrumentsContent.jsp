@@ -24,9 +24,11 @@
 currently only ProjectInstruments supports exporting to a .csv file. this was a temporary approach
 to allow exporting crude instrument data sets as a stopgap until a LavaQuery tool was ready,
 so going forward do not expect new apps to enable this, meaning nothing has to be configured --%>
-<c:set var="projInstrExport"><spring:message code="${webappInstance}.projectInstrumentsExportButton" text="No"/></c:set>
+<c:set var="projInstrExport">
+	<spring:message code="${webappInstance}.projectInstrumentsExportButton" text="No"/>
+</c:set>
 <content tag="customActions">
-<c:if test="${projInstrExport == 'Yes'}"
+<c:if test="${projInstrExport == 'Yes'}">
 <tags:eventButton buttonText="Export" action="export" component="${component}" pageName="${component}"/>
 </c:if>
 <c:if test="${not empty currentPatient}">
