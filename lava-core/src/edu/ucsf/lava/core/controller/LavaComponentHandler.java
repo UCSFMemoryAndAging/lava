@@ -190,7 +190,7 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		//add view to model
 		String view = getComponentView(request,getDefaultObjectName());
 		if (view == null){
-			mode = getDefaultView();
+			view = getDefaultView();
 			setComponentView(request,getDefaultObjectName(),view);
 		}
 		model.put(getDefaultObjectName().concat(COMPONENT_VIEW_SUFFIX),view);
