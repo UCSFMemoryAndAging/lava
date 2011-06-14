@@ -25,6 +25,17 @@
 				<entry key="Content-Type" value="application/pdf"/>		
 			</map>
 		</property>	
+		
+		<!-- EMORY change: override to give reports a better filename -->
+		<!-- The value _rep_name_ will be replaced with the report name in LavaJasperReportsMultiFormatView-->
+        <property name="contentDispositionMappings">
+            <props>
+                <prop key="pdf">inline; filename=_rep_name_.pdf</prop>
+                <prop key="xls">attachment; filename=_rep_name_.xls</prop>
+                <prop key="csv">attachment; filename=_rep_name_.csv</prop>
+            </props>
+        </property>
+		
 	</bean>	 	
 	
 </beans>

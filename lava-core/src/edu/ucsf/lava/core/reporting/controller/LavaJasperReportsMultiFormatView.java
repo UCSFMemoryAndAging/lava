@@ -1,7 +1,14 @@
 package edu.ucsf.lava.core.reporting.controller;
 
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.servlet.http.HttpServletResponse;
+
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRDataSourceProvider;
+import net.sf.jasperreports.engine.JasperPrint;
 
 import org.springframework.web.servlet.view.jasperreports.JasperReportsMultiFormatView;
 
@@ -27,4 +34,34 @@ public class LavaJasperReportsMultiFormatView  extends JasperReportsMultiFormatV
 		return new Class[] {JRDataSource.class, JRDataSourceProvider.class};
 	}
 
+	@Override
+	public Properties getContentDispositionMappings() {
+		// TODO Auto-generated method stub
+		return super.getContentDispositionMappings();
+	}
+
+	// EMORY change: override to give reports a better filename
+	@Override
+	protected void renderReport(JasperPrint populatedReport, Map model, HttpServletResponse response) throws Exception {
+        
+        // replace content disposition header filename with the report names.
+        Properties contentDispositions = this.getContentDispositionMappings();
+        
+        Enumeration enumContDispKeys = contentDispositions.keys();
+        // iterate over all disposition mappings and replace the word _rep_name_ with the reportName
+        while(enumContDispKeys.hasMoreElements()){
+            Object contDispKey = enumContDispKeys.nextElement();
+            // check whether string before cast.
+            if(contDispKey instanceof String){
+                // get the disposition string
+                String dispositionStr = contentDispositions.getProperty((String)contDispKey);
+                // set the new value in the properties
+                contentDispositions.setProperty((String)contDispKey,dispositionStr.replace("_rep_name_",populatedReport.getName()));
+            }
+        }
+
+		super.renderReport(populatedReport,model,response);
+	}
+
+	
 }
