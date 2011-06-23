@@ -75,6 +75,11 @@ public class VisitManager extends LavaManager  {
 				return (Visit) visitPrototypes.get(lookupKey).deepClone();
 			}
 		}
+		//try ANY_PROJECT_KEY (this is useful when configuring a custom Visit, as opposed to a 
+		//customizing Visit, where the custom Visit is used  for all projects
+		if(visitPrototypes.containsKey(ANY_PROJECT_KEY)){
+			return (Visit) visitPrototypes.get(ANY_PROJECT_KEY).deepClone();
+		}
 		return (Visit) prototype.deepClone();
 		
 	}
