@@ -106,20 +106,12 @@ public class VisitHandler extends CrmsEntityComponentHandler {
 		// request) it will have received an id and setting a Hibernate session entity's id to null (prior to 
 		// the next add) results in a Hibernate exception. 
 		// therefore, always creating a new instance of a visit object will ensure that the id will be null
-		// for the DAO add. this new instance must be a clone of the visitFormBackingObj so that the
-		// user data is saved. until clone() implemented, copy field by field (even though these are not
-		// cloned copies, it is ok. it only matters that the id field is null on the visitDaoObj)
-		//alternatively instead of creating separate instance for add, could try doing an evict on the
-		// formBackingObj after return from doSaveAdd and setting its id null
+		// for the DAO add. this new instance must be a copy of the visitFormBackingObj so that the
+		// user data is saved. 
+		
 		Visit visitDaoObj = visitManager.getVisitPrototype(visitFormBackingObj.getProjName(), visitFormBackingObj.getVisitType());
 		initializeNewCommandInstance(context, visitDaoObj); 
-		visitDaoObj.setProjName(visitFormBackingObj.getProjName());
-		visitDaoObj.setVisitType(visitFormBackingObj.getVisitType());
-		visitDaoObj.setVisitLocation(visitFormBackingObj.getVisitLocation());
-		visitDaoObj.setVisitWith(visitFormBackingObj.getVisitWith());
-		visitDaoObj.setVisitDate(visitFormBackingObj.getVisitDate());
-		visitDaoObj.setVisitTime(visitFormBackingObj.getVisitTime());
-		visitDaoObj.setVisitStatus(visitFormBackingObj.getVisitStatus());
+		visitDaoObj = (Visit)visitFormBackingObj.clone(); 
 
 		// now put it into the command object for the save
 		((ComponentCommand)command).getComponents().put(getDefaultObjectName(), visitDaoObj);
