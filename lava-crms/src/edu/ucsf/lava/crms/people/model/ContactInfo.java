@@ -416,10 +416,13 @@ public class ContactInfo extends CrmsEntity {
 	public void updateContactDesc(){
 		if(getCaregiverId()==null){
 			StringBuffer buffer = new StringBuffer();
-			if(getContactPatient()==(short)1){
+			if(getContactPatient() != null && getContactPatient()==(short)1){
 				buffer.append("Patient is contact");
-			}else if(getContactPatient()==(short)0){
+			}else if(getContactPatient() != null && getContactPatient()==(short)0){
 				buffer.append("Patient is not contact");
+			}
+			else {
+				buffer.append("UNKNOWN if Patient is contact");
 			}
 			setContactDesc(buffer.toString());
 		}else{
