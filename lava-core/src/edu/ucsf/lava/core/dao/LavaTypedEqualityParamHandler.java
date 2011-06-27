@@ -31,7 +31,10 @@ public class LavaTypedEqualityParamHandler implements LavaParamHandler {
 
 				// add types as necessary
 			
-				if (propertyType == Short.class) {
+				if (propertyType == Byte.class) {
+					filterValue = Byte.valueOf((String)filter.getParam(propertyName));
+				}
+				else if (propertyType == Short.class) {
 					filterValue = Short.valueOf((String)filter.getParam(propertyName));
 				}
 				else if (propertyType == Long.class) {
