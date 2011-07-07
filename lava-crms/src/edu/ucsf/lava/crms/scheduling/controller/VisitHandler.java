@@ -1,15 +1,12 @@
 package edu.ucsf.lava.crms.scheduling.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.PropertyEditorRegistry;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
@@ -111,7 +108,7 @@ public class VisitHandler extends CrmsEntityComponentHandler {
 		
 		Visit visitDaoObj = visitManager.getVisitPrototype(visitFormBackingObj.getProjName(), visitFormBackingObj.getVisitType());
 		initializeNewCommandInstance(context, visitDaoObj); 
-		visitDaoObj = (Visit)visitFormBackingObj.clone(); 
+		PropertyUtils.copyProperties(visitDaoObj, visitFormBackingObj);
 
 		// now put it into the command object for the save
 		((ComponentCommand)command).getComponents().put(getDefaultObjectName(), visitDaoObj);
