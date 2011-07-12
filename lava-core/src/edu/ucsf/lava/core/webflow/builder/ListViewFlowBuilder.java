@@ -19,7 +19,7 @@ import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
  * given type. It is typically the root flow of a flow conversation,
  * where the subflows are the CRUD entity flows.
  */
-class ListViewFlowBuilder extends BaseFlowBuilder {
+public class ListViewFlowBuilder extends BaseFlowBuilder {
 	
 
 	

@@ -18,7 +18,7 @@ import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
  * typically involved in a larger flow conversation which includes a parent 
  * list flow.
  */
-class EntityDeleteFlowBuilder extends BaseFlowBuilder {
+public class EntityDeleteFlowBuilder extends BaseFlowBuilder {
 
 	public EntityDeleteFlowBuilder(LavaFlowRegistrar registry, String actionId) {
     	super(registry, actionId);

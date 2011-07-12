@@ -16,7 +16,7 @@ import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
  * the report parameter inputs as well as the desired report format (e.g. PDF, Excel)
  * and the final state displays the report in the desired format.
  */
-class ReportLauncherFlowBuilder extends BaseFlowBuilder {
+public class ReportLauncherFlowBuilder extends BaseFlowBuilder {
 	
 	public ReportLauncherFlowBuilder(LavaFlowRegistrar registry, String actionId) {
 		super(registry, actionId);

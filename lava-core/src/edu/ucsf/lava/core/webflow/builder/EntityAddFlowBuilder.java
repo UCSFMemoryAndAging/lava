@@ -19,7 +19,7 @@ import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
  * This encapsulates the page flow of adding a new entity, and is
  * typically involved in a larger flow conversation with a parent list flow. 
  */
-class EntityAddFlowBuilder extends BaseFlowBuilder {
+public class EntityAddFlowBuilder extends BaseFlowBuilder {
 	
 	public EntityAddFlowBuilder(LavaFlowRegistrar registry, String actionId) {
     	super(registry, actionId);

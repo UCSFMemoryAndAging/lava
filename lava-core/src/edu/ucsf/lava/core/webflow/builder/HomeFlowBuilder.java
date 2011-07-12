@@ -8,7 +8,7 @@ import org.springframework.webflow.execution.Action;
 import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
 import edu.ucsf.lava.core.webflow.builder.BaseFlowBuilder;
 
-class HomeFlowBuilder extends BaseFlowBuilder {
+public class HomeFlowBuilder extends BaseFlowBuilder {
 	
 	public HomeFlowBuilder(LavaFlowRegistrar registry, String actionId) {
 		// now sure why "home" is explicity passed as the formActionName (which means that even if there

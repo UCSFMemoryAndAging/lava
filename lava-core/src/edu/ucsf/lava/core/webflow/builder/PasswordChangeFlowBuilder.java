@@ -16,7 +16,7 @@ import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
  *  we may need a decision state to determine whether the password is expired
  *  and redirect to a logout on the cancel transition. 
  */
-class PasswordChangeFlowBuilder extends BaseFlowBuilder {
+public class PasswordChangeFlowBuilder extends BaseFlowBuilder {
 	
 	public PasswordChangeFlowBuilder(LavaFlowRegistrar registry, String actionId) {
     	super(registry, actionId);

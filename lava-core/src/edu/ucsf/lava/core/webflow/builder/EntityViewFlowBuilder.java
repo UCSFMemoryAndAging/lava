@@ -19,7 +19,7 @@ import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
  * typically involved in a larger flow conversation which may include a 
  * list flow, and an edit entity subflow.
  */
-class EntityViewFlowBuilder extends BaseFlowBuilder {
+public class EntityViewFlowBuilder extends BaseFlowBuilder {
 	
 	public EntityViewFlowBuilder(LavaFlowRegistrar registry, String actionId) {
     	super(registry, actionId);

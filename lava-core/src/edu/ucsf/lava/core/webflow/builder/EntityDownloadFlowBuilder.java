@@ -15,7 +15,7 @@ import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
  * This encapsulates the page flow of downloading a file (e.g. a PDF or MRI from the entity).
  * 
  */
-class EntityDownloadFlowBuilder extends BaseFlowBuilder {
+public class EntityDownloadFlowBuilder extends BaseFlowBuilder {
 	
 
 	public EntityDownloadFlowBuilder(LavaFlowRegistrar registry, String actionId) {
