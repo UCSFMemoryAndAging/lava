@@ -50,7 +50,7 @@ public class PatientInstrumentsHandler extends CrmsListComponentHandler {
 	
 	
 	/**
-	 * Exclude hidden and diagnosis instruments.
+	 * Exclude hidden instruments.
 	 */
 	public LavaDaoFilter onPostFilterParamConversion(LavaDaoFilter daoFilter) {
 		Map<String,InstrumentConfig> instrConfigMap = instrumentManager.getInstrumentConfig();
@@ -59,15 +59,6 @@ public class PatientInstrumentsHandler extends CrmsListComponentHandler {
 			if (instrConfig.getHidden()) {
 				daoFilter.addDaoParam(daoFilter.daoNot(daoFilter.daoEqualityParam("instrType", instrConfig.getInstrType())));
 			}
-			if (instrConfig.getDiagnosis()) {
-				if (dxInstrTypes == null) {
-					dxInstrTypes = new ArrayList<String>();
-				}
-				dxInstrTypes.add(instrConfig.getInstrType());
-			}
-		}
-		if (dxInstrTypes != null) {
-			daoFilter.addDaoParam(daoFilter.daoNot(daoFilter.daoInParam("instrType", dxInstrTypes.toArray())));
 		}
 		return daoFilter;
 	}
