@@ -40,6 +40,7 @@ public class BaseListConfig {
 	   public static String FORMAT_LABEL_WITH_INITIAL = "labelWithInitial";  // e.g. 'l | label' : first char of the label is concatenated to the label separated by '|' (useful for multi-column select boxes
 	public static String FORMAT_VALUE_IS_LABEL = "valueIsLabel";  // e.g. 'value' :  use the value as the label (usually because the label is null in the database). this is redundant if using GenericListValueQueryNullDesc, since that query populates the label with the value (aka valueKey)
 	public static String FORMAT_VALUE_CONCAT_LABEL = "valueConcatLabel"; // e.g. 'value | label' :  the label is a concatenation of the value and the label
+	public static String FORMAT_TWO_DECIMAL_PLACES = "twoDecimalPlaces"; // only applies to DecimalRange lists
     public static String FORMAT_SEPARATOR = " | ";
     public static String FORMAT_CONCATONATOR = " - ";
     
