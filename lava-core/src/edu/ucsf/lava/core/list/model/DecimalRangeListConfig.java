@@ -119,17 +119,31 @@ public class DecimalRangeListConfig extends BaseListConfig {
 		//use defaults if min and/or max not found
 		if(minValue==null){minValue=defaultMinValue;}
 		if(maxValue==null){maxValue=defaultMaxValue;}
-		int resultSize = Math.round(maxValue - minValue) * 10;
+
+		int resultSize = 0;
+		DecimalFormat decimalFormat = null;
+		if (this.getDefaultFormat().equals(FORMAT_TWO_DECIMAL_PLACES)) {
+			resultSize = Math.round(maxValue - minValue) * 100;
+			decimalFormat = new DecimalFormat("#0.00");
+		}
+		else { // default to 1 decimal place
+			resultSize = Math.round(maxValue - minValue) * 10;
+			decimalFormat = new DecimalFormat("#0.0");
+		}
 		
 		
 		List<LabelValueBean> results = new ArrayList<LabelValueBean>(resultSize < 0 ? 0 : resultSize);
-		DecimalFormat decimalFormat = new DecimalFormat("#0.0");
         int orderIndex = 0;
 		
         for(float i = minValue.floatValue(); i <= maxValue.floatValue() + 0.01f;){
 			String value = decimalFormat.format(i);
 			results.add(new LabelValueBean(value,value,Integer.valueOf(orderIndex++)));
-			i = i + 0.1f;
+			if (this.getDefaultFormat().equals(FORMAT_TWO_DECIMAL_PLACES)) {
+				i = i + 0.01f;
+			}
+			else { // default to 1 decimal place
+				i = i + 0.1f;
+			}
 		}
 		return results;
 	}
