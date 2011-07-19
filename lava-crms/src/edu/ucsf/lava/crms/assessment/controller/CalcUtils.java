@@ -21,6 +21,20 @@ public class CalcUtils {
 		return sum;
 	}
 	
+	public static Double add(Number[] nums, Boolean ignoreNegatives) {
+		Double sum = new Double(0);
+		for (int i=0; i<nums.length; i++) {
+			if (nums[i]==null || (ignoreNegatives && nums[i].doubleValue()<0)) continue;
+			sum += nums[i].doubleValue();
+		}
+		return sum;
+	}	
+	
+	public static Short reverseScore(Short num, int reverse) {
+		if (num==null || num.shortValue()<0) return null;
+		return (short) (reverse-num.intValue());
+	}
+	
 	// uncalculable are numbers that if encountered should return a "-5" cannot calculate error code
 	public static Double add(Number[] nums, Number[] uncalculable) {
 		for (int i=0; i<nums.length; i++) {
@@ -30,6 +44,24 @@ public class CalcUtils {
 		}
 		return add(nums);
 	}	
+	
+	public static Double addWithIgnore(Number[] nums, Number[] ignore) {
+		Double sum = new Double(0);
+		for (int i=0; i<nums.length; i++) {
+			boolean ignoreNum = false;
+			for (int j=0; j<ignore.length; j++) {
+				if (nums[i]==null || ignore[j]==null) continue;
+				if (nums[i].doubleValue()==ignore[j].doubleValue()){
+					ignoreNum=true;
+				}
+			}
+			if(!ignoreNum){
+				if (nums[i]==null || nums[i].doubleValue()<0) return new Double(ERROR_CODE_CANNOT_CALCULATE);
+				sum += nums[i].doubleValue();
+			}
+		}
+		return sum;
+	}
 	
 	public static Double multiply(Number[] nums) {
 		if (nums[0]==null) return new Double(ERROR_CODE_CANNOT_CALCULATE);
@@ -53,6 +85,17 @@ public class CalcUtils {
 		return divide(dividend, divisor);
 	}
 	
+	// counts how many numbers in 'nums' are not null and greater or equal to 0
+	public static Short count(Number[] nums) {
+		Short count = (short) 0;
+		for (int i=0; i<nums.length; i++) {
+				if (nums[i]==null || nums[i].doubleValue()<0) continue;
+				count++;
+		}
+		return count;
+	}
+	
+	// counts how many numbers in 'nums' are in the range specified by 'range'
 	public static Short count(Number[] nums, Number[] range) {
 		Short count = (short) 0;
 		for (int i=0; i<nums.length; i++) {
@@ -63,6 +106,19 @@ public class CalcUtils {
 			}
 		}
 		return count;
-	}	
+	}
+	
+	public static String neuropsych_t_score_range(Number tscore) {
+		if (tscore==null) return null;
+		short num = tscore.shortValue();
+		if (num>=20 && num<=30) return "Impaired";
+		else if (num>=31 && num <=36) return "Borderline";
+		else if (num>=37 && num <=43) return "Low Average";
+		else if (num>=44 && num <=56) return "Average";
+		else if (num>=57 && num <=63) return "High Average";
+		else if (num>=64 && num <=69) return "Superior";
+		else if (num>=70 && num <=80) return "Very Superior";
+		return null;
+	}
 
 }
