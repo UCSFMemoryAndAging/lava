@@ -24,6 +24,7 @@ public class ContactLog extends CrmsEntity {
 		super();
 		
 		this.setProjectAuth(true);
+		logDate = new Date();
 		staffInit = 1;
 	}
 	public Object[] getAssociationsToInitialize(String method) {
