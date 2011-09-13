@@ -16,13 +16,13 @@
 
 <content tag="listColumns">
 <tags:listRow>
-	<tags:componentListColumnHeader component="${component}"  label="" width="2%"/>
-	<tags:componentListColumnHeader component="${component}"  label="Action" width="10%"/>
+	<tags:componentListColumnHeader component="${component}"  label="&nbsp;" width="2%"/>
+	<tags:componentListColumnHeader component="${component}"  label="Action" width="12%"/>
 	<tags:componentListColumnHeader component="${component}"  label="Measure"width="11%"/>
-	<tags:componentListColumnHeader component="${component}"  label="Collection" width="20%"/>
-	<tags:componentListColumnHeader component="${component}"  label="Data Entry" width="19%"/>
-	<tags:componentListColumnHeader component="${component}"  label="Validation" width="19%"/>
-	<tags:componentListColumnHeader component="${component}"  label="Summary" width="19%"/>
+	<tags:componentListColumnHeader component="${component}"  label="Collection" width="18%"/>
+	<tags:componentListColumnHeader component="${component}"  label="Data Entry" width="18%"/>
+	<tags:componentListColumnHeader component="${component}"  label="Validation" width="18%"/>
+	<tags:componentListColumnHeader component="${component}"  label="Summary" width="21%"/>
 </tags:listRow>
 </content>
 

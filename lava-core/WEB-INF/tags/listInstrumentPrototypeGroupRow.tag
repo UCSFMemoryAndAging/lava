@@ -27,7 +27,7 @@ so that the secondary handler can create the group --%>
 		&nbsp;
 	</tags:listCell>
 
-	<tags:listCell styleClass="actionButton" width="10%">
+	<tags:listCell styleClass="actionButton" width="12%">
 		<%-- append actions with "_prototype" so event handling will create the group from a project-visit
 			instrument group prototype instead of user selected items. this is not necessary for bulkDelete
 			which only applies to groups created from prototypes --%>
