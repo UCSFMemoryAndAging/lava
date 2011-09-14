@@ -19,9 +19,9 @@
 <tags:listRow>
 
 <tags:componentListColumnHeader component="${component}" label="Action" width="6%"/>
-<tags:componentListColumnHeader component="${component}" label="Session ID" width="34%"/>
-<tags:componentListColumnHeader component="${component}" label="Created" width="18%" sort="createTimestamp"/>
-<tags:componentListColumnHeader component="${component}" label="Accessed" width="18%" sort="accessTimestamp"/>
+<tags:componentListColumnHeader component="${component}" label="Session ID" width="32%"/>
+<tags:componentListColumnHeader component="${component}" label="Created" width="19%" sort="createTimestamp"/>
+<tags:componentListColumnHeader component="${component}" label="Accessed" width="19%" sort="accessTimestamp"/>
 <tags:componentListColumnHeader component="${component}" label="Username" width="12%" sort="username"/>
 <tags:componentListColumnHeader component="${component}" label="Hostname" width="12%" sort="hostname"/>
 </tags:listRow>
