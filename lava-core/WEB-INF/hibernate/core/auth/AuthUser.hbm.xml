@@ -49,4 +49,21 @@
 	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(shortUserNameRev, id)
 			from AuthUser order by shortUserNameRev
 	]]></query>
+	
+	<query name="list.authUser.userStaff"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(u.shortUserNameRev, u.shortUserNameRev) 
+			from AuthUserRole aur join aur.role r join aur.group g join g.users gu join gu.user u where r.roleName != 'SYSTEM ADMIN'
+			order by shortUserNameRev
+	]]></query>
+	
+	<query name="list.authUser.staffListValues"><![CDATA[
+	   	select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = 'StaffList'
+		order by lv.valueDesc
+	]]></query>
+	
+	
+	
 </hibernate-mapping>
