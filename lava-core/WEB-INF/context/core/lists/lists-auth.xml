@@ -25,6 +25,19 @@
 		<property name="query" value="list.authRole.roles"/>
 	</bean>	   
 		
+	<bean id="list.authUser.userStaff" parent="list.dynamic">
+		<property name="query" value="list.authUser.userStaff"/>
+	</bean>	   
 
+	<bean id="list.authUser.staffListValues" parent="list.dynamic">
+		<property name="query" value="list.authUser.staffListValues"/>
+	</bean>	   
 	
+	<bean id="list.all.staffList" parent="list.dynamicCombination">
+		<property name="dynamicReferenceLists"><list>
+			<ref bean="list.authUser.userStaff"/>
+			<ref bean="list.authUser.staffListValues"/>
+		</list></property>
+	</bean>
+
 </beans>
