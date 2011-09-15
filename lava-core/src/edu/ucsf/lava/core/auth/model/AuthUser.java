@@ -521,8 +521,23 @@ public class AuthUser extends EntityBase implements UserDetails {
 		if(!userName.contains(" ")){
 				setShortUserName(userName);
 		}else{
-			setShortUserName(new StringBuffer(userName.substring(0,1))
-				.append(". ").append(userName.substring(userName.indexOf(" "), userName.length())).toString());
+			// determine if one or two spaces in name, where two spaces indicates a middle initial,
+			// which should be included in short name to all distinguishing two users in staff lists
+			// that have same first initial/last name
+			int firstSpace = userName.indexOf(' ');
+			int secondSpace = userName.lastIndexOf(' ');
+			if (firstSpace == secondSpace) {
+				// only one space
+				setShortUserName(new StringBuffer(userName.substring(0,1))
+				.append(". ").append(userName.substring(firstSpace+1, userName.length())).toString());
+			} else {
+				// two spaces so middle name/initial
+				setShortUserName(new StringBuffer(userName.substring(0,1))
+				.append(". ")
+				.append(new StringBuffer(userName.substring(firstSpace+1,firstSpace+2)))
+				.append(". ")
+				.append(userName.substring(secondSpace+1, userName.length())).toString());
+			}
 		}
 	
 		return;
@@ -537,8 +552,26 @@ public class AuthUser extends EntityBase implements UserDetails {
 		if(!userName.contains(" ")){
 				setShortUserNameRev(userName);
 		}else{
-			setShortUserNameRev(new StringBuffer(userName.substring(userName.indexOf(" "), userName.length()))
-					.append(", ").append(userName.substring(0,1)).toString());
+			// determine if one or two spaces in name, where two spaces indicates a middle initial,
+			// which should be included in short name to all distinguishing two users in staff lists
+			// that have same first initial/last name
+			int firstSpace = userName.indexOf(' ');
+			int secondSpace = userName.lastIndexOf(' ');
+			if (firstSpace == secondSpace) {
+				// only one space
+				setShortUserNameRev(new StringBuffer(userName.substring(firstSpace+1, userName.length()))
+				.append(", ").append(userName.substring(0,1)).toString());
+				
+			} else {
+				// two spaces so middle name/initial
+				setShortUserNameRev(new StringBuffer(userName.substring(secondSpace+1, userName.length()))
+				.append(", ")
+				.append(userName.substring(0,1))
+				.append(". ")
+				.append(new StringBuffer(userName.substring(firstSpace+1, firstSpace+2)))
+				.append(".").toString());
+			}
+			
 		}
 		return;
 }
