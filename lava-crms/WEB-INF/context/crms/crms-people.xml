@@ -28,7 +28,15 @@
   					</list></property>
   				</bean>
   				
-				<bean id="lava.crms.people.patient.projectPatients" parent="crmsModuleListAction"/>
+				<bean id="lava.crms.people.patient.projectPatients" parent="crmsSectionListAction"/>
+				
+				
+				<bean id="lava.crms.people.findPatient.findPatient" parent="crmsModuleListAction">
+					<property name="patientSectionDefault" value="true"/>
+					<property name="subFlows"><list>
+						<value>lava.crms.people.patient.patient</value>
+					</list></property>	
+				</bean>
 				
 				<bean id="lava.crms.people.contactLog.contactLog" parent="crmsEntityFlowAction">
 					<property name="parentFlows"><list>
@@ -99,6 +107,10 @@
 		<bean class="edu.ucsf.lava.crms.people.controller.ProjectPatientsHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>
 	
+	<bean id="findPatientFormAction" parent="crmsListComponentFormAction">
+		<constructor-arg><list><bean class="edu.ucsf.lava.crms.people.controller.FindPatientHandler" parent="crmsHandler"/>
+		</list></constructor-arg>
+	</bean>
 	
 	<bean id="contactInfoFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.people.controller.ContactInfoHandler" parent="crmsHandler"/>

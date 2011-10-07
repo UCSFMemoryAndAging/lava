@@ -5,7 +5,8 @@
 	<tags:crmsNavSection module="mylava" section="mycalendar" textCode="section.myCalendar" lastSection="true" disabled="true" />
 	
 
-	<tags:crmsNavSection module="people" section="patient" textCode="section.patient" disabled="true" />
+	<tags:crmsNavSection module="people" section="findPatient" textCode="section.findPatient" disabled="true" />
+  	<tags:crmsNavSection module="people" section="patient" textCode="section.patient" disabled="true" />
     <tags:crmsNavSection module="people" section="caregiver" textCode="section.caregiver" disabled="true" />
   	<tags:crmsNavSection module="people" section="contactLog" textCode="section.contactLog" disabled="true" />
     <tags:crmsNavSection module="people" section="contactInfo" textCode="section.contactInfo" disabled="true" />
