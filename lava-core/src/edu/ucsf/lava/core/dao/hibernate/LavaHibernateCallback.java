@@ -41,6 +41,9 @@ public abstract class LavaHibernateCallback implements HibernateCallback {
 		initQuery();
 		enableFilters();
 		applyAliases();
+		if(!filter.getDaoProjections().isEmpty()){
+			applyProjections();
+		}
 		applyParameters();
 		applySorts();
 		if(filter.rowSelectorsSet())
@@ -78,7 +81,7 @@ public abstract class LavaHibernateCallback implements HibernateCallback {
 			applySort(property,sorts.get(property));
 		}
 	}
-
+	protected abstract void applyProjections();
 	protected abstract void initQuery();
 	protected abstract void applySort(String property, Boolean ascending);
 	protected abstract void applyAlias(String collection, String alias);

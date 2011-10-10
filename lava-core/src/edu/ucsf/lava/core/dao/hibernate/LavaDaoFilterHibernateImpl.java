@@ -10,12 +10,15 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.dao.LavaDaoParam;
+import edu.ucsf.lava.core.dao.LavaDaoProjection;
 import edu.ucsf.lava.core.dao.LavaParamHandler;
+
 
 public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 
@@ -29,6 +32,7 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 	private HashMap<String,Object> params = new HashMap();
 	private ArrayList<LavaDaoParam> daoParams = new ArrayList();
 	private ArrayList<LavaParamHandler> paramHandlers = new ArrayList();
+	private ArrayList<LavaDaoProjection> daoProjections = new ArrayList();
 	private Integer firstRowNum;
 	private Integer lastRowNum;
 	private Integer resultsCount;
@@ -188,6 +192,14 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 		
 		return this;
 	}
+	
+	public boolean isParamEmpty(String name){
+		if(params.get(name) != null && StringUtils.isNotEmpty(params.get(name).toString())){
+			return false;
+		}
+		return true;
+	}
+	
 	public LavaDaoFilter setParam(String paramName, Object paramValue) {
 		params.put(paramName,paramValue);
 		return this;
@@ -279,6 +291,61 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 		return this.resultsCount.intValue();
 	}
 
+	//Dao Projection Methods
+	
+	public void clearDaoProjections(){
+		daoProjections.clear();
+	}
+	
+	
+	public void addDaoProjection(LavaDaoProjection projection){
+		daoProjections.add(projection);
+	}
+	
+	public void addDaoProjection(int index, LavaDaoProjection projection){
+		daoProjections.add(index, projection);
+	}
+	
+	public List<LavaDaoProjection> getDaoProjections(){
+		return daoProjections;
+	}
+	
+	
+	public LavaDaoProjection daoAliasProjection(LavaDaoProjection projection, String alias){
+		return new DaoHibernateCriterionProjection(Projections.alias(((DaoHibernateCriterionProjection)projection).getProjection(), alias));
+	}
+	public LavaDaoProjection daoAvgProjection(String property){
+		return new DaoHibernateCriterionProjection(Projections.avg(property));
+	}
+	public LavaDaoProjection daoCountProjection(String property){
+		return new DaoHibernateCriterionProjection(Projections.count(property));
+	}
+	public LavaDaoProjection daoDistinctProjection(LavaDaoProjection projection){
+		return new DaoHibernateCriterionProjection(Projections.distinct(((DaoHibernateCriterionProjection)projection).getProjection()));
+	}
+	public LavaDaoProjection daoGroupProjection(String property){
+		return new DaoHibernateCriterionProjection(Projections.groupProperty(property));
+	
+	}
+	public LavaDaoProjection daoIdProjection(){
+		return new DaoHibernateCriterionProjection(Projections.id());
+	}
+	
+	public LavaDaoProjection daoMaxProjection(String property){
+		return new DaoHibernateCriterionProjection(Projections.max(property));
+	}
+	public LavaDaoProjection daoMinProjection(String property){
+		return new DaoHibernateCriterionProjection(Projections.min(property));
+	}
+	public LavaDaoProjection daoRowCountProjection(){
+		return new DaoHibernateCriterionProjection(Projections.rowCount());
+	}
+	public LavaDaoProjection daoSumProjection(String property){
+		return new DaoHibernateCriterionProjection(Projections.sum(property));
+	}
+	public LavaDaoProjection daoProjection(String property){
+		return new DaoHibernateCriterionProjection(Projections.property(property));
+	}
 	
 	//Dao Params methods
 	public void clearDaoParams() {

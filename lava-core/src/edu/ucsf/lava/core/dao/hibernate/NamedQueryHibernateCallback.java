@@ -96,7 +96,10 @@ public class NamedQueryHibernateCallback extends LavaHibernateCallback {
 		//no aliases in named queries
 		return;
 	}
-	
+	protected void applyProjections() {
+		//do nothing as hql queries do not have custom projections	
+			return;
+	}
 	
 }
 

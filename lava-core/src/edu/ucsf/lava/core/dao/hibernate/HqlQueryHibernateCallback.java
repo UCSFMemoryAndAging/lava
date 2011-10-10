@@ -59,15 +59,20 @@ public class HqlQueryHibernateCallback extends LavaHibernateCallback {
 	protected void applyAlias(String collection, String alias) {
 		//no aliases in HQL queries
 		return;
-		
+
 		
 	}
 	protected void applyOuterAlias(String collection, String alias) {
 		//no aliases in HQL queries
 		return;
+
 		
 		
 	}
+	protected void applyProjections() {
+		//do nothing as hql queries do not have custom projections	
+			return;
+		}
 	
 }
 

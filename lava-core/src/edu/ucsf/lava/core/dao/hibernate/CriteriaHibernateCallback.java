@@ -6,17 +6,22 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.dao.LavaDaoParam;
+import edu.ucsf.lava.core.dao.LavaDaoProjection;
+
 
 public class CriteriaHibernateCallback extends LavaHibernateCallback{
 
 	public static final int USE_ID_CACHE_THRESHOLD = 2000;
 	protected Class entityClass;
 	protected Criteria criteria;
+	protected Projection projection;
 
 	
 	public CriteriaHibernateCallback(Class entityClass,LavaDaoFilter filter){
@@ -34,6 +39,19 @@ public class CriteriaHibernateCallback extends LavaHibernateCallback{
 		}else{
 			logger.warn("Invalid LavaDaoParam type:" + param.getType() + " passed to a CriteriaQuery");
 		}
+	}
+
+	protected void applyProjections() {
+		ProjectionList projectionList = Projections.projectionList();
+		for(LavaDaoProjection projection:filter.getDaoProjections()){
+			if(projection.getType().equalsIgnoreCase(LavaDaoProjection.TYPE_CRITERION)){
+				DaoHibernateCriterionProjection criterionProjection = (DaoHibernateCriterionProjection)projection;
+				projectionList.add(criterionProjection.getProjection());
+			}else{
+			logger.warn("Invalid LavaDaoProjection type:" + projection.getType() + " passed to a CriteriaQuery");
+			}
+		}
+		this.projection = projectionList;
 	}
 
 
@@ -90,6 +108,9 @@ public class CriteriaHibernateCallback extends LavaHibernateCallback{
 			// having more than 1000 items in the IN clause on SQL Server raises an exception
 			// we ended up backing down to 250 max per page, but we might have to consider
 			// an altenative query strategy here if that changes in the future.  - joe 
+			if(this.projection!=null){
+				criteria.setProjection(projection);
+			}
 			
 			if(filter.getIdCache()!=null && filter.getIdCache().size()!=0){
 				criteria.add(((DaoHibernateCriterionParam)filter.daoInIdCacheParam()).getCriterion());
