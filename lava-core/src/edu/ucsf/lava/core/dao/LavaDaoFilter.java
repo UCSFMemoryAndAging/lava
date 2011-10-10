@@ -8,6 +8,7 @@ import java.util.Map;
 
 import edu.ucsf.lava.core.auth.model.AuthUser;
 
+
 public interface LavaDaoFilter extends Serializable {
 	
 	public static final int RESULT_COUNT_EMPTY = 0;
@@ -46,9 +47,27 @@ public interface LavaDaoFilter extends Serializable {
 	public LavaDaoFilter setParam(String paramName, Object paramValue);
 	public LavaDaoFilter clearParam(String paramName);
 	public LavaDaoFilter clearParams();
+	public boolean isParamEmpty(String paramName);
 	public Map getParams();
 	public Object getParam(String paramName);
 	public boolean paramsNotEqualTo(Map<String,Object> oldParams);
+	
+	
+	public List <LavaDaoProjection> getDaoProjections();
+	public void clearDaoProjections();
+	public void addDaoProjection(LavaDaoProjection projection);
+	public void addDaoProjection(int index, LavaDaoProjection projection);
+	public LavaDaoProjection daoAliasProjection(LavaDaoProjection projection, String alias);
+	public LavaDaoProjection daoAvgProjection(String property);
+	public LavaDaoProjection daoCountProjection(String property);
+	public LavaDaoProjection daoDistinctProjection(LavaDaoProjection projection);
+	public LavaDaoProjection daoGroupProjection(String property);
+	public LavaDaoProjection daoIdProjection();
+	public LavaDaoProjection daoMaxProjection(String property);
+	public LavaDaoProjection daoMinProjection(String property);
+	public LavaDaoProjection daoRowCountProjection();
+	public LavaDaoProjection daoSumProjection(String property);
+	public LavaDaoProjection daoProjection(String property);
 	
 	public List <LavaDaoParam> getDaoParams();
 	public void addDaoParam(LavaDaoParam param);

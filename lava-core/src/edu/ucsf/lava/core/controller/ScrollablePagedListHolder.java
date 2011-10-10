@@ -11,7 +11,10 @@ import org.springframework.beans.support.RefreshablePagedListHolder;
 import org.springframework.beans.support.SortDefinition;
 
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
+import edu.ucsf.lava.core.dto.PagedListItemDto;
 import edu.ucsf.lava.core.model.LavaEntity;
+
+
 
 public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 	private String listName = "primaryList";
@@ -283,8 +286,14 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 		}
 		else {
 			int i=0;
-			for (Object entity : loadedElements){
-				newSourceList.add(i++, new ListItem(((LavaEntity)entity).getId(), entity, Boolean.FALSE));
+			for (Object result : loadedElements){
+				if(LavaEntity.class.isAssignableFrom(result.getClass())){
+					newSourceList.add(i++, new ListItem(((LavaEntity)result).getId(), result, Boolean.FALSE));
+				}
+				else if(PagedListItemDto.class.isAssignableFrom(result.getClass())){
+					newSourceList.add(i++, new ListItem(((PagedListItemDto)result).getId(), result, Boolean.FALSE));
+				}
+			
 			}
 			
 			//add empty listItems to the sourcelist. This is equivalent to the empty placeholders before ListItems were used. 
@@ -297,21 +306,14 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 	}
 
 	protected static List addElementsToList(List elements, List targetList, LavaDaoFilter filter){
-				
+		
 		if(elements != null || elements.size() == (filter.rowSetSize())){
 			for(int i = filter.getFirstRowNum(), j=0; j < elements.size() && j < targetList.size();i++,j++){
 				//TODO: check to make sure hat the id's in the elements recevied match the idcache.  Take appropriate action
 				
-				//If the element is a LavaEntity and we are using an idCache
-				if(elements.get(j).getClass().isAssignableFrom(LavaEntity.class) && filter.getIdCache()!=null){
-					//make sure the returned entity id matches the id in the same row of the idCache 
-					if (!((LavaEntity)elements.get(j)).getId().equals(filter.getIdCache().get(i))){
-						//ids do not match, set an error on the filter...OR WHAT???
-						
-					}
-				}
+			
 				if(elements.get(j)!= null){
-					((ListItem)targetList.get(i)).setEntity((LavaEntity)elements.get(j));	
+					((ListItem)targetList.get(i)).setEntity(elements.get(j));	
 				}
 			}
 		}else{

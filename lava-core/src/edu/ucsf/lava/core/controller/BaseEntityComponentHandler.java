@@ -641,7 +641,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		
 	//UPLOAD FILE
 	public Event handleUploadFileEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
-			return this.doDeleteFile(context, command, errors);
+			return this.doUploadFile(context, command, errors);
 		}
 	public Event doUploadFile(RequestContext context, Object command, BindingResult errors) throws Exception {
 		if(this.getFileDao()==null) {new Event(this,ERROR_FLOW_EVENT_ID);}
