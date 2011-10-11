@@ -338,3 +338,53 @@ END $$
 
 
 DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `util_ColumnList`;
+
+DELIMITER $$
+
+CREATE PROCEDURE util_ColumnList(TableName varchar(50), Pattern varchar(50))
+BEGIN
+
+CALL util_ColumnNameSelect('`###`,', TableName, Pattern);
+
+END
+
+$$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `util_ColumnNameSelect`;
+
+DELIMITER $$
+
+CREATE PROCEDURE util_ColumnNameSelect(Statement varchar (1500), TableName varchar(100), ColumnLike varchar(50))
+BEGIN
+
+DECLARE strToFind VARCHAR(2000);
+DECLARE strToUse VARCHAR(2000);
+DECLARE i INT;
+DECLARE sqlStmt VARCHAR(2000);
+
+SET strToFind = '###';
+SET strToUse = 'COLUMN_NAME';
+SET i = LOCATE(strToFind, Statement);
+
+WHILE i <> 0 DO
+  SET Statement=CONCAT(LEFT(Statement, i-1), '\', ', strToUse, ', \'', RIGHT(Statement, LENGTH(Statement)-(i+(CASE WHEN LENGTH(strToFind)=0 THEN 0 ELSE LENGTH(strToFind)-1 END))));
+  SET i = LOCATE(strToFind, Statement);
+END WHILE;
+
+SET sqlStmt = CONCAT('SELECT CONCAT(\'', Statement, '\') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=\'', SCHEMA(), '\' AND ', 'TABLE_NAME=\'', TableName, '\' AND COLUMN_NAME LIKE \'', ColumnLike, '\' ORDER BY ORDINAL_POSITION;');
+
+SELECT sqlStmt;
+SET @sqlStmt=sqlStmt;
+PREPARE stmt FROM @sqlStmt;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+END
+
+$$
+DELIMITER ;
