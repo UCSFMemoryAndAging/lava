@@ -88,14 +88,11 @@ DELIMITER ;
 --
 -- This procedure is is used for authenticating a user for LavaQuery usage. 
 --
--- Currently it just checks that input password against the authuser email column
---
--- TODO: 
--- after upgrading to MySQL 5.5, will be able to use SHA encryption for local (database)
--- accounts where password is stored in authuser table encrypted via SHA with 256 bits 
--- (this encryption is done in Java using the Acegi API). As of MySQL 5.5 there is an 
--- sha2 function, while prior this there is only an sha (aka sha1) function in MySQL which 
--- does SHA 160 bit encryption.
+-- Authentication is done against the authuser table. So the user uses the same credentials
+-- as in LAVA and can use LAVA to change their password.
+-- NOTE: this only works for LAVA users where authenticationType is "LOCAL" (i.e. stored in
+-- authuser. it does not work for "UCSF AD", although the LavaQuery xls file could be
+-- programmed to try UCSF AD (i.e. LDAP) authentication if LOCAL authentication fails.
 --
 -- TODO:
 -- if this authentication fails, have LavaQuery xls attempt LDAP authentication.
@@ -108,7 +105,7 @@ CREATE  PROCEDURE `lq_authenticate_user`(user_login varchar(50),user_password va
 BEGIN
 DECLARE user_id int;
 
-SELECT `UID` into user_id from `authuser` where `Login` = user_login AND `email` = user_password;
+SELECT `UID` into user_id from `authuser` where `Login` = user_login AND `password` = convert(sha2(concat(user_password,'{',`UID`,'}'),256) USING latin1);
 
 IF(user_id > 0) THEN
 
