@@ -17,7 +17,7 @@
 </content>
 
 <content tag="customActions">
-	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.people.patient.addPatient" eventId="patient__add" component="${component}"/>	    
+	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.people.patient.addPatient" eventId="addPatient__add" component="${component}"/>	    
 </content>
 
 <content tag="listColumns">

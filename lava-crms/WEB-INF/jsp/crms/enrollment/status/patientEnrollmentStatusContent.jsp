@@ -3,7 +3,7 @@
 <c:set var="component">${param.component}</c:set>
 
 <content tag="customActions">
-	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.enrollment.status.addEnrollmentStatus" idParam="${currentPatient.id}" eventId="enrollmentStatus__add" component="${component}"/>	    
+	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.enrollment.status.addEnrollmentStatus" idParam="${currentPatient.id}" eventId="addEnrollmentStatus__add" component="${component}"/>	    
 </content>
 
 
