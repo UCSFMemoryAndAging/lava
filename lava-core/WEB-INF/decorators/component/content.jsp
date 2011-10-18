@@ -28,7 +28,9 @@
 	<c:set var="componentView" value="${instrument_view}"/>
 </c:if>	
 
-<%-- all instrument CRUD is modal --%>
+<%-- decorators-xml is configured so that main.jsp is the default decorator for every page, unless
+otherwise specified. here, we specify the model.jsp decorator in case of instruments since all
+instrument CRUD is modal. The meta tag for the "decorator" attribute is used to specify the decorator --%>
 <c:if test="${isInstrument || (componentView == 'edit' && component != 'reportSetup') || componentView == 'add' || componentView == 'delete'}">
 	<meta name="decorator" content="modal">
 	<%-- some modal componentView's do not have editable data (e.g. 'view','status') so do not want user 
