@@ -64,17 +64,7 @@ public class EntityFlowTypeBuilder extends BaseFlowTypeBuilder {
 		if(flowType.equals("list")||flowType.equals("instrumentList")||flowType.equals("instrument")||flowType.equals("entity")){
 			
 			String target = ActionUtils.getTarget(subFlowActionId);
-			
-			//refactor this into crms scope code....
-			if (target.equals("enrollmentStatus")) {
-    			subFlowInfo.add(new FlowInfo(target, "lava.crms.enrollment.status.addEnrollmentStatus","add",false));
-			}
-    		else if (target.equals("patient")) {
-    			subFlowInfo.add(new FlowInfo(target, "lava.crms.people.patient.addPatient","add",false));
-    		}
-    		else {
-    			subFlowInfo.add(new FlowInfo(subFlowActionId,"add"));
-    		}
+			subFlowInfo.add(new FlowInfo(subFlowActionId,"add"));
 			subFlowInfo.add(new FlowInfo(subFlowActionId,"view"));
 			subFlowInfo.add(new FlowInfo(subFlowActionId,"download"));
 			subFlowInfo.add(new FlowInfo(subFlowActionId,"edit"));

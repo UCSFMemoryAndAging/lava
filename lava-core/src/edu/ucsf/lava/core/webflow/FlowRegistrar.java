@@ -82,10 +82,10 @@ public class FlowRegistrar implements LavaFlowRegistrar {
     protected void buildFlow(String actionId){
     	
     	/** debugging specific flow...
-		if (actionId.equals("lava.crms.people.patient.projectPatients")) {
+    	*/
+		if (actionId.equals("lava.crms.people.findPatient.findPatient")) {
 				logger.debug("stopping prior to building of flow to debug");
 		}
-    	*/
     	
     	
     	if(!actionManager.shouldBuildFlowsForAction(actionId)){
