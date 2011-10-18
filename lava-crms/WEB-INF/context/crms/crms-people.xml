@@ -21,6 +21,8 @@
   					</list></property>
   				</bean>
   				
+  				<!-- note that because this is an entity flow, all of the CRUD flows are built but only the .add flow is used,
+  					and correspondingly, the .add flow for lava.crms.people.patient.patient is never used -->
 		 		<bean id="lava.crms.people.patient.addPatient" parent="crmsEntityFlowAction">
   			    	<property name="parentFlows"><list>
   						<value>lava.crms.people.patient.projectPatients</value>

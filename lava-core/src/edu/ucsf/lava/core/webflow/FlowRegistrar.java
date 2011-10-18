@@ -82,10 +82,10 @@ public class FlowRegistrar implements LavaFlowRegistrar {
     protected void buildFlow(String actionId){
     	
     	/** debugging specific flow...
-    	*/
 		if (actionId.equals("lava.crms.people.findPatient.findPatient")) {
 				logger.debug("stopping prior to building of flow to debug");
 		}
+    	*/
     	
     	
     	if(!actionManager.shouldBuildFlowsForAction(actionId)){
@@ -113,7 +113,7 @@ public class FlowRegistrar implements LavaFlowRegistrar {
 			Action subFlowAction = actionManager.getEffectiveAction(subFlowActionId);
 			logger.debug("Subflow actionId: "+subFlowAction.getId()+" found for actionId: "+action.getId());
 			
-			//need to obtain the subflows that will be built for this subflow...if there are none then we don't want to recurse and
+			//need to obtain the flows that will be built for this subflow...if there are none then we don't want to recurse and
 			//build this subflow.
 			List<FlowInfo> subFlowInfoList = subFlowAction.getFlowTypeBuilder().getSubFlowInfo(actionId, 
        							action.getFlowType(), subFlowAction.getId(), this.actions); 

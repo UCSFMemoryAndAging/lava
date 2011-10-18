@@ -33,6 +33,8 @@
 		</list></property>
 	</bean>
 				
+	<!-- note that because this is an entity flow, all of the CRUD flows are built but only the .add flow is used,
+		and correspondingly, the .add flow for lava.crms.enrollment.status.enrollmentStatus is never used -->
 	<bean id="lava.crms.enrollment.status.addEnrollmentStatus" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
 			<value>lava.crms.enrollment.status.patientEnrollmentStatus</value>
