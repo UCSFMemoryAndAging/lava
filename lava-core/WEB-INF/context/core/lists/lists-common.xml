@@ -48,7 +48,7 @@
 				
 	<bean id="list.reportSetup.formatCsv" parent="list.dataOnly">
 		<property name="data"><list>
-			<bean parent="list.data"><constructor-arg value="CVS"/><constructor-arg value="cvs"/></bean>
+			<bean parent="list.data"><constructor-arg value="CSV"/><constructor-arg value="csv"/></bean>
 		</list></property>
 	</bean>
 					
