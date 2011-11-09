@@ -40,9 +40,10 @@ public class ProtocolAssessmentTimepointHandler extends ProtocolTimepointHandler
 		//	load up dynamic lists
 		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
 		
-		// list for collectWinAnchorVisit
-		//    need list of Visits belonging to this Timepoint (which of course, do not exist when this Timepoint is 
-		//    just being added - believe there are some notes addressing this (create Timepoint and Visits together??)
+		// list for collectWinAnchorVisit, list of Visits belonging to this Timepoint 
+		// TODO: given that no visits exist when this Timepoint is just being added, need an approach for this. wizard? right now,
+		// user needs to add instrument, add visit(s), go back to instrument
+		
 		ProtocolTimepointBase protocolTimepoint = (ProtocolTimepointBase)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
 		Map collectWinAnchorVisitList = listManager.getDynamicList(getCurrentUser(request),"protocol.collectWinAnchorVisit", 
 			new String[]{"timepointId"}, 
