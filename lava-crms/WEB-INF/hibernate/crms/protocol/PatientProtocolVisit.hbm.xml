@@ -1,0 +1,22 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<joined-subclass name="edu.ucsf.lava.crms.protocol.model.PatientProtocolVisit" table="ptprot_visit" extends="edu.ucsf.lava.crms.protocol.model.PatientProtocolVisitBase" select-before-update="true">
+	<key column="node_id"/> 
+	<many-to-one name="visit" column="VID" class="edu.ucsf.lava.crms.scheduling.model.Visit"/>	
+</joined-subclass>
+
+	<query name="list.patientProtocol.matchingVisits"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(v.visitDescrip, v.id)
+			from edu.ucsf.lava.crms.scheduling.model.Visit as v
+			where v.patient.id = :patientId
+			and v.visitType = :visitType
+			order by abs(datediff(v.visitDate, :schedWinDate))
+	]]></query>	
+	
+</hibernate-mapping>

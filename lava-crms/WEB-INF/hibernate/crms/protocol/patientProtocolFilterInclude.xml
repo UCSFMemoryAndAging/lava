@@ -1,0 +1,7 @@
+<filter name="patientAuth"/> 
+<filter name="validPatient"/>  
+<filter name="projectAuth"/> 		
+<filter name="projectContext" condition=":projectContext=ProjName"/>
+<filter name="patient" condition=":patientId=PIDN"/>	
+
+	   
