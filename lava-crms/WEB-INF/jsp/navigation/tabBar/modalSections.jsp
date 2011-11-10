@@ -7,6 +7,7 @@
 
 	<tags:crmsNavSection module="people" section="findPatient" textCode="section.findPatient" disabled="true" />
   	<tags:crmsNavSection module="people" section="patient" textCode="section.patient" disabled="true" />
+    <tags:crmsNavSection module="people" section="attachments" textCode="section.attachments" disabled="true" />
     <tags:crmsNavSection module="people" section="caregiver" textCode="section.caregiver" disabled="true" />
   	<tags:crmsNavSection module="people" section="contactLog" textCode="section.contactLog" disabled="true" />
     <tags:crmsNavSection module="people" section="contactInfo" textCode="section.contactInfo" disabled="true" />
@@ -15,6 +16,7 @@
   
     
     <tags:crmsNavSection module="enrollment" section="status" textCode="section.status" disabled="true" />
+    <tags:crmsNavSection module="enrollment" section="attachments" textCode="section.attachments" disabled="true" />
     <tags:crmsNavSection module="enrollment" section="consent" textCode="section.consent" lastSection="true" disabled="true" />
     
   
@@ -22,6 +24,7 @@
     <tags:crmsNavSection module="scheduling" section="projectCalendar" textCode="section.projectCalendar" lastSection="true" disabled="true" />
       
     <tags:crmsNavSection module="assessment" section="summary" textCode="section.summary" disabled="true" />
+    <tags:crmsNavSection module="assessment" section="attachments" textCode="section.attachments" disabled="true" />
     <tags:crmsNavSection module="assessment" section="uds" textCode="section.uds" lastSection="true" disabled="true" />
     
    	<tags:crmsNavSection module="reporting" section="reports" textCode="section.reports" lastSection="true" disabled="true" />

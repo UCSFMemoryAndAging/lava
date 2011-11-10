@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"
+     [<!ENTITY fileInclude SYSTEM "classpath://../hibernate/core/file/fileInclude.xml" >]>
+    
+<hibernate-mapping>
+<class name="edu.ucsf.lava.crms.file.model.CrmsFile" table="lava_file" select-before-update="true">
+      
+	&fileInclude;
+	
+	<join table="crms_file">
+		<key column="id"/>	
+		<many-to-one name="patient" column="pidn" class="edu.ucsf.lava.crms.people.model.Patient" insert="false" update="false" lazy="false"/>
+		<property name="pidn" column="pidn" type="long"/>
+		<many-to-one name="visit" column="vid" class="edu.ucsf.lava.crms.scheduling.model.Visit" insert="false" update="false" lazy="false"/>
+		<property name="visitId" column="vid" type="long"/>
+		<many-to-one name="instrumentTracking" column="instr_id" class="edu.ucsf.lava.crms.assessment.model.InstrumentTracking" insert="false" update="false" lazy="false"/>
+		<property name="instrId" column="instr_id" type="long"/>
+		<many-to-one name="enrollmentStatus" column="enroll_stat_id" class="edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus" insert="false" update="false" lazy="false"/>
+		<property name="enrollStatId" column="enroll_stat_id" type="long"/>   	
+	</join>
+
+	<filter name="projectAuth" condition="id IN (SELECT cf.id from crms_file cf inner join enrollmentstatus e on e.EnrollStatID=cf.enroll_stat_id where cf.id=id and e.ProjName in (:projectList))"></filter>
+	<filter name="patientAuth" condition="id IN (SELECT cf.id from crms_file cf inner join enrollmentstatus e on cf.pidn=e.PIDN where cf.id=id and e.ProjName in (:projectList))"></filter>
+	<filter name="patient" condition="id IN (SELECT cf.id from crms_file cf where cf.pidn = :patientId)"></filter>
+	<filter name="validPatient" condition="id IN (SELECT cf.id from crms_file cf where cf.id=id and cf.pidn > 0)"></filter>
+	<filter name="projectContext" condition="id IN (SELECT cf.id from crms_file cf inner join enrollmentstatus e on cf.enroll_stat_id = e.EnrollStatId where e.ProjName = :projectContext)"></filter>
+</class>
+	
+	
+	<query name="list.crmsFile.projects"><![CDATA[
+	    select distinct new edu.ucsf.lava.core.list.model.LabelValueBean(p.projName, p.id)
+		from EnrollmentStatus p
+		where PIDN = :patientId 
+		order by p.projName
+	]]></query>
+
+
+	
+	<query name="list.crmsFile.visits"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(trim(str(month(v.visitDate))) || '/' || trim(str(day(v.visitDate))) || '/' || 
+	    	trim(str(year(v.visitDate))) || '-' || v.projName || '-' || v.visitType, v.id)
+		from Visit v 
+		where v.patient.id = :patientId and
+			v.projName = :projectName
+		order by v.visitDate desc
+	]]></query>
+	
+	<query name="list.crmsFile.instruments"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(trim(str(month(i.dcDate))) || '/' || trim(str(day(i.dcDate))) || '/' || 
+	    	trim(str(year(i.dcDate))) || '-' || i.instrType, i.id)		
+	    from InstrumentTracking i 
+		where i.visit.id=:visitId
+		order by i.dcDate desc
+	]]></query>
+	
+	<query name="list.crmsFile.projectContentType"><![CDATA[
+	   	select distinct new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = 'CrmsFileContentType' and (lv.valueKey = :projectName or lv.valueKey='GENERAL') 
+		order by lv.valueDesc
+	]]></query>
+	
+		<query name="list.crmsFile.contentType"><![CDATA[
+	   	select distinct new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv
+		where (list.listName = 'CrmsFileContentType' and lv.valueKey='GENERAL') 
+		order by lv.valueDesc
+	]]></query>
+	
+</hibernate-mapping>
+
+
