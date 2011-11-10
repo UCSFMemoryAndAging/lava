@@ -144,6 +144,18 @@ ${listFilters}
 
 </div>
 </c:if>
+
+<c:set var="listQuickFilter"> <%-- put in a var so can test if empty or not --%>
+	<decorator:getProperty property="page.listQuickFilter"/>
+</c:set>	
+<c:if test="${not empty listQuickFilter}">
+   		<div class="listControlBar"><span class="listControlBarQuickFilterLabels">
+
+${listQuickFilter}
+
+</span></div> 
+</c:if>
+
 <div class="listControlBar">
 
 <%-- output buttons before actions, since they float --%>

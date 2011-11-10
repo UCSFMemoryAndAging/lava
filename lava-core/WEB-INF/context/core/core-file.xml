@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+     
+    <!-- The file manager.  Primarily responsible for serving as an organizing entity for
+    	file repositories linked with the lava instance.
+    	handlers.   -->
+	<bean id="fileManager" class="edu.ucsf.lava.core.file.FileManager" >
+		<property name="repositories"><ref bean="fileRepositories"/></property>
+		</bean>
+     
+    
+    <!-- A collection bean that needs to be injected into each File Repository bean -->
+    <bean id="fileRepositories" class="edu.ucsf.lava.core.file.FileRepositories"/>
+    
+	<!-- Abstract parent beans for the file repository beans to inherit from -->
+	<bean id="baseFileRepository" abstract="true" class="edu.ucsf.lava.core.file.AbstractFileRepository">
+		<property name="repositories"><ref bean="fileRepositories"/></property>
+		<property name="id" value="lava_default"/>
+	</bean>
+	
+	
+	<bean id="defaultLavaFileRepository" parent="baseFileRepository" class="edu.ucsf.lava.core.file.BaseFileRepository">
+		<property name="strategy"><ref bean="defaultLavaFileRepositoryStrategy"/></property>
+	</bean>
+	
+	<bean id="defaultLavaFileRepositoryStrategy" class="edu.ucsf.lava.core.file.ArchivingLocalFileSystemRepositoryStrategy">
+		<property name="rootPath" value="/var/lava/repository"/>
+		<property name="archiveRoot" value="/var/lava/repository/archive"/>
+			
+	</bean>
+	
+</beans>
+	

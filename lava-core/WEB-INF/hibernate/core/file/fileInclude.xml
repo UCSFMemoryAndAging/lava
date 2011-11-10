@@ -1,0 +1,26 @@
+
+
+<!-- Note: we are using an include method here because subclasses of the LavaFile in other scopes
+	requires that we redefine the file entity at the scope level to enable hibernate filtering.  
+	(E.g. we need to define filters at the crms level to support patient/project auth filtering.)
+	
+	Underlying reason is that hibernate does not support the definition of filters at the joined-subclass level. 
+ 
+ -->
+		<id name="id" type="long">
+			<column name="id" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+		<timestamp name="modified" column="modified"/>
+		
+		<property name="name" column="name" type="string" length="255"/>
+		<property name="fileType" column="file_type" type="string" length="255"/>
+		<property name="contentType" column="content_type" type="string" length="100"/>
+		<property name="fileStatusDate" column="file_status_date" type="date"/>
+		<property name="fileStatus" column="file_status" type="string" length="50"/>
+		<property name="fileStatusBy" column="file_status_by" type="string" length="50"/>
+		<property name="repositoryId" column="repository_id" type="string" length="100"/>
+		<property name="fileId" column="file_id" type="string" length="100"/>
+		<property name="location" column="location" type="string" length="1000"/>
+		<property name="checksum" column="checksum" type="string" length="100"/>
+		

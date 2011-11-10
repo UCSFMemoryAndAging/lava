@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+
+	
+	<bean id="list.lavaFile.contentType" parent="list.dynamic">
+		<property name="query" value="list.lavaFile.contentType"/>
+	</bean>  
+	
+	<bean id="list.lavaFile.status" parent="list.dynamic">
+		<property name="query" value="list.lavaFile.status"/>
+	</bean>  
+	
+
+</beans>

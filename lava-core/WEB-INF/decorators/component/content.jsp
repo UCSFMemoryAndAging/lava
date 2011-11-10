@@ -4,6 +4,10 @@
   <decorator:getProperty property="isInstrument"/>
 </c:set>
 
+<c:set var="hasFileUpload">
+  <decorator:getProperty property="hasFileUpload"/>
+</c:set>
+
 <c:set var="component">
   <decorator:getProperty property="component"/>
 </c:set>
@@ -139,7 +143,7 @@ else {
 <!-- HTML FORM -->
 <form name="${pageName}" method="post">
 
-<c:if test="${isInstrument && componentView == 'upload'}">
+<c:if test="${componentView == 'upload' || hasFileUpload==true}">
 <%-- this is necessary for forms which upload files --%>
 <script type="text/javascript">
 	document.${pageName}.enctype = "multipart/form-data";

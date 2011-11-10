@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"
+     [<!ENTITY fileInclude SYSTEM "classpath://../hibernate/core/file/fileInclude.xml" >]>
+
+<hibernate-mapping>
+
+<class name="edu.ucsf.lava.core.file.model.LavaFile" table="lava_file" select-before-update="true">
+
+
+	&fileInclude;
+	<!-- associations -->
+
+	<!-- filters -->
+         
+
+</class>
+
+         <!-- queries  -->
+	<query name="list.lavaFile.status"><![CDATA[
+	   	select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = 'LavaFileStatus' and (lv.valueKey = 'GENERAL' or lv.valueKey = :contentType) 
+		order by lv.valueDesc
+	]]></query>
+	
+	<query name="list.lavaFile.contentType"><![CDATA[
+	   	select new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
+		from LavaList list 
+		join list.listValues lv
+		where list.listName = 'LavaFileContentType' and (lv.valueKey = 'GENERAL') 
+		order by lv.valueDesc
+	]]></query>
+</hibernate-mapping>
+		
