@@ -1565,6 +1565,10 @@ div.verticalSpace30 {
 	line-height: 30px;
 }
 
+div.verticalSpace10 {
+	line-height: 10px;
+}
+
 .bold {
 	font-weight: bold;
 }
