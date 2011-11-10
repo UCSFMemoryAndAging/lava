@@ -5,6 +5,7 @@
 
 
 <import resource="crms-actions.xml"/>
+<import resource="crms-assessment.xml"/>
 <import resource="crms-auth.xml"/>
 <import resource="crms-controller.xml"/>
 <import resource="crms-enrollment.xml"/>

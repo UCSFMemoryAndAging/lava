@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+
+
+	<bean id="list.crmsFile.projects" parent="list.dynamic">
+		<property name="query" value="list.crmsFile.projects"/>
+	</bean>
+	
+	<bean id="list.crmsFile.visits" parent="list.dynamic">
+		<property name="query" value="list.crmsFile.visits"/>
+	</bean>
+			
+	<bean id="list.crmsFile.instruments" parent="list.dynamic">
+		<property name="query" value="list.crmsFile.instruments"/>
+	</bean>	
+	<bean id="list.crmsFile.contentType" parent="list.dynamic">
+		<property name="query" value="list.crmsFile.contentType"/>
+	</bean>	
+	<bean id="list.crmsFile.projectContentType" parent="list.dynamic">
+		<property name="query" value="list.crmsFile.projectContentType"/>
+	</bean>	
+</beans>

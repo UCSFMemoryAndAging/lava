@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+<!-- actions -->
+
+	<bean id="lava.crms.assessment.attachments.assessmentAttachments" parent="crmsPatientSectionListAction"/>
+	<bean id="lava.crms.assessment.attachments.projectAssessmentAttachments" parent="crmsSectionListAction"/>
+				
+	<bean id="lava.crms.assessment.attachments.assessmentAttachment" parent="crmsEntityFlowAction">
+			<property name="parentFlows"><list>
+				<value>lava.crms.assessment.attachments.assessmentAttachments</value>
+				<value>lava.crms.assessment.attachments.projectAssessmentAttachments</value>
+			</list></property>
+	</bean>	
+
+<!-- form actions -->
+	
+	<bean id="assessmentAttachmentFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.assessment.controller.AssessmentAttachmentHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+    
+	<bean id="assessmentAttachmentsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.assessment.controller.AssessmentAttachmentsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+     
+	<bean id="projectAssessmentAttachmentsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.assessment.controller.ProjectAssessmentAttachmentsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+	
+</beans>

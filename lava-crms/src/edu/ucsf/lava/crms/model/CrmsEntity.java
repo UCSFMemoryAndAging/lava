@@ -5,9 +5,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 import edu.ucsf.lava.core.model.EntityBase;
+import edu.ucsf.lava.crms.auth.model.CrmsAuthEntity;
 import edu.ucsf.lava.crms.people.model.Patient;
 
-public class CrmsEntity extends EntityBase {
+public class CrmsEntity extends EntityBase implements CrmsAuthEntity{
 	// Skip Error Codes
 	public static final Short DATA_CODES_PATIENT_FACTOR = (short) -1;
 	public static final Short DATA_CODES_SITUATIONAL_FACTOR = (short) -2;

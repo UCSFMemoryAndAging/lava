@@ -40,6 +40,17 @@
 					</list></property>	
 				</bean>
 				
+				
+				<bean id="lava.crms.people.attachments.patientAttachments" parent="crmsPatientSectionListAction"/>
+				<bean id="lava.crms.people.attachments.projectPatientAttachments" parent="crmsSectionListAction"/>
+				
+				<bean id="lava.crms.people.attachments.patientAttachment" parent="crmsEntityFlowAction">
+					<property name="parentFlows"><list>
+						<value>lava.crms.people.attachments.patientAttachments</value>
+						<value>lava.crms.people.attachments.projectPatientAttachments</value>
+					</list></property>
+				</bean>	
+				
 				<bean id="lava.crms.people.contactLog.contactLog" parent="crmsEntityFlowAction">
 					<property name="parentFlows"><list>
 						<value>lava.crms.people.contactLog.patientContactLog</value>
@@ -113,6 +124,18 @@
 		<constructor-arg><list><bean class="edu.ucsf.lava.crms.people.controller.FindPatientHandler" parent="crmsHandler"/>
 		</list></constructor-arg>
 	</bean>
+	
+	<bean id="patientAttachmentFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.PatientAttachmentHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+    
+	<bean id="patientAttachmentsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.PatientAttachmentsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+     
+	<bean id="projectPatientAttachmentsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.people.controller.ProjectPatientAttachmentsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
 	
 	<bean id="contactInfoFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.people.controller.ContactInfoHandler" parent="crmsHandler"/>

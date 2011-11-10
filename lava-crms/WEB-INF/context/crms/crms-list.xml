@@ -11,6 +11,6 @@
 <import resource="lists/lists-project.xml"/>
 <import resource="lists/lists-scheduling.xml"/>
 <import resource="lists/lists-instrument.xml"/>
-
+<import resource="lists/lists-file.xml"/>
 
 </beans>
