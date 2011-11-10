@@ -6,10 +6,13 @@ import edu.ucsf.lava.core.model.EntityManager;
 import edu.ucsf.lava.crms.enrollment.ProjectUnitUtils;
 
 public class CrmsAuthRole extends AuthRole {
+	
 	public static EntityManager MANAGER = new EntityBase.Manager(CrmsAuthRole.class);
 	public static final Short ACCESS = new Short((short)1);
 	public static final Short NOACCESS = new Short((short)0);
-
+	public static final String PATIENT_ACCESS_DENIED_ROLE = "PATIENT ACCESS DENIED";
+	public static final String PROJECT_ACCESS_DENIED_ROLE = "PROJECT ACCESS DENIED";
+	
 	private Short patientAccess;
 	private Short phiAccess;
 	private Short ghiAccess;

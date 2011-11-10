@@ -8,6 +8,7 @@ import edu.ucsf.lava.core.auth.AuthorizationContext;
 import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.model.LavaEntity;
 import edu.ucsf.lava.core.scope.AbstractScopeAuthorizationDelegate;
+import edu.ucsf.lava.crms.auth.model.CrmsAuthEntity;
 import edu.ucsf.lava.crms.enrollment.ProjectUnitUtils;
 import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 import edu.ucsf.lava.crms.model.CrmsEntity;
@@ -67,18 +68,18 @@ public class CrmsAuthorizationDelegate extends
 		if(entity==null){return false;}
 		
 		//if entity is not a subclass of CrmsEntity return false, only CrmsEntity objects should be used with crms scope actions authorization checks
-		if(!CrmsEntity.class.isAssignableFrom(entity.getClass())){return false;}
+		if(!CrmsAuthEntity.class.isAssignableFrom(entity.getClass())){return false;}
 		
-		CrmsEntity crmsEntity = (CrmsEntity)entity;
+		CrmsAuthEntity crmsAuthEntity = (CrmsAuthEntity)entity;
 		
 		//Check project or patient-->projects of the entity for authorization
 		
-		if(crmsEntity.getProjectAuth() && crmsEntity.getProjName()!=null){
+		if(crmsAuthEntity.getProjectAuth() && crmsAuthEntity.getProjName()!=null){
 			//if project authorized and projName is set, use this for auth check.
-			return this.isAuthorized(roleCache, user, action, newAuthorizationContext(crmsEntity.getProjName()));
+			return this.isAuthorized(roleCache, user, action, newAuthorizationContext(crmsAuthEntity.getProjName()));
 			
-		}else if(crmsEntity.getPatientAuth()){
-			Patient p = (crmsEntity instanceof Patient) ? (Patient)crmsEntity : crmsEntity.getPatient();
+		}else if(crmsAuthEntity.getPatientAuth()){
+			Patient p = (crmsAuthEntity instanceof Patient) ? (Patient)crmsAuthEntity : crmsAuthEntity.getPatient();
 			if(p==null){return false;} //if no patient set, then return false.
 		
 			//if patient auth get enrollment status records and check for authorization on each project
@@ -89,7 +90,7 @@ public class CrmsAuthorizationDelegate extends
 				}
 			}
 			
-		}else if(!crmsEntity.getPatientAuth() && !crmsEntity.getProjectAuth()){
+		}else if(!crmsAuthEntity.getPatientAuth() && !crmsAuthEntity.getProjectAuth()){
 			//entity is neither patient or project authorized...see if user has permission for the action on any project
 			return this.isAuthorized(roleCache, user, action, newMatchesAllAuthorizationContext());
 		}

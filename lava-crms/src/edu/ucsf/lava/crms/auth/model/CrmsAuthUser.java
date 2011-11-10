@@ -74,160 +74,210 @@ public class CrmsAuthUser extends AuthUser{
 
 
 
-public Boolean getAllPatientProjectAccess() {
-	return allPatientProjectAccess;
-}
-
-
-
-
-
-
-public Boolean getAllProjectAccess() {
-	return allProjectAccess;
-}
-
-
-/**
- * Determine is any of the effective roles give the user access to all projects and/or
- * access to all patients on all projects
- * @param effectiveRoles
- */
-
-protected void setAllProjectAccess(List<AuthUserRole> effectiveRoles) {
-	this.allProjectAccess = false;
-	this.allPatientProjectAccess = false;
-	
-	for (AuthUserRole authUserRole:this.effectiveRoles){
-	
-		//If the AuthUserRole is a CrmsAuthUserRole
-		if(CrmsAuthUserRole.class.isAssignableFrom(authUserRole.getClass())){
-			CrmsAuthUserRole crmsAuthUserRole = (CrmsAuthUserRole)authUserRole;
-			AuthRole authRole = crmsAuthUserRole.getRole();
-			//If the AuthRole is a CrmsAuthRole (should always be the case but worth checking)
-			if(CrmsAuthRole.class.isAssignableFrom(authRole.getClass())){
-				CrmsAuthRole crmsAuthRole = (CrmsAuthRole)authRole;
-				String projUnitDesc = crmsAuthUserRole.getProjUnitDesc();
-		
-				// if the role is assigned for all projects
-				if(ProjectUnitUtils.isProjectUnitWildcard(projUnitDesc)){ 
-					this.allProjectAccess = true; //all project access is granted
-						
-					//if the role grants patient access then all patient project access is also granted
-					if(crmsAuthRole.getPatientAccess().equals(CrmsAuthRole.ACCESS)){ 
-							this.allPatientProjectAccess = true;
-							//if we get here we don't need to check any other roles
-							return;
-					}
-				}
-			}
-		}
+	public Boolean getAllPatientProjectAccess() {
+		return allPatientProjectAccess;
 	}
-}
 
 
 
 
-public List<String> getProjectAccessList() {
-	return projectAccessList;
-}
 
 
-
-
-protected void setProjectAccessLists(List<AuthUserRole> effectiveRoles, Set<String> projects) {
-	//if all patient project access granted then simply assign the full list of projects to the user
-	if(true==allPatientProjectAccess){
-		patientProjectAccessList = new ArrayList(projects);
-		projectAccessList = patientProjectAccessList;
-		return;
-	}else if(true==allProjectAccess){
-		projectAccessList = new ArrayList(projects);
+	public Boolean getAllProjectAccess() {
+		return allProjectAccess;
 	}
-	
-	/* if we get here, then we need to iterate through all roles to determine which provide patient access,
-	 * but bases on the allProjectAccess flag we may be able to ignore building the projectAccessList
+
+
+	/**
+	 * Determine is any of the effective roles give the user access to all projects and/or
+	 * access to all patients on all projects
+	 * @param effectiveRoles
 	 */
-		
-	HashSet<String> projectAccessSet = new HashSet<String>();
-	HashSet<String> patientAccessSet = new HashSet<String>();
-	for (AuthUserRole authUserRole:this.effectiveRoles){
-		//If the AuthUserRole is a CrmsAuthUserRole
-		if(CrmsAuthUserRole.class.isAssignableFrom(authUserRole.getClass())){
-			CrmsAuthUserRole crmsAuthUserRole = (CrmsAuthUserRole)authUserRole;
-			AuthRole authRole = crmsAuthUserRole.getRole();
-			
-			//If the AuthRole is a CrmsAuthRole (should always be the case but worth checking)
-			if(CrmsAuthRole.class.isAssignableFrom(authRole.getClass())){
-				CrmsAuthRole crmsAuthRole = (CrmsAuthRole)authRole;
-				String projUnitDesc = crmsAuthUserRole.getProjUnitDesc();
-		
-				// check each project against the projUnitDesc from the AuthUserRole
-				for(String project : projects){
-					//if the project matches then add it to the lists as appropriate
-					if(ProjectUnitUtils.matches(projUnitDesc, project)){
-						if(false==allProjectAccess){
-							projectAccessSet.add(project);
-						}
-						if(false==allPatientProjectAccess && crmsAuthRole.getPatientAccess().equals(CrmsAuthRole.ACCESS)){
-							patientAccessSet.add(project);
+
+	protected void setAllProjectAccess(List<AuthUserRole> effectiveRoles) {
+		this.allProjectAccess = false;
+		this.allPatientProjectAccess = false;
+
+
+
+		//first process the roles that allow access to see if all access is granted
+		for (AuthUserRole authUserRole:this.effectiveRoles){
+
+			//If the AuthUserRole is a CrmsAuthUserRole
+			if(CrmsAuthUserRole.class.isAssignableFrom(authUserRole.getClass())){
+				CrmsAuthUserRole crmsAuthUserRole = (CrmsAuthUserRole)authUserRole;
+				AuthRole authRole = crmsAuthUserRole.getRole();
+				//If the AuthRole is a CrmsAuthRole (should always be the case but worth checking)
+				if(CrmsAuthRole.class.isAssignableFrom(authRole.getClass())){
+					CrmsAuthRole crmsAuthRole = (CrmsAuthRole)authRole;
+
+					String projUnitDesc = crmsAuthUserRole.getProjUnitDesc();
+					// if the role is assigned for all projects
+					if(ProjectUnitUtils.isProjectUnitWildcard(projUnitDesc)){ 
+						this.allProjectAccess = true; //all project access is granted
+						//if the role grants patient access then all patient project access is also granted
+						if(crmsAuthRole.getPatientAccess().equals(CrmsAuthRole.ACCESS)){ 
+							this.allPatientProjectAccess = true;
+
 						}
 					}
 				}
 			}
 		}
-	}
-	
-	//set the lists as appropriate based on the "all[x]Access" flags
-	if(false==allProjectAccess){
-		if(projectAccessSet.size()==0){
-			projectAccessSet.add(PROJECT_LIST_PLACEHOLDER);
+		//next process roles that deny access to unset the flags as needed. 
+		for (AuthUserRole authUserRole:this.effectiveRoles){
+			/*
+			 * Note: the access and denied role iterations could have been combined, 
+			 * but it made the code overly complex and the performance impact in 
+			 * separating them out into two loops is negligible
+			 */
+			
+			//If the AuthUserRole is a CrmsAuthUserRole
+			if(CrmsAuthUserRole.class.isAssignableFrom(authUserRole.getClass())){
+				CrmsAuthUserRole crmsAuthUserRole = (CrmsAuthUserRole)authUserRole;
+				AuthRole authRole = crmsAuthUserRole.getRole();
+				//If the AuthRole is a CrmsAuthRole (should always be the case but worth checking)
+				if(CrmsAuthRole.class.isAssignableFrom(authRole.getClass())){
+					CrmsAuthRole crmsAuthRole = (CrmsAuthRole)authRole;
+					if(crmsAuthRole.getRoleName().equalsIgnoreCase(CrmsAuthRole.PATIENT_ACCESS_DENIED_ROLE)){
+						this.allPatientProjectAccess = false;
+					}else if(crmsAuthRole.getRoleName().equalsIgnoreCase(CrmsAuthRole.PROJECT_ACCESS_DENIED_ROLE)){
+						this.allProjectAccess = false;
+						this.allPatientProjectAccess = false;
+						return;
+					}
+				}
+			}
 		}
-		this.projectAccessList = new ArrayList(projectAccessSet);
 	}
-	if(false==allPatientProjectAccess){
-		if(patientAccessSet.size()==0){
-			patientAccessSet.add(PROJECT_LIST_PLACEHOLDER);
+
+
+
+
+
+	public List<String> getProjectAccessList() {
+		return projectAccessList;
+	}
+
+
+
+
+	protected void setProjectAccessLists(List<AuthUserRole> effectiveRoles, Set<String> projects) {
+		//if all patient project access granted then simply assign the full list of projects to the user
+		if(true==allPatientProjectAccess){
+			patientProjectAccessList = new ArrayList(projects);
+			projectAccessList = patientProjectAccessList;
+			return;
+		}else if(true==allProjectAccess){
+			projectAccessList = new ArrayList(projects);
 		}
-		this.patientProjectAccessList = new ArrayList(patientAccessSet);
+
+		/* if we get here, then we need to iterate through all roles to determine which provide patient access,
+		 * but based on the allProjectAccess flag we may be able to ignore building the projectAccessList
+		 */
+
+		HashSet<String> projectAccessSet = new HashSet<String>();
+		HashSet<String> patientAccessSet = new HashSet<String>();
+		HashSet<String> projectDeniedSet = new HashSet<String>();
+		HashSet<String> patientDeniedSet = new HashSet<String>();
+		
+		for (AuthUserRole authUserRole:this.effectiveRoles){
+			//If the AuthUserRole is a CrmsAuthUserRole
+			if(CrmsAuthUserRole.class.isAssignableFrom(authUserRole.getClass())){
+				CrmsAuthUserRole crmsAuthUserRole = (CrmsAuthUserRole)authUserRole;
+				AuthRole authRole = crmsAuthUserRole.getRole();
+
+				//If the AuthRole is a CrmsAuthRole (should always be the case but worth checking)
+				if(CrmsAuthRole.class.isAssignableFrom(authRole.getClass())){
+					CrmsAuthRole crmsAuthRole = (CrmsAuthRole)authRole;
+					String projUnitDesc = crmsAuthUserRole.getProjUnitDesc();
+					//handle special case of ACCESS_DENIED_ROLE
+					if(crmsAuthRole.getRoleName().equalsIgnoreCase(CrmsAuthRole.PATIENT_ACCESS_DENIED_ROLE)){
+						for(String project : projects){
+							//if the project matches then add it to the access denied sets as appropriate
+							if(ProjectUnitUtils.matches(projUnitDesc, project)){
+								patientDeniedSet.add(project);
+							}
+						}
+					}else if(crmsAuthRole.getRoleName().equalsIgnoreCase(CrmsAuthRole.PROJECT_ACCESS_DENIED_ROLE)){
+						for(String project : projects){
+							//if the project matches then add it to the access denied sets as appropriate
+							if(ProjectUnitUtils.matches(projUnitDesc, project)){
+								patientDeniedSet.add(project);
+								projectDeniedSet.add(project);
+							}
+						}
+					}else{
+						//add project to access sets as appropriate
+						for(String project : projects){
+							//if the project matches then add it to the lists as appropriate
+							if(ProjectUnitUtils.matches(projUnitDesc, project)){
+								if(false==allProjectAccess){
+									projectAccessSet.add(project);
+								}
+								if(false==allPatientProjectAccess && crmsAuthRole.getPatientAccess().equals(CrmsAuthRole.ACCESS)){
+									patientAccessSet.add(project);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		//now remove any denied projects from the access collections.
+		patientAccessSet.removeAll(patientDeniedSet);
+		projectAccessSet.removeAll(projectDeniedSet);
+		//set the lists as appropriate based on the "all[x]Access" flags
+		if(false==allProjectAccess){
+			if(projectAccessSet.size()==0){
+				projectAccessSet.add(PROJECT_LIST_PLACEHOLDER);
+			}
+			this.projectAccessList = new ArrayList(projectAccessSet);
+		}
+		if(false==allPatientProjectAccess){
+			if(patientAccessSet.size()==0){
+				patientAccessSet.add(PROJECT_LIST_PLACEHOLDER);
+			}
+			this.patientProjectAccessList = new ArrayList(patientAccessSet);
+		}
 	}
-}
 
 
 
-public List<String> getPatientProjectAccessList() {
-	return patientProjectAccessList;
-}
-
-public Map<String, Map<String, Object>> getAuthDaoFilters() {
-	Map<String,Map<String,Object>> authFilters = super.getAuthDaoFilters();
-	
-	//always turn on the valid patient filter.  This ensures that the dao only returns records associated with PIDN>0. 
-	authFilters.put(CrmsDaoFilterUtils.VALID_PATIENT_FILTER,new HashMap<String,Object>());
-	
-	//if the user does not have patient access on all projects, add the list of projects that the user has patient access through into the Patient Auth Filter
-	if(false==allPatientProjectAccess){
-		Map<String,Object> patientAuthParams = new HashMap<String,Object>();
-		patientAuthParams.put(CrmsDaoFilterUtils.PATIENT_AUTH_FILTER_PARAM, patientProjectAccessList);
-		authFilters.put(CrmsDaoFilterUtils.PATIENT_AUTH_FILTER, patientAuthParams);
+	public List<String> getPatientProjectAccessList() {
+		return patientProjectAccessList;
 	}
-	//if the user does not have project access to all projects, add the list of projects that the user has access to into the Project Auth Filter
-	if(false==allProjectAccess){
-		Map<String,Object> projectAuthParams = new HashMap<String,Object>();
-		projectAuthParams.put(CrmsDaoFilterUtils.PROJECT_AUTH_FILTER_PARAM, projectAccessList);
-		authFilters.put(CrmsDaoFilterUtils.PROJECT_AUTH_FILTER, projectAuthParams);
+
+	public Map<String, Map<String, Object>> getAuthDaoFilters() {
+		Map<String,Map<String,Object>> authFilters = super.getAuthDaoFilters();
+
+		//always turn on the valid patient filter.  This ensures that the dao only returns records associated with PIDN>0. 
+		authFilters.put(CrmsDaoFilterUtils.VALID_PATIENT_FILTER,new HashMap<String,Object>());
+
+		//if the user does not have patient access on all projects, add the list of projects that the user has patient access through into the Patient Auth Filter
+		if(false==allPatientProjectAccess){
+			Map<String,Object> patientAuthParams = new HashMap<String,Object>();
+			patientAuthParams.put(CrmsDaoFilterUtils.PATIENT_AUTH_FILTER_PARAM, patientProjectAccessList);
+			authFilters.put(CrmsDaoFilterUtils.PATIENT_AUTH_FILTER, patientAuthParams);
+		}
+		//if the user does not have project access to all projects, add the list of projects that the user has access to into the Project Auth Filter
+		if(false==allProjectAccess){
+			Map<String,Object> projectAuthParams = new HashMap<String,Object>();
+			projectAuthParams.put(CrmsDaoFilterUtils.PROJECT_AUTH_FILTER_PARAM, projectAccessList);
+			authFilters.put(CrmsDaoFilterUtils.PROJECT_AUTH_FILTER, projectAuthParams);
+		}
+
+		return authFilters;
 	}
-	
-	return authFilters;
-}
 
 	// EMORY change: fixing bug where CrmsAuthUser not created
 	static public class Manager extends EntityBase.Manager{
-		
+
 		public Manager(){
 			super(CrmsAuthUser.class);
 		}
-			
+
 		public AuthUser getByLogin(String username) {
 			LavaDaoFilter filter = newFilterInstance();
 			filter.addDaoParam(filter.daoEqualityParam("login", username));
