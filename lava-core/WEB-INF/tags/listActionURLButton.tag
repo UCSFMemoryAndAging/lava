@@ -6,9 +6,9 @@
        description="the part of the button image name that varies...e.g. cancel, delete, etc. "%>
 <%@ attribute name="actionId" required="true" 
        description="the action id to use" %>
-<%@ attribute name="eventId"
+<%@ attribute name="eventId" 
        description="[optional] flow event id" %>      
-<%@ attribute name="startMode"
+<%@ attribute name="startMode" 
        description="[optional] mode for new flow (eventId is empty) defaults to 'view'" %>      
 <%@ attribute name="idParam" 
        description="[optional] an idParam for the action"%>
@@ -18,7 +18,7 @@
 <%@ attribute name="locked" 
        description="[optional] whether the action will be disabled.
                     Ideally want to use this attribute when assigning a modifying action"%>
-<%@ attribute name="title" 
+<%@ attribute name="title"
        description="[optional] text used during the mouseover event"%>
        				
 <%-- to avoid image whisker problem, do not leave any white space between end of <a> tag and beginning of <img> tag --%>		
