@@ -21,7 +21,7 @@ import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentHandler;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
-import edu.ucsf.lava.crms.reporting.model.ReportSetup;
+import edu.ucsf.lava.core.reporting.model.ReportSetup;
 
 public class ReportLauncherComponentHandler extends LavaComponentHandler {
 	

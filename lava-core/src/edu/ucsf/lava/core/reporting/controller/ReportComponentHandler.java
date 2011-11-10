@@ -31,7 +31,7 @@ import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.dao.LavaDateRangeParamHandler;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
-import edu.ucsf.lava.crms.reporting.model.ReportSetup;
+import edu.ucsf.lava.core.reporting.model.ReportSetup;
 
 /*
  * This class serves as the base handler class for handler classes that generate reports.
