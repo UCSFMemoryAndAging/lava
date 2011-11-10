@@ -2,6 +2,7 @@ package edu.ucsf.lava.core.controller;
 
 import static edu.ucsf.lava.core.webflow.builder.EntityFlowTypeBuilder.ENTITY_EVENTS;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.definition.FlowDefinition;
 import org.springframework.webflow.definition.StateDefinition;
@@ -23,12 +26,16 @@ import org.springframework.webflow.execution.RequestContext;
 import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.action.model.Action;
 import edu.ucsf.lava.core.auth.model.AuthUser;
-import edu.ucsf.lava.core.dao.file.LavaFile;
+
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.LavaEntity;
 import edu.ucsf.lava.core.model.ValidationException;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.core.controller.LavaComponentFormAction;
+import edu.ucsf.lava.core.file.exception.AlreadyExistsFileAccessException;
+import edu.ucsf.lava.core.file.exception.FileAccessException;
+import edu.ucsf.lava.core.file.model.LavaFile;
+
 
 /*
  * This class serves as the base class for classes that handler entity-based "components" that
@@ -573,10 +580,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 				object.delete();
 			}
 			
-			//delete any attached files as well
-			if(this.supportsAttachedFiles()){
-				deleteHandledFile(context, objects, errors);
-			}
+			
 		}
 		catch (Exception e) {
 			addObjectErrorForException(errors, e);
@@ -630,8 +634,9 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		}
 	
 	public Event deleteHandledFile(RequestContext context, Map components, BindingResult errors) throws Exception{
-		if(this.getFileDao()==null) {new Event(this,ERROR_FLOW_EVENT_ID);}
-		this.getFileDao().deleteFile(getDownloadFileId(components.get(getDefaultObjectName())));
+		LavaFile lavaFile = this.getLavaFileBackingObject(context, components, errors);
+		if(lavaFile==null){return new Event(this,ERROR_FLOW_EVENT_ID);}
+		LavaFile.MANAGER.deleteFile(lavaFile);
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
 
@@ -644,15 +649,58 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 			return this.doUploadFile(context, command, errors);
 		}
 	public Event doUploadFile(RequestContext context, Object command, BindingResult errors) throws Exception {
-		if(this.getFileDao()==null) {new Event(this,ERROR_FLOW_EVENT_ID);}
-			this.getFileDao().storeFile(getUploadFile(context,command, errors));
-		return new Event(this,SUCCESS_FLOW_EVENT_ID);
+		LavaFile lavaFile = this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
+		if(lavaFile==null){return new Event(this,ERROR_FLOW_EVENT_ID);}
+		try {
+			this.doSave(context, command, errors);
+		} catch (AlreadyExistsFileAccessException e){
+			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.fileExistsException"}, null, ""));
+			return new Event(this,ERROR_FLOW_EVENT_ID);	
+		} catch (FileAccessException e){
+			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.genericException"}, null, ""));
+			return new Event(this,ERROR_FLOW_EVENT_ID);			
+		} catch (IOException e){
+			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.noFileException"}, null, ""));
+			return new Event(this,ERROR_FLOW_EVENT_ID);	
+		} catch (Exception e){
+			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.genericException"}, null, ""));
+			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
-	
-	protected LavaFile getUploadFile(RequestContext context, Object command, BindingResult errors){
-		return new LavaFile(); 
+		
+		return new Event(this,SUCCESS_FLOW_EVENT_ID);
+	}
+
+
+	protected LavaFile getUploadFile(RequestContext context, Map components, BindingResult errors) throws Exception {
+		LavaFile lavaFile = this.getLavaFileBackingObject(context, components, errors);
+		if(lavaFile==null) return lavaFile;
+		
+		MultipartFile file = context.getRequestParameters().getRequiredMultipartFile(getDefaultObjectName() + "_uploadFile");
+		
+		// strip filename from path (should only be necessary when using Opera browser)
+		String[] paths = file.getOriginalFilename().split("[\\\\/]");
+		String fileName = paths[paths.length-1];
+		
+		if (fileName.equals("")){
+			throw new IOException("Upload file error: No file selected");
+		}
+		
+		lavaFile.setName(fileName);
+		lavaFile.setContent(file.getBytes());
+		lavaFile.setFileType(file.getContentType());
+		lavaFile.setFileStatus(LavaFile.DEFAULT_UPLOADED_STATUS);
+		return lavaFile; 
 	}
 	
-		
+	public Event handleFinishUploadFileEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
+		return this.doFinishUploadFile(context, command, errors);
+	}
+	
+	public Event doFinishUploadFile(RequestContext context, Object command, BindingResult errors) throws Exception {
+		// Override in subclass to provide any entity specific post upload functions
+		errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"info.uploadFile.success"}, null, ""));
+		this.refreshBackingObjects(context, command, errors);
+		return new Event(this,"uploadSuccess");
+	}
 	
 }

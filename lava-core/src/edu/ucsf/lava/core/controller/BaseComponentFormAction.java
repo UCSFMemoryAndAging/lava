@@ -25,6 +25,7 @@ import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.audit.AuditManager;
 import edu.ucsf.lava.core.auth.AuthManager;
 import edu.ucsf.lava.core.environment.EnvironmentManager;
+import edu.ucsf.lava.core.file.FileManager;
 import edu.ucsf.lava.core.list.ListManager;
 import edu.ucsf.lava.core.manager.CoreManagerUtils;
 import edu.ucsf.lava.core.manager.Managers;
@@ -52,7 +53,7 @@ public class BaseComponentFormAction extends FormAction implements ManagersAware
 	protected AuditManager auditManager;
     protected MetadataManager metadataManager;
     protected EnvironmentManager environmentManager;
-		
+	protected FileManager fileManager;
 	public BaseComponentFormAction(ArrayList<ComponentHandler> handlers) {
 		super();
 		this.componentHandlers = handlers;
@@ -344,6 +345,7 @@ public class BaseComponentFormAction extends FormAction implements ManagersAware
 		this.auditManager = CoreManagerUtils.getAuditManager(managers);
 		this.metadataManager = CoreManagerUtils.getMetadataManager(managers);
 		this.environmentManager = CoreManagerUtils.getEnvironmentManager(managers);
+		this.fileManager = CoreManagerUtils.getFileManager(managers);
 	}
 
 

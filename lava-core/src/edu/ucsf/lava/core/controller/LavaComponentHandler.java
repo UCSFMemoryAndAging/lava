@@ -3,6 +3,7 @@ package edu.ucsf.lava.core.controller;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -29,9 +30,9 @@ import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.auth.AuthManager;
 import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
-import edu.ucsf.lava.core.dao.file.LavaFile;
-import edu.ucsf.lava.core.dao.file.LavaFileDao;
 import edu.ucsf.lava.core.environment.EnvironmentManager;
+import edu.ucsf.lava.core.file.FileManager;
+import edu.ucsf.lava.core.file.model.LavaFile;
 import edu.ucsf.lava.core.list.ListManager;
 import edu.ucsf.lava.core.manager.CoreManagerUtils;
 import edu.ucsf.lava.core.manager.Managers;
@@ -62,6 +63,7 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 	protected SessionManager sessionManager; 
 	protected EnvironmentManager environmentManager;
 	protected ViewManager viewManager;
+	protected FileManager fileManager;
 	
 	protected String primaryComponentContext;
 	protected List<String> handledEvents; //a list of events handled by the handler, set by default, may be specified
@@ -74,7 +76,6 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 	protected Class defaultObjectBaseClass; //the default objects base class (this will be the default object class unless explicitly set.  This enables subclassed flows to load base model entities as necessary. 
 	String[] requiredFields = new String[]{}; //property names that will be "validated" as required upon submission of the form
 	protected boolean supportsAttachedFiles = false; 
-	protected LavaFileDao fileDao;
 	protected static final String COMPONENT_MODE_SUFFIX = "_mode"; 
 	protected static final String COMPONENT_VIEW_SUFFIX = "_view"; 
 	protected static final String COMPONENT_COMMAND_PREFIX = "command.components[";
@@ -285,12 +286,12 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		return supportsAttachedFiles();
 	}
 	/*
-	 * Handles the basic function of transfering a file down to the browser by
+	 * Handles the basic function of transferring a file down to the browser by
 	 * setting the headers in the response and copying the file content
 	 */
 	public Event handleDownload(RequestContext context, Object command, BindingResult errors) throws Exception {
 		Map components = ((ComponentCommand)command).getComponents();
-		LavaFile file = this.getDownloadFile(context,components,errors);
+		LavaFile file = this.getDownloadFileContent(context,components,errors);
 		if(file == null){
 			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
@@ -299,31 +300,41 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		response.setHeader("Content-Disposition","inline;filename=\""+ file.getName()+"\"");
 		response.setContentType(file.getContentType());
 		response.setContentLength(file.getContentLength());
-		
-		
 		FileCopyUtils.copy(file.getContent(),response.getOutputStream());
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 		
 	}
 	
-	/*
-	 * Gets the download file, override in subclass if you need to do something special
+	/**
+	 * Loads the file content from the file repository. 
+	 * @param context
+	 * @param components
+	 * @param errors
+	 * @return 
+	 * @throws Exception
 	 */
-	public LavaFile getDownloadFile(RequestContext context, Map components, BindingResult errors) throws Exception {
-		if(this.getFileDao()==null) {return null;}
-		return this.getFileDao().getFile(getDownloadFileId(components.get(getDefaultObjectName())));
+	public LavaFile getDownloadFileContent(RequestContext context, Map components, BindingResult errors) throws Exception {
+		LavaFile file = this.getLavaFileBackingObject(context, components, errors);
+		if(file!=null){
+			file.getContent();
 		}
-		
-	
-		
-	/*
-	 * Override to get the download file id from the primary model object
-	 * 
-	 */	
-	public String getDownloadFileId(Object command){
-		return new String();
+		return file;
 	}
-	
+	/**
+	 * Utility method to extract backing object from the component map and cast to a LavaFile. 
+	 * @param context
+	 * @param components
+	 * @param errors
+	 * @return
+	 * @throws Exception
+	 */
+	protected LavaFile getLavaFileBackingObject(RequestContext context, Map components, BindingResult errors) throws Exception{
+		Object backingObject = components.get(getDefaultObjectName());
+		if(LavaFile.class.isAssignableFrom(backingObject.getClass())){
+			return (LavaFile)backingObject;
+		}
+		return null;
+	}
 	
 	
 	/*
@@ -519,7 +530,18 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		this.requiredFields = requiredFields;
 	}
 
-	
+	public void extendRequiredFields(String[] newRequiredFields){
+		String[] required = this.getRequiredFields();
+		if(required.length==0){
+			this.setRequiredFields(newRequiredFields);
+		}else{
+			ArrayList<String> fields = new ArrayList<String>();
+			fields.addAll(Arrays.asList(required));
+			fields.addAll(Arrays.asList(newRequiredFields));
+			this.setRequiredFields((String[])fields.toArray(new String[fields.size()]));
+		}
+		
+	}
 
 	public String getDefaultMode() {
 		return defaultMode;
@@ -750,14 +772,7 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		this.supportsAttachedFiles = supportsAttachedFiles;
 	}
 
-	public LavaFileDao getFileDao() {
-		return fileDao;
-	}
 
-	public void setFileDao(LavaFileDao fileDao) {
-		this.fileDao = fileDao;
-	}
-	
 	
 	/**
 	 * Utility method to check if id property does not match entity.getId()
@@ -838,6 +853,7 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		this.sessionManager = CoreManagerUtils.getSessionManager(managers);
 		this.environmentManager = CoreManagerUtils.getEnvironmentManager(managers);
 		this.viewManager = CoreManagerUtils.getViewManager(managers);
+		this.fileManager = CoreManagerUtils.getFileManager(managers);
 	}		
 	
 	// EMORY change:
