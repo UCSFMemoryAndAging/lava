@@ -24,15 +24,15 @@
     
 	
 	<!-- Abstract parent beans for the scope delegate and handler beans to inherit from -->
-	<bean id="baseScopeActionDelegate" abstract="true" class="edu.lava.core.scope.AbstractScopeActionDelegate">
+	<bean id="baseScopeActionDelegate" abstract="true" class="edu.ucsf.lava.core.scope.AbstractScopeActionDelegate">
 		<property name="scopeActionDelegates"><ref bean="scopeActionDelegates"/></property>
 	</bean>
 	
-	<bean id="baseScopeAuthorizationDelegate" abstract="true" class="edu.lava.core.scope.AbstractScopeAuthorizationDelegate">
+	<bean id="baseScopeAuthorizationDelegate" abstract="true" class="edu.ucsf.lava.core.scope.AbstractScopeAuthorizationDelegate">
 		<property name="scopeAuthorizationDelegates"><ref bean="scopeAuthorizationDelegates"/></property>
 	</bean>
 	
-	<bean id="baseScopeSessionAttributeHandler" abstract="true" class="edu.lava.core.scope.AbstractScopeSessionAttributeHandler">
+	<bean id="baseScopeSessionAttributeHandler" abstract="true" class="edu.ucsf.lava.core.scope.AbstractScopeSessionAttributeHandler">
 		<property name="scopeSessionAttributeHandlers"><ref bean="scopeSessionAttributeHandlers"/></property>
 	</bean>
 	
