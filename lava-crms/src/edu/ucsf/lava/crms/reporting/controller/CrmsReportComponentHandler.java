@@ -16,12 +16,12 @@ import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.core.reporting.controller.ReportComponentHandler;
+import edu.ucsf.lava.core.reporting.model.ReportSetup;
 import edu.ucsf.lava.crms.assessment.InstrumentManager;
 import edu.ucsf.lava.crms.auth.model.CrmsAuthUser;
 import edu.ucsf.lava.crms.enrollment.EnrollmentManager;
 import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
 import edu.ucsf.lava.crms.project.ProjectManager;
-import edu.ucsf.lava.crms.reporting.model.ReportSetup;
 import edu.ucsf.lava.crms.scheduling.VisitManager;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 
