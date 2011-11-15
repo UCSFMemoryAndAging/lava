@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"
+    [<!ENTITY protocolInclude SYSTEM "classpath://../hibernate/crms/protocol/protocolInclude.xml" >
+     <!ENTITY protocolFilterInclude SYSTEM "classpath://../hibernate/crms/protocol/protocolFilterInclude.xml" >]>
+    
+<hibernate-mapping>
+
+	<!-- this is a recursive, bidirectional, one-to-many association. storing the parent/child relationships
+	of the Protocol hierarchy in the base table allows retrieving the entire tree just by querying this one
+	table (although typically would also join to the corresponding ProtocolConfig base table in order to get
+	the label for each node of the hierarchy tree) -->
+
+	<class name="edu.ucsf.lava.crms.protocol.model.ProtocolTracking" table="prot_node" select-before-update="true">
+
+		&protocolInclude;
+		
+		<many-to-one name="parent" class="edu.ucsf.lava.crms.protocol.model.ProtocolTracking" column="parent_id" cascade="none"/>
+		<many-to-one name="config" column="config_node_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig"/>	
+	
+		<!-- bidirectional. the parent is mapped above. -->
+		<set name="children" table="prot_node" inverse="true" cascade="all,delete-orphan" order-by="list_order">
+			<key column="parent_id"/>
+			<one-to-many class="edu.ucsf.lava.crms.protocol.model.ProtocolTracking"/> 
+		</set>
+		 
+		&protocolFilterInclude;
+		
+	</class>		
+	
+	<query name="protocol.protocolTree"><![CDATA[
+		from edu.ucsf.lava.crms.protocol.model.ProtocolTracking protocol
+		left join fetch protocol.config
+		left join fetch protocol.children timepoint
+		left join fetch timepoint.config
+		left join fetch timepoint.children visit
+		left join fetch visit.config
+		left join fetch visit.children instrument
+		left join fetch instrument.config
+		where protocol.id = :protocolId
+	]]></query>	
+	
+	<query name="protocol.timepointTree"><![CDATA[
+		from edu.ucsf.lava.crms.protocol.model.ProtocolTracking timepoint
+		left join fetch timepoint.config
+		left join fetch timepoint.children visit
+		left join fetch visit.config
+		left join fetch visit.children instrument
+		left join fetch instrument.config
+		where timepoint.id = :timepointId
+	]]></query>	
+
+	<query name="protocol.visitTree"><![CDATA[
+		from edu.ucsf.lava.crms.protocol.model.ProtocolTracking visit
+		left join fetch visit.config
+		left join fetch visit.children instrument
+		left join fetch instrument.config
+		where visit.id = :visitId
+	]]></query>	
+
+</hibernate-mapping>
+
+
+

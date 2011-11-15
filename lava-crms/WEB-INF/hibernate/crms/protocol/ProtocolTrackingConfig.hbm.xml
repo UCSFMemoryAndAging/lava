@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"
+    [<!ENTITY protocolConfigInclude SYSTEM "classpath://../hibernate/crms/protocol/protocolConfigInclude.xml" >
+     <!ENTITY protocolConfigFilterInclude SYSTEM "classpath://../hibernate/crms/protocol/protocolConfigFilterInclude.xml" >]>
+    
+<hibernate-mapping>
+
+	<!-- this is a recursive, bidirectional, one-to-many association. storing the parent/child relationships
+	of the ProtocolConfig hierarchy in the base table allows retrieving the entire tree just by querying this one
+	table (although typically would also join to the options base table for those components that have an options
+	collection) -->
+
+	<class name="edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig" table="prot_node_config" select-before-update="true">
+
+		&protocolConfigInclude;
+		
+		<many-to-one name="parent" class="edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig" column="parent_id" cascade="none"/>
+	
+		<!-- bilateral -->
+		<!-- could not use a list element here because of known problem with Hibernate with bidirectional relationship. instead
+			maintaining a list_order column to order children, where list_order can be set by a subclass which orders on some
+			subclass specific field, e.g. the ProtocolConfig set of ProtocolTimepointConfig is a java.util.SortedSet (TreeSet)
+			and has a natural ordering based on the schedWinDaysFromStart property (so that timepoints are ordered chronologically)
+			and every time a ProtocolTimepointConfig is saved this natural ordering is transferred to list_order so that when 
+			just retrieving the tracking objects the proper ordering is maintained -->
+		<set name="children" table="prot_node_config" inverse="true" cascade="all,delete-orphan" order-by="list_order">
+ 			<!-- the set of children are those that have the same parent -->
+			<key column="parent_id"/>
+			<one-to-many class="edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig"/> 
+		</set>
+		 
+		<!-- unilateral (but bilateral when prot_option is mapped in ProtocolNode as that works better
+			for persistence. ProtocolTracking is just for retrieval) -->
+		<set name="options" table="prot_opt_config" cascade="all,delete-orphan">
+			<key column="parent_id"/>
+			<one-to-many class="edu.ucsf.lava.crms.protocol.model.ProtocolOptionTrackingConfig"/>
+		</set>		 
+		 
+		&protocolConfigFilterInclude;
+		
+	</class>		
+	
+	<query name="protocol.protocolConfigTree"><![CDATA[
+		from edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig protocolConfig
+		left join fetch protocolConfig.children timepointConfig
+		left join fetch timepointConfig.children visitConfig
+		left join fetch visitConfig.options visitConfigOption
+		left join fetch visitConfig.children instrumentConfig
+		left join fetch instrumentConfig.options instrumentConfigOption
+		where protocolConfig.id = :protocolConfigId
+	]]></query>	
+	
+	<query name="protocol.timepointConfigTree"><![CDATA[
+		from edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig timepointConfig
+		left join fetch timepointConfig.children visitConfig
+		left join fetch visitConfig.options visitConfigOption
+		left join fetch visitConfig.children instrumentConfig
+		left join fetch instrumentConfig.options instrumentConfigOption
+		where timepointConfig.id = :timepointConfigId
+	]]></query>	
+
+	<query name="protocol.visitConfigTree"><![CDATA[
+		from edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig visitConfig
+		left join fetch visitConfig.options visitConfigOption
+		left join fetch visitConfig.children instrumentConfig
+		left join fetch instrumentConfig.options instrumentConfigOption
+		where visitConfig.id = :visitConfigId
+	]]></query>	
+
+	<query name="protocol.instrumentConfigTree"><![CDATA[
+		from edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig instrumentConfig
+		left join fetch instrumentConfig.options instrumentConfigOption
+		where instrumentConfig.id = :instrumentConfigId
+	]]></query>
+
+		
+</hibernate-mapping>
+
+
+
