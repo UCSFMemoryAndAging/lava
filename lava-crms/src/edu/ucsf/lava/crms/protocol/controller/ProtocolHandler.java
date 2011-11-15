@@ -116,6 +116,7 @@ public class ProtocolHandler extends CrmsEntityComponentHandler {
 				protocolTimepoint = new ProtocolAssessmentTimepoint();
 				protocol.addTimepoint(protocolTimepoint);
 				protocolTimepoint.setTimepointConfig(timepointConfig);
+				protocolTimepoint.setListOrder(timepointConfig.getListOrder());
 				protocolTimepoint.setPatient(protocol.getPatient());
 				protocolTimepoint.setProjName(timepointConfig.getProjName());
 			}
