@@ -15,6 +15,7 @@
 <import resource="crms-mappings.xml"/>
 <import resource="crms-mylava.xml"/>
 <import resource="crms-people.xml"/>
+<import resource="crms-protocol.xml"/>
 <import resource="crms-reporting.xml"/>
 <import resource="crms-scheduling.xml"/>
 <import resource="crms-session.xml"/>
