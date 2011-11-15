@@ -12,7 +12,7 @@ import edu.ucsf.lava.core.model.EntityManager;
  *
  *
  */
-public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase implements Comparable<ProtocolTimepointConfig> {
+public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	public static EntityManager MANAGER = new EntityBase.Manager(ProtocolTimepointConfig.class);
 	
 	public ProtocolTimepointConfig(){
