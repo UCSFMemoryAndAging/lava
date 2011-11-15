@@ -5,119 +5,118 @@
 
 	<!-- actions -->
 
-
-	<!-- all protocols for a project or across all projects -->
-	<!-- note: in the protocol module, protocol section, there is nothing patient-related. this
-		is strictly for protocol definitions, so the module default action is also the people
-		default action, i.e. makes no difference if there is a current patient -->	
-	<bean id="lava.crms.protocol.protocol.projectProtocols" parent="crmsModuleListAction"/>
+	<!-- all protocols configurations for a project or across all projects -->
+	<!-- note: in the protocol module, setup section, there is nothing patient-related. this
+		is strictly for protocol configurations, so need to make it both the project and
+		patient default for the section (parent crmsSectionListAction makes it the project
+		section default, and then have to explicitly define it is the patient section default) -->	
+	<bean id="lava.crms.protocol.setup.projectProtocolConfigs" parent="crmsSectionListAction">
+		<property name="patientSectionDefault" value="true"/>
+	</bean>
 	
-	<bean id="lava.crms.protocol.protocol.protocol" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.setup.protocolConfig" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.protocol.projectProtocols</value>
+			<value>lava.crms.protocol.setup.projectProtocolConfigs</value>
 		</list></property>
 	</bean>
 
 	<!-- NOT YET IMPLEMENTED: concept is to subclass protocolRepeatingTimepoint and when patient enrolls
 		in protocol a patientProtocolTreatmentSchedule will be created  
-	<bean id="lava.crms.protocol.protocol.protocolTreatmentSchedule" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.setup.protocolTreatmentSchedule" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.protocol.protocol</value>
+			<value>lava.crms.protocol.setup.protocolConfig</value>
 		</list></property>
 	</bean>		
  	-->
 
-	<bean id="lava.crms.protocol.protocol.protocolAssessmentTimepoint" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.setup.protocolAssessmentTimepointConfig" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.protocol.protocol</value>
+			<value>lava.crms.protocol.setup.protocolConfig</value>
 		</list></property>
 	</bean>		
 		
-	<bean id="lava.crms.protocol.protocol.protocolRepeatingTimepoint" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.setup.protocolRepeatingTimepointConfig" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.protocol.protocol</value>
+			<value>lava.crms.protocol.setup.protocolConfig</value>
 		</list></property>
 	</bean>		
 		
-	<bean id="lava.crms.protocol.protocol.protocolVisit" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.setup.protocolVisitConfig" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.protocol.protocol</value>
-			<value>lava.crms.protocol.protocol.protocolAssessmentTimepoint</value>
+			<value>lava.crms.protocol.setup.protocolConfig</value>
+			<value>lava.crms.protocol.setup.protocolAssessmentTimepointConfig</value>
 		</list></property>
 		<property name="subFlows"><list>
 			<value>lava.crms.scheduling.visit.visit</value>
 		</list></property>
 	</bean>
 			
-	<bean id="lava.crms.protocol.protocol.protocolVisitOption" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.setup.protocolVisitOptionConfig" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.protocol.protocol</value>
-			<value>lava.crms.protocol.protocol.protocolAssessmentTimepoint</value>
-			<value>lava.crms.protocol.protocol.protocolVisit</value>
+			<value>lava.crms.protocol.setup.protocolConfig</value>
+			<value>lava.crms.protocol.setup.protocolAssessmentTimepointConfig</value>
+			<value>lava.crms.protocol.setup.protocolVisitConfig</value>
 		</list></property>
 	</bean>
 
-	<!-- for now, lamely can not just use a class called Instrument here as there is a namespace
-		collision at the action target level with FormAction bean names. when that is refactored
-		can come back and just call this class Instrument -->
-	<bean id="lava.crms.protocol.protocol.protocolInstrument" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.setup.protocolInstrumentConfig" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.protocol.protocol</value>
-			<value>lava.crms.protocol.protocol.protocolAssessmentTimepoint</value>
-			<value>lava.crms.protocol.protocol.protocolVisit</value>
+			<value>lava.crms.protocol.setup.protocolConfig</value>
+			<value>lava.crms.protocol.setup.protocolAssessmentTimepointConfig</value>
+			<value>lava.crms.protocol.setup.protocolVisitConfig</value>
 		</list></property>
 	</bean>
    	
-	<bean id="lava.crms.protocol.protocol.protocolInstrumentOption" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.setup.protocolInstrumentOptionConfig" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.protocol.protocol</value>
-			<value>lava.crms.protocol.protocol.protocolAssessmentTimepoint</value>
-			<value>lava.crms.protocol.protocol.protocolVisit</value>
-			<value>lava.crms.protocol.protocol.protocolInstrument</value>
+			<value>lava.crms.protocol.setup.protocolConfig</value>
+			<value>lava.crms.protocol.setup.protocolAssessmentTimepointConfig</value>
+			<value>lava.crms.protocol.setup.protocolVisitConfig</value>
+			<value>lava.crms.protocol.setup.protocolInstrumentConfig</value>
 		</list></property>
 	</bean>
 
-	<!-- all protocols in which the current patient is enrolled (list of patientProtocol enrollment records) -->
-	<bean id="lava.crms.protocol.enrollment.patientPatientProtocols" parent="crmsPatientSectionListAction"/>
+	<!-- all protocols to which the current patient is assigned (list of patientProtocol assignment records) -->
+	<bean id="lava.crms.protocol.assignment.patientProtocols" parent="crmsPatientModuleListAction"/>
  
- 	<!-- all patients enrolled in all protocols for a project or across all projects, where
+ 	<!-- all patients assigned to all protocols for a project or across all projects, where
 		a quick filter will filter on individual protocols (and that filter list should also be
 		filtered by project -->
-	<bean id="lava.crms.protocol.enrollment.projectPatientProtocols" parent="crmsSectionListAction"/>
+	<bean id="lava.crms.protocol.assignment.projectProtocols" parent="crmsModuleListAction"/>
 
-	<bean id="lava.crms.protocol.enrollment.patientProtocol" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.assignment.protocol" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.enrollment.patientPatientProtocols</value>
-			<value>lava.crms.protocol.enrollment.projectPatientProtocols</value>
+			<value>lava.crms.protocol.assignment.patientProtocols</value>
+			<value>lava.crms.protocol.assignment.projectProtocols</value>
 		</list></property>
 	</bean>					 
 	
 	<!-- NOT IMPLEMENTED YET
-	<bean id="lava.crms.enrollment.protocol.patientProtocolTreatmentTimepoint" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.assignment.patientProtocolTreatmentTimepoint" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.enrollment.patientProtocol</value>
+			<value>lava.crms.protocol.assignment.protocol</value>
 		</list></property>
 	</bean>	
 	 -->
 
-	<bean id="lava.crms.protocol.enrollment.patientProtocolAssessmentTimepoint" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.assignment.protocolAssessmentTimepoint" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.enrollment.patientProtocol</value>
+			<value>lava.crms.protocol.assignment.protocol</value>
 		</list></property>
 	</bean>	
 
-	<bean id="lava.crms.protocol.enrollment.patientProtocolVisit" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.assignment.protocolVisit" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.enrollment.patientProtocol</value>
-			<value>lava.crms.protocol.enrollment.patientProtocolAssessmentTimepoint</value>
+			<value>lava.crms.protocol.assignment.protocol</value>
+			<value>lava.crms.protocol.assignment.protocolAssessmentTimepoint</value>
 		</list></property>
 	</bean>
 			
-	<bean id="lava.crms.protocol.enrollment.patientProtocolInstrument" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.assignment.protocolInstrument" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.enrollment.patientProtocol</value>
-			<value>lava.crms.protocol.enrollment.patientProtocolAssessmentTimepoint</value>
-			<value>lava.crms.protocol.enrollment.patientProtocolVisit</value>
+			<value>lava.crms.protocol.assignment.protocol</value>
+			<value>lava.crms.protocol.assignment.protocolAssessmentTimepoint</value>
+			<value>lava.crms.protocol.assignment.protocolVisit</value>
 		</list></property>
 	</bean>
    	
@@ -125,12 +124,12 @@
 	
 	<!-- form action definitions -->
 
-	<bean id="projectProtocolsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProjectProtocolsHandler" parent="crmsHandler"/>
+	<bean id="projectProtocolConfigsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProjectProtocolConfigsHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	 
 
-	<bean id="protocolFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolHandler" parent="crmsHandler"/>
+	<bean id="protocolConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolConfigHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	 
 
 	<!-- NOT IMPLEMENTED YET  
@@ -139,58 +138,58 @@
 	</list></constructor-arg></bean>  	 
 	 -->
  
-	<bean id="protocolAssessmentTimepointFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolAssessmentTimepointHandler" parent="crmsHandler"/>
+	<bean id="protocolAssessmentTimepointConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolAssessmentTimepointConfigHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	 
 
-	<bean id="protocolRepeatingTimepointFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolRepeatingTimepointHandler" parent="crmsHandler"/>
+	<bean id="protocolRepeatingTimepointConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolRepeatingTimepointConfigHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	 
+
+	<bean id="protocolVisitConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolVisitConfigHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+
+	<bean id="protocolVisitOptionConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolVisitOptionConfigHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+
+	<bean id="protocolInstrumentConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolInstrumentConfigHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+
+	<bean id="protocolInstrumentOptionConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolInstrumentOptionConfigHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	 
+
+	<bean id="patientProtocolsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.PatientProtocolsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+	
+	<bean id="projectProtocolsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProjectProtocolsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+	
+	<bean id="protocolFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+
+	<bean id="protocolAssessmentTimepointFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolAssessmentTimepointHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+
+	<!-- NOT YET IMPLEMENTED	
+	<bean id="protocolTreatmentTimepointFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolTreatmentTimepointHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+	 -->
 
 	<bean id="protocolVisitFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolVisitHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	 
 
-	<bean id="protocolVisitOptionFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolVisitOptionHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>  	 
-
 	<bean id="protocolInstrumentFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolInstrumentHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>  	 
-
-	<bean id="protocolInstrumentOptionFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolInstrumentOptionHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>  	 
-
-	<bean id="patientPatientProtocolsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.PatientPatientProtocolsHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>  
-	
-	<bean id="projectPatientProtocolsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProjectPatientProtocolsHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>  
-	
-	<bean id="patientProtocolFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.PatientProtocolHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>
-
-	<bean id="patientProtocolAssessmentTimepointFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.PatientProtocolAssessmentTimepointHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>
-
-	<!-- NOT YET IMPLEMENTED	
-	<bean id="patientProtocolTreatmentTimepointFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.enrollment.controller.PatientProtocolTreatmentTimepointHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>
-	 -->
-
-	<bean id="patientProtocolVisitFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.PatientProtocolVisitHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>  	 
-
-	<bean id="patientProtocolInstrumentFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.PatientProtocolInstrumentHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	 
 
 
@@ -206,24 +205,6 @@
 	<bean id="list.repeatingTimepoint.interval" parent="list.numericRange">
 		<property name="defaultMinValue" value="1"/>
 		<property name="defaultMaxValue" value="90"/>
-	</bean>
-
-<!-- 
-	<bean id="list.protocol.timepointOrdering" parent="list.dynamic">
-		<property name="query" value="list.protocol.timepointOrdering"/>
-		<property name="data"><list>
-			<bean parent="list.data"><constructor-arg value="AT END"/><constructor-arg value="-999"/></bean>
-		</list></property>
-		<property name="defaultSort" value="none"/>
-	</bean>  
- -->
- 
-	<bean id="list.protocol.tpTypes" parent="list.dataOnly">
-		<property name="data"><list>
-			<bean parent="list.data"><constructor-arg value="Timepoint Type A"/><constructor-arg value="Timepoint Type A"/></bean>
-			<bean parent="list.data"><constructor-arg value="Timepoint Type B"/><constructor-arg value="Timepoint Type B"/></bean>
-			<bean parent="list.data"><constructor-arg value="Timepoint Type C"/><constructor-arg value="Timepoint Type C"/></bean>
-		</list></property>
 	</bean>
 
 	<bean id="list.protocol.treatmentTypes" parent="list.dataOnly">
@@ -281,8 +262,8 @@
 		</list></property>
 	</bean>
 
-	<bean id="list.protocol.allProtocols" parent="list.dynamic">
-		<property name="query" value="list.protocol.allProtocols"/>
+	<bean id="list.protocol.allProtocolConfigs" parent="list.dynamic">
+		<property name="query" value="list.protocol.allProtocolConfigs"/>
 		<property name="defaultSort" value="none"/>
 	</bean>  
 
@@ -303,8 +284,8 @@
 		<property name="defaultMaxValue" value="999"/>
 	</bean>
 	
-	<bean id="list.patientProtocol.matchingVisits" parent="list.dynamic">
-		<property name="query" value="list.patientProtocol.matchingVisits"/>
+	<bean id="list.protocol.matchingVisits" parent="list.dynamic">
+		<property name="query" value="list.protocol.matchingVisits"/>
 		<property name="defaultSort" value="none"/>
 	</bean>  
 
