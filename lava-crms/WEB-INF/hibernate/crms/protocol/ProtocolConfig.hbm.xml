@@ -1,0 +1,31 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolConfig" table="prot_protocol_config" extends="edu.ucsf.lava.crms.protocol.model.ProtocolConfigBase" select-before-update="true">
+	<key column="node_id"/> 
+	<property name="category" column="category" type="string" length="25"/>
+</joined-subclass>
+
+	<!-- queries  -->
+	<query name="protocol.completeProtocolConfigTree"><![CDATA[
+		from edu.ucsf.lava.crms.protocol.model.ProtocolConfig protocolConfig
+		left join fetch protocolConfig.timepointsBase timepointConfig
+		left join fetch timepointConfig.visitsBase visitConfig
+		left join fetch visitConfig.instrumentsBase instrumentConfig
+		where protocolConfig.id = :protocolConfigId
+	]]></query>
+		
+	<query name="list.protocol.allProtocolConfigs"><![CDATA[
+		SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(pc.label, pc.id)
+	 	from ProtocolConfig pc
+		order by pc.label	 		
+	]]></query>
+	
+	
+ 
+</hibernate-mapping>

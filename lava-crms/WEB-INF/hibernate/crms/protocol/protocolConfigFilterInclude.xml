@@ -1,0 +1,4 @@
+<filter name="projectAuth"/> 
+<filter name="projectContext" condition=":projectContext=ProjName"/>
+
+	   

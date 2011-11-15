@@ -1,0 +1,18 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentOptionConfig" table="prot_instr_opt_config" extends="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentOptionConfigBase" select-before-update="true">
+	<key column="option_id"/> 
+	<property name="instrType" column="instr_type" type="string" length="25"/>
+	<many-to-one name="customCollectWinAnchorVisit" column="collect_win_anchor_visit_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitBase" lazy="false"/>
+	<property name="customCollectWinSize" column="collect_win_size" type="short"/>
+	<property name="customCollectWinOffset" column="collect_win_offset" type="short"/>
+	<property name="customCollectWinStatus" column="collect_win_status" type="string" length="25"/>
+</joined-subclass>
+	
+</hibernate-mapping>

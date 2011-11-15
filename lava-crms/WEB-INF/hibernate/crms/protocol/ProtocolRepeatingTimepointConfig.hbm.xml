@@ -1,0 +1,18 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolRepeatingTimepointConfig" table="prot_repeat_tp_config" extends="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig" select-before-update="true">
+	<key column="node_id"/> 
+	<property name="total" column="total" type="short"/>
+	<property name="interval" column="tp_interval" type="short"/>
+	<property name="weekends" column="weekends" type="boolean"/>
+	<property name="holidays" column="holidays" type="boolean"/>
+</joined-subclass>
+
+</hibernate-mapping>
+

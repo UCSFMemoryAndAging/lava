@@ -1,0 +1,14 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfig" table="prot_instr_config" extends="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigBase" select-before-update="true">
+	<key column="node_id"/> 
+	<property name="optional" column="optional" type="boolean"/>
+</joined-subclass>
+	
+</hibernate-mapping>

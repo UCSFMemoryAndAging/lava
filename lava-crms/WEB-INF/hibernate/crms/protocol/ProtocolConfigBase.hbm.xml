@@ -1,0 +1,28 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"
+    [<!ENTITY protocolConfigInclude SYSTEM "classpath://../hibernate/crms/protocol/protocolConfigInclude.xml" >
+     <!ENTITY protocolConfigFilterInclude SYSTEM "classpath://../hibernate/crms/protocol/protocolConfigFilterInclude.xml" >]>
+     
+<hibernate-mapping>
+
+<class name="edu.ucsf.lava.crms.protocol.model.ProtocolConfigBase" table="prot_node_config" select-before-update="true">
+
+	&protocolConfigInclude;
+	
+	<!-- bilateral. parent associations mapped in ProtocolTimepointBase -->
+	<!--  ProtocolConfigTimepoint collection is sorted naturally, in chronological order by the schedWinDaysFromStart
+		property, so declare sort="natural" here -->
+	<set name="timepointsBase" table="prot_node_config" inverse="true" cascade="all,delete-orphan" sort="natural" lazy="true">
+		<key column="parent_id"/>
+		<one-to-many class="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfigBase"/> 
+	</set>
+	
+	&protocolConfigFilterInclude;
+	
+</class>	
+	
+		
+</hibernate-mapping>

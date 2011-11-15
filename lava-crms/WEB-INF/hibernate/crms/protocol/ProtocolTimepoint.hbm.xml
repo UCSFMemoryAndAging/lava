@@ -1,0 +1,18 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolTimepoint" table="prot_tp" extends="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointBase" select-before-update="true">
+	<key column="node_id"/>
+	<property name="schedWinStatus" column="sched_win_status" type="string" length="25"/>
+	<property name="schedWinReason" column="sched_win_reason" type="string" length="25"/>
+	<property name="schedWinNote" column="sched_win_note" type="string" length="100"/>
+	<property name="schedWinStart" column="sched_win_start" type="date"/>
+	<property name="schedWinEnd" column="sched_win_end" type="date"/>
+</joined-subclass>
+
+</hibernate-mapping>
