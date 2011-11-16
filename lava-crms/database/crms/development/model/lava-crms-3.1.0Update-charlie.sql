@@ -18,7 +18,7 @@ DROP TABLE IF EXISTS prot_protocol_config;
 DROP TABLE IF EXISTS prot_opt_config;
 DROP TABLE IF EXISTS prot_node_config;
 
--- Protocol tables
+-- Protocol Config tables
 
 CREATE TABLE prot_node_config (
 node_id int NOT NULL AUTO_INCREMENT,
@@ -182,7 +182,7 @@ DEFAULT CHARACTER SET = latin1;
 
 
 
--- Protocol tables (Patient)
+-- (Patient) Protocol tables
 
 CREATE TABLE prot_node (
 node_id int NOT NULL AUTO_INCREMENT,
@@ -191,6 +191,7 @@ config_node_id int NOT NULL,
 list_order int, -- will be NULL for Protocol nodes since they are never children
 PIDN int NOT NULL,
 ProjName varchar(75) NOT NULL,
+strategy smallint NOT NULL,
 curr_status varchar(25),
 curr_reason varchar(25),
 curr_note varchar(100),
