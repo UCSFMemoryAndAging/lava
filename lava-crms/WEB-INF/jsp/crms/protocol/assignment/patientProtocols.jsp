@@ -18,8 +18,9 @@
 <tags:listRow>
 
 <tags:componentListColumnHeader component="${component}" label="Action" width="10%"/>
-<tags:componentListColumnHeader component="${component}" label="Protocol" width="45%"/>
-<tags:componentListColumnHeader component="${component}" label="Enrolled Date" width="45%"/>
+<tags:componentListColumnHeader component="${component}" label="Protocol" width="30%"/>
+<tags:componentListColumnHeader component="${component}" label="Project" width="30%" />
+<tags:componentListColumnHeader component="${component}" label="Enrolled Date" width="30%"/>
 </tags:listRow>
 </content>
 
@@ -31,6 +32,9 @@
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="protocolConfig.label" component="${component}" listIndex="${iterator.index}" metadataName="protocolConfig.label"/>
+		</tags:listCell>
+		<tags:listCell>
+			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="protocol"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="enrolledDate" component="${component}" listIndex="${iterator.index}" entityType="protocol"/>
