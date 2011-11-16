@@ -1,3 +1,16 @@
+		<!-- the instrument class hierarchy is not mapped using the "class per subclass" approach
+		where joined-subclass is used, because instrument specific classes may need to join additional
+		tables (one-to-one) and the <join> element needed to do this is not allowed inside of a
+		<joined-subclass> element. So instead this include mechanism is used for mapping each
+		instrument. So while inheritance exists at the object level it does not exist at the 
+		Hibernate mapping level, which is fine because polymorphic queries across all instruments
+		are never needed (in fact, they should be avoided because the number of joins would be
+		prohibitive).
+		
+		note that a limitation of this design is that instruments can not be subclassed since
+		<joined-subclass> can not be used (because it cannot contain a <join> either in its own
+		class mapping or a superclass mapping) -->
+	
 		<id name="id" type="long">
 			<column name="InstrID" not-null="true"/> 
 			<generator class="identity"/>
