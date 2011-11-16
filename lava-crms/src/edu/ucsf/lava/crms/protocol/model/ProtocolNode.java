@@ -49,6 +49,7 @@ public abstract class ProtocolNode extends CrmsEntity {
 	// denormalized (which makes for simpler configuration of project authorization filtering)
 	private String projName;
 	private Short listOrder;
+	private Short strategy;
 	private String currStatus;
 	private String currReason;
 	private String currNote;
@@ -58,6 +59,7 @@ public abstract class ProtocolNode extends CrmsEntity {
 		super();
 		this.setProjectAuth(true);
 		this.addPropertyToAuditIgnoreList("patient");
+		this.setStrategy((short)0);
 	}
 
 	public Patient getPatient() {
@@ -82,6 +84,14 @@ public abstract class ProtocolNode extends CrmsEntity {
 
 	public void setListOrder(Short listOrder) {
 		this.listOrder = listOrder;
+	}
+	
+	public Short getStrategy() {
+		return strategy;
+	}
+
+	public void setStrategy(Short strategy) {
+		this.strategy = strategy;
 	}
 
 	public String getCurrStatus() {
