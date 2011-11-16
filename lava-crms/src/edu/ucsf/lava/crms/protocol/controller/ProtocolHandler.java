@@ -17,14 +17,14 @@ import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.protocol.model.Protocol;
 import edu.ucsf.lava.crms.protocol.model.ProtocolAssessmentTimepoint;
+import edu.ucsf.lava.crms.protocol.model.ProtocolAssessmentTimepointConfig;
+import edu.ucsf.lava.crms.protocol.model.ProtocolConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolInstrument;
+import edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolTimepoint;
+import edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolTracking;
 import edu.ucsf.lava.crms.protocol.model.ProtocolVisit;
-import edu.ucsf.lava.crms.protocol.model.ProtocolConfig;
-import edu.ucsf.lava.crms.protocol.model.ProtocolAssessmentTimepointConfig;
-import edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfig;
-import edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfig;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 
@@ -69,6 +69,12 @@ public class ProtocolHandler extends CrmsEntityComponentHandler {
 		return command;
 	}
 
+	protected Long getContextIdFromRequest(RequestContext context){		
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		Protocol protocol = (Protocol) Protocol.MANAGER.getOne(getFilterWithId(request,Long.valueOf(context.getFlowScope().getString("id"))));
+		return protocol.getPatient().getId();
+	}
+	
 	public Map addReferenceData(RequestContext context, Object command, BindingResult errors, Map model)
 	{
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
