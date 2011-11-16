@@ -30,8 +30,8 @@
 <tags:listRow>
 <tags:componentListColumnHeader component="${component}" label="Action" width="8%"/>
 <tags:componentListColumnHeader component="${component}" label="Patient" width="30%"/>
-<tags:componentListColumnHeader component="${component}" label="Project" width="30%" />
 <tags:componentListColumnHeader component="${component}" label="Protocol" width="20%" />
+<tags:componentListColumnHeader component="${component}" label="Project" width="30%" />
 <tags:componentListColumnHeader component="${component}" label="Enrolled Date" width="12%"/>
 </tags:listRow>
 </content>
@@ -45,10 +45,10 @@
 			<tags:listField property="patient.fullNameNoSuffix" component="${component}" listIndex="${iterator.index}" metadataName="patient.fullNameNoSuffix"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="protocol"/>
+			<tags:listField property="protocolConfig.label" component="${component}" listIndex="${iterator.index}" metadataName="protocolConfig.label"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="protocolConfig.label" component="${component}" listIndex="${iterator.index}" metadataName="protocolConfig.label"/>
+			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="protocol"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="enrolledDate" component="${component}" listIndex="${iterator.index}"/>
