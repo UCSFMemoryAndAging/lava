@@ -106,7 +106,7 @@ public class GroupFlowBuilder extends BaseFlowBuilder {
     // override because if subflow returns "finishCancel", cancel out of the group flow
     protected void buildSubFlowStates(){
     	// pass group to subflows in case they need it
-		requestParametersMapper.addInputMapping(mapping().source("flowScope."+GROUP_MAPPING).target(GROUP_MAPPING).value());
+		subflowInputOutputMapper.addInputMapping(mapping().source("flowScope."+GROUP_MAPPING).target(GROUP_MAPPING).value());
 		
     	for(String subFlowId : subFlowActionIds){
     		List<FlowInfo> subFlowInfoList = getSubFlowInfo(subFlowId); 
@@ -118,7 +118,7 @@ public class GroupFlowBuilder extends BaseFlowBuilder {
     			// this is determined in ActionService. getEffectiveActionIdForFlowId
 				addSubflowState(subFlowInfo.getTarget()+"__"+subFlowInfo.getEvent(),
 						flow(registry.getActionManager().getEffectiveAction(subFlowInfo.getActionId()).getId() + "." + subFlowInfo.getEvent()),
-						requestParametersMapper,  
+						subflowInputOutputMapper,  
 						new Transition[] {transition(on("finish"), to("subFlowReturnState")),
 										  transition(on("finishCancel"), to("subFlowCancelReturnState"))});						
     		}

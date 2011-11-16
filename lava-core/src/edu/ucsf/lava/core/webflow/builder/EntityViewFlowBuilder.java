@@ -72,13 +72,13 @@ public class EntityViewFlowBuilder extends BaseFlowBuilder {
     	// add the edit subflow
     	addSubflowState("edit", 
     			flow(actionId + ".edit"), 
-    			this.requestParametersMapper, 
+    			this.subflowInputOutputMapper, 
     			transition(on("${lastEvent.id.startsWith('finish')}"), to("subFlowReturnState")));
     	
     	//add the download subflow 
     	addSubflowState("download", 
     			flow(actionId + ".download"), 
-    			this.requestParametersMapper, 
+    			this.subflowInputOutputMapper, 
     			transition(on("finish"), to("subFlowReturnState")));
     	
     	addViewState("print", 
