@@ -78,6 +78,7 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 		this.addPropertyToAuditIgnoreList("caregivers");
 		this.addPropertyToAuditIgnoreList("contactInfo");
 		this.addPropertyToAuditIgnoreList("contactLog");
+		this.addPropertyToAuditIgnoreList("consent");
 		this.addPropertyToAuditIgnoreList("visits");
 		this.addPropertyToAuditIgnoreList("instruments");
 		this.addPropertyToAuditIgnoreList("tasks");
