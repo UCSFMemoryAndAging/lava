@@ -1,6 +1,5 @@
 DELIMITER $$
 
- 
 DROP PROCEDURE IF EXISTS `util_FixMetadataPropertyNames`$$
 CREATE PROCEDURE `util_FixMetadataPropertyNames` (EntityIn varchar(50))
 BEGIN
@@ -96,17 +95,35 @@ IF ScopeMask IS NULL THEN
   SET ScopeMask = '%';
 END IF;
 
-
 IF EntityMask IS NULL THEN
   SET EntityMask = '%';
 END IF;
 
-
-
-
+SELECT CONCAT('INSERT INTO datadictionary (`instance`,`scope`,`entity`,`prop_order`,`prop_name`,`prop_description`,`data_values`,`data_calculation`,',
+	'`required`,`db_table`,`db_column`,`db_order`,`db_datatype`,`db_datalength`,`db_nullable`,`db_default`,`modified`) VALUES(',
+	CASE WHEN `instance` IS NULL THEN 'NULL,' ELSE CONCAT('''',`instance`,''',') END,
+	CASE WHEN `scope` IS NULL THEN 'NULL,' ELSE CONCAT('''',`scope`,''',') END,
+	CASE WHEN `entity` IS NULL THEN 'NULL,' ELSE CONCAT('''',`entity`,''',') END,
+	CASE WHEN `prop_order` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`prop_order` as char),',') END,
+	CASE WHEN `prop_name` IS NULL THEN 'NULL,' ELSE CONCAT('''',`prop_name`,''',') END,
+	CASE WHEN `prop_description` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`prop_description`,'''','\\'''),''',') END,
+	CASE WHEN `data_values` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`data_values`,'''','\\'''),''',') END,
+	CASE WHEN `data_calculation` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`data_calculation`,'''','\\'''),''',') END,
+	CASE WHEN `required` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`required` as char),',') END,
+	CASE WHEN `db_table` IS NULL THEN 'NULL,' ELSE CONCAT('''',`db_table`,''',') END,
+	CASE WHEN `db_column` IS NULL THEN 'NULL,' ELSE CONCAT('''',`db_column`,''',') END,
+	CASE WHEN `db_order` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`db_order` as char),',') END,
+	CASE WHEN `db_datatype` IS NULL THEN 'NULL,' ELSE CONCAT('''',`db_datatype`,''',') END,
+	CASE WHEN `db_datalength` IS NULL THEN 'NULL,' ELSE CONCAT('''',`db_datalength`,''',') END,
+	CASE WHEN `db_nullable` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`db_nullable` as char),',') END,
+	CASE WHEN `db_default` IS NULL THEN 'NULL,' ELSE CONCAT('''',`db_default`,''',') END,
+	CASE WHEN `modified` IS NULL THEN 'NULL' ELSE CONCAT('''',CAST(`modified` as char),'''') END,
+	');')
+	FROM `datadictionary` WHERE `entity` Like EntityMask and `instance` like InstanceMask and `scope` like ScopeMask
+	ORDER BY `scope`, `entity`, `prop_order`;
 
 SELECT CONCAT('INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,',
-            '`context`,`style`,`required`,`label`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,',
+            '`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,',
             '`propOrder`,`quickHelp`,`modified`) VALUES(',
         	  CASE WHEN `messageCode` IS NULL THEN 'NULL,' ELSE CONCAT('''',`messageCode`,''',') END,
 	          CASE WHEN `locale` IS NULL THEN 'NULL,' ELSE CONCAT('''',`locale`,''',') END,
@@ -120,6 +137,7 @@ SELECT CONCAT('INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scop
             CASE WHEN `style` IS NULL THEN 'NULL,' ELSE CONCAT('''',`style`,''',') END,
             CASE WHEN `required` IS NULL THEN 'NULL,' ELSE CONCAT('''',`required`,''',') END,
             CASE WHEN `label` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`label`,'''','\\'''),''',') END,
+            CASE WHEN `label2` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`label2`,'''','\\'''),''',') END,            
             CASE WHEN `maxLength` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`maxLength` as char),',') END,
             CASE WHEN `size` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`size` as char),',') END,
             CASE WHEN `indentLevel` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`indentLevel` as char),',') END,
@@ -134,9 +152,6 @@ SELECT CONCAT('INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scop
                                     `instance` like InstanceMask and
                                     `scope` like ScopeMask
             ORDER BY `entity`, `propOrder`;
-
-
-
 
 SELECT CONCAT('INSERT INTO hibernateproperty (`instance`,`scope`,`entity`,`property`,`dbTable`,`dbColumn`,`dbType`,',
               '`dbLength`,`dbPrecision`,`dbScale`,`dbOrder`,`hibernateProperty`,`hibernateType`,`hibernateClass`,',
@@ -163,9 +178,6 @@ SELECT CONCAT('INSERT INTO hibernateproperty (`instance`,`scope`,`entity`,`prope
                                     `scope` like ScopeMask
             ORDER BY `entity`, `dbOrder`;
 
-
-
-
 SELECT CONCAT('INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) VALUES(',
         	  CASE WHEN `ListName` IS NULL THEN 'NULL,' ELSE CONCAT('''',`ListName`,''',') END,
         	  CASE WHEN `scope` IS NULL THEN 'NULL,' ELSE CONCAT('''',`scope`,''',') END,
@@ -175,10 +187,6 @@ SELECT CONCAT('INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) V
             FROM `list` WHERE `scope` like ScopeMask
             ORDER BY `ListName`; 
 
-
-
-
-
 SELECT CONCAT('INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`)',
 			' SELECT `ListID`,',CASE WHEN lv.`ValueKey` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(lv.`ValueKey`,'''','\\'''),''',') END,
         	  CASE WHEN lv.`ValueDesc` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(lv.`ValueDesc`,'''','\\'''),''',') END,
@@ -187,7 +195,6 @@ SELECT CONCAT('INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderI
             ' FROM `list` where `ListName`=''',l.`ListName`,''';')
             FROM `listvalues` lv INNER JOIN `list` l on l.`ListId`=lv.`ListID` WHERE l.`scope` like ScopeMask
             ORDER BY l.`ListName`, lv.ORDERID, lv.ValueKey;
-
 
 END
 
@@ -388,3 +395,146 @@ END
 
 $$
 DELIMITER ;
+
+
+-- --------------------------------------------------------------------------------
+-- util_AddEntityToMetaData
+-- --------------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS `util_AddEntityToMetaData`;
+
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `util_AddEntityToMetaData`(EntityIn varchar (50), ScopeIn varchar(25))
+BEGIN
+
+INSERT INTO `viewproperty` (`messageCode`,`locale`,`instance`,`scope`,`entity`,`property`,`required`,`maxLength`,`propOrder`)
+   SELECT CONCAT('*.',EntityIn, '.',LOWER(LEFT(`prop_name`,1)),RIGHT(`prop_name`,LENGTH(`prop_name`)-1)),
+   'en','lava',ScopeIn, EntityIn, CONCAT(LOWER(LEFT(`prop_name`,1)),RIGHT(`prop_name`,LENGTH(`prop_name`)-1)),
+        CASE WHEN `required`='1' THEN 'Yes' ELSE 'No' END,
+        CASE WHEN `db_datalength` < 10000 THEN `db_datalength` ELSE NULL END, `prop_order`
+	FROM `datadictionary` WHERE `entity`=EntityIn AND `scope`=ScopeIn AND prop_name<>'instr_id' order by `prop_order`;
+END
+
+$$
+
+DELIMITER ;
+
+-- --------------------------------------------------------------------------------
+-- util_AddEntityToHibernateProperty
+-- --------------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS `util_AddEntityToHibernateProperty`;
+
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `util_AddEntityToHibernateProperty`(EntityIn varchar (50),ScopeIn varchar(25))
+BEGIN
+
+INSERT INTO `hibernateproperty` (`scope`,`entity`,`property`,`dbTable`,`dbColumn`,`dbType`,`dbLength`,
+`dbPrecision`,`dbScale`,`dbOrder`,`hibernateProperty`,`hibernateType`,`hibernateClass`,`hibernateNotNull`)
+  SELECT ScopeIn, EntityIn, CONCAT(LOWER(LEFT(`COLUMN_NAME`,1)),RIGHT(`COLUMN_NAME`,LENGTH(`COLUMN_NAME`)-1)),
+   db_table, `COLUMN_NAME`, `DATA_TYPE`,
+   CASE WHEN `CHARACTER_MAXIMUM_LENGTH` < 10000 THEN `CHARACTER_MAXIMUM_LENGTH` ELSE NULL END, `NUMERIC_PRECISION`, `NUMERIC_SCALE`,
+    `ORDINAL_POSITION`, CONCAT(LOWER(LEFT(`COLUMN_NAME`,1)),RIGHT(`COLUMN_NAME`,LENGTH(`COLUMN_NAME`)-1)),
+		CASE `DATA_TYPE` WHEN 'datetime' THEN 'timestamp'
+			WHEN 'float' THEN 'float'
+			WHEN 'image' THEN 'binary'
+			WHEN 'int' THEN 'long'
+			WHEN 'timestamp' THEN 'timestamp'
+			WHEN 'text' THEN 'text'
+			WHEN 'decimal' THEN 'float'
+			WHEN 'numeric' THEN 'float'
+			WHEN 'char' THEN 'character'
+			WHEN 'nvarchar' THEN 'string'
+			WHEN 'binary' THEN 'binary'
+			WHEN 'tinyint' THEN 'byte'
+			WHEN 'date' THEN 'date'
+			WHEN 'time' THEN 'time'
+			WHEN 'smalldatetime' THEN 'timestamp'
+			WHEN 'varchar' THEN 'string'
+			WHEN 'bit' THEN 'boolean'
+			WHEN 'smallint' THEN 'short'
+			ELSE 'UNMAPPED TYPE' END,
+		NULL, CASE WHEN `IS_NULLABLE`='No' THEN 'Yes' ELSE 'No' END
+	FROM `INFORMATION_SCHEMA`.`COLUMNS` c INNER JOIN DataDictionary d on c.TABLE_NAME=d.db_table and c.COLUMN_NAME=d.db_column
+  WHERE d.entity=EntityIn AND COLUMN_NAME<>'instr_id' AND TABLE_NAME<>'instrumenttracking'
+  ORDER BY `ORDINAL_POSITION`;
+
+END
+
+$$
+
+DELIMITER ;
+
+-- --------------------------------------------------------------------------------
+-- util_CreateTable
+-- --------------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS `util_CreateTable`;
+
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `util_CreateTable`(EntityIn varchar (50), ScopeIn varchar(25))
+BEGIN
+
+select CONCAT('DROP TABLE IF EXISTS `',db_table, '`;') from datadictionary where entity=EntityIn and scope=ScopeIn group by db_table order by db_table;
+
+select CONCAT('CREATE TABLE IF NOT EXISTS `', db_table, '` (
+  `instr_id` INT NOT NULL ,')
+from datadictionary where entity=EntityIn and scope=ScopeIn group by db_table order by db_table;
+
+select CONCAT('  `', db_column, '` ', db_datatype,
+  case when `db_datalength` is not null and `db_datalength`<>'' then CONCAT('(', db_datalength, ')') else '' end,
+  ' ',
+  case when `db_nullable`=0 then CONCAT('NOT NULL DEFAULT ',db_default) else CONCAT('NULL DEFAULT ',db_default) end,
+' ,'
+) from datadictionary where entity=EntityIn and scope=ScopeIn group by db_table, db_order order by db_table, db_order;
+
+
+select '  PRIMARY KEY (`instr_id`) )
+ENGINE = InnoDB;';
+END
+
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------------------------------
+-- util_TableKeysAdd
+-- --------------------------------------------------------------------------------
+
+DROP PROCEDURE IF EXISTS `util_TableKeysAdd`;
+
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `util_TableKeysAdd`(EntityIn varchar (50), ScopeIn varchar(25))
+BEGIN
+
+select CONCAT('ALTER TABLE `', db_table, '` ADD CONSTRAINT `', db_table, '__instr_id`
+ FOREIGN KEY (`instr_id` )
+ REFERENCES `instrumenttracking` (`InstrID`)
+ ON DELETE NO ACTION
+ ON UPDATE NO ACTION, ADD INDEX `', db_table, '__instr_id` (`instr_id` ASC);')
+from datadictionary where entity=EntityIn and scope=ScopeIn group by db_table order by db_table;
+
+END
+
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------------------------------
+-- util_TableKeysDrop
+-- --------------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS `util_TableKeysDrop`;
+
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `util_TableKeysDrop`(EntityIn varchar (50), ScopeIn varchar(25))
+BEGIN
+
+select CONCAT('ALTER TABLE `', db_table, '` DROP FOREIGN KEY `', db_table, '__instr_id`;
+ALTER TABLE `', db_table, '` DROP INDEX `', db_table, '__instr_id`;')
+from datadictionary where entity=EntityIn and scope=ScopeIn group by db_table order by db_table;
+
+END
+$$
+DELIMITER ;
+
+
