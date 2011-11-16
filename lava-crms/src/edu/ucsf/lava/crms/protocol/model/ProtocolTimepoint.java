@@ -122,7 +122,7 @@ public class ProtocolTimepoint extends ProtocolTimepointBase {
 		// if this is a subsequent timepoint, then the date is the date of the timepoint to which this 
 		// timepoint's scheduling window is relative, plus the schedWinDaysFrom
 		
-		if (this.getTimepointConfig().getFirstTimepoint()) {
+		if (this.getTimepointConfig().isFirst()) {
 			// iterate thru the visits of this timepoint and return the earliest visitDate
 			Date earliestVisitDate = null;
 			for (ProtocolVisit protocolVisit : this.getVisits()) {

@@ -94,7 +94,7 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 		// protocol over time and in particular will allow calculating a daysFromProtocolStart for every subsequent
 		// timepoint, which is in turn used to order the timepoints
 		
-		if (!tp.getFirstTimepoint()) { 
+		if (!tp.isFirst()) { 
 			if (tp.getSchedWinAnchorTimepointId() == null) {
 				LavaComponentFormAction.createRequiredFieldError(errors, "schedWinAnchorTimepointId", getDefaultObjectName());
 			}
@@ -136,7 +136,7 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 		ProtocolTimepointConfig tp = (ProtocolTimepointConfig)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
 
 		// if firstTimepoint null, explicitly set to 0 so don't have to check for null
-		if (tp.getFirstTimepoint() == null) {
+		if (tp.isFirst() == null) {
 			tp.setFirstTimepoint(Boolean.FALSE);
 		}
 		
