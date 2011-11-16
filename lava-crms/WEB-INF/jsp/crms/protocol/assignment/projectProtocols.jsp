@@ -51,7 +51,7 @@
 			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="protocol"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="enrolledDate" component="${component}" listIndex="${iterator.index}"/>
+			<tags:listField property="enrolledDate" component="${component}" listIndex="${iterator.index}" entityType="protocol"/>
 		</tags:listCell>
 	</tags:listRow>
 </tags:list>
