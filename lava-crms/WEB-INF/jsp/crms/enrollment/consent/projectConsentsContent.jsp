@@ -33,18 +33,20 @@
 		<tags:componentListColumnHeader component="${component}" label="Action" width="8%"/>
 		<tags:componentListColumnHeader component="${component}" label="Patient" width="20%" sort="patient.fullNameRevNoSuffix"/>
 		<tags:componentListColumnHeader component="${component}" label="Project" width="15%" sort="projName"/>
-		<tags:componentListColumnHeader component="${component}" label="Consent Type" width="25%" sort="consentType"/>
-		<tags:componentListColumnHeader component="${component}" label="Declined" width="15%" sort="consentDeclined"/>
-		<tags:componentListColumnHeader component="${component}" label="Consent Date" width="18%" sort="consentDate"/>
+		<tags:componentListColumnHeader component="${component}" label="Consent Type" width="27%" sort="consentType"/>
+		<tags:componentListColumnHeader component="${component}" label="HIPAA" width="8%"/>
+		<tags:componentListColumnHeader component="${component}" label="Declined" width="10%" sort="consentDeclined"/>
+		<tags:componentListColumnHeader component="${component}" label="Consent Date" width="13%" sort="consentDate"/>
 		</tags:listRow>
 	</c:when>
 	<c:otherwise>
 		<tags:listRow>
 		<tags:componentListColumnHeader component="${component}" label="Action" width="8%"/>
 		<tags:componentListColumnHeader component="${component}" label="Patient" width="20%" sort="patient.fullNameRevNoSuffix"/>
-		<tags:componentListColumnHeader component="${component}" label="Consent Type" width="30%" sort="consentType"/>
-		<tags:componentListColumnHeader component="${component}" label="Declined" width="15%" sort="consentDeclined"/>
-		<tags:componentListColumnHeader component="${component}" label="Consent Date" width="18%" sort="consentDate"/>
+		<tags:componentListColumnHeader component="${component}" label="Consent Type" width="32%" sort="consentType"/>
+		<tags:componentListColumnHeader component="${component}" label="HIPAA" width="8%"/>
+		<tags:componentListColumnHeader component="${component}" label="Declined" width="10%" sort="consentDeclined"/>
+		<tags:componentListColumnHeader component="${component}" label="Consent Date" width="13%" sort="consentDate"/>
 		</tags:listRow>
 	</c:otherwise>
 </c:choose>
@@ -54,10 +56,10 @@
 
 <tags:list component="${component}">
 	<tags:listRow>
-		<tags:listCell styleClass="actionButton">
+		 <tags:listCell styleClass="actionButton">
 			<tags:listActionURLStandardButtons actionId="lava.crms.enrollment.consent.consent" component="consent" idParam="${item.id}" locked="${item.locked}"/>	    
 		</tags:listCell>
-	    <tags:listCell>
+	   <tags:listCell>
 			<tags:listField property="patient.fullNameRevNoSuffix" component="${component}" listIndex="${iterator.index}" entityType="consent" metadataName="patient.fullNameRevNoSuffix"/>
 		</tags:listCell>
 	 <c:if test="${empty currentProject}">
@@ -66,7 +68,10 @@
 		</tags:listCell>
 	</c:if>
 		  <tags:listCell>
-		  		<tags:listField property="consentType" component="${component}" listIndex="${iterator.index}" entityType="consent"/>
+		  		<tags:listField property="consentTypeBlock" component="${component}" listIndex="${iterator.index}" entityType="consent"/>
+		  </tags:listCell>
+		  <tags:listCell>
+		  		<tags:listField property="hipaa" component="${component}" listIndex="${iterator.index}" entityType="consent"/>
 		  </tags:listCell>
 		<tags:listCell>
 			<tags:listField property="consentDeclined" component="${component}" listIndex="${iterator.index}" entityType="consent"/>

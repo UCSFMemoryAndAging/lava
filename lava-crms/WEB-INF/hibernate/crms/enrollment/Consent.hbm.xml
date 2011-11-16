@@ -14,35 +14,19 @@
 		</id>
   		<timestamp name="modified" column="modified"/>
 
-
        <many-to-one name="patient" column="PIDN" class="edu.ucsf.lava.crms.people.model.Patient" not-null="true"/>
        <many-to-one name="caregiver" column="CareID" class="edu.ucsf.lava.crms.people.model.Caregiver" lazy="false" insert="false" update="false"/>
        <property name="caregiverId" column="CareID" type="long"/>
        <property name="projName" column="ProjName" type="string" length="25" not-null="true"/>
        <property name="consentType" column="ConsentType" type="string" length="50" not-null="true"/>
+       <property name="hipaa" column="Hipaa" type="byte"/>
+       <property name="consentRevision" column="ConsentRevision" type="string" length="10"/>
+       <property name="consentDeclined" column="ConsentDeclined" type="string" length="10"/>
        <property name="consentDate" column="ConsentDate" type="timestamp" not-null="true"/>
        <property name="expirationDate" column="ExpirationDate" type="timestamp"/>
        <property name="withdrawlDate" column="WithdrawlDate" type="timestamp"/>
-       <property name="note" column="Note" type="string" length="100"/>
        <property name="capacityReviewBy" column="CapacityReviewBy" type="string" length="25"/>
-       <property name="consentRevision" column="ConsentRevision" type="string" length="10"/>
-       <property name="consentDeclined" column="ConsentDeclined" type="string" length="10"/>
-       <property name="research" column="CTreasearch" type="string" length="10"/>
-       <property name="neuro" column="CTneuro" type="string" length="10"/>
-       <property name="dna" column="CTDNA" type="string" length="10"/>
-       <property name="genetic" column="CTGenetic" type="string" length="10"/>
-       <property name="geneticShare" column="CTGeneticShare" type="string" length="10"/>
-       <property name="lumbar" column="CTlumbar" type="string" length="10"/>
-       <property name="video" column="CTvideo" type="string" length="10"/>
-       <property name="audio" column="CTaudio" type="string" length="10"/>
-       <property name="mediaEdu" column="CTmediaedu" type="string" length="10"/>
-       <property name="t1_5mri" column="CT1point5T" type="string" length="10"/>
-       <property name="t4mri" column="CT4t" type="string" length="10"/>
-       <property name="otherStudy" column="CTotherstudy" type="string" length="10"/>
-       <property name="followup" column="CTfollowup" type="string" length="10"/>
-       <property name="music" column="CTmusic" type="string" length="10"/>
-       <property name="part" column="CTpart" type="string" length="10"/>
-       <property name="carepart" column="CTcarepart" type="string" length="10"/>
+       <property name="note" column="Note" type="string" length="100"/>
 
 	<!-- filters -->
 	<filter name="patientAuth"/> 

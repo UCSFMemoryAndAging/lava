@@ -18,31 +18,14 @@ public class Consent extends CrmsEntity {
 	private Long caregiverId; 
 	private String projName;
 	private String consentType;
+	private Byte hipaa;
+	private String consentRevision;
+	private String consentDeclined;
 	private Date consentDate;
 	private Date expirationDate;
 	private Date withdrawlDate;
-	private String note;
 	private String capacityReviewBy;
-	private String consentRevision;
-	private String consentDeclined;
-	private String research;
-	private String neuro;
-	private String dna;
-	private String genetic;
-	private String geneticShare;
-	private String lumbar;
-	private String video;
-	private String audio;
-	private String mediaEdu;
-	private String t1_5mri;
-	private String t4mri;
-	private String otherStudy;
-	private String followup;
-	private String music;
-	private String part;
-	private String carepart;
-	
-	
+	private String note;
 	
 	public Consent(){
 		super();
@@ -54,12 +37,6 @@ public class Consent extends CrmsEntity {
 		return new Object[]{this.patient};
 	}
 	
-	public String getAudio() {
-		return audio;
-	}
-	public void setAudio(String audio) {
-		this.audio = audio;
-	}
 	public String getCapacityReviewBy() {
 		return capacityReviewBy;
 	}
@@ -71,12 +48,6 @@ public class Consent extends CrmsEntity {
 	}
 	public void setCaregiver(Caregiver caregiver) {
 		this.caregiver = caregiver;
-	}
-	public String getCarepart() {
-		return carepart;
-	}
-	public void setCarepart(String carepart) {
-		this.carepart = carepart;
 	}
 	public Date getConsentDate() {
 		return consentDate;
@@ -102,35 +73,11 @@ public class Consent extends CrmsEntity {
 	public void setConsentType(String consentType) {
 		this.consentType = consentType;
 	}
-	public String getDna() {
-		return dna;
-	}
-	public void setDna(String dna) {
-		this.dna = dna;
-	}
 	public Date getExpirationDate() {
 		return expirationDate;
 	}
 	public void setExpirationDate(Date expirationDate) {
 		this.expirationDate = expirationDate;
-	}
-	public String getFollowup() {
-		return followup;
-	}
-	public void setFollowup(String followup) {
-		this.followup = followup;
-	}
-	public String getGenetic() {
-		return genetic;
-	}
-	public void setGenetic(String genetic) {
-		this.genetic = genetic;
-	}
-	public String getGeneticShare() {
-		return geneticShare;
-	}
-	public void setGeneticShare(String geneticShare) {
-		this.geneticShare = geneticShare;
 	}
 	public Long getId() {
 		return id;
@@ -138,47 +85,11 @@ public class Consent extends CrmsEntity {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getLumbar() {
-		return lumbar;
-	}
-	public void setLumbar(String lumbar) {
-		this.lumbar = lumbar;
-	}
-	public String getMediaEdu() {
-		return mediaEdu;
-	}
-	public void setMediaEdu(String mediaEdu) {
-		this.mediaEdu = mediaEdu;
-	}
-	public String getMusic() {
-		return music;
-	}
-	public void setMusic(String music) {
-		this.music = music;
-	}
-	public String getNeuro() {
-		return neuro;
-	}
-	public void setNeuro(String neuro) {
-		this.neuro = neuro;
-	}
 	public String getNote() {
 		return note;
 	}
 	public void setNote(String note) {
 		this.note = note;
-	}
-	public String getOtherStudy() {
-		return otherStudy;
-	}
-	public void setOtherStudy(String otherStudy) {
-		this.otherStudy = otherStudy;
-	}
-	public String getPart() {
-		return part;
-	}
-	public void setPart(String part) {
-		this.part = part;
 	}
 	public Patient getPatient() {
 		return patient;
@@ -192,30 +103,6 @@ public class Consent extends CrmsEntity {
 	public void setProjName(String projName) {
 		this.projName = projName;
 	}
-	public String getResearch() {
-		return research;
-	}
-	public void setResearch(String research) {
-		this.research = research;
-	}
-	public String getT1_5mri() {
-		return t1_5mri;
-	}
-	public void setT1_5mri(String t1_5mri) {
-		this.t1_5mri = t1_5mri;
-	}
-	public String getT4mri() {
-		return t4mri;
-	}
-	public void setT4mri(String t4mri) {
-		this.t4mri = t4mri;
-	}
-	public String getVideo() {
-		return video;
-	}
-	public void setVideo(String video) {
-		this.video = video;
-	}
 	public Date getWithdrawlDate() {
 		return withdrawlDate;
 	}
@@ -228,10 +115,18 @@ public class Consent extends CrmsEntity {
 	public void setCaregiverId(Long caregiverId) {
 		this.caregiverId = caregiverId;
 	}
-	
 
+	public Byte getHipaa() {
+		return hipaa;
+	}
 
+	public void setHipaa(Byte hipaa) {
+		this.hipaa = hipaa;
+	}
 
-
-
+	public String getConsentTypeBlock() {
+		StringBuffer sb = new StringBuffer(this.consentType);
+		sb.append(this.consentRevision != null ? ", Revision #" + this.consentRevision : "");
+		return sb.toString();
+	}
 }

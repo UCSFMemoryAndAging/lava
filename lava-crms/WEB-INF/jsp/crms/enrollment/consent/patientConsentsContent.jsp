@@ -10,23 +10,27 @@
 <tags:listRow>
 <tags:componentListColumnHeader component="${component}" label="Action" width="8%"/>
 <tags:componentListColumnHeader component="${component}" label="Project (Site)" width="20%"/>
-<tags:componentListColumnHeader component="${component}" label="Consent Type" width="30%"/>
-<tags:componentListColumnHeader component="${component}" label="Declined" width="15%"/>
-<tags:componentListColumnHeader component="${component}" label="Consent Date" width="18%"/>
+<tags:componentListColumnHeader component="${component}" label="Consent Type" width="32%"/>
+<tags:componentListColumnHeader component="${component}" label="HIPAA" width="8%"/>
+<tags:componentListColumnHeader component="${component}" label="Declined" width="10%"/>
+<tags:componentListColumnHeader component="${component}" label="Consent Date" width="13%"/>
 </tags:listRow>
 </content>
 
 
 <tags:list component="${component}">
 	<tags:listRow>
-		<tags:listCell styleClass="actionButton">
+		 <tags:listCell styleClass="actionButton">
 			<tags:listActionURLStandardButtons actionId="lava.crms.enrollment.consent.consent" component="consent" idParam="${item.id}" locked="${item.locked}"/>	    
 		</tags:listCell>
-	    <tags:listCell>
+	   <tags:listCell>
 			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="consent"/>
 		</tags:listCell>
 		  <tags:listCell>
-		  		<tags:listField property="consentType" component="${component}" listIndex="${iterator.index}" entityType="consent"/>
+		  		<tags:listField property="consentTypeBlock" component="${component}" listIndex="${iterator.index}" entityType="consent"/>
+		  </tags:listCell>
+		  <tags:listCell>
+		  		<tags:listField property="hipaa" component="${component}" listIndex="${iterator.index}" entityType="consent"/>
 		  </tags:listCell>
 		<tags:listCell>
 			<tags:listField property="consentDeclined" component="${component}" listIndex="${iterator.index}" entityType="consent"/>
