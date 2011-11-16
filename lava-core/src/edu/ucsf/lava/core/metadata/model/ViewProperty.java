@@ -32,6 +32,7 @@ public class ViewProperty extends EntityBase {
 	private String context;
 	private String style;
 	private String label;
+	private String label2;	
 	private String required;
 	private Short maxLength;
 	private Short size;
@@ -78,6 +79,14 @@ public class ViewProperty extends EntityBase {
 		this.label = label;
 	}
 
+	public String getLabel2() {
+		return label2;
+	}
+
+	public void setLabel2(String label2) {
+		this.label2 = label2;
+	}	
+	
 	public String getList() {
 		return list;
 	}
@@ -101,8 +110,6 @@ public class ViewProperty extends EntityBase {
 	public void setMessageCode(String messageCode) {
 		this.messageCode = messageCode;
 	}
-
-
 
 	public String getPrefix() {
 		return prefix;

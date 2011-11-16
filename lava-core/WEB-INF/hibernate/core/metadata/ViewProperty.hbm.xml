@@ -27,6 +27,7 @@
        <property name="style" column="style" type="string" length="25"/>
        <property name="required" column="required" type="string" length="10"/>
        <property name="label" column="label" type="string" length="500"/>
+       <property name="label2" column="label2" type="string" length="25"/>       
        <property name="maxLength" column="maxLength" type="short"/>
        <property name="size" column="size" type="short"/>
        <property name="indentLevel" column="indentLevel" type="short"/>

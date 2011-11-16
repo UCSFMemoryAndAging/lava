@@ -19,6 +19,8 @@
 <%-- note: defaults could also be set up to come from the resource bundle defaults --%>
 <%@ variable name-given="label" variable-class="java.lang.String" scope="AT_END"
               description="value of the label metadata attribute" %>
+<%@ variable name-given="label2" variable-class="java.lang.String" scope="AT_END"
+              description="value of the label2 metadata attribute" %>              
 <%@ variable name-given="indentLevel" variable-class="java.lang.String" scope="AT_END"
               description="value of the label metadata attribute" %>
 <%@ variable name-given="required" variable-class="java.lang.String" scope="AT_END"
@@ -55,6 +57,7 @@
 
 	
 	<c:set var="label"><%= cachedData.get("label") %></c:set>
+	<c:set var="label2"><%= cachedData.get("label2") %></c:set>
 	<c:set var="indentLevel"><%= cachedData.get("indentLevel") %></c:set>
 	<c:set var="required"><%= cachedData.get("required") %></c:set>
 	<c:set var="style"><%= cachedData.get("style") %></c:set>
@@ -70,6 +73,10 @@
 %>
 		<tags:metadataValue attribName="label" property="${property}" section="${section}" 
                     entity="${entity}" entityType="${entityType}" metadataName="${metadataName}" defaultVal=""/>
+                    
+		<tags:metadataValue attribName="label2" property="${property}" section="${section}" 
+                    entity="${entity}" entityType="${entityType}" metadataName="${metadataName}" defaultVal=""/>                    
+                    
 		    <%-- indentLevel metadata is set in the metadata.properties file, not in the ViewProperty table --%>
 				
 		<tags:metadataValue attribName="indentLevel"  property="${property}" section="${section}" 
@@ -108,6 +115,7 @@
 
 		
 		cachedData.put("label",jspContext.getAttribute("label",PageContext.PAGE_SCOPE));
+		cachedData.put("label2",jspContext.getAttribute("label2",PageContext.PAGE_SCOPE));		
 		cachedData.put("indentLevel",jspContext.getAttribute("indentLevel",PageContext.PAGE_SCOPE));
 		cachedData.put("required",jspContext.getAttribute("required",PageContext.PAGE_SCOPE));
 		cachedData.put("style",jspContext.getAttribute("style",PageContext.PAGE_SCOPE));

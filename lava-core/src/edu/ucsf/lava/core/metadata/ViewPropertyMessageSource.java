@@ -164,7 +164,13 @@ public class ViewPropertyMessageSource extends AbstractMessageSource implements 
 				.append(prop.getMessageCode()).append(DELIMITER)
 				.append("label");
 			propMap.put(key.toString(), prop.getLabel() != null ? prop.getLabel() : "");
-			
+
+			key = new StringBuffer(prop.getLocale()).append(DELIMITER)
+			.append(prop.getInstance()).append(DELIMITER)
+			.append(prop.getMessageCode()).append(DELIMITER)
+			.append("label2");
+			propMap.put(key.toString(), prop.getLabel2() != null ? prop.getLabel2() : "");
+					
 			//style
 			key = new StringBuffer(prop.getLocale()).append(DELIMITER)
 				.append(prop.getInstance()).append(DELIMITER)
