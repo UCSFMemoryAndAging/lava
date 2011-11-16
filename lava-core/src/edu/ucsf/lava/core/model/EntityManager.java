@@ -34,6 +34,7 @@ public interface EntityManager {
 		public  Object create(Class clazz);
 		public  Object getOne(Class clazz, LavaDaoFilter filter);
 		public  List get(Class clazz, LavaDaoFilter filter);
+		public  Object getById(Class clazz,Long id);
 		public  Object getById(Class clazz,Long id, LavaDaoFilter filter);
 		public List<Long> getIds(Class entityClass, LavaDaoFilter filter);
 			

@@ -726,6 +726,10 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 			return manager.getById(entityClass,id);
 		}
 
+		public Object getById(Class clazz, Long id) {
+			return manager.getById(clazz,id);
+		}
+		
 		public Object getById(Class clazz, Long id, LavaDaoFilter filter) {
 			return manager.getById(clazz,id, filter);
 		}
