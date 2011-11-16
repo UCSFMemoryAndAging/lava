@@ -138,7 +138,7 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
 	 */
 	public void buildInputMapper() throws FlowBuilderException {
 		// make the "param", "param1" and "param2" request parameters available to all subflows.
-		// this means that whenever a subflow state is created, the requestParametersMapper
+		// this means that whenever a subflow state is created, the subflowInputOutputMapper
 		// should be passed as the FlowAttributeMapper
     	Mapping paramMapping = mapping().source("param").target("flowScope.param").value();
     	Mapping param2Mapping = mapping().source("param2").target("flowScope.param2").value();
