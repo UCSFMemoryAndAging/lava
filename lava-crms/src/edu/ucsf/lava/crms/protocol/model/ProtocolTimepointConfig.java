@@ -63,6 +63,16 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	public Boolean getFirstTimepoint() {
 		return firstTimepoint;
 	}
+	
+	/**
+	 * Convenience method since Java beans naming conventions prevents using "is" for
+	 * type Boolean, i.e. Spring can not bind property if above method is named "isFirstTimepoint"
+	 * 
+	 * @return
+	 */
+	public Boolean isFirst() {
+		return this.getFirstTimepoint();
+	}
 
 	public void setFirstTimepoint(Boolean firstTimepoint) {
 		this.firstTimepoint = firstTimepoint;
@@ -133,10 +143,10 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 		// 2) else, return schedDaysFromAnchor plus the daysFromProtocolStart of the timepoint config
 		//    to which this timepoint config is relative (i.e. its schedWinTpAnchor)
 
-		if (this.getFirstTimepoint()) {
+		if (this.isFirst()) {
 			return 0;
 		}
-		else if (this.getSchedWinAnchorTimepoint().getFirstTimepoint()) {
+		else if (this.getSchedWinAnchorTimepoint().isFirst()) {
 			return this.getSchedWinDaysFromAnchor();
 		}
 		else {
