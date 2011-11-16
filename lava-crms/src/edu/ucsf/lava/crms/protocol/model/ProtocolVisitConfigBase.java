@@ -17,7 +17,7 @@ import edu.ucsf.lava.core.model.EntityManager;
 public abstract class ProtocolVisitConfigBase extends ProtocolNodeConfig {
 	public ProtocolVisitConfigBase(){
 		super();
-		this.addPropertyToAuditIgnoreList("timepointBase");
+		this.addPropertyToAuditIgnoreList("timepointConfigBase");
 		this.addPropertyToAuditIgnoreList("instrumentsBase");
 		this.addPropertyToAuditIgnoreList("optionsBase");
 	}
