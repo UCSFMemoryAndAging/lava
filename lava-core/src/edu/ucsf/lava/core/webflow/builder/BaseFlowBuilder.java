@@ -49,7 +49,7 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
 	protected LavaComponentFormAction formAction;
 	protected List<String> subFlowActionIds;
     protected ConfigurableFlowAttributeMapper flowScopeIdMapper;
-    protected ConfigurableFlowAttributeMapper requestParametersMapper;
+    protected ConfigurableFlowAttributeMapper subflowInputOutputMapper;
     
 	//convenience constructor -- objectName is usually the action target
 	public BaseFlowBuilder(LavaFlowRegistrar registry,	String actionId){
@@ -67,15 +67,37 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
         // this is the mapper for passing the flowScope "id" attribute to custom subflows
         flowScopeIdMapper = new ConfigurableFlowAttributeMapper();
         flowScopeIdMapper.addInputMapping(mapping().source("flowScope.id").target("id").value());
-        // this is the mapper for passing the request parameters to subflow, e.g. for list CRUD actions
-        requestParametersMapper = new ConfigurableFlowAttributeMapper();
+        
+        // this is the mapper for passing attributes (parameters) to and from subflows, e.g. passing request parameters for list CRUD actions
+        subflowInputOutputMapper = new ConfigurableFlowAttributeMapper();
+        
+        // input mappers
+        // note: any subflows which will receive an attribute value from a parent flow must implement buildInputMapper
+        // and have an inputMapping for each inputMapping below that it will use
+        
         // add the "id" request parameter to be passed to all subflows
-        requestParametersMapper.addInputMapping(mapping().source("${requestParameters.id != null ? requestParameters.id : flowScope.id}").target("id").value());        
+        subflowInputOutputMapper.addInputMapping(mapping().source("${requestParameters.id != null ? requestParameters.id : flowScope.id}").target("id").value());        
         // add general purpose request parameters passed to all subflows
-        requestParametersMapper.addInputMapping(mapping().source("requestParameters.param").target("param").value());
-        requestParametersMapper.addInputMapping(mapping().source("requestParameters.param2").target("param2").value());
-        requestParametersMapper.addInputMapping(mapping().source("requestParameters.param3").target("param3").value());
-        requestParametersMapper.addInputMapping(mapping().source("requestParameters.param4").target("param4").value());
+        subflowInputOutputMapper.addInputMapping(mapping().source("requestParameters.param").target("param").value());
+        subflowInputOutputMapper.addInputMapping(mapping().source("requestParameters.param2").target("param2").value());
+        subflowInputOutputMapper.addInputMapping(mapping().source("requestParameters.param3").target("param3").value());
+        subflowInputOutputMapper.addInputMapping(mapping().source("requestParameters.param4").target("param4").value());
+        
+        // output mappers
+        // note: any subflows which will return an attribute via an outputMapper must implement buildOutputMapper 
+        // and have a mapping for each outputMapping below that it will use to return the attribute value to
+        // the parent flow. also, the subflow handler will need to put the value into flowScope so that the subflow
+        // outputMapper can retrieve the value and in order to map it in buildOutputMapper
+        
+        // for flows that add a new entity, this will allow the parent flow to get the id of that new entity from
+        // flowScope.newId 
+        subflowInputOutputMapper.addOutputMapping(mapping().source("subflowNewId").target("flowScope.subflowNewId").value());
+        // have subflows return their action id in case the parent flow needs to know which subflow just returned
+        subflowInputOutputMapper.addOutputMapping(mapping().source("subflowActionId").target("flowScope.subflowActionId").value());
+        //TODO: consider adding output parameters "outParam", "outParam1", etc. to subflowInputOutputMapper, akin to 
+        //the "param" input parameters so that subflows can return additional data to their parent as part of the 
+        //build-in flow functionality
+        
         this.formActionName = formActionName;
         if (actionId == null){
         	logger.error("FlowBuilder created without actionId");
@@ -347,12 +369,11 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
 				
     		for(FlowInfo subFlowInfo: subFlowInfoList){
     			// if there is an instance specific version of the subflow, it replaces the subflow
-    			// (but only if the subflow action has an actual flow, i.e. flowType is not "none" or
-    			// "instrumentCommon" which is for instruments that use the shared common instrument flow)
+    			// (but only if the subflow action has an actual flow, i.e. flowType is not "none")
     			// this is determined in ActionService. getEffectiveActionIdForFlowId
 				addSubflowState(subFlowInfo.getTarget()+"__"+subFlowInfo.getEvent(),
 						flow(registry.getActionManager().getEffectiveAction(subFlowInfo.getActionId()).getId() + "." + subFlowInfo.getEvent()),
-						requestParametersMapper,  
+						subflowInputOutputMapper,  
 						new Transition[] {transition(on("finish"), to("subFlowReturnState")),
 										  transition(on("finishCancel"), to("subFlowReturnState"))});						
     		}
@@ -473,14 +494,14 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
 		// note: in rare situations, for entity's where there may not be a current patient in context,
 		// e.g. Doctor, getDefaultPatientActionViewSelector resolves to getDefaultProjectActionViewSelector
 		addEndState("finish", 
-						null,
+						new Action[]{new SetAction(settableExpression("actionId"), ScopeType.FLOW, expression("'" + this.actionId + "'"))},
 						formAction.getDefaultActionViewSelector(),
 						null,
 						null,
 						null);
 		
 		addEndState("finishCancel", 
-				null,
+				new Action[]{new SetAction(settableExpression("actionId"), ScopeType.FLOW, expression("'" + this.actionId + "'"))},
 				formAction.getDefaultActionViewSelector(),
 				null,
 				null,
