@@ -16,7 +16,9 @@ public class ProtocolInstrument extends ProtocolInstrumentBase {
 	}
 	
 	public Object[] getAssociationsToInitialize(String method) {
-		return new Object[]{/*this.getProtocolInstrumentBase(),*/this.getPatient()};
+		return new Object[]{/*this.getProtocolInstrumentBase(),*/
+				this.getInstrumentConfigBase().getOptionsBase(),
+				this.getPatient()};
 	}
 
 	private Instrument instrument;
