@@ -28,6 +28,17 @@ public class CalcUtils {
 			sum += nums[i].doubleValue();
 		}
 		return sum;
+	}
+	
+	public static Double mean(Number[] nums, Boolean ignoreNegatives) {
+		Double sum = new Double(0);
+		int count = 0;
+		for (int i=0; i<nums.length; i++) {
+			if (nums[i]==null || (ignoreNegatives && nums[i].doubleValue()<0)) continue;
+			count++;
+			sum += nums[i].doubleValue();
+		}
+		return sum/count;
 	}	
 	
 	public static Short reverseScore(Short num, int reverse) {
