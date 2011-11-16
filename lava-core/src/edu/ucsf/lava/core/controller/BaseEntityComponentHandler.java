@@ -228,10 +228,9 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		// in the subflow during this request are not reflected. not sure why. refresh takes detached objects as its 
 		// parameter, so in theory it should attach the object to the Hibernate session and refresh it to get the changes.
 		// must have something to do with the fact that there are two separate instances of the same object involved, 
-		// the subflow instance and the parent flow instance. 
-		// re-retrieving the object from the database does get the changes from the object persisted in the subflow. 
-		// because the transaction spans the entire request, can see the changes even though they have not been 
-		// committed yet, as they are not committed until the request has been processed.
+		// the subflow instance (e.g. edit flow) and the parent flow instance (e.g. view flow for same object as the
+		// edit subflow). re-retrieving the object from the database does get the changes from the object persisted in 
+		// the subflow. 
 		Map components = ((ComponentCommand)command).getComponents();
 		Map backingObjects = this.getBackingObjects(context, components);
 		components.putAll(backingObjects);
@@ -531,6 +530,8 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		if (returnEvent.getId().equals(SUCCESS_FLOW_EVENT_ID)) {
 			// do refresh in case any db triggers populated fields on saveAdd
 			returnEvent = refreshHandledObjects(context, components, errors);
+			// populate flowScope.newId for any subflows that have an output mapper to return to the parent flow
+			context.getFlowScope().put("newId",((LavaEntity)(((ComponentCommand)command).getComponents().get(getDefaultObjectName()))).getId());		
 		}
 		return returnEvent;
 	}
