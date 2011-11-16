@@ -1,5 +1,7 @@
 package edu.ucsf.lava.crms.webflow.builder;
 
+import org.springframework.binding.mapping.DefaultAttributeMapper;
+import org.springframework.binding.mapping.Mapping;
 import org.springframework.webflow.action.SetAction;
 import org.springframework.webflow.engine.Transition;
 import org.springframework.webflow.engine.TransitionCriteria;
@@ -77,6 +79,15 @@ public class InstrumentAddFlowBuilder extends BaseFlowBuilder {
     			null, null, null);
     	
     }
+    
+	public void buildOutputMapper() throws FlowBuilderException {
+		// return the newly created entity id to the parent flow in case it needs to know
+		Mapping newIdMapping = mapping().source("flowScope.newId").target("subflowNewId").value();
+		// return the action id of this subflow to the parent flow in case it needs to know
+		Mapping actionIdMapping = mapping().source("flowScope.actionId").target("subflowActionId").value();
+		getFlow().setOutputMapper(new DefaultAttributeMapper().addMapping(newIdMapping).addMapping(actionIdMapping));
+	}
+
 }
 
 
