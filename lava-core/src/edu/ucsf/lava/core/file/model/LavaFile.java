@@ -2,19 +2,11 @@ package edu.ucsf.lava.core.file.model;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import sun.tools.tree.ThisExpression;
-
-import edu.ucsf.lava.core.dao.LavaDaoFilter;
-
-import edu.ucsf.lava.core.file.FileManager;
-import edu.ucsf.lava.core.file.FileRepository;
 import edu.ucsf.lava.core.file.exception.FileAccessException;
 import edu.ucsf.lava.core.model.EntityBase;
-import edu.ucsf.lava.core.model.EntityBase.Manager;
 
 
 /**
