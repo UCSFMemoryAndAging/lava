@@ -44,42 +44,35 @@ public class BaseFileRepository implements Comparable<FileRepository>, FileRepos
 	}
 
 	
-	@Override
 	public boolean handlesFile(LavaFile file) {
 		return this.getStrategy().handlesFile(file);
 	}	
 	
-	@Override
 	public LavaFile getFile(LavaFile file) throws FileAccessException {
 		return this.getStrategy().getFile(file);
 	}
 
 
-	@Override
 	public void deleteFile(LavaFile file) throws FileAccessException {
 		this.getStrategy().deleteFile(file);
 	}
 
 
-	@Override
 	public LavaFile saveFile(LavaFile file) throws FileAccessException {
 		return this.getStrategy().saveFile(file);
 	}
 
 
-	@Override
 	public LavaFile saveOrUpdateFile(LavaFile file) throws FileAccessException {
 		return this.getStrategy().saveOrUpdateFile(file);
 	}
 
-	@Override
 	public List<LavaFile> findFiles(LavaFileFilter filter)
 			throws FileAccessException {
 		return this.getStrategy().findFiles(filter);
 	}
 
 
-	@Override
 	public boolean test() {
 		return this.getStrategy().testRepository(this.createTestFile());
 	}

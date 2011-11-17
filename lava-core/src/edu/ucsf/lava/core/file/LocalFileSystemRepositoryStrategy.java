@@ -27,14 +27,12 @@ public class LocalFileSystemRepositoryStrategy extends AbstractFileRepositoryStr
 	 * with a local file system repository there is no connect / disconnect
 	 */
 	
-	@Override
 	public boolean connect() throws FileAccessException {
 		return true;
 	}
 	/**
 	 * with a local file system repository there is no connect / disconnect
 	 */
-	@Override
 	public boolean disconnect() throws FileAccessException {
 		return true;
 	}
@@ -54,7 +52,6 @@ public class LocalFileSystemRepositoryStrategy extends AbstractFileRepositoryStr
 	 * of FileEntity.
 	 */
 	
-	@Override
 	public boolean handlesFile(LavaFile file) {
 		return true;
 	}

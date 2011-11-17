@@ -26,12 +26,10 @@ public abstract class AbstractFileRepositoryStrategy implements FileRepositorySt
 	abstract public LavaFile saveFile(LavaFile file) throws FileAccessException;
 	abstract public LavaFile saveOrUpdateFile(LavaFile file) throws FileAccessException;
 
-	@Override
 	public void setRepository(FileRepository repository) {
 		this.repository = repository;
 	}
 
-	@Override
 	public FileRepository getRepository() {
 		return this.repository;
 	}
@@ -39,7 +37,6 @@ public abstract class AbstractFileRepositoryStrategy implements FileRepositorySt
 	/**
 	 * Do a save, get and delete using the testFile
 	 */
-	@Override
 	public boolean testRepository(LavaFile testFile) throws FileAccessException {
 		//write, read, and delete a test file to the root directory
 		try{
@@ -53,7 +50,6 @@ public abstract class AbstractFileRepositoryStrategy implements FileRepositorySt
 		return true;
 	}
 
-	@Override
 	public boolean isFileIdValid(LavaFile lavaFile) throws FileAccessException {
 		String fileId = this.generateFileId(lavaFile);
 		if(fileId.equalsIgnoreCase(lavaFile.getFileId())){
@@ -76,7 +72,6 @@ public abstract class AbstractFileRepositoryStrategy implements FileRepositorySt
 	/**
 	 * TODO: implement a file search mechanism. 
 	 */
-	@Override
 	public List<LavaFile> findFiles(LavaFileFilter filter) throws FileAccessException {
 		return new ArrayList<LavaFile>();
 	}
