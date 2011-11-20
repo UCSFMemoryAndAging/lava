@@ -9,6 +9,7 @@
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfig" table="prot_visit_config" extends="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfigBase" select-before-update="true">
 	<key column="node_id"/> 
 	<property name="optional" column="optional" type="boolean"/>
+	<many-to-one name="defaultOption" column="default_option_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitOptionConfig"/>
 </joined-subclass>
 	
 </hibernate-mapping>

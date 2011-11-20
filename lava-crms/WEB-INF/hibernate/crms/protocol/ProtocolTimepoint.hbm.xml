@@ -8,11 +8,20 @@
 
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolTimepoint" table="prot_tp" extends="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointBase" select-before-update="true">
 	<key column="node_id"/>
+	<property name="schedAnchorDate" column="sched_anchor_date" type="date"/>
+	<property name="schedWinStart" column="sched_win_start" type="date"/>
+	<property name="schedWinEnd" column="sched_win_end" type="date"/>
 	<property name="schedWinStatus" column="sched_win_status" type="string" length="25"/>
 	<property name="schedWinReason" column="sched_win_reason" type="string" length="25"/>
 	<property name="schedWinNote" column="sched_win_note" type="string" length="100"/>
-	<property name="schedWinStart" column="sched_win_start" type="date"/>
-	<property name="schedWinEnd" column="sched_win_end" type="date"/>
+	<many-to-one name="primaryProtocolVisit" column="pri_prot_visit_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolVisit" lazy="false"/>
 </joined-subclass>
+
+	<query name="list.protocol.primaryProtocolVisit"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(visitConfig.label, visit.id)
+			from edu.ucsf.lava.crms.protocol.model.ProtocolVisitBase as visit
+			inner join visit.protocolVisitConfigBase as visitConfig
+			where visit.protocolTimepointBase.id = :timepointId
+	]]></query>	
 
 </hibernate-mapping>

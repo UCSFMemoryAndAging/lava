@@ -20,7 +20,11 @@
 <tags:createField property="id" component="${component}"/>
 </c:if>
 <tags:createField property="label" component="${component}"/>
+<c:if test="${primaryVisitConfigFlag}">
+	<tags:outputText textKey="protocol.primaryVisitConfig" inline="false" styleClass="bold"/>
+</c:if>
 <tags:createField property="optional" component="${component}"/>
+<tags:createField property="defaultOptionId" component="${component}"/>
 <tags:createField property="notes" component="${component}"/>
 <tags:createField property="effDate" component="${component}"/>
 <tags:createField property="expDate" component="${component}"/>
@@ -51,8 +55,8 @@
 
 <tags:listRow>
 	<tags:listColumnHeader label="Action" width="10%"/>
-	<tags:listColumnHeader label="Protocol Component" width="24%"/>
-	<tags:listColumnHeader label="Type" width="18%" />
+	<tags:listColumnHeader label="Protocol Component" width="26%"/>
+	<tags:listColumnHeader label="Type" width="16%" />
 	<tags:listColumnHeader label="Eff. Date" width="9%" />
 	<tags:listColumnHeader label="Exp. Date" width="9%" />
 	<tags:listColumnHeader label="Notes" width="30%" />
@@ -62,7 +66,6 @@
 <tags:listRow>
 	<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolInstrumentConfig" component="protocolInstrumentConfig" idParam="${protocolInstrumentConfig.id}" locked="${item.locked}"/></tags:listCell>
 	<tags:listCell>
-		<c:forEach begin="1" end="16">&nbsp;</c:forEach>
 		<tags:createField property="children[${instrumentIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
 	</tags:listCell>
 	<tags:listCell>Instrument</tags:listCell>
@@ -75,7 +78,7 @@
 		<tags:listRow>
 			<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolInstrumentOptionConfig" component="protocolInstrumentOptionConfig" idParam="${protocolInstrumentOptionConfig.id}" locked="${item.locked}"/></tags:listCell>
 			<tags:listCell>
-				<c:forEach begin="1" end="19">&nbsp;</c:forEach>
+				<c:forEach begin="1" end="3">&nbsp;</c:forEach>
 				<tags:createField property="children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
 			</tags:listCell>
 			<tags:listCell>Instrument Option</tags:listCell>

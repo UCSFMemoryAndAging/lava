@@ -8,9 +8,23 @@
 
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.Protocol" table="prot_protocol" extends="edu.ucsf.lava.crms.protocol.model.ProtocolBase" select-before-update="true">
 	<key column="node_id"/> 
-	<property name="enrolledDate" column="enrolled_date" type="date"/>
+	<property name="assignedDate" column="assigned_date" type="date"/>
+	<many-to-one name="enrollmentStatus" column="EnrollStatID" class="edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus"/>
 </joined-subclass>
 
 	<!-- queries  -->
+
+	<!-- queries  -->
+	<query name="protocol.completeProtocolTree"><![CDATA[
+		from edu.ucsf.lava.crms.protocol.model.Protocol protocol
+		left join fetch protocol.protocolTimepointsBase timepoint
+		left join fetch timepoint.protocolTimepointConfigBase timepointConfig
+		left join fetch timepoint.protocolVisitsBase visit
+		left join fetch visit.protocolVisitConfigBase visitConfig
+		left join fetch visit.protocolInstrumentsBase instrument
+		left join fetch instrument.protocolInstrumentConfigBase instrumentConfig
+		where protocol.id = :protocolId
+	]]></query>
+		
  
 </hibernate-mapping>

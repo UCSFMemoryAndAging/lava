@@ -8,6 +8,7 @@
   <page:param name="component">${component}</page:param>
   <page:param name="focusField">label</page:param>  
   <page:param name="pageHeadingArgs"><tags:componentProperty component="${component}" property="label"/></page:param>
+  <page:param name="quicklinks">customCollect,defaultStatus</page:param>
 
 <page:applyDecorator name="component.entity.content">
   <page:param name="component">${component}</page:param>
@@ -21,12 +22,32 @@
 </c:if>
 <tags:createField property="label" component="${component}"/>
 <tags:createField property="optional" component="${component}"/>
+<%-- NOT IMPLEMENTED YET
+<tags:createField property="defaultOptionId" component="${component}"/>
+ --%>
 <tags:createField property="notes" component="${component}"/>
 <tags:createField property="effDate" component="${component}"/>
 <tags:createField property="expDate" component="${component}"/>
 </page:applyDecorator>
 
+<page:applyDecorator name="component.entity.section">
+  <page:param name="sectionId">customCollect</page:param>
+  <page:param name="sectionNameKey">${component}.customCollect.section</page:param>
+<tags:createField property="customCollectWinProtocolVisitConfigId" component="${component}"/>
+<tags:createField property="customCollectWinSize" component="${component}"/>
+<tags:createField property="customCollectWinOffset" component="${component}"/>
+</page:applyDecorator>
+
+<page:applyDecorator name="component.entity.section">
+  <page:param name="sectionId">defaultStatus</page:param>
+  <page:param name="sectionNameKey">${component}.defaultStatus.section</page:param>
+<tags:createField property="defaultCompStatus" component="${component}"/>
+<tags:createField property="defaultCompReason" component="${component}"/>
+<tags:createField property="defaultCompNote" component="${component}"/>
+</page:applyDecorator>
+
 </page:applyDecorator>    
+    
 
 
 <c:if test="${componentView == 'view'}">
@@ -43,7 +64,7 @@
   <page:param name="sectionId">instrumentOptionConfig</page:param>
   <page:param name="sectionNameKey">protocol.instrumentOptionConfig.section</page:param>
 <div class="verticalSpace10">&nbsp;</div>
-<tags:actionURLButton buttonText="Add Option"  actionId="lava.crms.protocol.setup.protocolInstrumentOptionConfig" eventId="protocolInstrumentOptionConfig__add" component="${component}" parameters="param,${instrumentId}" locked="${currentPatient.locked}"/>   
+<tags:actionURLButton buttonText="Add Option" actionId="lava.crms.protocol.setup.protocolInstrumentOptionConfig" eventId="protocolInstrumentOptionConfig__add" component="${component}" parameters="param,${instrumentId}" locked="${currentPatient.locked}"/>   
 <div class="verticalSpace10">&nbsp;</div>
 <tags:tableForm>  
 <tags:listRow>

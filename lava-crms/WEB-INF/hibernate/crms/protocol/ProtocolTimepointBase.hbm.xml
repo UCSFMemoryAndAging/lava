@@ -13,10 +13,10 @@
 	&protocolInclude;
 	
 	<many-to-one name="protocolBase" class="edu.ucsf.lava.crms.protocol.model.ProtocolBase" column="parent_id" lazy="false"/>
-	<many-to-one name="timepointConfigBase" column="config_node_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfigBase" lazy="false"/>	
+	<many-to-one name="protocolTimepointConfigBase" column="config_node_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfigBase" lazy="false"/>	
 	
 	<!-- visits is a bidirectional relationship whose corresponding parent mapping is in ProtocolVisitBase -->
-	<set name="visitsBase" table="prot_node" inverse="true" cascade="all,delete-orphan" order-by="list_order" lazy="true">
+	<set name="protocolVisitsBase" table="prot_node" inverse="true" cascade="all,delete-orphan" order-by="list_order" lazy="true">
 		<key column="parent_id"/>
 		<one-to-many class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitBase"/> 
 	</set>

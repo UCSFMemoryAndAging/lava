@@ -12,7 +12,7 @@
 
 		&protocolOptionConfigInclude;
 		
-		<many-to-one name="instrumentBase" class="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigBase" column="parent_id" not-null="true" cascade="none"/>
+		<many-to-one name="protocolInstrumentConfigBase" class="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigBase" column="parent_id" not-null="true" cascade="none"/>
 		
 		&protocolConfigFilterInclude;
 		

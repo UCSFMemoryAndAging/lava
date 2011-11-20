@@ -25,8 +25,7 @@
 <tags:createField property="notes" component="${component}"/>
 
 <tags:createField property="defaultOption" component="${component}"/>
-<%-- since altProject has not had mode set on it because it is not the default component, pass in mode  --%>
-<tags:createField property="project" component="altProject" metadataName="protocolVisitOptionConfig.project" mode="${componentMode}"/>
+<tags:createField property="visitTypeProjName" component="${component}"/>
 <tags:createField property="visitType" component="${component}"/>
 
 <tags:createField property="effDate" component="${component}"/>
@@ -36,7 +35,7 @@
 
 <c:if test="${componentMode != 'vw'}">
 <ui:formGuide observeAndOr="or" ignoreDoOnLoad="true" simulateEvents="true">
-    <ui:observe elementIds="altProject_project" forValue=".+"/>
+    <ui:observe elementIds="visitTypeProjName" component="${component}" forValue=".+"/>
     <ui:setValue elementIds="protocolVisitOptionConfig_visitType" value=""/>
     <ui:submitForm form="protocolVisitOptionConfig" event="protocolVisitOptionConfig__reRender"/>
 </ui:formGuide>

@@ -12,7 +12,7 @@
 
 		&protocolOptionConfigInclude;
 		
-		<many-to-one name="visitBase" class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfigBase" column="parent_id" not-null="true" cascade="none"/>
+		<many-to-one name="protocolVisitConfigBase" class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfigBase" column="parent_id" not-null="true" cascade="none"/>
 
 		&protocolConfigFilterInclude;
 		

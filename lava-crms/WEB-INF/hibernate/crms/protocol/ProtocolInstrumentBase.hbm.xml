@@ -12,8 +12,8 @@
 
 	&protocolInclude;
 	
-	<many-to-one name="visitBase" class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitBase" column="parent_id" lazy="false"/>
-	<many-to-one name="instrumentConfigBase" column="config_node_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigBase" lazy="false"/>	
+	<many-to-one name="protocolVisitBase" class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitBase" column="parent_id" lazy="false"/>
+	<many-to-one name="protocolInstrumentConfigBase" column="config_node_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigBase" lazy="false"/>	
 	
 	&protocolFilterInclude;
 	

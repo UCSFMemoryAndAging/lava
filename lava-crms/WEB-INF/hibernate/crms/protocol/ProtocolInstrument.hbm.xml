@@ -8,12 +8,23 @@
 
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolInstrument" table="prot_instr" extends="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentBase" select-before-update="true">
 	<key column="node_id"/>
-	<many-to-one name="instrument" column="InstrID" class="edu.ucsf.lava.crms.assessment.model.Instrument"/>	
+	<many-to-one name="instrument" column="InstrID" class="edu.ucsf.lava.crms.assessment.model.Instrument" lazy="false"/>	
+	<property name="collectAnchorDate" column="collect_anchor_date" type="date"/>
+	<property name="collectWinStart" column="collect_win_start" type="date"/>
+	<property name="collectWinEnd" column="collect_win_end" type="date"/>
 	<property name="collectWinStatus" column="collect_win_status" type="string" length="25"/>
  	<property name="collectWinReason" column="collect_win_reason" type="string" length="25"/>
  	<property name="collectWinNote" column="collect_win_note" type="string" length="100"/>
-	<property name="customCollectWinStart" column="cust_collect_win_start" type="date"/>
-	<property name="customCollectWinEnd" column="cust_collect_win_end" type="date"/>
 </joined-subclass>
+
+	<query name="list.protocol.matchingInstruments"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(v.visitDescrip || ' - ' || i.instrType, i.id)
+			from edu.ucsf.lava.crms.assessment.model.InstrumentTracking as i
+			inner join i.visit v
+			where i.patient.id = :patientId
+			and i.instrType = :instrType
+			order by abs(datediff(i.dcDate, :collectAnchorDate))
+	]]></query>	
+	
 	
 </hibernate-mapping>

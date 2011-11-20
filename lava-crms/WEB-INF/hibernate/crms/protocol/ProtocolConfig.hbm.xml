@@ -9,14 +9,15 @@
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolConfig" table="prot_protocol_config" extends="edu.ucsf.lava.crms.protocol.model.ProtocolConfigBase" select-before-update="true">
 	<key column="node_id"/> 
 	<property name="category" column="category" type="string" length="25"/>
+	<many-to-one name="firstProtocolTimepointConfig" column="first_prot_tp_conf_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig"/>
 </joined-subclass>
 
 	<!-- queries  -->
 	<query name="protocol.completeProtocolConfigTree"><![CDATA[
 		from edu.ucsf.lava.crms.protocol.model.ProtocolConfig protocolConfig
-		left join fetch protocolConfig.timepointsBase timepointConfig
-		left join fetch timepointConfig.visitsBase visitConfig
-		left join fetch visitConfig.instrumentsBase instrumentConfig
+		left join fetch protocolConfig.protocolTimepointConfigsBase timepointConfig
+		left join fetch timepointConfig.protocolVisitConfigsBase visitConfig
+		left join fetch visitConfig.protocolInstrumentConfigsBase instrumentConfig
 		where protocolConfig.id = :protocolConfigId
 	]]></query>
 		
@@ -25,6 +26,13 @@
 	 	from ProtocolConfig pc
 		order by pc.label	 		
 	]]></query>
+	
+	<query name="list.protocol.allTimepointConfigs"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(timepointConfig.label, timepointConfig.id)
+			from edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig as timepointConfig
+			where protocolConfigBase.id = :protocolConfigId
+			order by timepointConfig.schedWinDaysFromStart
+	]]></query>	
 	
 	
  

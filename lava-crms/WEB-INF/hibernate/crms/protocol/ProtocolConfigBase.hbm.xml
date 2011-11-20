@@ -15,7 +15,7 @@
 	<!-- bilateral. parent associations mapped in ProtocolTimepointBase -->
 	<!--  ProtocolConfigTimepoint collection is sorted naturally, in chronological order by the schedWinDaysFromStart
 		property, so declare sort="natural" here -->
-	<set name="timepointsBase" table="prot_node_config" inverse="true" cascade="all,delete-orphan" sort="natural" lazy="true">
+	<set name="protocolTimepointConfigsBase" table="prot_node_config" inverse="true" cascade="all,delete-orphan" sort="natural" lazy="true">
 		<key column="parent_id"/>
 		<one-to-many class="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfigBase"/> 
 	</set>

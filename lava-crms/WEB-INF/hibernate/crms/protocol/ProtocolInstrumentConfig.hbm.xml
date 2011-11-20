@@ -9,6 +9,13 @@
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfig" table="prot_instr_config" extends="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigBase" select-before-update="true">
 	<key column="node_id"/> 
 	<property name="optional" column="optional" type="boolean"/>
+	<many-to-one name="customCollectWinProtocolVisitConfig" column="collect_win_prot_visit_conf_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfig" lazy="false"/>
+	<property name="customCollectWinSize" column="collect_win_size" type="short"/>
+	<property name="customCollectWinOffset" column="collect_win_offset" type="short"/>
+	<property name="defaultCompStatus" column="default_comp_status" type="string" length="25"/>
+	<property name="defaultCompReason" column="default_comp_reason" type="string" length="25"/>
+	<property name="defaultCompNote" column="default_comp_note" type="string" length="100"/>
+	<many-to-one name="defaultOption" column="default_option_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentOptionConfig"/>
 </joined-subclass>
 	
 </hibernate-mapping>

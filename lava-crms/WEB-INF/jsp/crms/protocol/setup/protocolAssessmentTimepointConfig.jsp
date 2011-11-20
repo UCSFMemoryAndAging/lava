@@ -8,6 +8,7 @@
   <page:param name="component">${component}</page:param>
   <page:param name="focusField">label</page:param>  
   <page:param name="pageHeadingArgs"><tags:componentProperty component="${component}" property="label"/></page:param>
+  <page:param name="quicklinks">sched,primary,collect,addVisit</page:param>
 
 <page:applyDecorator name="component.entity.content">
   <page:param name="component">${component}</page:param>
@@ -20,29 +21,43 @@
 <tags:createField property="id" component="${component}" entityType="protocolTimepointConfig"/>
 </c:if>
 <tags:createField property="label" component="${component}" entityType="protocolTimepointConfig"/>
-<tags:createField property="notes" component="${component}" entityType="protocolTimepointConfig"/>
+<tags:createField property="optional" component="${component}" entityType="protocolTimepointConfig"/>
 <tags:createField property="effDate" component="${component}" entityType="protocolTimepointConfig"/>
 <tags:createField property="expDate" component="${component}" entityType="protocolTimepointConfig"/>
-<tags:createField property="optional" component="${component}" labelStyle="longLeft" entityType="protocolTimepointConfig"/>
-
-<tags:createField property="firstTimepoint" component="${component}" labelStyle="longLeft" entityType="protocolTimepointConfig"/>
-
-<tags:createField property="schedWinAnchorTimepointId" component="${component}" labelStyle="longLeft" entityType="protocolTimepointConfig"/>
-<tags:createField property="schedWinDaysFromAnchor" component="${component}" labelStyle="longLeft" entityType="protocolTimepointConfig"/>
-<tags:createField property="schedWinSize" component="${component}" labelStyle="longLeft" entityType="protocolTimepointConfig"/>
-<tags:createField property="schedWinOffset" component="${component}" labelStyle="longLeft" entityType="protocolTimepointConfig"/>
-
-<tags:createField property="collectWinAnchorVisitId" component="${component}" labelStyle="longLeft"/>
-<tags:createField property="collectWinSize" component="${component}" labelStyle="longLeft"/>
-<tags:createField property="collectWinOffset" component="${component}" labelStyle="longLeft"/>
-<tags:createField property="collectWinStatus" component="${component}" labelStyle="longLeft"/>
-
+<tags:createField property="notes" component="${component}" entityType="protocolTimepointConfig"/>
 </page:applyDecorator>
 
-<ui:formGuide simulateEvents="true">
-	<ui:observeForNull elementIds="firstTimepoint" component="${component}"/>
-	<ui:enable elementIds="schedWinAnchorTimepointId,schedWinDaysFromAnchor,schedWinSize,schedWinOffset" component="${component}"/>
-</ui:formGuide>
+<page:applyDecorator name="component.entity.section">
+  <page:param name="sectionId">sched</page:param>
+  <page:param name="sectionNameKey">${component}.sched.section</page:param>
+<c:choose>
+	<c:when test="${firstTimepointFlag}">
+		<tags:outputText textKey="protocol.firstTimepointConfig" inline="false" styleClass="bold"/>
+	</c:when>
+	<c:otherwise>
+		<tags:createField property="schedWinRelativeTimepointId" component="${component}"/>
+		<tags:createField property="schedWinRelativeAmount,schedWinRelativeUnits" component="${component}"/>
+	</c:otherwise>
+</c:choose>
+<tags:createField property="schedWinSize" component="${component}"/>
+<tags:createField property="schedWinOffset" component="${component}"/>
+</page:applyDecorator>
+
+<page:applyDecorator name="component.entity.section">
+  <page:param name="sectionId">primary</page:param>
+  <page:param name="sectionNameKey">${component}.primary.section</page:param>
+<c:if test="${componentView != 'view'}">
+<tags:outputText textKey="protocol.primaryProtocolVisitConfigInfo" inline="false" styleClass="italic"/>
+</c:if>
+<tags:createField property="primaryProtocolVisitConfigId" component="${component}"/>
+</page:applyDecorator>
+
+<page:applyDecorator name="component.entity.section">
+  <page:param name="sectionId">collect</page:param>
+  <page:param name="sectionNameKey">${component}.collect.section</page:param>
+<tags:createField property="collectWinSize" component="${component}"/>
+<tags:createField property="collectWinOffset" component="${component}"/>
+</page:applyDecorator>
 
 </page:applyDecorator>    
 
@@ -58,8 +73,8 @@
 <c:set var="component" value="timepointConfigTree"/>
 
 <page:applyDecorator name="component.entity.section">
-  <page:param name="sectionId">timepointConfigTree</page:param>
-  <page:param name="sectionNameKey">protocol.timepointConfigTree.section</page:param>
+  <page:param name="sectionId">addVisit</page:param>
+  <page:param name="sectionNameKey">protocolAssessmentTimepointConfig.addVisit.section</page:param>
   
 <div class="verticalSpace10">&nbsp;</div>
 <tags:actionURLButton buttonText="Add Visit" actionId="lava.crms.protocol.setup.protocolVisitConfig" eventId="protocolVisitConfig__add" component="${component}" parameters="param,${timepointId}" locked="${currentPatient.locked}"/>
@@ -69,8 +84,8 @@
 
 <tags:listRow>
 	<tags:listColumnHeader label="Action" width="10%"/>
-	<tags:listColumnHeader label="Protocol Component" width="24%"/>
-	<tags:listColumnHeader label="Type" width="18%" />
+	<tags:listColumnHeader label="Protocol Component" width="26%"/>
+	<tags:listColumnHeader label="Type" width="16%" />
 	<tags:listColumnHeader label="Eff. Date" width="9%" />
 	<tags:listColumnHeader label="Exp. Date" width="9%" />
 	<tags:listColumnHeader label="Notes" width="30%" />

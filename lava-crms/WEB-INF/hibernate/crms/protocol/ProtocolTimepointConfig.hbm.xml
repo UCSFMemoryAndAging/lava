@@ -8,17 +8,18 @@
 
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig" table="prot_tp_config" extends="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfigBase" select-before-update="true">
 	<key column="node_id"/> 
-	<property name="firstTimepoint" column="first_timepoint" type="boolean"/>
 	<property name="optional" column="optional" type="boolean"/>
-	<many-to-one name="schedWinAnchorTimepoint" column="sched_win_anchor_timepoint_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig" lazy="false"/>
-	<property name="schedWinDaysFromAnchor" column="sched_win_days_from_anchor" type="short"/>
+	<many-to-one name="schedWinRelativeTimepoint" column="sched_win_rel_tp_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig" lazy="false"/>
+	<property name="schedWinRelativeAmount" column="sched_win_rel_amt" type="short"/>
+	<property name="schedWinRelativeUnits" column="sched_win_rel_units" type="short"/>
 	<property name="schedWinDaysFromStart" column="sched_win_days_from_start" type="short"/>
 	<property name="schedWinSize" column="sched_win_size" type="short"/>
 	<property name="schedWinOffset" column="sched_win_offset" type="short"/>
+	<many-to-one name="primaryProtocolVisitConfig" column="pri_prot_visit_conf_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfig" lazy="false"/>
 </joined-subclass>
 
 	
-	<query name="list.protocol.schedWinAnchorTimepoint"><![CDATA[
+	<query name="list.protocol.schedWinRelativeTimepoint"><![CDATA[
 	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(tp.label, tp.id)
 			from edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig as tp
 			where tp.protocolConfigBase.id = :protocolId
@@ -26,4 +27,10 @@
 			order by tp.schedWinDaysFromStart
 	]]></query>	
 	
+	<query name="list.protocol.primaryProtocolVisitConfig"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(visitConfig.label, visitConfig.id)
+			from edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfigBase as visitConfig
+			where visitConfig.protocolTimepointConfigBase.id = :timepointConfigId
+	]]></query>	
+
 </hibernate-mapping>

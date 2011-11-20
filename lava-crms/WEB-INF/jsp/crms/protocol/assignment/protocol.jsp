@@ -30,7 +30,7 @@
 <tags:createField property="projName" component="${component}"/>
 </c:if>
 <tags:createField property="patient.fullNameNoSuffix" component="${component}" metadataName="patient.fullNameNoSuffix"/>
-<tags:createField property="enrolledDate" component="${component}"/>
+<tags:createField property="assignedDate" component="${component}"/>
 <%--
 <tags:createField property="staff" component="${component}"/>
  --%>
@@ -63,17 +63,20 @@
 
 <tags:listRow>
 	<tags:listColumnHeader label="Action" width="10%"/>
-	<tags:listColumnHeader label="Protocol Component" width="25%"/>
-	<tags:listColumnHeader label="Type" width="25%" />
-	<tags:listColumnHeader label="Notes" width="40%" />
+	<tags:listColumnHeader label="Protocol Component" width="30%"/>
+	<tags:listColumnHeader label="Configuration" width="12%"/>
+	<tags:listColumnHeader label="Assignment" width="48%"/>
 </tags:listRow>
 
 <c:forEach items="${command.components[component].children}" var="timepoint" varStatus="timepointIterator">
 <tags:listRow>
 	<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.assignment.protocolAssessmentTimepoint" component="protocolAssessmentTimepoint" idParam="${timepoint.id}" locked="${item.locked}"/></tags:listCell>
 	<tags:listCell><tags:createField property="children[${timepointIterator.index}].config.label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/></tags:listCell>
-	<tags:listCell>Timepoint</tags:listCell>
-	<tags:listCell><tags:createField property="children[${timepointIterator.index}].notes" component="${component}" metadataName="protocol.notes" mode="${fieldMode}"/></tags:listCell>
+	<tags:listCell>
+		Timepoint
+		<tags:listActionURLButton buttonImage="view" actionId="lava.crms.protocol.setup.protocolAssessmentTimepointConfig" eventId="protocolAssessmentTimepointConfig__view" idParam="${timepoint.config.id}"/>	    
+	</tags:listCell>
+	<tags:listCell><tags:createField property="children[${timepointIterator.index}].assignDescrip" component="${component}" metadataName="protocol.assignDescrip" mode="${fieldMode}"/></tags:listCell>
 </tags:listRow>	
 
 	<c:forEach items="${timepoint.children}" var="visit" varStatus="visitIterator">
@@ -83,8 +86,11 @@
 			<c:forEach begin="1" end="8">&nbsp;</c:forEach>
 			<tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].config.label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
 		</tags:listCell>
-		<tags:listCell>Visit</tags:listCell>
-		<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].notes" component="${component}" metadataName="protocol.notes" mode="${fieldMode}"/></tags:listCell>
+		<tags:listCell>
+			Visit
+			<tags:listActionURLButton buttonImage="view" actionId="lava.crms.protocol.setup.protocolVisitConfig" eventId="protocolVisitConfig__view" idParam="${visit.config.id}"/>
+		</tags:listCell>	    
+		<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].assignDescrip" component="${component}" metadataName="protocol.assignDescrip" mode="${fieldMode}"/></tags:listCell>
 	</tags:listRow>
 	
 			<c:forEach items="${visit.children}" var="instrument" varStatus="instrumentIterator">
@@ -94,8 +100,11 @@
 					<c:forEach begin="1" end="16">&nbsp;</c:forEach>
 					<tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].config.label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
 				</tags:listCell>
-				<tags:listCell>Instrument</tags:listCell>
-				<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].notes" component="${component}" metadataName="protocol.notes" mode="${fieldMode}"/></tags:listCell>
+				<tags:listCell>
+					Instrument
+					<tags:listActionURLButton buttonImage="view" actionId="lava.crms.protocol.setup.protocolInstrumentConfig" eventId="protocolInstrumentConfig__view" idParam="${instrument.config.id}"/>
+				</tags:listCell>
+				<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].assignDescrip" component="${component}" metadataName="protocol.assignDescrip" mode="${fieldMode}"/></tags:listCell>
 			</tags:listRow>
 			</c:forEach>
 		

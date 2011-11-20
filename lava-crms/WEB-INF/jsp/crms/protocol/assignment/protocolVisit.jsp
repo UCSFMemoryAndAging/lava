@@ -5,7 +5,7 @@
 <c:set var="componentView" value="${requestScope[viewString]}"/>
 
 <c:set var="visitConfigLabel">
-	<tags:componentProperty component="${component}" property="visitConfig" property2="label"/>
+	<tags:componentProperty component="${component}" property="protocolVisitConfig" property2="label"/>
 </c:set>   
    
 <page:applyDecorator name="component.content">
@@ -23,8 +23,37 @@
 <c:if test="${componentView != 'add'}">
 <tags:createField property="id" component="${component}"/>
 </c:if>
-<tags:createField property="visitConfig.label" component="${component}" metadataName="protocolConfig.label"/>
+<tags:createField property="protocolVisitConfig.label" component="${component}" metadataName="protocolConfig.label"/>
+</page:applyDecorator>
+
+<page:applyDecorator name="component.entity.section">
+  <page:param name="sectionId">assignVisit</page:param>
+  <page:param name="sectionNameKey">${component}.assignVisit.section</page:param>
+<c:if test="${componentView == 'edit'}">
+<tags:outputText textKey="protocol.assignVisit" inline="false" styleClass="italic"/>
+<c:forEach items="${visitConfigOptions}" var="option" varStatus="iterator">
+<tags:listRow>
+	<tags:listCell>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#8226;&nbsp;${option}</tags:listCell>
+</tags:listRow>	  
+</c:forEach>
+<div>&nbsp;</div>
+<%-- would be good if could add a bulleted style to listCell so would not have to create structure to do the above
+<c:forEach items="${command.components['visitConfigOptions']}" var="option" varStatus="iterator">
+<tags:listRow>
+	<tags:listCell><tags:createField property="[${iterator.index}].visitTypeProjName,[${iterator.index}].visitType" separator=" - " component="visitConfigOptions" metadataName="protocolVisitOptionConfig.visitTypeInList" mode="vw"/></tags:listCell>
+</tags:listRow>	  
+</c:forEach>
+--%>
+</c:if>
 <tags:createField property="visitId" component="${component}"/>
+<c:if test="${componentView == 'edit'}">
+<tags:eventButton buttonText="Add Visit" component="visit" action="add"  pageName="${component}" javascript="submitted=true;"/>
+</c:if>
+</page:applyDecorator>
+
+<page:applyDecorator name="component.entity.section">
+  <page:param name="sectionId">status</page:param>
+  <page:param name="sectionNameKey">${component}.status.section</page:param>
 <tags:createField property="currStatus" component="${component}" entityType="protocol"/>
 <tags:createField property="currReason" component="${component}" entityType="protocol"/>
 <tags:createField property="currNote" component="${component}" entityType="protocol"/>
@@ -52,20 +81,22 @@
 
 <tags:listRow>
 	<tags:listColumnHeader label="Action" width="10%"/>
-	<tags:listColumnHeader label="Protocol Component" width="25%"/>
-	<tags:listColumnHeader label="Type" width="25%" />
-	<tags:listColumnHeader label="Notes" width="40%" />
+	<tags:listColumnHeader label="Protocol Component" width="30%"/>
+	<tags:listColumnHeader label="Configuration" width="12%" />
+	<tags:listColumnHeader label="Assignment" width="48%" />
 </tags:listRow>
 
 <c:forEach items="${command.components[component].children}" var="instrument" varStatus="instrumentIterator">
 <tags:listRow>
 	<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.assignment.protocolInstrument" component="protocolInstrument" idParam="${instrument.id}" locked="${item.locked}"/></tags:listCell>
 	<tags:listCell>
-		<c:forEach begin="1" end="16">&nbsp;</c:forEach>
 		<tags:createField property="children[${instrumentIterator.index}].config.label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
 	</tags:listCell>
-	<tags:listCell>Instrument</tags:listCell>
-	<tags:listCell><tags:createField property="children[${instrumentIterator.index}].notes" component="${component}" metadataName="protocol.notes" mode="${fieldMode}"/></tags:listCell>
+	<tags:listCell>
+		Instrument
+		<tags:listActionURLButton buttonImage="view" actionId="lava.crms.protocol.setup.protocolInstrumentConfig" eventId="protocolInstrumentConfig__view" idParam="${instrument.config.id}"/>
+	</tags:listCell>
+	<tags:listCell><tags:createField property="children[${instrumentIterator.index}].assignDescrip" component="${component}" metadataName="protocol.assignDescrip" mode="${fieldMode}"/></tags:listCell>
 </tags:listRow>
 </c:forEach>
 	

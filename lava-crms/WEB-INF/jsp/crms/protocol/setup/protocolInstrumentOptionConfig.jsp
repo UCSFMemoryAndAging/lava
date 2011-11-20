@@ -21,23 +21,12 @@
 </c:if>
 <tags:createField property="label" component="${component}"/>
 <tags:createField property="notes" component="${component}"/>
-
-<tags:createField property="defaultOption" component="${component}"/>
 <tags:createField property="instrType" component="${component}"/>
-
-<tags:createField property="customCollectWinAnchorVisitId" component="${component}"/>
-<tags:createField property="customCollectWinSize" component="${component}"/>
-<tags:createField property="customCollectWinOffset" component="${component}"/>
-<tags:createField property="customCollectWinStatus" component="${component}"/>
-
 <tags:createField property="effDate" component="${component}"/>
 <tags:createField property="expDate" component="${component}"/>
-
 </page:applyDecorator>
 
 </page:applyDecorator>    
-
-
 </page:applyDecorator>    
 
 

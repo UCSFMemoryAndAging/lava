@@ -22,7 +22,13 @@
 <tags:createField property="label" component="${component}"/>
 <tags:createField property="notes" component="${component}"/>
 <tags:createField property="projName" component="${component}"/>
+<%-- NOT IMPLEMENTED YET (JUST NEED CATEGORY LIST OF DIFFERENT PROTOCOL CATEGORIES)
 <tags:createField property="category" component="${component}"/>
+ --%>
+<c:if test="${componentView != 'view'}">
+<tags:outputText textKey="protocol.firstTimepointConfigInfo" inline="false" styleClass="italic"/>
+</c:if>
+<tags:createField property="firstProtocolTimepointConfigId" component="${component}"/>
 <tags:createField property="effDate" component="${component}"/>
 <tags:createField property="expDate" component="${component}"/>
 </page:applyDecorator>
@@ -52,11 +58,13 @@
 
 <tags:listRow>
 	<tags:listColumnHeader label="Action" width="10%"/>
-	<tags:listColumnHeader label="Protocol Component" width="24%"/>
-	<tags:listColumnHeader label="Type" width="18%" />
-	<tags:listColumnHeader label="Eff. Date" width="9%" />
-	<tags:listColumnHeader label="Exp. Date" width="9%" />
+	<tags:listColumnHeader label="Protocol Component" width="40%"/>
+	<tags:listColumnHeader label="Type" width="30%" />
+	<tags:listColumnHeader label="Eff. Date" width="10%" />
+	<tags:listColumnHeader label="Exp. Date" width="10%" />
+<%--	
 	<tags:listColumnHeader label="Notes" width="30%" />
+ --%>	
 </tags:listRow>
 
 <c:forEach items="${command.components[component].children}" var="protocolAssessmentTimepointConfig" varStatus="timepointIterator">
@@ -66,7 +74,9 @@
 	<tags:listCell>Timepoint</tags:listCell>
 	<tags:listCell><tags:createField property="children[${timepointIterator.index}].effDate" component="${component}" metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="children[${timepointIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
+<%--	
 	<tags:listCell><tags:createField property="children[${timepointIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
+--%>	
 </tags:listRow>	
 
 	<c:forEach items="${protocolAssessmentTimepointConfig.children}" var="protocolVisitConfig" varStatus="visitIterator">
@@ -79,7 +89,9 @@
 		<tags:listCell>Visit</tags:listCell>
 		<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 		<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
+<%--	
 		<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
+--%>		
 	</tags:listRow>
 	
 		<c:forEach items="${protocolVisitConfig.options}" var="protocolVisitOptionConfig" varStatus="visitOptionIterator">
@@ -92,7 +104,9 @@
 			<tags:listCell>Visit Option</tags:listCell>
 			<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].options[${visitOptionIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 			<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].options[${visitOptionIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
+<%--	
 			<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].options[${visitOptionIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
+--%>			
 		</tags:listRow>
 		</c:forEach>
 
@@ -106,7 +120,9 @@
 				<tags:listCell>Instrument</tags:listCell>
 				<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 				<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
+<%--	
 				<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
+--%>				
 			</tags:listRow>
 			
 					<c:forEach items="${protocolInstrumentConfig.options}" var="protocolInstrumentOptionConfig" varStatus="instrumentOptionIterator">
@@ -119,7 +135,9 @@
 						<tags:listCell>Instrument Option</tags:listCell>
 						<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 						<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
+<%--	
 						<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
+--%>						
 					</tags:listRow>
 					</c:forEach>
 			
