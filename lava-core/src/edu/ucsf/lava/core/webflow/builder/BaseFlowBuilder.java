@@ -91,7 +91,7 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
         
         // for flows that add a new entity, this will allow the parent flow to get the id of that new entity from
         // flowScope.newId 
-        subflowInputOutputMapper.addOutputMapping(mapping().source("subflowNewId").target("flowScope.subflowNewId").value());
+        subflowInputOutputMapper.addOutputMapping(mapping().source("subflowEntityId").target("flowScope.subflowEntityId").value());
         // have subflows return their action id in case the parent flow needs to know which subflow just returned
         subflowInputOutputMapper.addOutputMapping(mapping().source("subflowActionId").target("flowScope.subflowActionId").value());
         //TODO: consider adding output parameters "outParam", "outParam1", etc. to subflowInputOutputMapper, akin to 
@@ -357,6 +357,38 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
     	
     	return transitions;
     }
+
+    /**
+     * Edit flows should bind their form properties before transitioning to a subflow, so edit
+     * flows should call this variation of buildSubFlowTransitions. The issue with creating a subflow
+     * from an edit flow is whether the possibly edited properties should be saved or not, but if binding
+     * the form properties, then on return from the subflow the properties will have the same values
+     * whether they have been edited or not. And ultimately the user will save or cancel.
+     * 
+     * note: in order to both submit a form and transition to a subflow, use the eventButton.tag where
+     * the "component" and "action" parameters combine to form the eventId on which a flow transition
+     * will occur. furthermore, if this button is on an edit view, pass: javascript="submitted=true;"
+     * to eventButton so that the user is not prompted by the browser as to whether they want to leave
+     * the page. 
+     * 
+     * @return
+     */
+    protected List<Transition> buildSubFlowTransitionsWithBind(){
+    	//	 create attribute-mapper input-mapper to pass "id" to view/edit/delete subflows
+    	
+    	ArrayList<Transition> transitions = new ArrayList<Transition>();
+	    
+    	for(String subFlowId : subFlowActionIds){
+    		List<FlowInfo> subFlowInfoList = getSubFlowInfo(subFlowId); 
+						
+			for(FlowInfo subFlowInfo: subFlowInfoList){
+			    	transitions.add(transition(on(subFlowInfo.getTarget() + "__" + subFlowInfo.getEvent()), to(subFlowInfo.getTarget() + "__" + subFlowInfo.getEvent()),
+	            	ifReturnedSuccess(new Action[]{invoke("customBind", formAction)})));
+		    }
+    	}
+    	
+    	return transitions;
+    }
     
     protected void buildSubFlowStates(){
     	// this buildSubFlowStates method handles the "automated" building of subFlow states based on
@@ -375,7 +407,7 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
 						flow(registry.getActionManager().getEffectiveAction(subFlowInfo.getActionId()).getId() + "." + subFlowInfo.getEvent()),
 						subflowInputOutputMapper,  
 						new Transition[] {transition(on("finish"), to("subFlowReturnState")),
-										  transition(on("finishCancel"), to("subFlowReturnState"))});						
+										  transition(on("finishCancel"), to("subFlowCancelReturnState"))});						
     		}
     	}
 
@@ -389,10 +421,21 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
 	// this implementation covers the simple case where all of a flow's subflows return to the same 
     // state and that state does a refresh and returns to the flowEvent state. otherwise, override.
     protected void buildSubFlowReturnStates() {
-    	addActionState("subFlowReturnState", 
-    		invoke("refreshFormObject", formAction), 
-    		transition(on("success"), to(getFlowEvent())));
+    	addActionState("subFlowReturnState",
+    			// entry action (note: the expression("false") puts an attribute of type Boolean in flow scope)
+       			new Action[]{new SetAction(settableExpression("cancelled"), ScopeType.FLOW,	expression("false"))},
+       			// actions
+       			new Action[]{invoke("subFlowReturnHook", formAction)},
+       			new Transition[]{transition(on("success"), to(getFlowEvent()))},		
+       			null,null,null);
+    	
+    	addActionState("subFlowCancelReturnState",
+       			new Action[]{new SetAction(settableExpression("cancelled"), ScopeType.FLOW,	expression("true"))},
+       			new Action[]{invoke("subFlowReturnHook", formAction)},
+       			new Transition[]{transition(on("success"), to(getFlowEvent()))},		
+       			null,null,null);
     }
+
     
     
     // this is optionally called by flow builders that need custom events for a state's transitions.
