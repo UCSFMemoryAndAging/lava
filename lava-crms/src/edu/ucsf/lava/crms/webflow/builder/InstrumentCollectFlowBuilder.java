@@ -47,6 +47,9 @@ public class InstrumentCollectFlowBuilder extends BaseFlowBuilder {
 	}
 
 	public void buildEventStates() throws FlowBuilderException {
+		//NOTE: currently not adding buildSubFlowTransitions as there are no subflows off of the collect flow,
+		//but if this changes, make sure call buildSubFlowTransitionsWithBind so that any pending user modifications
+		//to the data are stored in flow scope until the subflow returns to this flow
 		addViewState(getFlowEvent(),
 				null,
 				formAction.getCustomViewSelector(),
