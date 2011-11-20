@@ -30,6 +30,8 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 	private AuthUser user;
 	private HashMap<String,Map<String,Object>> contextFilters = new HashMap();
 	private HashMap<String,Object> params = new HashMap();
+	private HashMap<String,LavaDaoParam> quickFilters = new HashMap<String,LavaDaoParam>();
+	private String activeQuickFilter;
 	private ArrayList<LavaDaoParam> daoParams = new ArrayList();
 	private ArrayList<LavaParamHandler> paramHandlers = new ArrayList();
 	private ArrayList<LavaDaoProjection> daoProjections = new ArrayList();
@@ -181,6 +183,9 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 	public Map getParams() {
 		return params;
 	}
+	public Map getQuickFilters() {
+		return quickFilters;
+	}
 	public LavaDaoFilter clearParam(String paramName) {
 		if (params.containsKey(paramName)){
 			params.remove(paramName);
@@ -205,12 +210,34 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 		return this;
 
 	}
+	
+	public LavaDaoFilter addQuickFilter(String quickFilterName, LavaDaoParam quickFilterParam){
+		quickFilters.put(quickFilterName,quickFilterParam);
+		return this;
+
+	}
+	
+	public LavaDaoFilter clearQuickFilters(){
+		this.quickFilters.clear();
+		return this;
+	}
+	
+	
 	public Object getParam(String paramName) {
 		if(params.containsKey(paramName)){
 			return params.get(paramName);
 		}
 		return null;
 	}
+	
+	public String getActiveQuickFilter() {
+		return activeQuickFilter;
+	}
+
+	public void setActiveQuickFilter(String quickFilterName) {
+		this.activeQuickFilter = quickFilterName;
+	}
+
 	public boolean paramsNotEqualTo(Map<String,Object> oldParams){
 		for(String key:this.params.keySet()){
 			//if the item does not exist in the other map then not equal
@@ -468,6 +495,17 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 			if (!handled){defaultParamHandler(name);}
 			
 		}
+		
+		// convert active quick filter param to DAO params
+		// TODO: move this code to a separate method and add a call to that method 
+		// following the convertParamsToDaoParams call in the component handler subclasses
+		if (activeQuickFilter != null && quickFilters.containsKey(activeQuickFilter)) {
+			LavaDaoParam quickFilterParam = quickFilters.get(activeQuickFilter);
+			if(quickFilterParam!=null){
+				this.addDaoParam(quickFilterParam);
+			}
+		}
+		
 	}
 		
 	
