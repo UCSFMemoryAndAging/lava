@@ -397,6 +397,10 @@ public class AuditManager extends LavaManager{
 		
 		String fullProperty = property;
 		if(subproperty!=null){fullProperty = new StringBuffer(property).append(".").append(subproperty).toString();}
+
+//ctoohey: temporary fix for:
+//org.hibernate.AssertionFailure: collection [...] was not processed by flush()
+//if(isInternalProperty(fullProperty) || isIgnoreProperty(entity,fullProperty)){return;}
 		
 		//If these values are basic types (or null) then simply do the audit
 		if(areValuesBasicTypesOrNull(oldValue,newValue)){
