@@ -119,7 +119,10 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
     	enterStateTransitions.addAll(this.buildCustomEventTransitions("instrument"));
     	
     	//get subflow transitions   	
-    	enterStateTransitions.addAll(this.buildSubFlowTransitions());
+    	// note that since this is an edit flow, calling the "WithBind" version of this method which binds 
+    	// before the transition so that any pending user edits are saved in flow scope and thus retained 
+    	// when the subflow returns
+    	enterStateTransitions.addAll(this.buildSubFlowTransitionsWithBind());
     	
         // support a list secondary component for nav events only, since just a reference list
         enterStateTransitions.add(buildListNavigationTransitions(getFlowEvent()));
