@@ -18,11 +18,11 @@ public abstract class ProtocolTimepointConfigBase extends ProtocolNodeConfig imp
 	public ProtocolTimepointConfigBase(){
 		super();
 		this.addPropertyToAuditIgnoreList("protocolConfigBase");
-		this.addPropertyToAuditIgnoreList("visitsBase");
+		this.addPropertyToAuditIgnoreList("protocolVisitConfigsBase");
 	}
 
 	private ProtocolConfigBase protocolConfigBase;
-	private Set<? extends ProtocolVisitConfigBase> visitsBase = new LinkedHashSet<ProtocolVisitConfigBase>();
+	private Set<? extends ProtocolVisitConfigBase> protocolVisitConfigsBase = new LinkedHashSet<ProtocolVisitConfigBase>();
 
 	public ProtocolConfigBase getProtocolConfigBase() {
 		return protocolConfigBase;
@@ -32,12 +32,12 @@ public abstract class ProtocolTimepointConfigBase extends ProtocolNodeConfig imp
 		this.protocolConfigBase = protocolBase;
 	}
 
-	public Set<? extends ProtocolVisitConfigBase> getVisitsBase() {
-		return visitsBase;
+	public Set<? extends ProtocolVisitConfigBase> getProtocolVisitConfigsBase() {
+		return protocolVisitConfigsBase;
 	}
 
-	public void setVisitsBase(Set<? extends ProtocolVisitConfigBase> visits) {
-		this.visitsBase = visits;
+	public void setProtocolVisitConfigsBase(Set<? extends ProtocolVisitConfigBase> protocolVisitConfigs) {
+		this.protocolVisitConfigsBase = protocolVisitConfigs;
 	}
 
 	/**

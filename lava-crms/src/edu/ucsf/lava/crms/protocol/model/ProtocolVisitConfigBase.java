@@ -17,38 +17,38 @@ import edu.ucsf.lava.core.model.EntityManager;
 public abstract class ProtocolVisitConfigBase extends ProtocolNodeConfig {
 	public ProtocolVisitConfigBase(){
 		super();
-		this.addPropertyToAuditIgnoreList("timepointConfigBase");
-		this.addPropertyToAuditIgnoreList("instrumentsBase");
-		this.addPropertyToAuditIgnoreList("optionsBase");
+		this.addPropertyToAuditIgnoreList("protocolTimepointConfigBase");
+		this.addPropertyToAuditIgnoreList("protocolInstrumentConfigsBase");
+		this.addPropertyToAuditIgnoreList("protocolVisitOptionConfigsBase");
 	}
 	
 
-	private ProtocolTimepointConfigBase timepointConfigBase;
-	private Set<? extends ProtocolInstrumentConfigBase> instrumentsBase = new LinkedHashSet<ProtocolInstrumentConfigBase>();
-	private Set<? extends ProtocolVisitOptionConfigBase> optionsBase = new HashSet<ProtocolVisitOptionConfigBase>();
+	private ProtocolTimepointConfigBase protocolTimepointConfigBase;
+	private Set<? extends ProtocolInstrumentConfigBase> protocolInstrumentConfigsBase = new LinkedHashSet<ProtocolInstrumentConfigBase>();
+	private Set<? extends ProtocolVisitOptionConfigBase> protcolVisitOptionConfigsBase = new HashSet<ProtocolVisitOptionConfigBase>();
 	
-	public ProtocolTimepointConfigBase getTimepointConfigBase() {
-		return timepointConfigBase;
+	public ProtocolTimepointConfigBase getProtocolTimepointConfigBase() {
+		return protocolTimepointConfigBase;
 	}
 
-	public void setTimepointConfigBase(ProtocolTimepointConfigBase timepoint) {
-		this.timepointConfigBase = timepoint;
+	public void setProtocolTimepointConfigBase(ProtocolTimepointConfigBase protocolTimepointConfig) {
+		this.protocolTimepointConfigBase = protocolTimepointConfig;
 	}
 	
-	public Set<? extends ProtocolInstrumentConfigBase> getInstrumentsBase() {
-		return instrumentsBase;
+	public Set<? extends ProtocolInstrumentConfigBase> getProtocolInstrumentConfigsBase() {
+		return protocolInstrumentConfigsBase;
 	}
 
-	public void setInstrumentsBase(Set<? extends ProtocolInstrumentConfigBase> instruments) {
-		this.instrumentsBase = instruments;
+	public void setProtocolInstrumentConfigsBase(Set<? extends ProtocolInstrumentConfigBase> protocolInstrumentConfigs) {
+		this.protocolInstrumentConfigsBase = protocolInstrumentConfigs;
 	}
 
-	public Set<? extends ProtocolVisitOptionConfigBase> getOptionsBase() {
-		return optionsBase;
+	public Set<? extends ProtocolVisitOptionConfigBase> getProtocolVisitOptionConfigsBase() {
+		return protcolVisitOptionConfigsBase;
 	}
 
-	public void setOptionsBase(Set<? extends ProtocolVisitOptionConfigBase> options) {
-		this.optionsBase = options;
+	public void setProtocolVisitOptionConfigsBase(Set<? extends ProtocolVisitOptionConfigBase> options) {
+		this.protcolVisitOptionConfigsBase = options;
 	}
 
 }

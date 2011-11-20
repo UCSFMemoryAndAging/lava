@@ -23,18 +23,8 @@ public class ProtocolVisitOptionConfigHandler extends CrmsEntityComponentHandler
 	}
 
 	protected String[] defineRequiredFields(RequestContext context, Object command) {
-	    setRequiredFields(new String[]{"label"});
+	    setRequiredFields(new String[]{"label","visitTypeProjName","visitType"});
 	    return getRequiredFields();
-	}
-	
-	public Map getBackingObjects(RequestContext context, Map components) {
-		// facilitates allowing user to specify visitType from project other than the project for
-		// which the protocol config is defined, so that patients that are co-enrolled in two or more 
-		// projects will be accommodated
-		// note: do not put this object in handledObjects as it is not a persistent object. only put
-		// it in components so that binding works
-		components.put("altProject", new Project());
-		return super.getBackingObjects(context, components);
 	}
 	
 	protected Object initializeNewCommandInstance(RequestContext context, Object command){
@@ -48,6 +38,13 @@ public class ProtocolVisitOptionConfigHandler extends CrmsEntityComponentHandler
 		// addOption manages both ends of the association, but only have to persist the collection end, ProtocolVisitOptionConfig
 		visitConfig.addOption(visitOptionConfig);
 		visitOptionConfig.setProjName(visitConfig.getProjName());
+		visitOptionConfig.setVisitTypeProjName(visitConfig.getProjName());
+		
+		// the visit option has its own projName to allow visits to fulfill the protocol that are associated with a project
+		// other than the protocol's project. this facilitates protocol subjects that are co-enrolled in two or more projects
+		// where visits from any of the projects could be used to fulfill the protocol for that subject.
+		// default this to the protocol's project
+		visitOptionConfig.setVisitTypeProjName(visitConfig.getProjName());
 		return command;
 	}
 
@@ -55,7 +52,6 @@ public class ProtocolVisitOptionConfigHandler extends CrmsEntityComponentHandler
 	{
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		ProtocolVisitOptionConfig visitOptionConfig = (ProtocolVisitOptionConfig)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
-		Project altProject = (Project)((ComponentCommand)command).getComponents().get("altProject");
 
 		//	load up dynamic lists
 		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
@@ -63,12 +59,13 @@ public class ProtocolVisitOptionConfigHandler extends CrmsEntityComponentHandler
 		dynamicLists.put("context.projectList", listManager.getDynamicList(getCurrentUser(request), "context.projectList"));
 		
 		// if user has not specified a project for listing project visitTypes, use the project 
-		// of this protocol 
-		if (altProject.getProject() == null) {
-			altProject.setProject(visitOptionConfig.getProjName());
+		// of this protocol (note: this should generally not be necessary since the visitTypeProjName is 
+		// defaulted to the protocol's project at creation, but the user could have set it to blank)
+		if (visitOptionConfig.getVisitTypeProjName() == null) {
+			visitOptionConfig.setVisitTypeProjName(visitOptionConfig.getProjName());
 		}
 		dynamicLists.put("visit.visitTypes", listManager.getDynamicList("visit.visitTypes", 
-			"projectName", altProject.getProject(), String.class));
+			"projectName", visitOptionConfig.getVisitTypeProjName(), String.class));
 		model.put("dynamicLists", dynamicLists);
 		return super.addReferenceData(context, command, errors, model);
 	}

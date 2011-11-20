@@ -15,6 +15,7 @@ import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.protocol.model.ProtocolConfig;
+import edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 
@@ -60,6 +61,17 @@ public class ProtocolConfigHandler extends CrmsEntityComponentHandler {
 		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
 		dynamicLists.put("context.projectList", 
 			listManager.getDynamicList(CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request), "context.projectList"));
+
+		String flowMode = ActionUtils.getFlowMode(context.getActiveFlow().getId());
+		if (!flowMode.equals("add")) {
+			// list for selecting the first ProtocolTimepointConfig, so retrieve all ProtocolTimepointConfigs for this ProtocolConfig
+			Map allTimepointConfigsList = listManager.getDynamicList(getCurrentUser(request),"protocol.allTimepointConfigs", 
+					new String[]{"protocolConfigId"}, 
+					new Object[]{protocolConfig.getId()},
+					new Class[]{Long.class});		
+			dynamicLists.put("protocol.allTimepointConfigs", allTimepointConfigsList);
+		}
+		model.put("dynamicLists", dynamicLists);
 		
 		return super.addReferenceData(context, command, errors, model);
 	}

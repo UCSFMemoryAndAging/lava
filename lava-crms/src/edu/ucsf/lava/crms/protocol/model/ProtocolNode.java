@@ -53,6 +53,7 @@ public abstract class ProtocolNode extends CrmsEntity {
 	private String currStatus;
 	private String currReason;
 	private String currNote;
+	private String assignDescrip;
 	private String notes;
 	
 	public ProtocolNode(){
@@ -117,12 +118,25 @@ public abstract class ProtocolNode extends CrmsEntity {
 	public void setCurrNote(String currNote) {
 		this.currNote = currNote;
 	}
+	
+	public String getAssignDescrip() {
+		return assignDescrip;
+	}
+
+	public void setAssignDescrip(String assignDescrip) {
+		this.assignDescrip = assignDescrip;
+	}
+
 	public String getNotes() {
 		return notes;
 	}
+	
 	public void setNotes(String notes) {
 		this.notes = notes;
 	}
 
-	
+	/**
+	 * The components at each level of the Protocol tree must implement a calculate method.
+	 */
+	public abstract void calculate();
 }

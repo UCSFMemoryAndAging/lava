@@ -17,36 +17,36 @@ import edu.ucsf.lava.core.model.EntityManager;
 public abstract class ProtocolVisitBase extends ProtocolNode {
 	public ProtocolVisitBase(){
 		super();
-		this.addPropertyToAuditIgnoreList("timepointBase");
-		this.addPropertyToAuditIgnoreList("visitConfigBase");
-		this.addPropertyToAuditIgnoreList("instrumentsBase");
+		this.addPropertyToAuditIgnoreList("protocolTimepointBase");
+		this.addPropertyToAuditIgnoreList("protocolVisitConfigBase");
+		this.addPropertyToAuditIgnoreList("protocolInstrumentsBase");
 	}
 	
-	private ProtocolTimepointBase timepointBase;
-	private ProtocolVisitConfigBase visitConfigBase;
-	private Set<? extends ProtocolInstrumentBase> instrumentsBase = new LinkedHashSet<ProtocolInstrumentBase>();
+	private ProtocolTimepointBase protocolTimepointBase;
+	private ProtocolVisitConfigBase protocolVisitConfigBase;
+	private Set<? extends ProtocolInstrumentBase> protocolInstrumentsBase = new LinkedHashSet<ProtocolInstrumentBase>();
 	
-	public ProtocolTimepointBase getTimepointBase() {
-		return timepointBase;
+	public ProtocolTimepointBase getProtocolTimepointBase() {
+		return protocolTimepointBase;
 	}
 
-	public void setTimepointBase(ProtocolTimepointBase timepointBase) {
-		this.timepointBase = timepointBase;
+	public void setProtocolTimepointBase(ProtocolTimepointBase protocolTimepointBase) {
+		this.protocolTimepointBase = protocolTimepointBase;
 	}
 	
-	public ProtocolVisitConfigBase getVisitConfigBase() {
-		return visitConfigBase;
+	public ProtocolVisitConfigBase getProtocolVisitConfigBase() {
+		return protocolVisitConfigBase;
 	}
 
-	public void setVisitConfigBase(ProtocolVisitConfigBase visitBase) {
-		this.visitConfigBase = visitBase;
+	public void setProtocolVisitConfigBase(ProtocolVisitConfigBase protocolVisitBase) {
+		this.protocolVisitConfigBase = protocolVisitBase;
 	}
 	
-	public Set<? extends ProtocolInstrumentBase> getInstrumentsBase() {
-		return instrumentsBase;
+	public Set<? extends ProtocolInstrumentBase> getProtocolInstrumentsBase() {
+		return protocolInstrumentsBase;
 	}
 
-	public void setInstrumentsBase(Set<? extends ProtocolInstrumentBase> instrumentsBase) {
-		this.instrumentsBase = instrumentsBase;
+	public void setProtocolInstrumentsBase(Set<? extends ProtocolInstrumentBase> protocolInstrumentsBase) {
+		this.protocolInstrumentsBase = protocolInstrumentsBase;
 	}
 }

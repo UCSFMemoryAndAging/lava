@@ -24,7 +24,7 @@ public class ProtocolInstrumentOptionConfigHandler extends CrmsEntityComponentHa
 	}
 
 	protected String[] defineRequiredFields(RequestContext context, Object command) {
-	    setRequiredFields(new String[]{"label"});
+	    setRequiredFields(new String[]{"label","instrType"});
 	    return getRequiredFields();
 	}
 	
@@ -41,48 +41,5 @@ public class ProtocolInstrumentOptionConfigHandler extends CrmsEntityComponentHa
 		instrumentOptionConfig.setProjName(instrumentConfig.getProjName());
 		return command;
 	}
-	
-	public Map addReferenceData(RequestContext context, Object command, BindingResult errors, Map model)
-	{
-		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		ProtocolInstrumentOptionConfig instrumentOptionConfig = (ProtocolInstrumentOptionConfig)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
-
-		//	load up dynamic lists
-		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
-		
-		// list for collectWinAnchorVisit, list of Visits belonging to this Timepoint
-		
-		//TODO: create list. see same list in ProtocolAssessmentTimepointHandler
-		
-
-		
-		model.put("dynamicLists", dynamicLists);
-		return super.addReferenceData(context, command, errors, model);
-	}
-	
-	protected void handleCustomCollectWinAnchorVisitChange(RequestContext context, Object command, BindingResult errors){
-		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		ProtocolInstrumentOptionConfig instrumentOptionConfig = (ProtocolInstrumentOptionConfig)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
-		if(doesIdDifferFromEntityId(instrumentOptionConfig.getCustomCollectWinAnchorVisitId(),instrumentOptionConfig.getCustomCollectWinAnchorVisit())){
-			if(instrumentOptionConfig.getCustomCollectWinAnchorVisitId()==null){
-				instrumentOptionConfig.setCustomCollectWinAnchorVisit(null); 	//clear the association
-			}else{
-				ProtocolVisitConfig customCollectWinAnchorVisit = (ProtocolVisitConfig) ProtocolVisitConfig.MANAGER.getById(instrumentOptionConfig.getCustomCollectWinAnchorVisitId());
-				instrumentOptionConfig.setCustomCollectWinAnchorVisit(customCollectWinAnchorVisit);
-			}
-		}
-	}
-
-	
-	protected Event doSaveAdd(RequestContext context, Object command, BindingResult errors) throws Exception{
-		this.handleCustomCollectWinAnchorVisitChange(context, command, errors);
-		return super.doSaveAdd(context, command, errors);
-	}
-
-	protected Event doSave(RequestContext context, Object command, BindingResult errors) throws Exception{
-		this.handleCustomCollectWinAnchorVisitChange(context, command, errors);
-		return super.doSave(context, command, errors);
-	}
-
 	
 }

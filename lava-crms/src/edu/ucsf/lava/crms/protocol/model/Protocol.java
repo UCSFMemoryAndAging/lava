@@ -5,6 +5,7 @@ import java.util.Set;
 
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
+import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 
 /**
  * 
@@ -18,14 +19,19 @@ public class Protocol extends ProtocolBase {
 	public Protocol(){
 		super();
 		this.setAuditEntityType("Protocol");
-		this.enrolledDate = new Date();
+		this.assignedDate = new Date();
 	}
 	
 	public Object[] getAssociationsToInitialize(String method) {
-		return new Object[]{/*this.getProtocolBase(),*/this.getPatient(),this.getTimepointsBase()};
+		return new Object[]{
+				/*this.getProtocolBase(),*/
+				this.getPatient(),
+				this.getEnrollmentStatus(),
+				this.getProtocolTimepointsBase()};
 	}
 
-	private Date enrolledDate;
+	private Date assignedDate;
+	private EnrollmentStatus enrollmentStatus;
 	
 	/**
 	 * Convenience methods to convert ProtocolBase method types to types of this subclass,
@@ -34,30 +40,69 @@ public class Protocol extends ProtocolBase {
 	public ProtocolConfig getProtocolConfig() {
 		return (ProtocolConfig) super.getProtocolConfigBase();
 	}
-	public void setProtocolConfig(ProtocolConfig config) {
-		super.setProtocolConfigBase(config);
+	public void setProtocolConfig(ProtocolConfig protocolConfig) {
+		super.setProtocolConfigBase(protocolConfig);
 	}
-	public Set<ProtocolTimepoint> getTimepoints() {
-		return (Set<ProtocolTimepoint>) super.getTimepointsBase();
+	public Set<ProtocolTimepoint> getProtocolTimepoints() {
+		return (Set<ProtocolTimepoint>) super.getProtocolTimepointsBase();
 	}
-	public void setTimepoints(Set<ProtocolTimepoint> patientProtocolTimepoints) {
-		super.setTimepointsBase(patientProtocolTimepoints);
+	public void setProtocolTimepoints(Set<ProtocolTimepoint> protocolTimepoints) {
+		super.setProtocolTimepointsBase(protocolTimepoints);
 	}
 
 	/*
 	 * Method to add a ProtocolTimepoint to a Protocol, managing the bi-directional relationship.
 	 */	
-	public void addTimepoint(ProtocolTimepoint protocolTimepoint) {
+	public void addProtocolTimepoint(ProtocolTimepoint protocolTimepoint) {
 		protocolTimepoint.setProtocol(this);
-		this.getTimepoints().add(protocolTimepoint);
+		this.getProtocolTimepoints().add(protocolTimepoint);
 	}	
 
-	public Date getEnrolledDate() {
-		return enrolledDate;
+	public Date getAssignedDate() {
+		return assignedDate;
 	}
 
-	public void setEnrolledDate(Date enrolledDate) {
-		this.enrolledDate = enrolledDate;
+	public void setAssignedDate(Date assignedDate) {
+		this.assignedDate = assignedDate;
 	}
+
+	public EnrollmentStatus getEnrollmentStatus() {
+		return enrollmentStatus;
+	}
+
+	public void setEnrollmentStatus(EnrollmentStatus enrollmentStatus) {
+		this.enrollmentStatus = enrollmentStatus;
+	}
+
+	
+	/**
+	 * This method iterates thru the entire Protocol tree structure, calling calculate on every
+	 * node. This method requires that the complete Protocol tree is loaded.
+	 */
+	public void calculate() {
+		// if there is anything to calculate on the Protocol node, do it here
+		
+		for (ProtocolTimepoint protocolTimepoint: this.getProtocolTimepoints()) {
+			protocolTimepoint.calculate();
+			for (ProtocolVisit protocolVisit: protocolTimepoint.getProtocolVisits()) {
+				protocolVisit.calculate();
+				for (ProtocolInstrument protocolInstrument: protocolVisit.getProtocolInstruments()) {
+					protocolInstrument.calculate();
+				}
+			}			
+		}
+
+	}
+	
+	public boolean afterCreate() {
+		// as part of creation, the full protocol tree has been created so safe to call calculate
+		//TODO: not much point in doing this unless the process of creating Protocol, i.e. assigning patient
+		//to protocol, includes assigning a Visit to the first timepoint
+		this.calculate();
+		// return true to save again
+		return true;
+	}
+	
+	
 
 }

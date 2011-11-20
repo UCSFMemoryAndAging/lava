@@ -53,4 +53,13 @@ public class ProtocolTracking extends ProtocolNode {
 	public void setChildren(Set<ProtocolTracking> children) {
 		this.children = children;
 	}
+	
+	/**
+	 * ProtocolTracking does not do any calculations as it is a lightweight representation
+	 * used for all types of Protocol components and does not have the properties required
+	 * for calculations, as these live in the subclasses.
+	 */
+	public void calculate() {
+		
+	}
 }

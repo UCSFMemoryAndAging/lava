@@ -29,48 +29,72 @@ public class ProtocolVisitConfig extends ProtocolVisitConfigBase {
 	}
 	
 	public Object[] getAssociationsToInitialize(String method) {
-		return new Object[]{this.getInstrumentsBase(), this.getOptionsBase()};
+		return new Object[]{
+				this.getProtocolInstrumentConfigsBase(), 
+				this.getProtocolVisitOptionConfigsBase(), 
+				this.getProtocolTimepointConfigBase().getProtocolVisitConfigsBase()};
 	}
 	
 	private Boolean optional;
+	private ProtocolVisitOptionConfig defaultOption;
+	// defaultOptionId facilitates modifying the defaultOption association. the user selects a 
+	// defaultOption (ProtocolVisitOptionConfig) and that defaultOptionId is bound to this property. 
+	// if it differs from this entity's existing defaultOption id, the defaultOptionId is used to 
+	// retrieve its defaultOption which is then set on this entity via setDefaultOption to change 
+	// the associated defaultOption
+	private Long defaultOptionId;
 	
 	/**
 	 * Convenience methods to convert ProtocolVisitConfigBase method types to types of 
 	 * this subclass, since if an object of this class exists we know we can safely downcast. 
 	 */
-	public ProtocolTimepointConfig getTimepointConfig() {
-		return (ProtocolTimepointConfig) super.getTimepointConfigBase();
+	public ProtocolTimepointConfig getProtocolTimepointConfig() {
+		return (ProtocolTimepointConfig) super.getProtocolTimepointConfigBase();
 	}
-	public void setTimepointConfig(ProtocolTimepointConfig config) {
-		super.setTimepointConfigBase(config);
+	public void setProtocolTimepointConfig(ProtocolTimepointConfig protocolTimepointConfig) {
+		super.setProtocolTimepointConfigBase(protocolTimepointConfig);
 	}
-	public Set<ProtocolInstrumentConfig> getInstruments() {
-		return (Set<ProtocolInstrumentConfig>) super.getInstrumentsBase();
+	public Set<ProtocolInstrumentConfig> getProtocolInstrumentConfigs() {
+		return (Set<ProtocolInstrumentConfig>) super.getProtocolInstrumentConfigsBase();
 	}
-	public void setInstruments(Set<ProtocolInstrumentConfig> protocolInstruments) {
-		super.setInstrumentsBase(protocolInstruments);
+	public void setProtocolInstrumentConfigs(Set<ProtocolInstrumentConfig> protocolInstrumentConfigs) {
+		super.setProtocolInstrumentConfigsBase(protocolInstrumentConfigs);
 	}
-	public Set<ProtocolVisitOptionConfig> getVisitOptions() {
-		return (Set<ProtocolVisitOptionConfig>) super.getOptionsBase();
+	public Set<ProtocolVisitOptionConfig> getOptions() {
+		return (Set<ProtocolVisitOptionConfig>) super.getProtocolVisitOptionConfigsBase();
 	}
-	public void setVisitOptions(Set<ProtocolVisitOptionConfig> visitOptions) {
-		super.setOptionsBase(visitOptions);
+	public void setOptions(Set<ProtocolVisitOptionConfig> options) {
+		super.setProtocolVisitOptionConfigsBase(options);
 	}
 	
 	/*
 	 * Method to add a ProtocolInstrumentConfig to a ProtocolVisitConfig, managing the bi-directional relationship.
 	 */	
-	public void addInstrument(ProtocolInstrumentConfig instrumentConfig) {
-		instrumentConfig.setVisitConfig(this);
-		this.getInstruments().add(instrumentConfig);
+	public void addProtocolInstrumentConfig(ProtocolInstrumentConfig instrumentConfig) {
+		instrumentConfig.setProtocolVisitConfig(this);
+		this.getProtocolInstrumentConfigs().add(instrumentConfig);
 	}
 	
+	/**
+	 * Convenience method to check if this is the primary ProtocolVisitConfig of the ProtocolTimepointConfig, given
+	 * that there can be multiple visit configs. An association to the primary visit config is stored in the 
+	 * ProtocolTimepointConfig parent of the ProtocolVisitConfig collection (as opposed to having a flag on each 
+	 * ProtocolVisitConfig to designate itself as the primary, which would require synchronization among all 
+	 * sibling ProtocolVisitConfigs)
+	 * 
+	 * @return true if this is the primary visit config, false if not.
+	 */
+	public Boolean isPrimaryProtocolVisitConfig() {
+		return this.getProtocolTimepointConfig().getPrimaryProtocolVisitConfigId().equals(this.getId());
+	}
+
+	
 	/*
-	 * Method to add an option to a visit, managing the bi-directional relationship.
+	 * Method to add a ProtocolVisitConfigOption to a ProtocolVisit's collection, managing the bi-directional relationship.
 	 */	
-	public void addOption(ProtocolVisitOptionConfig visitOption) {
-		visitOption.setVisit(this);
-		this.getVisitOptions().add(visitOption);
+	public void addOption(ProtocolVisitOptionConfig protocolVisitConfigOption) {
+		protocolVisitConfigOption.setProtocolVisitConfig(this);
+		this.getOptions().add(protocolVisitConfigOption);
 	}
 	
 	public Boolean getOptional() {
@@ -80,4 +104,39 @@ public class ProtocolVisitConfig extends ProtocolVisitConfigBase {
 		this.optional = optional;
 	}
 
+	public ProtocolVisitOptionConfig getDefaultOption() {
+		return defaultOption;
+	}
+
+	public void setDefaultOption(ProtocolVisitOptionConfig defaultOption) {
+		this.defaultOption = defaultOption;
+		if (this.defaultOption != null) {
+			this.defaultOptionId = this.defaultOption.getId();
+		}
+	}
+
+	public Long getDefaultOptionId() {
+		return defaultOptionId;
+	}
+
+	public void setDefaultOptionId(Long defaultOptionId) {
+		this.defaultOptionId = defaultOptionId;
+	}
+
+	
+	public boolean afterCreate() {
+		// flag as the primary visit config if this is the only visit config
+		if (this.getProtocolTimepointConfig().getProtocolVisitConfigs().size() == 1) {
+			this.getProtocolTimepointConfig().setPrimaryProtocolVisitConfig(this);
+			// this is special case as the only place that primaryProtocolVisitConfig gets set on 
+			// ProtocolTimepointConfig other than its own handler. 
+			// have to save ProtocolTimepointConfig here
+			this.getProtocolTimepointConfig().save();
+		}
+		
+		// always save again, as node value has been set
+		return true;
+	}
+
+	
 }

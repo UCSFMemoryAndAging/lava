@@ -16,36 +16,36 @@ import edu.ucsf.lava.core.model.EntityManager;
 public abstract class ProtocolTimepointBase extends ProtocolNode {
 	public ProtocolTimepointBase(){
 		super();
-     	this.addPropertyToAuditIgnoreList("patientProtocolBase");
-		this.addPropertyToAuditIgnoreList("protocolTimepointBase");
-		this.addPropertyToAuditIgnoreList("visitsBase");
+     	this.addPropertyToAuditIgnoreList("protocolBase");
+		this.addPropertyToAuditIgnoreList("protocolTimepointConfigBase");
+		this.addPropertyToAuditIgnoreList("protocolVisitsBase");
 	}
 
 	private ProtocolBase protocolBase;
-	private ProtocolTimepointConfigBase timepointConfigBase;
-	private Set<? extends ProtocolVisitBase> visitsBase = new LinkedHashSet<ProtocolVisitBase>();
+	private ProtocolTimepointConfigBase protocolTimepointConfigBase;
+	private Set<? extends ProtocolVisitBase> protocolVisitsBase = new LinkedHashSet<ProtocolVisitBase>();
 
 	public ProtocolBase getProtocolBase() {
 		return protocolBase;
 	}
 
-	public void setProtocolBase(ProtocolBase protocolBase) {
-		this.protocolBase = protocolBase;
+	public void setProtocolBase(ProtocolBase protocol) {
+		this.protocolBase = protocol;
 	}
 	
-	public ProtocolTimepointConfigBase getTimepointConfigBase() {
-		return timepointConfigBase;
+	public ProtocolTimepointConfigBase getProtocolTimepointConfigBase() {
+		return protocolTimepointConfigBase;
 	}
 
-	public void setTimepointConfigBase(ProtocolTimepointConfigBase timepointConfigBase) {
-		this.timepointConfigBase = timepointConfigBase;
+	public void setProtocolTimepointConfigBase(ProtocolTimepointConfigBase timepointConfig) {
+		this.protocolTimepointConfigBase = timepointConfig;
 	}
 
-	public Set<? extends ProtocolVisitBase> getVisitsBase() {
-		return visitsBase;
+	public Set<? extends ProtocolVisitBase> getProtocolVisitsBase() {
+		return protocolVisitsBase;
 	}
 
-	public void setVisitsBase(Set<? extends ProtocolVisitBase> visitsBase) {
-		this.visitsBase = visitsBase;
+	public void setProtocolVisitsBase(Set<? extends ProtocolVisitBase> protocolVisitsBase) {
+		this.protocolVisitsBase = protocolVisitsBase;
 	}
 }

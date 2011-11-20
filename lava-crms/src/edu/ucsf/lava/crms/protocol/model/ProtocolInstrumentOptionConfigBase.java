@@ -12,16 +12,16 @@ import edu.ucsf.lava.core.model.EntityManager;
 public abstract class ProtocolInstrumentOptionConfigBase extends ProtocolOptionConfigBase {
 	public ProtocolInstrumentOptionConfigBase(){
 		super();
-		this.addPropertyToAuditIgnoreList("instrumentBase");
+		this.addPropertyToAuditIgnoreList("protocolInstrumentConfigBase");
 	}
 
-	private ProtocolInstrumentConfigBase instrumentBase;
+	private ProtocolInstrumentConfigBase protocolInstrumentConfigBase;
 
-	public ProtocolInstrumentConfigBase getInstrumentBase() {
-		return instrumentBase;
+	public ProtocolInstrumentConfigBase getProtocolInstrumentConfigBase() {
+		return protocolInstrumentConfigBase;
 	}
 
-	public void setInstrumentBase(ProtocolInstrumentConfigBase protocolInstrumentBase) {
-		this.instrumentBase = protocolInstrumentBase;
+	public void setProtocolInstrumentConfigBase(ProtocolInstrumentConfigBase protocolInstrumentConfigBase) {
+		this.protocolInstrumentConfigBase = protocolInstrumentConfigBase;
 	}
 }

@@ -20,6 +20,10 @@ public class ProtocolVisitOptionConfig extends ProtocolVisitOptionConfigBase {
 		this.setAuditEntityType("ProtocolVisitOptionConfig");			
 	}
 	
+	// facilitates allowing user to specify visitType from project other than the project for
+	// which the protocol config is defined, so that patients that are co-enrolled in two or more 
+	// projects will be accommodated
+	private String visitTypeProjName;
 	private String visitType; 
 	
 	/**
@@ -27,14 +31,19 @@ public class ProtocolVisitOptionConfig extends ProtocolVisitOptionConfigBase {
 	 * of this subclass, since if an object of this class exists we know we can safely 
 	 * downcast. 
 	 */
-	public ProtocolVisitConfig getVisit() {
-		return (ProtocolVisitConfig) super.getVisitBase();
+	public ProtocolVisitConfig getProtocolVisitConfig() {
+		return (ProtocolVisitConfig) super.getProtocolVisitConfigBase();
 	}
-	public void setVisit(ProtocolVisitConfig protocolVisit) {
-		super.setVisitBase(protocolVisit);
+	public void setProtocolVisitConfig(ProtocolVisitConfig protocolVisit) {
+		super.setProtocolVisitConfigBase(protocolVisit);
 	}
 
-
+	public String getVisitTypeProjName() {
+		return visitTypeProjName;
+	}
+	public void setVisitTypeProjName(String visitTypeProjName) {
+		this.visitTypeProjName = visitTypeProjName;
+	}
 	public String getVisitType() {
 		return visitType;
 	}

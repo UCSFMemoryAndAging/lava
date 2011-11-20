@@ -36,7 +36,7 @@ public class ProtocolHandler extends CrmsEntityComponentHandler {
 	}
 
 	protected String[] defineRequiredFields(RequestContext context, Object command) {
-		setRequiredFields(new String[]{"protocolConfigId","enrolledDate"});
+		setRequiredFields(new String[]{"protocolConfigId","assignedDate"});
 		return getRequiredFields();
 	}
 	
@@ -116,32 +116,61 @@ public class ProtocolHandler extends CrmsEntityComponentHandler {
 		protocol.setProjName(protocolConfig.getProjName());
 		
 		
-		for (ProtocolTimepointConfig timepointConfig: protocolConfig.getTimepoints()) {
+		for (ProtocolTimepointConfig timepointConfig: protocolConfig.getProtocolTimepointConfigs()) {
 			ProtocolTimepoint protocolTimepoint = null;
-			if (timepointConfig.getClass().isAssignableFrom(ProtocolAssessmentTimepointConfig.class)) {
-				protocolTimepoint = new ProtocolAssessmentTimepoint();
-				protocol.addTimepoint(protocolTimepoint);
-				protocolTimepoint.setTimepointConfig(timepointConfig);
-				protocolTimepoint.setListOrder(timepointConfig.getListOrder());
-				protocolTimepoint.setPatient(protocol.getPatient());
-				protocolTimepoint.setProjName(timepointConfig.getProjName());
-			}
-
-			for (ProtocolVisitConfig visitConfig: timepointConfig.getVisits()) {
+			protocolTimepoint = new ProtocolAssessmentTimepoint();
+			protocol.addProtocolTimepoint(protocolTimepoint);
+			protocolTimepoint.setProtocolTimepointConfig(timepointConfig);
+			protocolTimepoint.setListOrder(timepointConfig.getListOrder());
+			protocolTimepoint.setPatient(protocol.getPatient());
+			protocolTimepoint.setProjName(timepointConfig.getProjName());
+			for (ProtocolVisitConfig visitConfig: timepointConfig.getProtocolVisitConfigs()) {
 				ProtocolVisit protocolVisit = new ProtocolVisit();
-				protocolTimepoint.addVisit(protocolVisit);
-				protocolVisit.setVisitConfig(visitConfig);
+				protocolTimepoint.addProtocolVisit(protocolVisit);
+				protocolVisit.setProtocolVisitConfig(visitConfig);
 				protocolVisit.setPatient(protocol.getPatient());
 				protocolVisit.setProjName(visitConfig.getProjName());
-				
-				for (ProtocolInstrumentConfig instrumentConfig: visitConfig.getInstruments()) {
+				for (ProtocolInstrumentConfig instrumentConfig: visitConfig.getProtocolInstrumentConfigs()) {
 					ProtocolInstrument protocolInstrument = new ProtocolInstrument();
-					protocolVisit.addInstrument(protocolInstrument);
-					protocolInstrument.setInstrumentConfig(instrumentConfig);
+					protocolVisit.addProtocolInstrument(protocolInstrument);
+					protocolInstrument.setProtocolInstrumentConfig(instrumentConfig);
 					protocolInstrument.setPatient(protocol.getPatient());
 					protocolInstrument.setProjName(instrumentConfig.getProjName());
 				}
-			}			
+			}
+			// now that all protocolVisits have been added for the current protocolTimepoint, set the 
+			// primaryProtocolVisit for protocolTimepoint based on the primaryProtocolVisitConfig
+			// of timepointConfig
+			
+			// get the id of the primaryProtocolVisitConfig
+			Long primaryProtocolVisitConfigId = timepointConfig.getPrimaryProtocolVisitConfigId();
+			// iterate thru the protocolVisits until find the one whose protocolVisitConfig id matches this
+			for (ProtocolVisit protocolVisit: protocolTimepoint.getProtocolVisits()) {
+				if (protocolVisit.getProtocolVisitConfig().getId().equals(primaryProtocolVisitConfigId)) {
+					protocolTimepoint.setPrimaryProtocolVisit(protocolVisit);
+					break;
+				}
+			}
+			
+			
+			// now that all protocolVisits have been added for the current protocolTimepoint, need to set
+			// the custom collection window anchor for each protocolInstrument, i.e. the protocolVisit
+			// that is the anchor
+			for (ProtocolVisit protocolVisit: protocolTimepoint.getProtocolVisits()) {
+				for (ProtocolInstrument protocolInstrument: protocolVisit.getProtocolInstruments()) {
+					// set the collectWinProtocolVisit for this protocolInstrument based on the 
+					// customCollectWinProtocolVisitConfig of instrumentConfig
+					Long collectWinProtocolVisitConfigId = protocolInstrument.getProtocolInstrumentConfig().getCustomCollectWinProtocolVisitConfigId();
+					// iterate thru the protocolVisits until find one whose protocolVisitConfig id matches this
+					for (ProtocolVisit protocolVisit2: protocolTimepoint.getProtocolVisits()) {
+						if (protocolVisit2.getProtocolVisitConfig().getId().equals(collectWinProtocolVisitConfigId)) {
+							protocolInstrument.setCollectWinProtocolVisit(protocolVisit2);
+							break;
+						}
+					}
+				}
+			}
+			
 		}
 		
 		return super.doSaveAdd(context, command, errors);

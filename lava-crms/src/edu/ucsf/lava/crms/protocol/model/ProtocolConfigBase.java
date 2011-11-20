@@ -17,16 +17,16 @@ import edu.ucsf.lava.core.model.EntityManager;
 public abstract class ProtocolConfigBase extends ProtocolNodeConfig {
 	public ProtocolConfigBase(){
 		super();
-		this.addPropertyToAuditIgnoreList("timepointsBase");
+		this.addPropertyToAuditIgnoreList("protocolTimepointConfigsBase");
 	}
 	
-	public Set<? extends ProtocolTimepointConfigBase> timepointsBase = new TreeSet<ProtocolTimepointConfigBase>();
+	public Set<? extends ProtocolTimepointConfigBase> protocolTimepointConfigsBase = new TreeSet<ProtocolTimepointConfigBase>();
 	
-	public Set<? extends ProtocolTimepointConfigBase> getTimepointsBase() {
-		return timepointsBase;
+	public Set<? extends ProtocolTimepointConfigBase> getProtocolTimepointConfigsBase() {
+		return protocolTimepointConfigsBase;
 	}
 
-	public void setTimepointsBase(Set<? extends ProtocolTimepointConfigBase> timepointsBase) {
-		this.timepointsBase = timepointsBase;
+	public void setProtocolTimepointConfigsBase(Set<? extends ProtocolTimepointConfigBase> protocolTimepointConfigsBase) {
+		this.protocolTimepointConfigsBase = protocolTimepointConfigsBase;
 	}
 }

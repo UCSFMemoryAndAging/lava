@@ -14,15 +14,17 @@ public abstract class ProtocolBase extends ProtocolNode {
 	public ProtocolBase(){
 		super();
 		this.addPropertyToAuditIgnoreList("protocolConfigBase");
-		this.addPropertyToAuditIgnoreList("timepointsBase");
+		this.addPropertyToAuditIgnoreList("protocolTimepointsBase");
 	}
 
 	private ProtocolConfigBase protocolConfigBase;
-	// protocolConfigId is part of the mechanism required to set the ProtocolConfig association, allowing 
-	// the user to designate a protocolConfig in the view. the id is used when saving a new Protocol to
-	// create the Protocol tree structure
+	// protocolConfigId is part of the mechanism required to set the ProtocolConfig association when a user
+	// assigns a Patient to a ProtocolConfig to create a Protocol. it allows the user to designate a  
+	// ProtocolConfig in the view. the id is used to retrieve the ProtocolConfig in order to create the
+	// corresponding Protocol structure. 
+	// note: this must be declare in this class because it is set in setProtocolConfigBase
 	private Long protocolConfigId; 
-	private Set<? extends ProtocolTimepointBase> timepointsBase = new LinkedHashSet<ProtocolTimepointBase>();
+	private Set<? extends ProtocolTimepointBase> protocolTimepointsBase = new LinkedHashSet<ProtocolTimepointBase>();
 	
 	public ProtocolConfigBase getProtocolConfigBase() {
 		return protocolConfigBase;
@@ -44,12 +46,12 @@ public abstract class ProtocolBase extends ProtocolNode {
 		this.protocolConfigId = protocolConfigId;
 	}
 
-	public Set<? extends ProtocolTimepointBase> getTimepointsBase() {
-		return timepointsBase;
+	public Set<? extends ProtocolTimepointBase> getProtocolTimepointsBase() {
+		return protocolTimepointsBase;
 	}
 
-	public void setTimepointsBase(Set<? extends ProtocolTimepointBase> timepointsBase) {
-		this.timepointsBase = timepointsBase;
+	public void setProtocolTimepointsBase(Set<? extends ProtocolTimepointBase> protocolTimepoints) {
+		this.protocolTimepointsBase = protocolTimepoints;
 	}
 
 	

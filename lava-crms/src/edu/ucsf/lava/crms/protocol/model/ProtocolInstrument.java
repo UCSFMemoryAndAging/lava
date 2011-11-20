@@ -1,7 +1,9 @@
 package edu.ucsf.lava.crms.protocol.model;
 
+import java.util.Calendar;
 import java.util.Date;
 
+import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
@@ -17,7 +19,7 @@ public class ProtocolInstrument extends ProtocolInstrumentBase {
 	
 	public Object[] getAssociationsToInitialize(String method) {
 		return new Object[]{/*this.getProtocolInstrumentBase(),*/
-				this.getInstrumentConfigBase().getOptionsBase(),
+				this.getProtocolInstrumentConfigBase().getProtocolInstrumentOptionConfigsBase(),
 				this.getPatient()};
 	}
 
@@ -26,34 +28,45 @@ public class ProtocolInstrument extends ProtocolInstrumentBase {
 	// to designate an instrument which binds the instrument id to instrId. instrId is then used 
 	// when saving a ProtocolInstrument to set the Instrument association
 	private Long instrId;
+
+	// collection window calculated either from custom configuration in its ProtocolInstrumentConfig, or the default collection
+	// window defined in ProtocolTimepointConfig
+	private ProtocolVisit collectWinProtocolVisit;
+	private Date collectWinStart;
+	private Date collectWinEnd;
+	private Date collectAnchorDate; 
+	
 	private String collectWinStatus;
 	private String collectWinReason;
 	private String collectWinNote;
-	private Date customCollectWinStart;
-	private Date customCollectWinEnd;
 	
 	/**
 	 * Convenience methods to convert ProtocolInstrumentBase method types to types of this subclass,
 	 * since if an object of this class exists we know we can safely downcast 
 	 */
-	public ProtocolVisit getVisit() {
-		return (ProtocolVisit) super.getVisitBase();
+	public ProtocolVisit getProtocolVisit() {
+		return (ProtocolVisit) super.getProtocolVisitBase();
 	}
-	public void setVisit(ProtocolVisit visit) {
-		super.setVisitBase(visit);
+	public void setProtocolVisit(ProtocolVisit protocolVisit) {
+		super.setProtocolVisitBase(protocolVisit);
 	}
-	public ProtocolInstrumentConfig getInstrumentConfig() {
-		return (ProtocolInstrumentConfig) super.getInstrumentConfigBase();
+	public ProtocolInstrumentConfig getProtocolInstrumentConfig() {
+		return (ProtocolInstrumentConfig) super.getProtocolInstrumentConfigBase();
 	}
-	public void setInstrumentConfig(ProtocolInstrumentConfig config) {
-		super.setInstrumentConfigBase(config);
+	public void setProtocolInstrumentConfig(ProtocolInstrumentConfig protocolInstrumentConfig) {
+		super.setProtocolInstrumentConfigBase(protocolInstrumentConfig);
 	}
 
+	
 	public Instrument getInstrument() {
 		return instrument;
 	}
 	public void setInstrument(Instrument instrument) {
 		this.instrument = instrument;
+		// this is the paradigm used to set associations via the UI
+		if (this.instrument != null) {
+			this.instrId = this.instrument.getId();
+		}	
 	}
 	public Long getInstrId() {
 		return instrId;
@@ -80,19 +93,117 @@ public class ProtocolInstrument extends ProtocolInstrumentBase {
 	public void setCollectWinNote(String collectWinNote) {
 		this.collectWinNote = collectWinNote;
 	}
-	public Date getCustomCollectWinStart() {
-		return customCollectWinStart;
+	public ProtocolVisit getCollectWinProtocolVisit() {
+		return collectWinProtocolVisit;
 	}
-	public void setCustomCollectWinStart(Date customCollectWinStart) {
-		this.customCollectWinStart = customCollectWinStart;
+	public void setCollectWinProtocolVisit(ProtocolVisit collectWinProtocolVisit) {
+		this.collectWinProtocolVisit = collectWinProtocolVisit;
 	}
-	public Date getCustomCollectWinEnd() {
-		return customCollectWinEnd;
+	public Date getCollectWinStart() {
+		return collectWinStart;
 	}
-	public void setCustomCollectWinEnd(Date customCollectWinEnd) {
-		this.customCollectWinEnd = customCollectWinEnd;
+	public void setCollectWinStart(Date collectWinStart) {
+		this.collectWinStart = collectWinStart;
+	}
+	public Date getCollectWinEnd() {
+		return collectWinEnd;
+	}
+	public void setCollectWinEnd(Date collectWinEnd) {
+		this.collectWinEnd = collectWinEnd;
+	}
+	public Date getCollectAnchorDate() {
+		return collectAnchorDate;
+	}
+	public void setCollectAnchorDate(Date collectAnchorDate) {
+		this.collectAnchorDate = collectAnchorDate;
+	}
+
+	/**
+	 * Calculate the ideal date that this instrument would be collected on. This calculation 
+	 * should be done whenever configuration is changed. The date is persisted in the  
+	 * ProtocolInstrument collectAnchorDate property.
+	 * 
+	 * A ProtocolAssessmentTimepointConfig defines a collection window relative to the 
+	 * timepoint's primary visit, which serves as the default collection window for all of the 
+	 * timepoint's instruments. However each instrument can override this collection window
+	 * by defining its own custom collection window in ProtocolInstrumentOptionConfig. 
+	 *  
+	 * If a Visit has not yet been associated with the defined ProtocolVisit, then the 
+	 * collectAnchorDate can not be calculated, and this method returns null. 
+	 * note: if it is a business rule (TBD) that an Instrument can not be assigned to a 
+	 * ProtocolInstrument until a Visit has been assigned to the ProtocolInstrument's ProtocolVisit, 
+	 * this should not occur.   
+	 */
+	public Date calcCollectAnchorDate() {
+		// the collection window is based on the visitDate of a visit assigned to this Protocol
+		
+		// first determine if this instrument defines a custom collection window visit (a
+		// ProtocolVisitConfig) within the same timepoint as this instrument in its
+		// ProtocolInstrumentConfig. if so, use the Visit associated with the ProtocolVisit
+		// defined in the configuration
+		if (this.getCollectWinProtocolVisit() != null && this.getCollectWinProtocolVisit().getVisit() != null) {
+			return this.getCollectWinProtocolVisit().getVisit().getVisitDate();
+		}
+		// if there is no custom collection window visit defined for this instrument, then
+		// use the Visit associated with the primary ProtocolVisit as defined by the timepoint, 
+		// ProtocolTimepointConfig
+		else if (this.getProtocolVisit().getProtocolTimepoint().getPrimaryProtocolVisit() != null &&
+				this.getProtocolVisit().getProtocolTimepoint().getPrimaryProtocolVisit().getVisit() != null) {
+			return this.getProtocolVisit().getProtocolTimepoint().getPrimaryProtocolVisit().getVisit().getVisitDate();
+		}		
+		else {
+			return null;
+		}
 	}
 	
+	
+	/**
+	 * Given the calculation done by calcCollectAnchorDate, calculate a window defined in this protocol's
+	 * configuration representing the acceptable window within which data collection for the Instrument
+	 * assigned to this ProtocolInstrument should occur.
+	 * 
+	 * The configuration's collectWinOffset determines the beginning of the collection window,
+	 * collectWinStart, as follows:
+	 *  0 equals the collectAnchorDate
+	 *  negative value represents number of days before collectAnchorDate
+	 *  positive value represents number of days after collectAnchorDate
+	 *  
+	 * Once the beginning of the collection window is determined, collectWinSize represents the size of
+	 * the window and can be used to determine collectWinEnd.
+	 */
+	public void calcCollectWinDates() {
+		this.setCollectAnchorDate(this.calcCollectAnchorDate());
+		
+		if (this.getCollectAnchorDate() != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(this.getCollectAnchorDate());
+			
+			// if there are custom collection window attributes configured in the ProtocolInstrumentConfig,
+			// use those
+			if (this.getProtocolInstrumentConfig().getCustomCollectWinSize() != null 
+					&& this.getProtocolInstrumentConfig().getCustomCollectWinOffset() != null) {
+				// collectWinOffset is typically 0 or negative. it is negative to balance the scheduling
+				// window around collectAnchorDate
+				cal.add(Calendar.DATE, this.getProtocolInstrumentConfig().getCustomCollectWinOffset());
+				this.setCollectWinStart(cal.getTime());
+				cal.add(Calendar.DATE, this.getProtocolInstrumentConfig().getCustomCollectWinSize());
+				this.setCollectWinEnd(cal.getTime());
+			}
+			// otherwise, use the default collection window configuration for the timepoint to which
+			// this instrument belongs
+			else {
+				// collectWinOffset is typically 0 or negative. it is negative to balance the scheduling
+				// window around collectAnchorDate
+				cal.add(Calendar.DATE, ((ProtocolAssessmentTimepointConfig)this.getProtocolVisit().getProtocolTimepoint().getProtocolTimepointConfig()).getCollectWinOffset());
+				this.setCollectWinStart(cal.getTime());
+				cal.add(Calendar.DATE, ((ProtocolAssessmentTimepointConfig)this.getProtocolVisit().getProtocolTimepoint().getProtocolTimepointConfig()).getCollectWinSize());
+				this.setCollectWinEnd(cal.getTime());
+			}
+		}
+	}
+
+
+	//TODO: under construction
 	public void updateStatus() {
 		//TODO: set collectStatus
 		//if there is an instrument associated 
@@ -176,5 +287,27 @@ public class ProtocolInstrument extends ProtocolInstrumentBase {
 		
 	}
 	
+
+	/** 
+	 * Perform any calculations done in ProtocolInstrument. This method should be called 
+	 * whenever anything that may affect these calculations occurs, such as changes in the
+	 * Protocol configuration, and assigning a Visit to the Protocol.
+	 */
+	public void calculate() {
+		this.calcCollectWinDates();
+	}
+	
+	public boolean afterUpdate() {
+		if (this.getInstrument() != null) {
+			this.setAssignDescrip(new StringBuffer("Instrument: ").append(this.getInstrument().getVisit().getVisitDescrip()).append(" - ").append(this.getInstrument().getInstrType()).toString());
+		}
+		// in case visit has been modified, need to recalculate windows
+		LavaDaoFilter filter = newFilterInstance();
+		filter.addDaoParam(filter.daoNamedParam("protocolId", this.getProtocolVisit().getProtocolTimepoint().getProtocol().getId()));
+		Protocol protocolTree = (Protocol) EntityBase.MANAGER.findOneByNamedQuery("protocol.completeProtocolTree", filter);
+		protocolTree.calculate();
+		// return true to save any changes
+		return true;
+	}
 	
 }

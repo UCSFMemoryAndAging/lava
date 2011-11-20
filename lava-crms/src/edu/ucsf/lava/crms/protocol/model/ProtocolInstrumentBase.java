@@ -11,26 +11,26 @@ package edu.ucsf.lava.crms.protocol.model;
 public abstract class ProtocolInstrumentBase extends ProtocolNode {
 	public ProtocolInstrumentBase(){
 		super();
-		this.addPropertyToAuditIgnoreList("visitBase");		
-		this.addPropertyToAuditIgnoreList("instrumentBase");		
+		this.addPropertyToAuditIgnoreList("protocolVisitBase");		
+		this.addPropertyToAuditIgnoreList("protocolInstrumentConfigBase");		
 	}
 
-	private ProtocolVisitBase visitBase;
-	private ProtocolInstrumentConfigBase instrumentConfigBase;
+	private ProtocolVisitBase protocolVisitBase;
+	private ProtocolInstrumentConfigBase protocolInstrumentConfigBase;
 
-	public ProtocolVisitBase getVisitBase() {
-		return visitBase;
+	public ProtocolVisitBase getProtocolVisitBase() {
+		return protocolVisitBase;
 	}
 
-	public void setVisitBase(ProtocolVisitBase visitBase) {
-		this.visitBase = visitBase;
+	public void setProtocolVisitBase(ProtocolVisitBase protocolVisit) {
+		this.protocolVisitBase = protocolVisit;
 	}
 
-	public ProtocolInstrumentConfigBase getInstrumentConfigBase() {
-		return instrumentConfigBase;
+	public ProtocolInstrumentConfigBase getProtocolInstrumentConfigBase() {
+		return protocolInstrumentConfigBase;
 	}
-	public void setInstrumentConfigBase(ProtocolInstrumentConfigBase instrumentConfigBase) {
-		this.instrumentConfigBase = instrumentConfigBase;
+	public void setProtocolInstrumentConfigBase(ProtocolInstrumentConfigBase protocolInstrumentConfig) {
+		this.protocolInstrumentConfigBase = protocolInstrumentConfig;
 	}
 	
 }

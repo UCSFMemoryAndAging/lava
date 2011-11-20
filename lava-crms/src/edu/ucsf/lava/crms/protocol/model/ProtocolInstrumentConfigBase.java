@@ -17,27 +17,27 @@ import edu.ucsf.lava.core.model.EntityManager;
 public abstract class ProtocolInstrumentConfigBase extends ProtocolNodeConfig {
 	public ProtocolInstrumentConfigBase(){
 		super();
-		this.addPropertyToAuditIgnoreList("visitBase");
-		this.addPropertyToAuditIgnoreList("optionsBase");
+		this.addPropertyToAuditIgnoreList("protocolVisitConfigBase");
+		this.addPropertyToAuditIgnoreList("protocolInstrumentOptionConfigsBase");
 	}
 
-	private ProtocolVisitConfigBase visitBase;
-	private Set<? extends ProtocolInstrumentOptionConfigBase> optionsBase = new HashSet<ProtocolInstrumentOptionConfigBase>();
+	private ProtocolVisitConfigBase protocolVisitConfigBase;
+	private Set<? extends ProtocolInstrumentOptionConfigBase> protocolInstrumentOptionConfigsBase = new HashSet<ProtocolInstrumentOptionConfigBase>();
 
-	public ProtocolVisitConfigBase getVisitBase() {
-		return visitBase;
+	public ProtocolVisitConfigBase getProtocolVisitConfigBase() {
+		return protocolVisitConfigBase;
 	}
 
-	public void setVisitBase(ProtocolVisitConfigBase protocolVisitBase) {
-		this.visitBase = protocolVisitBase;
+	public void setProtocolVisitConfigBase(ProtocolVisitConfigBase protocolVisitConfigBase) {
+		this.protocolVisitConfigBase = protocolVisitConfigBase;
 	}
 
-	public Set<? extends ProtocolInstrumentOptionConfigBase> getOptionsBase() {
-		return optionsBase;
+	public Set<? extends ProtocolInstrumentOptionConfigBase> getProtocolInstrumentOptionConfigsBase() {
+		return protocolInstrumentOptionConfigsBase;
 	}
 
-	public void setOptionsBase(Set<? extends ProtocolInstrumentOptionConfigBase> optionsBase) {
-		this.optionsBase = optionsBase;
+	public void setProtocolInstrumentOptionConfigsBase(Set<? extends ProtocolInstrumentOptionConfigBase> protocolInstrumentOptionConfigsBase) {
+		this.protocolInstrumentOptionConfigsBase = protocolInstrumentOptionConfigsBase;
 	}
 	
 }

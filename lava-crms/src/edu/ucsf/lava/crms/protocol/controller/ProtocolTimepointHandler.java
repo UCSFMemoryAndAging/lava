@@ -43,6 +43,18 @@ public class ProtocolTimepointHandler extends CrmsEntityComponentHandler {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		ProtocolTimepoint timepoint = (ProtocolTimepoint)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
 		model.put("protocolConfigLabel", timepoint.getProtocol().getProtocolConfig().getLabel());
+		
+		//	load up dynamic lists
+		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
+		
+		// list for primaryProtocolVisit, list of ProtocolVisits belonging to this ProtocolTimepoint 
+		Map primaryProtocolVisitList = listManager.getDynamicList(getCurrentUser(request),"protocol.primaryProtocolVisit", 
+			new String[]{"timepointId"}, 
+			new Object[]{timepoint.getId()},
+			new Class[]{Long.class});		
+		dynamicLists.put("protocol.primaryProtocolVisit", primaryProtocolVisitList);		
+		
+		model.put("dynamicLists", dynamicLists);
 		return super.addReferenceData(context, command, errors, model);
 	}
 	

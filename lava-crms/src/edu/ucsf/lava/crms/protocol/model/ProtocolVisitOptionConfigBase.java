@@ -16,16 +16,16 @@ import edu.ucsf.lava.core.model.EntityManager;
 public class ProtocolVisitOptionConfigBase extends ProtocolOptionConfigBase {
 	public ProtocolVisitOptionConfigBase(){
 		super();
-		this.addPropertyToAuditIgnoreList("visitBase");
+		this.addPropertyToAuditIgnoreList("protocolVisitConfigBase");
 	}
 
-	private ProtocolVisitConfigBase visitBase;
+	private ProtocolVisitConfigBase protocolVisitConfigBase;
 
-	public ProtocolVisitConfigBase getVisitBase() {
-		return visitBase;
+	public ProtocolVisitConfigBase getProtocolVisitConfigBase() {
+		return protocolVisitConfigBase;
 	}
 
-	public void setVisitBase(ProtocolVisitConfigBase visit) {
-		this.visitBase = visit;
+	public void setProtocolVisitConfigBase(ProtocolVisitConfigBase protocolVisitConfig) {
+		this.protocolVisitConfigBase = protocolVisitConfig;
 	}
 }
