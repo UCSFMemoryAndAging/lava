@@ -55,10 +55,17 @@ public class EntityEditFlowBuilder extends BaseFlowBuilder {
     	viewTransitions.add(transition(on(objectName + "__cancel"), to("finishCancel"), 
             	ifReturnedSuccess(invoke("handleFlowEvent", formAction))));
     	
-    	viewTransitions.addAll(this.buildCustomEventTransitions(this.objectName));
+    	// get subflow transitions
+    	// note that since this is an edit flow, calling the "WithBind" version of this method which binds 
+    	// before the transition so that any pending user edits are saved in flow scope and thus retained 
+    	// when the subflow returns
+    	viewTransitions.addAll(this.buildSubFlowTransitionsWithBind());
     	
     	// support a list secondary component for nav events only, since just a reference list
     	viewTransitions.add(buildListNavigationTransitions("edit"));
+    	
+        // custom event support
+    	viewTransitions.addAll(this.buildCustomEventTransitions(this.objectName));
     	
     	addViewState(getFlowEvent(), 
     			null, formAction.getCustomViewSelector(),
