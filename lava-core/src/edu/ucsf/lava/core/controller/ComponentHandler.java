@@ -21,7 +21,7 @@ public interface ComponentHandler {
 	public Event preSetupFlowDirector(RequestContext context) throws Exception;
 	public Event postSetupFlowDirector(RequestContext context, Object command) throws Exception;
 	public Map getBackingObjects(RequestContext context, Map components);
-	public void refreshBackingObjects(RequestContext context, Object command, BindingResult errors) throws Exception;
+	public void subFlowReturnHook(RequestContext context, Object command, BindingResult errors) throws Exception;
 	public void registerPropertyEditors(PropertyEditorRegistry registry);
 	public void initBinder(RequestContext context, Object command, DataBinder binder);
 	public void prepareToRender(RequestContext context, Object command, BindingResult errors) throws Exception;

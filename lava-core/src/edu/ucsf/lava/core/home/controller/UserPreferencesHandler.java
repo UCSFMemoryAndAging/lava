@@ -84,7 +84,7 @@ public class UserPreferencesHandler extends BaseListComponentHandler {
 			if (pref!=null){
 				if (!pref.isDefault()){
 					pref.delete();
-					this.refreshBackingObjects(context, command, errors);
+					this.subFlowReturnHook(context, command, errors);
 				}
 			} else {
 				throw new RuntimeException(getMessage("idInvalid.command", new Object[]{getDefaultObjectName()}));

@@ -214,23 +214,39 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 	protected Object initializeNewCommandInstance(RequestContext context,Object command){
 		return command;
 	}
+	
+	
+	/**
+	 * Handlers should override this if they need to do any specific handling upon return from a subflow.
+	 * 
+	 * The default behavior is based on the most common paradigm for an entity subflow, i.e. an entity view flow
+	 * spawns an entity edit subflow, and when the edit subflow returns, the entity should be refreshed in the
+	 * view flow to reflect changes that were made
+	 * 
+	 * note: this is not an event handler. it is a flow action state action (initiated by returning
+	 * from a subflow). also, the FormAction method that calls this always returns success, because once back 
+	 * in the parent flow it is too late to prevent returning from the subflow by returning an error. any exceptions
+	 * will be displayed as error messages in the parent view.
+	 */
+	public void subFlowReturnHook(RequestContext context, Object command, BindingResult errors) throws Exception {
+		Object obj = context.getFlowScope().get("cancelled");
+		if (!((Boolean)context.getFlowScope().get("cancelled"))) {
+			this.refreshBackingObjects(context, command, errors);
+		}
+	}
 
-	// this is called when a parent flow resumes after a subflow has completed, so that
-	// any changes made in the subflow(s) that may affect the backing objects in the parent
-	// flow are reflected
-	// note: this is not an event handler. it is a flow action state action (initiated by returning
-	// from a subflow), which is why it is a separate method from handleRefreshEvent. also, the
-	// FormAction method that calls this always returns success, because once back in the parent
-	// flow it is too late to prevent returning from the subflow by returning an error. any exceptions
-	// will be displayed as error messages in the parent view.
+
+	/** 
+	 * This method refreshes the command object by retrieving them from persistent storage.
+	 */
 	public void refreshBackingObjects(RequestContext context, Object command, BindingResult errors) throws Exception {
-		// for unknown reasons, calling doRefresh to do a Hibernate refresh here does not work; the changes persisted 
-		// in the subflow during this request are not reflected. not sure why. refresh takes detached objects as its 
-		// parameter, so in theory it should attach the object to the Hibernate session and refresh it to get the changes.
-		// must have something to do with the fact that there are two separate instances of the same object involved, 
-		// the subflow instance (e.g. edit flow) and the parent flow instance (e.g. view flow for same object as the
-		// edit subflow). re-retrieving the object from the database does get the changes from the object persisted in 
-		// the subflow. 
+		// for unknown reasons, calling doRefresh to do a Hibernate refresh here does not work when returning from
+		// an edit subflow to a view flow; the changes persisted in the subflow during this request are not reflected
+		// on a refresh. not sure why. refresh takes detached objects as its parameter, so in theory it should attach 
+		// the object to the Hibernate session and refresh it to get the changes. must have something to do with the 
+		// fact that there are two separate instances of the same object involved, the subflow instance and the parent 
+		// flow instance. thus, re-retrieving the object from the database does get the changes from the object 
+		// persisted in the subflow, so that is what is done here 
 		Map components = ((ComponentCommand)command).getComponents();
 		Map backingObjects = this.getBackingObjects(context, components);
 		components.putAll(backingObjects);
@@ -474,8 +490,8 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 			// and the flow is ending, this refresh is irrelevant (but does not hurt) because 
 			// it is refreshing the entity in the current flow scope, and if the entity also 
 			// exists in a parent flow scope, it will need to be refreshed there by a different 
-			// mechanism. that mechanism is the subFlowReturnState, which refreshes all components 
-			// of its flow when it resumes after a subFlow completes
+			// mechanism. that mechanism is the subFlowReturnHook method, which allows a handler
+			// to refresh all components of its flow when it resumes after a subFlow completes
 			returnEvent = refreshHandledObjects(context, components, errors);
 		}		
 		return returnEvent;
@@ -700,7 +716,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 	public Event doFinishUploadFile(RequestContext context, Object command, BindingResult errors) throws Exception {
 		// Override in subclass to provide any entity specific post upload functions
 		errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"info.uploadFile.success"}, null, ""));
-		this.refreshBackingObjects(context, command, errors);
+		this.subFlowReturnHook(context, command, errors);
 		return new Event(this,"uploadSuccess");
 	}
 	

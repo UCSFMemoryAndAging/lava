@@ -112,7 +112,7 @@ public class BaseComponentFormAction extends FormAction implements ManagersAware
     }
 
 	
-	public Event refreshFormObject(RequestContext context) throws Exception {
+	public Event subFlowReturnHook(RequestContext context) throws Exception {
 		ComponentCommand componentCommand = (ComponentCommand)getFormObject(context);
 		BindingResult errors = (BindingResult) getFormErrors(context);
 		// iterate thru the command components and refresh each from the database
@@ -123,7 +123,7 @@ public class BaseComponentFormAction extends FormAction implements ManagersAware
 		// for list flows, call a refresh which remembers the current page of the list so it
 		// can be repositioned to the same page after refreshing
 		for (ComponentHandler handler: componentHandlers){
-			handler.refreshBackingObjects(context, componentCommand, errors);
+			handler.subFlowReturnHook(context, componentCommand, errors);
 		}
 		return success();
 	}

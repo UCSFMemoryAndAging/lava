@@ -124,7 +124,7 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 	}
 
 
-    public void refreshBackingObjects(RequestContext context, Object command, BindingResult errors) throws Exception {
+    public void subFlowReturnHook(RequestContext context, Object command, BindingResult errors) throws Exception {
     }
     
 //  Set the current application context based on the id and the type of context that the entity defines.

@@ -167,16 +167,31 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 		return backingObjects;
 	}
 
+	/**
+	 * Handlers should override this if they need to do any specific handling upon return from a subflow.
+	 * 
+	 * The default behavior is based on the most common paradigm for a list subflow, i.e. a list view flow
+	 * spawns an entity subflow which adds/modifies/deletes the entity, so when the entity subflow returns, 
+	 * the list needs to be refreshed to reflect the changes.
+	 * 
+	 * note: this is not an event handler. it is a flow action state action (initiated by returning
+	 * from a subflow). also, the FormAction method that calls this always returns success, because once back 
+	 * in the parent flow it is too late to prevent returning from the subflow by returning an error. any exceptions
+	 * will be displayed as error messages in the parent view.
+	 */
+	public void subFlowReturnHook(RequestContext context, Object command, BindingResult errors) throws Exception {
+		if (!((Boolean)context.getFlowScope().get("cancelled"))) {
+			// TODO: implement buildOutputMapper for all entity flows to map the subflowActionId back to the parent
+			// flow, and then here can get the actionId from flowScope and if it is an add/edit/delete action then
+			// proceed with refreshing the list, but if it is a view action, no need to refresh the list. actually,
+			// one problem with this: the view subflow could have spawned an edit subflow which modified the 
+			// element, so the fact that the subflow is a view action does not guarantee that the entity was not
+			// modified
+			this.refreshBackingObjects(context, command, errors);
+		}
+	}
 
 	
-	// this is called when a parent flow resumes after a subflow has completed, so that
-	// any changes made in the subflow(s) that may affect the backing objects in the parent
-	// flow are reflected
-	// note: this is not an event handler. it is a flow action state action (initiated by returning
-	// from a subflow), which is why it is a separate method from handleRefreshEvent. also, the
-	// FormAction method that calls this always returns success, because once back in the parent
-	// flow it is too late to prevent returning from the subflow by returning an error. any exceptions
-	// will be displayed as error messages in the parent view.
 	public void refreshBackingObjects(RequestContext context, Object command, BindingResult errors) throws Exception {
 		doRefreshReturnToPage(context,command,errors);
 	}
