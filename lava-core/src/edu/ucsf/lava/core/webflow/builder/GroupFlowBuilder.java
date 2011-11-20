@@ -107,45 +107,30 @@ public class GroupFlowBuilder extends BaseFlowBuilder {
     protected void buildSubFlowStates(){
     	// pass group to subflows in case they need it
 		subflowInputOutputMapper.addInputMapping(mapping().source("flowScope."+GROUP_MAPPING).target(GROUP_MAPPING).value());
-		
-    	for(String subFlowId : subFlowActionIds){
-    		List<FlowInfo> subFlowInfoList = getSubFlowInfo(subFlowId); 
-				
-    		for(FlowInfo subFlowInfo: subFlowInfoList){
-    			// if there is an instance specific version of the subflow, it replaces the subflow
-    			// (but only if the subflow action has an actual flow, i.e. flowType is not "none" or
-    			// "instrumentCommon" which is for instruments that use the shared common instrument flow)
-    			// this is determined in ActionService. getEffectiveActionIdForFlowId
-				addSubflowState(subFlowInfo.getTarget()+"__"+subFlowInfo.getEvent(),
-						flow(registry.getActionManager().getEffectiveAction(subFlowInfo.getActionId()).getId() + "." + subFlowInfo.getEvent()),
-						subflowInputOutputMapper,  
-						new Transition[] {transition(on("finish"), to("subFlowReturnState")),
-										  transition(on("finishCancel"), to("subFlowCancelReturnState"))});						
-    		}
-    	}
+		super.buildSubFlowReturnStates();
+    }
 
-    	// add action state which refreshes the command components and transitions to getFlowEvent.    	
-    	// this way, a parent entity view flow will reflect changes in an entity edit subflow, and
-    	// a parent list flow will reflect entities added/deleted in add/delete entity subflows, as
-    	// well as entity changes in an entity edit subflow
-    	buildSubFlowReturnStates();
+    // override because if subflow is successful, transition to "iterate", and if subflow is cancelled, cancel 
+    // cancel group flow (transition to "finishCancel")
+    protected void buildSubFlowReturnStates() {
+    	// note that subFlowReturnHook need not do anything, as nothing needs to be done, but action states must have
+    	// an action
+    	addActionState("subFlowReturnState",
+    			// entry action (note: the expression("false") puts an attribute of type Boolean in flow scope)
+       			new Action[]{new SetAction(settableExpression("cancelled"), ScopeType.FLOW,	expression("false"))},
+       			// actions
+       			new Action[]{invoke("subFlowReturnHook", formAction)},
+   				new Transition[]{transition(on("success"), to("iterate"))},		
+   				null,null,null);
+    	
+    	addActionState("subFlowCancelReturnState",
+       			new Action[]{new SetAction(settableExpression("cancelled"), ScopeType.FLOW,	expression("true"))},
+       			new Action[]{invoke("subFlowReturnHook", formAction)},
+   				new Transition[]{transition(on("success"), to("finishCancel"))},		
+   				null,null,null);
     }
     
-    // override because if subflow is cancelled, cancel group flow. cancelled subflow will return "finishCancel"
-    // instead of "finish"
-    protected void buildSubFlowReturnStates() {
-    	// note that refreshFormObject does nothing, as nothing needs to be done, but action states must have
-    	// an action
-    	addActionState("subFlowReturnState", 
-    			invoke("refreshFormObject", formAction), 
-    			transition(on("success"), to("iterate")));
-    	
-    	addActionState("subFlowCancelReturnState", 
-    			invoke("refreshFormObject", formAction), 
-    			transition(on("success"), to("finishCancel")));
-    }
-
-    	// return the group to the parent flow so that it can re-select selected items after it
+   	// return the group to the parent flow so that it can re-select selected items after it
     // does a refresh of the list, which loses selected item info but must be done in case
     // the list was modified, e.g. if the group flow added missing entities
 	public void buildOutputMapper() throws FlowBuilderException {
