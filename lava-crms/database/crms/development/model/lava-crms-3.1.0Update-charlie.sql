@@ -62,6 +62,7 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE prot_protocol_config (
 node_id int NOT NULL AUTO_INCREMENT,
 category varchar(25),
+first_prot_tp_conf_id int,
 PRIMARY KEY (node_id),
 KEY fk_prot_protocol_config__node_id (node_id),
 CONSTRAINT fk_prot_protocol_config__node_id FOREIGN KEY (node_id) REFERENCES prot_node_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -70,46 +71,21 @@ ENGINE=InnoDB
 AUTO_INCREMENT = 1
 DEFAULT CHARACTER SET = latin1;
 
-
--- note: create prot_visit before prot_assess_tp as the latter has a FK reference to prot_visit
-CREATE TABLE prot_visit_config (
-node_id int NOT NULL AUTO_INCREMENT,
-optional boolean,
-PRIMARY KEY (node_id),
-KEY fk_prot_visit_config__node_id (node_id),
-CONSTRAINT fk_prot_visit_config__node_id FOREIGN KEY (node_id) REFERENCES prot_node_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
-) 
-ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
-
-
-CREATE TABLE prot_visit_opt_config (
-option_id int NOT NULL AUTO_INCREMENT,
-visit_type varchar(25),
-PRIMARY KEY (option_id),
-KEY fk_prot_visit_opt_config__option_id (option_id),
-CONSTRAINT fk_prot_visit_opt_config__option_id FOREIGN KEY (option_id) REFERENCES prot_opt_config (option_id) ON DELETE NO ACTION ON UPDATE NO ACTION
-) 
-ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
-
-
 CREATE TABLE prot_tp_config (
 node_id int NOT NULL AUTO_INCREMENT,
-first_timepoint boolean,
 optional boolean,
-sched_win_anchor_timepoint_id int,
-sched_win_days_from_anchor smallint,
+sched_win_rel_tp_id int,
+sched_win_rel_amt smallint,
+sched_win_rel_units smallint,
 sched_win_days_from_start smallint,
 sched_win_size smallint,
 sched_win_offset smallint,
+pri_prot_visit_conf_id int,
 PRIMARY KEY (node_id),
 KEY fk_prot_tp_config__node_id (node_id),
 CONSTRAINT fk_prot_tp_config__node_id FOREIGN KEY (node_id) REFERENCES prot_node_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-KEY fk_prot_tp_config__sched_win_anchor_timepoint_id (sched_win_anchor_timepoint_id),
-CONSTRAINT fk_prot_tp_config__sched_win_anchor_timepoint_id FOREIGN KEY (sched_win_anchor_timepoint_id) REFERENCES prot_tp_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
+KEY fk_prot_tp_config__sched_win_rel_tp_id (sched_win_rel_tp_id),
+CONSTRAINT fk_prot_tp_config__sched_win_rel_tp_id FOREIGN KEY (sched_win_rel_tp_id) REFERENCES prot_tp_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
 AUTO_INCREMENT = 1
@@ -118,17 +94,11 @@ DEFAULT CHARACTER SET = latin1;
 
 CREATE TABLE prot_assess_tp_config (
 node_id int NOT NULL AUTO_INCREMENT,
-collect_win_anchor_visit_id int,
 collect_win_size smallint,
 collect_win_offset smallint,
-collect_win_status varchar(25),
 PRIMARY KEY (node_id),
 KEY fk_prot_assess_tp_config__node_id (node_id),
 CONSTRAINT fk_prot_assess_tp_config__node_id FOREIGN KEY (node_id) REFERENCES prot_tp_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
--- TODO: because of circular FK constraints (that prot_visit_config has a FK back to this prot_assess_tp_config), 
--- need to add dropping of constraints in order to run this script with the following key/constraint enabled:
--- KEY fk_prot_assess_tp_config__collect_win_anchor_visit_id (collect_win_anchor_visit_id),-- 
--- CONSTRAINT fk_prot_assess_tp_config__collect_win_anchor_visit_id FOREIGN KEY (collect_win_anchor_visit_id) REFERENCES prot_visit_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
 AUTO_INCREMENT = 1
@@ -151,12 +121,47 @@ AUTO_INCREMENT = 1
 DEFAULT CHARACTER SET = latin1;
 
 
+CREATE TABLE prot_visit_config (
+node_id int NOT NULL AUTO_INCREMENT,
+optional boolean,
+default_option_id long,
+PRIMARY KEY (node_id),
+KEY fk_prot_visit_config__node_id (node_id),
+CONSTRAINT fk_prot_visit_config__node_id FOREIGN KEY (node_id) REFERENCES prot_node_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
+) 
+ENGINE=InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = latin1;
+
+
+CREATE TABLE prot_visit_opt_config (
+option_id int NOT NULL AUTO_INCREMENT,
+visit_type_ProjName varchar(75),
+visit_type varchar(25),
+PRIMARY KEY (option_id),
+KEY fk_prot_visit_opt_config__option_id (option_id),
+CONSTRAINT fk_prot_visit_opt_config__option_id FOREIGN KEY (option_id) REFERENCES prot_opt_config (option_id) ON DELETE NO ACTION ON UPDATE NO ACTION
+) 
+ENGINE=InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = latin1;
+
+
 CREATE TABLE prot_instr_config (
 node_id int NOT NULL AUTO_INCREMENT,
 optional boolean,
+collect_win_prot_visit_conf_id int,
+collect_win_size smallint,
+collect_win_offset smallint,
+default_comp_status varchar(25),
+default_comp_reason varchar(25),
+default_comp_note varchar(100),
+default_option_id long,
 PRIMARY KEY (node_id),
 KEY fk_prot_instr_config__node_id (node_id),
-CONSTRAINT fk_prot_instr_config__node_id FOREIGN KEY (node_id) REFERENCES prot_node_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
+CONSTRAINT fk_prot_instr_config__node_id FOREIGN KEY (node_id) REFERENCES prot_node_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+KEY fk_prot_instr_config__collect_win_prot_visit_conf_id (collect_win_prot_visit_conf_id),
+CONSTRAINT fk_prot_instr_config__collect_win_prot_visit_conf_id FOREIGN KEY (collect_win_prot_visit_conf_id) REFERENCES prot_visit_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
 AUTO_INCREMENT = 1
@@ -166,15 +171,9 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE prot_instr_opt_config (
 option_id int NOT NULL AUTO_INCREMENT,
 instr_type varchar(25),
-collect_win_anchor_visit_id int,
-collect_win_size smallint,
-collect_win_offset smallint,
-collect_win_status varchar(25),
 PRIMARY KEY (option_id),
 KEY fk_prot_instr_opt_config__option_id (option_id),
-CONSTRAINT fk_prot_instr_opt_config__option_id FOREIGN KEY (option_id) REFERENCES prot_opt_config (option_id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-KEY fk_prot_instr_opt_config__collect_win_anchor_visit_id (collect_win_anchor_visit_id),
-CONSTRAINT fk_prot_instr_opt_config__collect_win_anchor_visit_id FOREIGN KEY (collect_win_anchor_visit_id) REFERENCES prot_visit_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
+CONSTRAINT fk_prot_instr_opt_config__option_id FOREIGN KEY (option_id) REFERENCES prot_opt_config (option_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
 AUTO_INCREMENT = 1
@@ -195,6 +194,7 @@ strategy smallint NOT NULL,
 curr_status varchar(25),
 curr_reason varchar(25),
 curr_note varchar(100),
+assign_desc varchar(100),
 notes varchar(255),
 modified timestamp,
 PRIMARY KEY (node_id),
@@ -211,10 +211,13 @@ DEFAULT CHARACTER SET = latin1;
 
 CREATE TABLE prot_protocol (
 node_id int NOT NULL AUTO_INCREMENT,
-enrolled_date date,
+assigned_date date,
+EnrollStatID int,
 PRIMARY KEY (node_id),
 KEY fk_prot_protocol__node_id (node_id),
-CONSTRAINT fk_prot_protocol__node_id FOREIGN KEY (node_id) REFERENCES prot_node (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
+CONSTRAINT fk_prot_protocol__node_id FOREIGN KEY (node_id) REFERENCES prot_node (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+KEY fk_prot_protocol__EnrollStatID (EnrollStatID),
+CONSTRAINT fk_prot_protocol__EnrollStatID FOREIGN KEY (EnrollStatID) REFERENCES enrollmentstatus (EnrollStatID) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
 AUTO_INCREMENT = 1
@@ -223,11 +226,13 @@ DEFAULT CHARACTER SET = latin1;
 
 CREATE TABLE prot_tp (
 node_id int NOT NULL AUTO_INCREMENT,
+sched_anchor_date date,
+sched_win_start date,
+sched_win_end date,
 sched_win_status varchar(25),
 sched_win_reason varchar(25),
 sched_win_note varchar(100),
-sched_win_start date,
-sched_win_end date,
+pri_prot_visit_id int,
 PRIMARY KEY (node_id),
 KEY fk_prot_tp__node_id (node_id),
 CONSTRAINT fk_prot_tp__node_id FOREIGN KEY (node_id) REFERENCES prot_node (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -239,11 +244,12 @@ DEFAULT CHARACTER SET = latin1;
 
 CREATE TABLE prot_assess_tp (
 node_id int NOT NULL AUTO_INCREMENT,
+collect_anchor_date date,
+collect_win_start date,
+collect_win_end date,
 collect_win_status varchar(25),
 collect_win_reason varchar(25),
 collect_win_note varchar(100),
-collect_win_start date,
-collect_win_end date,
 PRIMARY KEY (node_id),
 KEY fk_prot_assess_tp__node_id (node_id),
 CONSTRAINT fk_prot_assess_tp__node_id FOREIGN KEY (node_id) REFERENCES prot_tp (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -270,11 +276,12 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE prot_instr (
 node_id int NOT NULL AUTO_INCREMENT,
 InstrID int,
+collect_anchor_date date,
+collect_win_start date,
+collect_win_end date,
 collect_win_status varchar(25),
 collect_win_reason varchar(25),
 collect_win_note varchar(100),
-cust_collect_win_start date,
-cust_collect_win_end date,
 PRIMARY KEY (node_id),
 KEY fk_prot_instr__node_id (node_id),
 CONSTRAINT fk_prot_instr__node_id FOREIGN KEY (node_id) REFERENCES prot_node (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION,
