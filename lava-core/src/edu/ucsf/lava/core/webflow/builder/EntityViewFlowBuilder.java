@@ -73,13 +73,15 @@ public class EntityViewFlowBuilder extends BaseFlowBuilder {
     	addSubflowState("edit", 
     			flow(actionId + ".edit"), 
     			this.subflowInputOutputMapper, 
-    			transition(on("${lastEvent.id.startsWith('finish')}"), to("subFlowReturnState")));
+    			new Transition[] {transition(on("finish"), to("subFlowReturnState")),
+						  		transition(on("finishCancel"), to("subFlowCancelReturnState"))});
     	
     	//add the download subflow 
     	addSubflowState("download", 
     			flow(actionId + ".download"), 
     			this.subflowInputOutputMapper, 
-    			transition(on("finish"), to("subFlowReturnState")));
+    			new Transition[] {transition(on("finish"), to("subFlowReturnState")),
+				  		transition(on("finishCancel"), to("subFlowCancelReturnState"))});
     	
     	addViewState("print", 
     			null, formAction.getCustomReportSelector(), // report view name = view name + "Report", used as key into lava-reports.xml
