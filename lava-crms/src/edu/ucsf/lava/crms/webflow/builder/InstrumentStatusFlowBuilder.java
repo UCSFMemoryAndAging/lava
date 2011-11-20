@@ -80,7 +80,7 @@ public class InstrumentStatusFlowBuilder extends BaseFlowBuilder {
     			flow(actionId+".editStatus"), 
     			paramMapper, 
     			new Transition[] {
-    				transition(on("finishCancel"), to("subFlowReturnState")),
+    				transition(on("finishCancel"), to("subFlowCancelReturnState")),
     				transition(on("finish"), to("subFlowReturnState")),
     				transition(on("finishSwitch"), to("finishSwitch"))});
    	
@@ -90,7 +90,7 @@ public class InstrumentStatusFlowBuilder extends BaseFlowBuilder {
     			paramMapper, 
     			new Transition[] {
     				transition(on("finish"), to("subFlowReturnState")),
-    				transition(on("finishCancel"), to("subFlowReturnState")),
+    				transition(on("finishCancel"), to("subFlowCancelReturnState")),
     				transition(on("versionChanged"), to("finish"))});
     	
    

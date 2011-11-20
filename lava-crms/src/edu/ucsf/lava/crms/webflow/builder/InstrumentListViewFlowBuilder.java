@@ -6,10 +6,12 @@ import java.util.List;
 import org.springframework.binding.mapping.AttributeMapper;
 import org.springframework.binding.mapping.DefaultAttributeMapper;
 import org.springframework.binding.mapping.Mapping;
+import org.springframework.webflow.action.SetAction;
 import org.springframework.webflow.engine.Transition;
 import org.springframework.webflow.engine.builder.FlowBuilderException;
 import org.springframework.webflow.engine.support.ConfigurableFlowAttributeMapper;
 import org.springframework.webflow.execution.Action;
+import org.springframework.webflow.execution.ScopeType;
 
 import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
 import edu.ucsf.lava.core.webflow.builder.BaseFlowBuilder;
@@ -179,7 +181,7 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
 		    	// this is the standard transition from the end of a subflow back to the listView view state (via
 		    	// the subFlowReturnState action state, which refreshes the list data before it is redisplayed)
 				Transition subFlowReturnFinishTransition = transition(on("finish"), to("subFlowReturnState"));
-				Transition subFlowReturnFinishCancelTransition = transition(on("finishCancel"), to("subFlowReturnState"));
+				Transition subFlowReturnFinishCancelTransition = transition(on("finishCancel"), to("subFlowCancelReturnState"));
 
 				// general notes on mappers:
 				// subflow state input mappings put data into the input map for the subflows buildInputMapper method
@@ -258,16 +260,27 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
     		}
     	}
 
-    	// add action state which refreshes the command components and transitions to getFlowEvent
-    	// this way, a parent entity view flow will reflect changes in an entity edit subflow, and
-    	// a parent list flow will reflect entities added/deleted in add/delete entity subflows, as
-    	// well as entity changes in an entity edit subflow
+    	// add action states which allow the handler a hook into the subflow return process, which
+    	// may be required to refresh the instrument in a parent flow after a subflow which modified
+    	// the instrument (add/delete/edit) returns, so that changes are reflected in the instrument list
+
     	// note that if returning from the group subflow, the refresh handler also re-selects any 
     	// selected items as these are lost when the list is refreshed. the group flow returns the
     	// group in an output mapper (included any new items added in the group subflow) to enable this.
-   	addActionState("subFlowReturnState", 
-       				invoke("refreshFormObject", formAction), 
-   					transition(on("success"), to(getFlowEvent())));
+       	addActionState("subFlowReturnState",
+    			// entry action (note: the expression("false") puts an attribute of type Boolean in flow scope)
+       			new Action[]{new SetAction(settableExpression("cancelled"), ScopeType.FLOW,	expression("false"))},
+       			// actions
+       			new Action[]{invoke("subFlowReturnHook", formAction)},
+       			new Transition[]{transition(on("success"), to(getFlowEvent()))},		
+       			null,null,null);
+    	
+    	addActionState("subFlowCancelReturnState",
+       			new Action[]{new SetAction(settableExpression("cancelled"), ScopeType.FLOW,	expression("true"))},
+       			new Action[]{invoke("subFlowReturnHook", formAction)},
+       			new Transition[]{transition(on("success"), to(getFlowEvent()))},		
+       			null,null,null);
+    	
     }    
 }
 

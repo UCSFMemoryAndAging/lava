@@ -100,12 +100,16 @@ public class InstrumentViewFlowBuilder extends BaseFlowBuilder {
     	addSubflowState("enterReview", 
     			flow(actionId+".enterReview"), 
     			paramMapper, 
-    			new Transition[] {transition(on("${lastEvent.id.startsWith('finish')}"), to("subFlowReturnState"))});
+    			new Transition[] {
+        				transition(on("finish"), to("subFlowReturnState")),
+        				transition(on("finishCancel"), to("subFlowCancelReturnState"))});
     	
         // add the upload subflow
     	addSubflowState("upload", 
     			flow(actionId+".upload"), paramMapper,
-    			new Transition[] {transition(on("${lastEvent.id.startsWith('finish')}"), to("subFlowReturnState"))});
+    			new Transition[] {
+    				transition(on("finish"), to("subFlowReturnState")),
+    				transition(on("finishCancel"), to("subFlowCancelReturnState"))});
     	
     	// Finish state used for a canceled version change, just do a normal subflow return.
     	addSubflowState("changeVersion", 
@@ -113,13 +117,15 @@ public class InstrumentViewFlowBuilder extends BaseFlowBuilder {
     			paramMapper, 
     			new Transition[] {
     				transition(on("finish"), to("subFlowReturnState")),
-    				transition(on("finishCancel"), to("subFlowReturnState")),
+    				transition(on("finishCancel"), to("subFlowCancelReturnState")),
     				transition(on("versionChanged"), to("finish"))});
     	
     	addSubflowState("status", 
     			flow(actionId+".status"), 
     			paramMapper,
     			new Transition[] {
+    				// do not need transition on "finishCancel" here since the InstrumentStatusFlow does not
+    				// have a Cancel, just Close (which returns "finish" to this parent flow subFlowState)
     				transition(on("finish"), to("subFlowReturnState"))});
 
     	// add the outputMappings for the enter and collect subflow states needed for instrument__switch
@@ -132,7 +138,7 @@ public class InstrumentViewFlowBuilder extends BaseFlowBuilder {
     			paramMapper,
     			new Transition[] {
     				transition(on("finish"), to("subFlowReturnState")),
-    				transition(on("finishCancel"), to("subFlowReturnState")),
+    				transition(on("finishCancel"), to("subFlowCancelReturnState")),
     				transition(on("finishSwitch"), to("finishSwitch"))});
     	
         // add the enter subflow
@@ -141,7 +147,7 @@ public class InstrumentViewFlowBuilder extends BaseFlowBuilder {
     			paramMapper, 
     			new Transition[] {
     				transition(on("finish"), to("subFlowReturnState")),
-    				transition(on("finishCancel"), to("subFlowReturnState")),
+    				transition(on("finishCancel"), to("subFlowCancelReturnState")),
     				transition(on("finishSwitch"), to("finishSwitch"))});
 
     	
