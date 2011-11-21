@@ -1,5 +1,8 @@
 <%@ include file="/WEB-INF/jsp/includes/include.jsp" %>
 
+<c:if test="${hasMissingOrIncompleteFields == 'true'}">
+	<br/><div style="text-align:center;"><span class="errorListItem"><b>You have entered one or more fields as MISSING or INCOMPLETE.<br/>Please either click on the "Revise" button to complete the data, or set the "Collection Status" field below to "Incomplete" or "Partially Complete."</b></span></div><br/>
+</c:if>
 
 <tags:contentColumn columnClass="colLeft2Col5050">
 

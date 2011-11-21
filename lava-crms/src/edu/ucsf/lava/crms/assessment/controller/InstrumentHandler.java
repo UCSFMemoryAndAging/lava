@@ -16,8 +16,10 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.DefaultBindingErrorProcessor;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -45,6 +47,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 	private Map<String,FileLoader> fileLoaders;
 	protected static final String STATUS_SCHEDULED = "Scheduled";
 	protected static final String STATUS_COMPLETE = "Complete";
+	protected static final String STATUS_PARTIALLY_COMPLETE = "Partially Complete";
 	protected static final String STATUS_INCOMPLETE = "Incomplete";
 	protected static final String STATUS_VERIFIED_DOUBLE_ENTRY = "Verified - Double Entry";
 	protected static final String STATUS_VERIFIED_REVIEW = "Verified - Review";
@@ -55,6 +58,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
     protected static final String COMMAND_DOUBLE_ENTER_MISMATCH_ERROR_CODE = "doubleEnterMismatch.command";
     protected static final String COMMAND_DOUBLE_ENTER_MATCH_INFO_CODE = "info.doubleEnterMatch.command";
     protected static final String INCOMPLETE_MISSING_DATA_CODE = "-7"; 
+    protected static final String MISSING_DATA_CODE = "-9";     
     public static final String INSTRUMENT_DETAILS = "instrumentDetails";
 	
 	public static final String ANY_PROJECT_KEY="ANY";
@@ -438,6 +442,10 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 					addInstrumentListsToModel(model,instrument);
 					
 				}
+			}
+			
+			if(flowMode.equals("enter") && (event.equals("enterSave") || event.equals("statusSave"))) {
+				model.put("hasMissingOrIncompleteFields", instrument.hasMissingOrIncompleteFields());
 			}
 			
 	
@@ -1057,6 +1065,13 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			context.getFlowScope().put("mandatoryDoubleEnter", Boolean.FALSE);
 		}
 
+		// since dcStatus is initialized to STATUS_SCHEDULED for new instruments, consider it the
+		// same as null in terms of whether dcStatus can be overwritten		
+		if (instrument.getDcStatus() == null || instrument.getDcStatus().equals(STATUS_SCHEDULED)) {
+			if (instrument.hasMissingOrIncompleteFields()) {
+				instrument.setDcStatus(STATUS_PARTIALLY_COMPLETE);
+			}
+		}
 		// infer status values, specific to the "enter" flow 
 		imputeEnterStatusValues(context, instrument);
 		
@@ -1083,7 +1098,6 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		if (instrument.getDcStatus() == null || instrument.getDcStatus().equals(STATUS_SCHEDULED)) {
 			instrument.setDcStatus(STATUS_COMPLETE);
 		}
-	
 		// the data entry fields are whoever is logged in and now			
 		if (instrument.getDeBy()==null) instrument.setDeBy(userName);
 		if (instrument.getDeDate()==null) instrument.setDeDate(new Date());
