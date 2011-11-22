@@ -890,6 +890,7 @@ INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) 
 INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'Scheduled',NULL,1,'2009-01-24 20:57:59' FROM `list` where `ListName`='DataCollectionStatus';
 INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'Canceled',NULL,2,'2009-01-24 20:57:59' FROM `list` where `ListName`='DataCollectionStatus';
 INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'Complete',NULL,2,'2009-01-24 20:57:59' FROM `list` where `ListName`='DataCollectionStatus';
+INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'Partially Complete',NULL,2,'2009-01-24 20:57:59' FROM `list` where `ListName`='DataCollectionStatus';
 INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'Canceled-Patient Factor',NULL,3,'2009-01-24 20:57:59' FROM `list` where `ListName`='DataCollectionStatus';
 INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'Canceled-Situational',NULL,4,'2009-01-24 20:57:59' FROM `list` where `ListName`='DataCollectionStatus';
 INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'Canceled-Alt Test Given',NULL,5,'2009-01-24 20:57:59' FROM `list` where `ListName`='DataCollectionStatus';
