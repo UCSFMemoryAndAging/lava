@@ -115,11 +115,13 @@
 	
 	<c:when test="${componentView == 'editStatus'}">	
 		<c:set var="numLeftButtons" value="0"/>
-        <c:set var="numRightButtons" value="2"/>
+        <c:set var="numRightButtons" value="3"/>
 		<c:set var="rightbutton1_text" value="Cancel"/>
 		<c:set var="rightbutton1_action" value="cancel"/>
 		<c:set var="rightbutton2_text" value="Save"/>
 		<c:set var="rightbutton2_action" value="statusSave"/>
+		<c:set var="rightbutton3_text" value="Revise"/>
+		<c:set var="rightbutton3_action" value="revise"/>
 	</c:when>
 
 	<%-- NOTE: at this time, collect flow is not used --%>
