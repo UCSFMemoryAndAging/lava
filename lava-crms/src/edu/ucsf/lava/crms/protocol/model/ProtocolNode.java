@@ -22,7 +22,7 @@ import edu.ucsf.lava.crms.people.model.Patient;
  * 
  * The tree hierarchy is:
  * Protocol
- *   ProtocolTimepoint (subclass: ProtocolAssessmentTimepoint)
+ *   ProtocolTimepoint
  *     ProtocolVisit 
  *       ProtocolInstrument 
  *
@@ -43,7 +43,22 @@ import edu.ucsf.lava.crms.people.model.Patient;
 
 public abstract class ProtocolNode extends CrmsEntity {
 	public static EntityManager MANAGER = new EntityBase.Manager(ProtocolNode.class);
-
+	
+	// statuses for scheduling, collection, completion
+	public static String PENDING = "Pending";
+	public static String PENDING_NOW = "Pending-Now";
+	public static String IN_PROGRESS = "In Progress";
+	public static String COMPLETED = "Completed";
+	public static String NOT_COMPLETED = "Not Completed";
+	public static String PARTIAL = "Partial";
+	public static String LATE = "Late";
+	public static String EARLY = "Early";
+	public static String COLLECTED = "Collected";
+    public static String N_A = "N/A";
+    public static String SCHEDULED = "Scheduled";
+    public static String PENDING_LATE = "Pending-Late";
+    public static String TBD = "TBD";
+	
 	private Patient patient;
 	// because every type of Protocol tree node subclasses this class, projName is 
 	// denormalized (which makes for simpler configuration of project authorization filtering)
@@ -53,6 +68,17 @@ public abstract class ProtocolNode extends CrmsEntity {
 	private String currStatus;
 	private String currReason;
 	private String currNote;
+	private String compStatus;
+	private String compReason;
+	private String compNote;
+	private String compBy;
+	private Date compDate;
+	private String schedWinStatus;
+	private String schedWinReason;
+	private String schedWinNote;
+	private String collectWinStatus;
+	private String collectWinReason;
+	private String collectWinNote;
 	private String assignDescrip;
 	private String notes;
 	
@@ -118,7 +144,95 @@ public abstract class ProtocolNode extends CrmsEntity {
 	public void setCurrNote(String currNote) {
 		this.currNote = currNote;
 	}
+
+	public String getCompStatus() {
+		return compStatus;
+	}
+
+	public void setCompStatus(String currStatus) {
+		this.compStatus = currStatus;
+	}
+
+	public String getCompReason() {
+		return compReason;
+	}
+
+	public void setCompReason(String currReason) {
+		this.compReason = currReason;
+	}
+
+	public String getCompNote() {
+		return compNote;
+	}
+
+	public void setCompNote(String currNote) {
+		this.compNote = currNote;
+	}
 	
+	public String getCompBy() {
+		return compBy;
+	}
+
+	public void setCompBy(String compBy) {
+		this.compBy = compBy;
+	}
+
+	public Date getCompDate() {
+		return compDate;
+	}
+
+	public void setCompDate(Date compDate) {
+		this.compDate = compDate;
+	}
+
+	public String getSchedWinStatus() {
+		return schedWinStatus;
+	}
+
+	public void setSchedWinStatus(String schedWinStatus) {
+		this.schedWinStatus = schedWinStatus;
+	}
+
+	public String getSchedWinReason() {
+		return schedWinReason;
+	}
+
+	public void setSchedWinReason(String schedWinReason) {
+		this.schedWinReason = schedWinReason;
+	}
+
+	public String getSchedWinNote() {
+		return schedWinNote;
+	}
+
+	public void setSchedWinNote(String schedWinNote) {
+		this.schedWinNote = schedWinNote;
+	}
+	
+	public String getCollectWinStatus() {
+		return collectWinStatus;
+	}
+
+	public void setCollectWinStatus(String collectWinStatus) {
+		this.collectWinStatus = collectWinStatus;
+	}
+
+	public String getCollectWinReason() {
+		return collectWinReason;
+	}
+
+	public void setCollectWinReason(String collectWinReason) {
+		this.collectWinReason = collectWinReason;
+	}
+
+	public String getCollectWinNote() {
+		return collectWinNote;
+	}
+
+	public void setCollectWinNote(String collectWinNote) {
+		this.collectWinNote = collectWinNote;
+	}
+
 	public String getAssignDescrip() {
 		return assignDescrip;
 	}
@@ -134,9 +248,145 @@ public abstract class ProtocolNode extends CrmsEntity {
 	public void setNotes(String notes) {
 		this.notes = notes;
 	}
+	
+	public String getCompStatusBlock() {
+		StringBuffer block = new StringBuffer("Status: ").append(this.getCompStatus() == null ? "" : this.getCompStatus()).append("\n");
+		block.append("Reason: ").append(this.getCompReason() == null ? "" : this.getCompReason()).append("\n");
+		block.append("Reason: ").append(this.getCompNote() == null ? "" : this.getCompNote());
+		return block.toString();
+	}
 
 	/**
 	 * The components at each level of the Protocol tree must implement a calculate method.
 	 */
 	public abstract void calculate();
+	
+	/**
+	 * The components at each level of the Protocol tree must implement an updateStatus method.
+	 */
+	public abstract void updateStatus();
+	
+	protected String rollupCompStatusHelper(ProtocolNode protocolNode, String updatedCompStatus) {
+		if (protocolNode.getCompStatus() != null) {
+			if (updatedCompStatus == null) {
+				updatedCompStatus = protocolNode.getCompStatus();
+			}
+			// start with the most severe status and work up from there
+			else if (protocolNode.getCompStatus().equals(NOT_COMPLETED)) {
+				updatedCompStatus = protocolNode.getCompStatus();
+			}
+			else if (protocolNode.getCompStatus().equals(PARTIAL)) {
+				// only update if this instrument status is more severe
+				if (!updatedCompStatus.equals(NOT_COMPLETED)) {
+					updatedCompStatus =  protocolNode.getCompStatus();
+				}
+			}
+			else if (protocolNode.getCompStatus().equals(PENDING)) {
+				// only update if this instrument status is more severe
+				if (updatedCompStatus.equals(IN_PROGRESS) || updatedCompStatus.equals(COMPLETED)) {
+					updatedCompStatus = protocolNode.getCompStatus();
+				}
+			}
+			else if (protocolNode.getCompStatus().equals(IN_PROGRESS)) {
+				// only update if this instrument status is more severe
+				if (updatedCompStatus.equals(COMPLETED)) {
+					updatedCompStatus = protocolNode.getCompStatus();
+				}
+			}
+		}
+		return updatedCompStatus;
+	}
+	
+	protected String rollupSchedWinStatusHelper(ProtocolNode protocolNode, String updatedSchedWinStatus) {
+		if (protocolNode.getCollectWinStatus() != null) {
+			if (updatedSchedWinStatus == null) {
+				updatedSchedWinStatus = protocolNode.getCollectWinStatus();
+			}
+			// start with the most severe status and work up from there
+			else if (protocolNode.getCollectWinStatus().equals(TBD)) {
+				updatedSchedWinStatus = protocolNode.getCollectWinStatus();
+			}
+			else if (protocolNode.getCollectWinStatus().equals(PENDING_LATE)) {
+				if (!updatedSchedWinStatus.equals(TBD)) {
+					updatedSchedWinStatus = protocolNode.getCollectWinStatus();
+				}
+			}
+			else if (protocolNode.getCollectWinStatus().equals(LATE)) {
+				// only update if this instrument status is more severe
+				if (!updatedSchedWinStatus.equals(PENDING_LATE)) {
+					updatedSchedWinStatus =  protocolNode.getCollectWinStatus();
+				}
+			}
+			else if (protocolNode.getCollectWinStatus().equals(PENDING_NOW)) {
+				// only update if this instrument status is more severe
+				if (!updatedSchedWinStatus.equals(PENDING_LATE) && !updatedSchedWinStatus.equals(LATE)) {
+					updatedSchedWinStatus = protocolNode.getCollectWinStatus();
+				}
+			}
+			else if (protocolNode.getCollectWinStatus().equals(PENDING)) {
+				// only update if this instrument status is more severe
+				if (!updatedSchedWinStatus.equals(PENDING_LATE) && !updatedSchedWinStatus.equals(LATE)
+						&& !updatedSchedWinStatus.equals(PENDING_NOW)) {
+					updatedSchedWinStatus = protocolNode.getCollectWinStatus();
+				}
+			}
+			else if (protocolNode.getCollectWinStatus().equals(EARLY) 
+					|| protocolNode.getCollectWinStatus().equals(SCHEDULED)) {
+				// this will handle the situation where one of the instruments has colletWinStatus of N_A,
+				// which should be replaced by any other collectWinStatus
+				if (!updatedSchedWinStatus.startsWith(PENDING) && !updatedSchedWinStatus.equals(LATE)) {
+					
+				}
+				
+			}
+		}
+		return updatedSchedWinStatus;
+	}
+	
+	protected String rollupCollectWinStatusHelper(ProtocolNode protocolNode, String updatedCollectWinStatus) {
+		if (protocolNode.getCollectWinStatus() != null) {
+			if (updatedCollectWinStatus == null) {
+				updatedCollectWinStatus = protocolNode.getCollectWinStatus();
+			}
+			// start with the most severe status and work up from there
+			else if (protocolNode.getCollectWinStatus().equals(TBD)) {
+				updatedCollectWinStatus = protocolNode.getCollectWinStatus();
+			}
+			else if (protocolNode.getCollectWinStatus().equals(PENDING_LATE)) {
+				if (!updatedCollectWinStatus.equals(TBD)) {
+					updatedCollectWinStatus = protocolNode.getCollectWinStatus();
+				}
+			}
+			else if (protocolNode.getCollectWinStatus().equals(LATE)) {
+				// only update if this instrument status is more severe
+				if (!updatedCollectWinStatus.equals(PENDING_LATE)) {
+					updatedCollectWinStatus =  protocolNode.getCollectWinStatus();
+				}
+			}
+			else if (protocolNode.getCollectWinStatus().equals(PENDING_NOW)) {
+				// only update if this instrument status is more severe
+				if (!updatedCollectWinStatus.equals(PENDING_LATE) && !updatedCollectWinStatus.equals(LATE)) {
+					updatedCollectWinStatus = protocolNode.getCollectWinStatus();
+				}
+			}
+			else if (protocolNode.getCollectWinStatus().equals(PENDING)) {
+				// only update if this instrument status is more severe
+				if (!updatedCollectWinStatus.equals(PENDING_LATE) && !updatedCollectWinStatus.equals(LATE)
+						&& !updatedCollectWinStatus.equals(PENDING_NOW)) {
+					updatedCollectWinStatus = protocolNode.getCollectWinStatus();
+				}
+			}
+			else if (protocolNode.getCollectWinStatus().equals(EARLY) 
+					|| protocolNode.getCollectWinStatus().equals(COLLECTED)) {
+				// this will handle the situation where one of the instruments has colletWinStatus of N_A,
+				// which should be replaced by any other collectWinStatus
+				if (!updatedCollectWinStatus.startsWith(PENDING) && !updatedCollectWinStatus.equals(LATE)) {
+					
+				}
+				
+			}
+		}
+		return updatedCollectWinStatus;
+	}
+
 }
