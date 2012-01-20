@@ -18,9 +18,14 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	public ProtocolTimepointConfig(){
 		super();
 		this.setAuditEntityType("ProtocolTimepointConfig");	
+		this.setDuration((short)0);
 	}
 	
-	// NOTE: this is an abstract class so getAssociationsToInitialize is called in the subclass
+	public Object[] getAssociationsToInitialize(String method) {
+		return new Object[]{
+				this.getProtocolConfigBase().getProtocolTimepointConfigsBase(), 
+				this.getProtocolVisitConfigsBase()};
+	}
 	
 
 	private Boolean optional;
@@ -32,12 +37,15 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	// which is then set on this entity via setSchedWinRelativeTimepoint to change the associated schedWinRelativeTimepoint
 	private Long schedWinRelativeTimepointId;
 	private Short schedWinRelativeAmount; // 0 for first timepoint
-	private Short schedWinRelativeUnits;
+	private Short schedWinRelativeUnits; // days, weeks, months ??
+	private Short schedWinRelativeMode; // working days, calendar days, etc.
 	private Short schedWinDaysFromStart; // computed from schedWinRelativeTimepoint and schedWinDaysFrom, and used for ordering timepoints
 	private Short schedWinSize; //days
 	// determines the start of the scheduling window, where 0 is equal to schedAnchorDate (calculated in ProtocolTimepoint), 
 	// negative value goes backward in time relative to schedAnchorDate, and positive value goes forward in time.
-	private Short schedWinOffset; //days 
+	private Short schedWinOffset; //days
+	private Short duration; // duration of the timepoint in days, where null or 0 indicates same day duration
+	private Boolean schedAutomatic; // when this timepoint is complete, automatically schedule the next timepoint
 	
 	// the primary visit for the timepoint.
 	// this will serve as the visit to use for calculating the collect window (note that unlike the
@@ -49,6 +57,23 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	// entity's existing primaryProtocolVisitConfig id, the primaryProtocolVisitConfigId is used to retrieve its primaryProtocolVisitConfig 
 	// which is then set on this entity via setPrimaryProtocolVisitConfig to change the associated primaryProtocolVisitConfig
 	private Long primaryProtocolVisitConfigId;
+	
+	private Boolean collectWindowDefined;
+	private Short collectWinSize;
+	private Short collectWinOffset;
+
+	// repeating timepoint configuration
+	// The representation of a Timepoint that that repeats at regular intervals over time. In 
+	// the protocol config there is only one instance of this timepoint, but when a patient 
+	// is assigned to the protocol, a specified number of timepoints are created. Additional
+	// timepoints are created automatically or manually.
+	private Boolean repeating;
+	private Short repeatInterval; // days
+	// initial num timepoints to create when patient assigned to protocol
+	private Short repeatInitialNum; 
+	// automatically create the next timepoint when the current timepoint is complete
+	private Boolean repeatCreateAutomatic;
+	
 	
 	/**
 	 * Convenience methods to convert ProtocolTimepointConfigBase method types to types of 
@@ -100,6 +125,7 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	public ProtocolTimepointConfig getSchedWinRelativeTimepoint() {
 		return schedWinRelativeTimepoint;
 	}
+	
 	public void setSchedWinRelativeTimepoint(ProtocolTimepointConfig schedWinRelativeTimepoint) {
 		this.schedWinRelativeTimepoint = schedWinRelativeTimepoint;
 		if (this.schedWinRelativeTimepoint != null) {
@@ -130,7 +156,13 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	public void setSchedWinRelativeUnits(Short schedWinRelativeUnits) {
 		this.schedWinRelativeUnits = schedWinRelativeUnits;
 	}
-	
+
+	public Short getSchedWinRelativeMode() {
+		return schedWinRelativeMode;
+	}
+	public void setSchedWinRelativeMode(Short schedWinRelativeMode) {
+		this.schedWinRelativeMode = schedWinRelativeMode;
+	}
 	public Short getSchedWinDaysFromStart() {
 		return schedWinDaysFromStart;
 	}
@@ -155,6 +187,22 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 		this.schedWinOffset = schedWinOffset;
 	}
 	
+	public Short getDuration() {
+		return duration;
+	}
+	
+	public void setDuration(Short duration) {
+		this.duration = duration;
+	}
+	
+	public Boolean getSchedAutomatic() {
+		return schedAutomatic;
+	}
+	
+	public void setSchedAutomatic(Boolean schedAutomatic) {
+		this.schedAutomatic = schedAutomatic;
+	}
+	
 	public ProtocolVisitConfig getPrimaryProtocolVisitConfig() {
 		return primaryProtocolVisitConfig;
 	}
@@ -174,7 +222,61 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 		this.primaryProtocolVisitConfigId = primaryProtocolVisitConfigId;
 	}
 
+	public Boolean getCollectWindowDefined() {
+		return collectWindowDefined;
+	}
+
+	public void setCollectWindowDefined(Boolean collectWindowDefined) {
+		this.collectWindowDefined = collectWindowDefined;
+	}
+
+	public Short getCollectWinSize() {
+		return collectWinSize;
+	}
 	
+	public void setCollectWinSize(Short collectWinSize) {
+		this.collectWinSize = collectWinSize;
+	}
+	
+	public Short getCollectWinOffset() {
+		return collectWinOffset;
+	}
+	
+	public void setCollectWinOffset(Short collectWinOffset) {
+		this.collectWinOffset = collectWinOffset;
+	}
+	
+	public Short getRepeatInterval() {
+		return repeatInterval;
+	}
+
+	public void setRepeatInterval(Short repeatInterval) {
+		this.repeatInterval = repeatInterval;
+	}
+
+	public Short getRepeatInitialNum() {
+		return repeatInitialNum;
+	}
+
+	public void setRepeatInitialNum(Short repeatInitialNum) {
+		this.repeatInitialNum = repeatInitialNum;
+	}
+
+	public Boolean getRepeatCreateAutomatic() {
+		return repeatCreateAutomatic;
+	}
+
+	public void setRepeatCreateAutomatic(Boolean repeatCreateAutomatic) {
+		this.repeatCreateAutomatic = repeatCreateAutomatic;
+	}
+
+	public Boolean getRepeating() {
+		return repeating;
+	}
+
+	public void setRepeating(Boolean repeating) {
+		this.repeating = repeating;
+	}
 
 	/**
 	 * Calculate the scheduling offset of this timepoint relative to earlier timepoints, in one of these ways:
@@ -247,7 +349,7 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	 * time 0). 
 	 * 
 	 *  Note that this natural ordering gets transferred to the listOrder property so that ordering
-	 *  is maintained for ProtocolTrackingConfig, the lightweight class used to represent all nodes
+	 *  is maintained for ProtocolConfigTracking, the lightweight class used to represent all nodes
 	 *  in a ProtocolConfig tree (and which only contains base class members, including listOrder, but
 	 *  not schedWinDaysFromStart). ProtocolTimepointConfigHandler calls orderTimepoints method to do this.
 	 */
