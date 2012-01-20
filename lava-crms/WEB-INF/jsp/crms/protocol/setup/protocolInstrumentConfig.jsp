@@ -33,11 +33,16 @@
 <page:applyDecorator name="component.entity.section">
   <page:param name="sectionId">customCollect</page:param>
   <page:param name="sectionNameKey">${component}.customCollect.section</page:param>
+<tags:createField property="customCollectWinDefined" component="${component}" labelAlignment="right" labelStyle="checkboxRight"/>
+<tags:outputText textKey="protocol.instrumentCollectWin" inline="false" styleClass="italic"/>
 <tags:createField property="customCollectWinProtocolVisitConfigId" component="${component}"/>
-<tags:createField property="customCollectWinSize" component="${component}"/>
+<tags:outputText textKey="protocol.instrumentCustomCollectWinOffset" inline="false" styleClass="italic"/>
 <tags:createField property="customCollectWinOffset" component="${component}"/>
+<tags:outputText textKey="protocol.instrumentCustomCollectWinSize" inline="false" styleClass="italic"/>
+<tags:createField property="customCollectWinSize" component="${component}"/>
 </page:applyDecorator>
 
+<%-- not implemented yet
 <page:applyDecorator name="component.entity.section">
   <page:param name="sectionId">defaultStatus</page:param>
   <page:param name="sectionNameKey">${component}.defaultStatus.section</page:param>
@@ -45,6 +50,16 @@
 <tags:createField property="defaultCompReason" component="${component}"/>
 <tags:createField property="defaultCompNote" component="${component}"/>
 </page:applyDecorator>
+ --%>
+
+<%-- if adding Instrument Config, add default option at same time --%>
+<c:if test="${componentView == 'add'}">
+<page:applyDecorator name="component.entity.section">
+  <page:param name="sectionId">anonymous</page:param>
+  <page:param name="sectionNameKey"> </page:param>
+<tags:createField property="options[0].instrType" component="${component}" metadataName="protocolInstrumentConfig.instrType"/>
+</page:applyDecorator>
+</c:if>
 
 </page:applyDecorator>    
     
@@ -64,7 +79,7 @@
   <page:param name="sectionId">instrumentOptionConfig</page:param>
   <page:param name="sectionNameKey">protocol.instrumentOptionConfig.section</page:param>
 <div class="verticalSpace10">&nbsp;</div>
-<tags:actionURLButton buttonText="Add Option" actionId="lava.crms.protocol.setup.protocolInstrumentOptionConfig" eventId="protocolInstrumentOptionConfig__add" component="${component}" parameters="param,${instrumentId}" locked="${currentPatient.locked}"/>   
+<tags:actionURLButton buttonText="Add Option" actionId="lava.crms.protocol.setup.protocolInstrumentConfigOption" eventId="protocolInstrumentConfigOption__add" component="${component}" parameters="param,${instrumentId}" locked="${currentPatient.locked}"/>   
 <div class="verticalSpace10">&nbsp;</div>
 <tags:tableForm>  
 <tags:listRow>
@@ -75,9 +90,9 @@
 	<tags:listColumnHeader label="Notes" width="23%" />
 </tags:listRow>
 
-<c:forEach items="${command.components[component].options}" var="protocolInstrumentOptionConfig" varStatus="instrumentOptionIterator">
+<c:forEach items="${command.components[component].options}" var="protocolInstrumentConfigOption" varStatus="instrumentOptionIterator">
 <tags:listRow>
-	<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolInstrumentOptionConfig" component="protocolInstrumentOptionConfig" idParam="${protocolInstrumentOptionConfig.id}" locked="${item.locked}"/></tags:listCell>
+	<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolInstrumentConfigOption" component="protocolInstrumentConfigOption" idParam="${protocolInstrumentConfigOption.id}" locked="${item.locked}"/></tags:listCell>
 	<tags:listCell><tags:createField property="options[${instrumentOptionIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="options[${instrumentOptionIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="options[${instrumentOptionIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
@@ -88,6 +103,12 @@
 </page:applyDecorator>
     
 </c:if>
+
+<ui:formGuide simulateEvents="true">
+	<ui:observeForNull elementIds="customCollectWinDefined" component="${component}"/>
+	<ui:disable elementIds="customCollectWinProtocolVisitConfigId,customCollectWinSize,customCollectWinOffset" component="${component}"/>
+	<ui:setValue elementIds="customCollectWinProtocolVisitConfigId,customCollectWinSize,customCollectWinOffset" component="${component}" value=""/>
+</ui:formGuide>
 
 </page:applyDecorator>    
 
