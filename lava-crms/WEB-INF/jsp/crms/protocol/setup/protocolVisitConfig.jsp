@@ -21,7 +21,7 @@
 </c:if>
 <tags:createField property="label" component="${component}"/>
 <c:if test="${primaryVisitConfigFlag}">
-	<tags:outputText textKey="protocol.primaryVisitConfig" inline="false" styleClass="bold"/>
+	<tags:outputText textKey="protocol.visitPrimaryVisitConfig" inline="false" styleClass="bold"/>
 </c:if>
 <tags:createField property="optional" component="${component}"/>
 <tags:createField property="defaultOptionId" component="${component}"/>
@@ -30,7 +30,17 @@
 <tags:createField property="expDate" component="${component}"/>
 </page:applyDecorator>
 
-</page:applyDecorator>    
+<%-- if adding Visit Config, add default option at same time --%>
+<c:if test="${componentView == 'add'}">
+<page:applyDecorator name="component.entity.section">
+  <page:param name="sectionId">anonymous</page:param>
+  <page:param name="sectionNameKey"> </page:param>
+<tags:createField property="options[0].visitTypeProjName" component="${component}" metadataName="protocolVisitConfigOption.visitTypeProjName"/>
+<tags:createField property="options[0].visitType" component="${component}" metadataName="protocolVisitConfigOption.visitType"/>
+</page:applyDecorator>
+</c:if>
+
+</page:applyDecorator>
 
 
 <c:if test="${componentView == 'view'}">
@@ -74,9 +84,9 @@
 	<tags:listCell><tags:createField property="children[${instrumentIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
 </tags:listRow>
 
-		<c:forEach items="${protocolInstrumentConfig.options}" var="protocolInstrumentOptionConfig" varStatus="instrumentOptionIterator">
+		<c:forEach items="${protocolInstrumentConfig.options}" var="protocolInstrumentConfigOption" varStatus="instrumentOptionIterator">
 		<tags:listRow>
-			<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolInstrumentOptionConfig" component="protocolInstrumentOptionConfig" idParam="${protocolInstrumentOptionConfig.id}" locked="${item.locked}"/></tags:listCell>
+			<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolInstrumentConfigOption" component="protocolInstrumentConfigOption" idParam="${protocolInstrumentConfigOption.id}" locked="${item.locked}"/></tags:listCell>
 			<tags:listCell>
 				<c:forEach begin="1" end="3">&nbsp;</c:forEach>
 				<tags:createField property="children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
@@ -97,7 +107,7 @@
   <page:param name="sectionId">visitOptionConfig</page:param>
   <page:param name="sectionNameKey">protocol.visitOptionConfig.section</page:param>
 <div class="verticalSpace10">&nbsp;</div>
-<tags:actionURLButton buttonText="Add Option"  actionId="lava.crms.protocol.setup.protocolVisitOptionConfig" eventId="protocolVisitOptionConfig__add" component="${component}" parameters="param,${visitId}" locked="${currentPatient.locked}"/>   
+<tags:actionURLButton buttonText="Add Option"  actionId="lava.crms.protocol.setup.protocolVisitConfigOption" eventId="protocolVisitConfigOption__add" component="${component}" parameters="param,${visitId}" locked="${currentPatient.locked}"/>   
 <div class="verticalSpace10">&nbsp;</div>
 <tags:tableForm>  
 <tags:listRow>
@@ -108,9 +118,9 @@
 	<tags:listColumnHeader label="Notes" width="23%" />
 </tags:listRow>
 
-<c:forEach items="${command.components[component].options}" var="protocolVisitOptionConfig" varStatus="visitOptionIterator">
+<c:forEach items="${command.components[component].options}" var="protocolVisitConfigOption" varStatus="visitOptionIterator">
 <tags:listRow>
-	<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolVisitOptionConfig" component="protocolVisitOptionConfig" idParam="${protocolVisitOptionConfig.id}" locked="${item.locked}"/></tags:listCell>
+	<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolVisitConfigOption" component="protocolVisitConfigOption" idParam="${protocolVisitConfigOption.id}" locked="${item.locked}"/></tags:listCell>
 	<tags:listCell><tags:createField property="options[${visitOptionIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="options[${visitOptionIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="options[${visitOptionIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
@@ -120,6 +130,14 @@
 </tags:tableForm> 
 </page:applyDecorator>
 
+</c:if>
+
+<c:if test="${componentView == 'add'}">
+<ui:formGuide observeAndOr="or" ignoreDoOnLoad="true" simulateEvents="true">
+    <ui:observe elementIds="options_0_visitTypeProjName" component="${component}" forValue=".+"/>
+    <ui:setValue elementIds="options_0_protocolVisitConfigOption" component="${component}" value=""/>
+    <ui:submitForm form="options_0_protocolVisitConfigOption" event="protocolVisitConfig__reRender"/>
+</ui:formGuide>
 </c:if>
 
 </page:applyDecorator>    
