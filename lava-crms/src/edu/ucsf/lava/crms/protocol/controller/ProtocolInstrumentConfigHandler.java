@@ -11,11 +11,13 @@ import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.controller.ComponentCommand;
+import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
+import edu.ucsf.lava.crms.protocol.model.ProtocolConfigTracking;
 import edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfig;
-import edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig;
+import edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigOption;
 import edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfig;
 
 public class ProtocolInstrumentConfigHandler extends CrmsEntityComponentHandler {
@@ -41,7 +43,7 @@ public class ProtocolInstrumentConfigHandler extends CrmsEntityComponentHandler 
 		ProtocolInstrumentConfig protocolInstrument = (ProtocolInstrumentConfig) backingObjects.get(getDefaultObjectName());
 		LavaDaoFilter filter = EntityBase.newFilterInstance(getCurrentUser(request));
 		filter.addDaoParam(filter.daoNamedParam("instrumentConfigId", protocolInstrument.getId()));
-		ProtocolTrackingConfig instrumentOptionsConfig = (ProtocolTrackingConfig) EntityBase.MANAGER.findOneByNamedQuery("protocol.instrumentConfigTree", filter);
+		ProtocolConfigTracking instrumentOptionsConfig = (ProtocolConfigTracking) EntityBase.MANAGER.findOneByNamedQuery("protocol.instrumentConfigTree", filter);
 		backingObjects.put("instrumentOptionsConfig", instrumentOptionsConfig);
 		
 		return backingObjects;
@@ -54,6 +56,13 @@ public class ProtocolInstrumentConfigHandler extends CrmsEntityComponentHandler 
 		ProtocolVisitConfig visitConfig = (ProtocolVisitConfig) ProtocolVisitConfig.MANAGER.getOne(EntityBase.newFilterInstance().addIdDaoEqualityParam(Long.valueOf(context.getFlowScope().getString("param"))));
 		visitConfig.addProtocolInstrumentConfig(instrumentConfig);
 		instrumentConfig.setProjName(visitConfig.getProjName());
+		
+		// create the default option
+		ProtocolInstrumentConfigOption instrOptionConfig = new ProtocolInstrumentConfigOption();
+		//TODO: set as the defaultOption on this ProtocolInstrumentConfig
+		instrOptionConfig.setProjName(visitConfig.getProjName());
+		instrumentConfig.addOption(instrOptionConfig);
+		
 		return command;
 	}
 	
@@ -92,12 +101,69 @@ public class ProtocolInstrumentConfigHandler extends CrmsEntityComponentHandler 
 		return super.addReferenceData(context, command, errors, model);
 	}
 	
+	
+	protected Event checkConditionalRequired(RequestContext context, Object command, BindingResult errors) throws Exception{
+		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
+		String flowMode = ActionUtils.getFlowMode(context.getActiveFlow().getId());
+		ProtocolInstrumentConfig instrumentConfig = ((ProtocolInstrumentConfig)((ComponentCommand)command).getComponents().get(this.getDefaultObjectName()));
+
+		// look at required fields. since whether they are required or not is conditional based on user input, 
+		// can not configure them in the standard way for required fields, since that takes place before binding, 
+		// before properties have the values on which conditional logic depends
+		
+		if (instrumentConfig.getCustomCollectWinDefined()) {
+			if (instrumentConfig.getCustomCollectWinProtocolVisitConfigId() == null) {
+				LavaComponentFormAction.createRequiredFieldError(errors, "customCollectWinProtocolVisitConfigId", getDefaultObjectName());
+			}
+			if (instrumentConfig.getCustomCollectWinOffset() == null) {
+				LavaComponentFormAction.createRequiredFieldError(errors, "customCollectWinOffset", getDefaultObjectName());
+			}
+			if (instrumentConfig.getCustomCollectWinSize() == null) {
+				LavaComponentFormAction.createRequiredFieldError(errors, "customCollectWinSize", getDefaultObjectName());
+			}
+		}
+		
+		if (errors.hasFieldErrors()) {
+			LavaComponentFormAction.createCommandErrorsForFieldErrors(errors);
+			return new Event(this,ERROR_FLOW_EVENT_ID);
+		}
+
+		return new Event(this,SUCCESS_FLOW_EVENT_ID);
+	}
+	
+	
 	protected Event doSaveAdd(RequestContext context, Object command, BindingResult errors) throws Exception{
+		ProtocolInstrumentConfig instrConfig = (ProtocolInstrumentConfig)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
+		ProtocolInstrumentConfigOption instrOptionConfig = instrConfig.getOptions().iterator().next();
+
+		if (this.checkConditionalRequired(context, command, errors).getId().equals(this.ERROR_FLOW_EVENT_ID)) {
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
+		
+		// because the built-in mechanism for required field checks does not work for properties in a detail record,
+		// check required fields here. this is only a required field on Add Protocol Instrument Config, so it is
+		// separate from checkConditionalRequired
+		if (instrOptionConfig.getInstrType() == null) {
+			LavaComponentFormAction.createRequiredFieldError(errors, "options[0].instrType", getDefaultObjectName());
+		}		
+		if (errors.hasFieldErrors()) {
+			LavaComponentFormAction.createCommandErrorsForFieldErrors(errors);
+			return new Event(this,ERROR_FLOW_EVENT_ID);
+		}
+		// finish off configuration of auto-added initial instrument option (the label is named after the instrType)
+		instrOptionConfig.setLabel(instrOptionConfig.getInstrType());
+		
 		this.handleCustomCollectWinAnchorVisitChange(context, command, errors);
-		return super.doSaveAdd(context, command, errors);
+
+		Event returnEvent = super.doSaveAdd(context, command, errors);
+		return returnEvent;
 	}
 
+
 	protected Event doSave(RequestContext context, Object command, BindingResult errors) throws Exception{
+		if (this.checkConditionalRequired(context, command, errors).getId().equals(this.ERROR_FLOW_EVENT_ID)) {
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
 		this.handleCustomCollectWinAnchorVisitChange(context, command, errors);
 		return super.doSave(context, command, errors);
 	}
