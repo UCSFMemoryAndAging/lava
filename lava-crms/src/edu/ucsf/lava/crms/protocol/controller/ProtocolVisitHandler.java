@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
@@ -20,11 +19,9 @@ import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
-import edu.ucsf.lava.crms.protocol.model.ProtocolAssessmentTimepoint;
-import edu.ucsf.lava.crms.protocol.model.ProtocolTimepoint;
 import edu.ucsf.lava.crms.protocol.model.ProtocolTracking;
 import edu.ucsf.lava.crms.protocol.model.ProtocolVisit;
-import edu.ucsf.lava.crms.protocol.model.ProtocolVisitOptionConfig;
+import edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfigOption;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
 
 public class ProtocolVisitHandler extends CrmsEntityComponentHandler {
@@ -67,60 +64,72 @@ public class ProtocolVisitHandler extends CrmsEntityComponentHandler {
 		//	load up dynamic lists
 		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
 		
-		// if this is an assessment timepoint
-		if (protocolVisit.getProtocolTimepoint().getClass().isAssignableFrom(ProtocolAssessmentTimepoint.class)) {
+		// generate a list of existing visits that are candidates to fulfill this ProtocolVisit.
+		// get all of the existing visits that match the projName and visitType of each ProtocolVisitOptionConfig.
+		// order the list by proximity to the visit's scheduling window
+		Map allMatchingVisits = new LinkedHashMap();
+		
+		// rearrange the options list so that the defaults are listed first, to be used in generating a list
+		// of projName/visitTypes that can fulfill the visit requirement
+		// note: there may be multiple default 
+		List<ProtocolVisitConfigOption> visitTypes = new ArrayList<ProtocolVisitConfigOption>();
+		for (ProtocolVisitConfigOption option : protocolVisit.getProtocolVisitConfig().getOptions()) {
 
-			// generate a list of existing visits that are candidates to fulfill this ProtocolVisit.
-			// get all of the existing visits that match the projName and visitType of each ProtocolVisitOptionConfig.
-			// order the list by proximity to the visit's scheduling window
-			Map allMatchingVisits = new LinkedHashMap();
 			
-			// create a list of projName/visitTypes that can fulfill the visit requirement. put the default
-			// visitType at the beginning of the list
-			List<String> visitTypes = new ArrayList<String>();
-			for (ProtocolVisitOptionConfig option : protocolVisit.getProtocolVisitConfig().getOptions()) {
-				//TODO: ck effDate,expDate and if not currently effective, ignore					
-				//TODO: defaultOption not implemented yet
-				//if (option.getDefaultOption()) {
-				//	visitTypes.add(0, new StringBuffer(option.getVisitTypeProjName()).append("=").append(option.getVisitType()).toString());
-				//}
-				//else {
-					// hopefully there is never an '=' character in a projName? (there may be '-' so can not use that)
-					visitTypes.add(new StringBuffer(option.getVisitTypeProjName()).append("=").append(option.getVisitType()).toString());
-				//}
-			}
 			
-			//NOTE: currently allows visit from any project to fulfill the protocol, regardless of the protocol's project,
-			// so to enable fulfillment for co-enrolled patients 
+			//TODO: defaultOption not implemented yet
+			//if (option.getDefaultOption()) {
+			//	visitTypes.add(0, new StringBuffer(option.getVisitTypeProjName()).append("=").append(option.getVisitType()).toString());
+			//}
+			//else {
+				// hopefully there is never an '=' character in a projName? (there may be '-' so can not use that)
+////					visitTypes.add(new StringBuffer(option.getProjName()).append("=").append(option.getVisitType()).toString());
+			//}
+		}
+		
+		//NOTE: currently allows visit from any project to fulfill the protocol, regardless of the protocol's project,
+		// to enable fulfillment for co-enrolled patients 
+		
+		// generate a list of visits for each visitType, ordered by proximity to the visit's
+		// timepointConfig's scheduling window
+		Date proximityDate = protocolVisit.getProtocolTimepoint().getSchedAnchorDate();
+		// if a Visit has not been assigned to the first timepoint yet, the scheduling window and anchor date
+		// can not be calculated. in this case use the current date so the result is ordered by the most recently
+		// collected instruments
+		if (proximityDate == null) {
+			proximityDate = new Date();
+		}
+		// iterate thru the visit options retrieving a list of matching visits for each, and appending
+		// each list on the end of the allMatchingVisits Map. 
+		// since the mapped ordering of the visit options is by effective date (descending) and within a
+		// given effective date by the default flag (where default options come first), this resulting merged 
+		// list of matching visits across all options should be in order of most desired matches to least 
+		// desired (and from above, within a given option, matches will be ordered by proximity)
+		List<String> options = new ArrayList<String>();
+		for (ProtocolVisitConfigOption option : protocolVisit.getProtocolVisitConfig().getOptions()) {
+			Map matchingVisits = listManager.getDynamicList(getCurrentUser(request), "protocol.matchingVisits", 
+					new String[]{"patientId", "visitProjName", "visitType", "schedAnchorDate", "effDate", "expDate"},
+					new Object[]{protocolVisit.getPatient().getId(), 
+						option.getProjName(),  
+						option.getVisitType(), // visitType
+						proximityDate, option.getEffectiveEffDate(), option.getEffectiveExpDate()}, 
+					new Class[]{Long.class, String.class, String.class, Date.class, Date.class, Date.class});	
+//TODO:  ASSUME WILL NEED TO REMOVE THE BLANK ENTRY FROM LISTS AFTER THE FIRST ONE IF MULTIPLE OPTIONS						
+			allMatchingVisits.putAll(matchingVisits);
 			
-			// generate a list of visits for each visitType, ordered by proximity to the visit's
-			// timepointConfig's scheduling window
-			Date proximityDate = protocolVisit.getProtocolTimepoint().getSchedAnchorDate();
-			// if a Visit has not been assigned to the first timepoint yet, the scheduling window and anchor date
-			// can not be calculated. in this case use the current date so the result is ordered by the most recently
-			// collected instruments
-			if (proximityDate == null) {
-				proximityDate = new Date();
-			}
-			// iterate thru the projName/visitTypes retrieving a list of matching visits for each, and appending
-			// each list on the end of the allMatchingVisits Map. since the visitTypes list has the defaultOption
-			// first, the Visits that match the default visitType will be first in the resulting list.
-			for (String visitType : visitTypes) {
-				Map matchingVisits = listManager.getDynamicList(getCurrentUser(request), "protocol.matchingVisits", 
-						new String[]{"patientId", "visitProjName", "visitType", "schedAnchorDate"},
-						new Object[]{protocolVisit.getPatient().getId(), 
-							visitType.substring(0, visitType.indexOf("=")), // projName 
-							visitType.substring(visitType.indexOf("=")+1), // visitType
-							proximityDate}, 
-						new Class[]{Long.class, String.class, String.class, Date.class});	
-	//ASSUME WILL NEED TO REMOVE THE BLANK ENTRY FROM LISTS AFTER THE FIRST ONE						
-				allMatchingVisits.putAll(matchingVisits);
-			}
-			dynamicLists.put("protocol.matchingVisits", allMatchingVisits);
+			// construct a list of options for the view to informing the user what is valid to aid them
+			// if adding a new Visit to assign 
+//LOOKING AT JUST CONSTRUCTING THIS IN THE jsp from the options				
+			StringBuffer sb = new StringBuffer(option.getProjName()).append("-").append(option.getVisitType());
+			sb.append("(").append(option.getEffectiveEffDate()).append("-").append(option.getEffectiveExpDate()).append(")");
+			options.add(sb.toString());
+		}
+		dynamicLists.put("protocol.matchingVisits", allMatchingVisits);
 
+/*** SHOULD NOT NEED ANYMORE. NUKE AFTER TESTING			
 			// put the list of options in the model for informational display purposes
 			// not using list from above because using different separator
-			//TODO: use the options list directly in jsp 
+//TODO: include effDate/expDate for each 
 			List<String> options = new ArrayList<String>();
 			for (ProtocolVisitOptionConfig option : protocolVisit.getProtocolVisitConfig().getOptions()) {
 				//TODO: ck effDate,expDate and if not currently effective, ignore					
@@ -132,8 +141,8 @@ public class ProtocolVisitHandler extends CrmsEntityComponentHandler {
 					options.add(new StringBuffer(option.getVisitTypeProjName()).append("-").append(option.getVisitType()).toString());
 				//}
 			}
-			model.put("visitConfigOptions", options);
-		}
+***/			
+		model.put("visitConfigOptions", options);
 		
 		model.put("dynamicLists", dynamicLists);
 		
@@ -224,19 +233,29 @@ public class ProtocolVisitHandler extends CrmsEntityComponentHandler {
 				//however, until that is done, validate the ProjName/VisitType after the fact
 				
 				// validate the projName and visit type against those configured as options for this ProtocolVisit
-				boolean matchingVisit = false;
-				for (ProtocolVisitOptionConfig option : protocolVisit.getProtocolVisitConfig().getOptions()) {
+				boolean typeMatch = false, dateMatch = false;
+				ProtocolVisitConfigOption optionMatched = null; // used for error messaging
+				for (ProtocolVisitConfigOption option : protocolVisit.getProtocolVisitConfig().getOptions()) {
 					if (v.getProjName().equals(option.getProjName()) && v.getVisitType().equals(option.getVisitType())) {
-						matchingVisit = true;
-						break;
+						typeMatch = true;
+						// now check whether the instrument is within the effective window for the option
+						if ((option.getEffectiveEffDate() == null || !v.getVisitDate().before(option.getEffectiveEffDate())) 
+								&& (option.getEffectiveExpDate() == null || !v.getVisitDate().after(option.getEffectiveExpDate()))) {
+							optionMatched = option;
+							dateMatch = true;
+							break;
+						}
 					}
 				}
-				if (!matchingVisit) {
+				if (!typeMatch) {
 					StringBuffer visitTypesSb = new StringBuffer();
-					for (ProtocolVisitOptionConfig option : protocolVisit.getProtocolVisitConfig().getOptions()) {
-						visitTypesSb.append("  [").append(option.getVisitTypeProjName()).append(" - ").append(option.getVisitType()).append("]");
+					for (ProtocolVisitConfigOption option : protocolVisit.getProtocolVisitConfig().getOptions()) {
+						visitTypesSb.append("  [").append(option.getProjName()).append(" - ").append(option.getVisitType()).append("]");
 					}
 					LavaComponentFormAction.createCommandError(errors, "protocol.visitTypeMismatch", new String[]{v.getVisitDescrip(),visitTypesSb.toString()});
+				}
+				else if (!dateMatch) {
+					LavaComponentFormAction.createCommandError(errors, "protocol.instrDateMismatch", new Object[]{v.getVisitDescrip(), v.getVisitDate(), optionMatched.getEffectiveEffDate(), optionMatched.getEffectiveExpDate()});
 				}
 				else {
 					// only set the id here, not the Visit object itself, as this needs to simulate user select of a Visit. if call
