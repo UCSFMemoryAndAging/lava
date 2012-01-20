@@ -36,11 +36,16 @@
 	<tags:listCell>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#8226;&nbsp;${option}</tags:listCell>
 </tags:listRow>	  
 </c:forEach>
+<c:forEach items="${protocolVisit.options}" var="option" varStatus="iterator">
+<tags:listRow>
+	<tags:listCell>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#8226;&nbsp;${option.visitType}&nbsp;-&nbsp;${visitTypeProjName}&nbsp;(${option.effectiveEffDate}&nbsp;-&nbsp;-${option.effectiveExpDate})</tags:listCell>
+</tags:listRow>	  
+</c:forEach>
 <div>&nbsp;</div>
 <%-- would be good if could add a bulleted style to listCell so would not have to create structure to do the above
 <c:forEach items="${command.components['visitConfigOptions']}" var="option" varStatus="iterator">
 <tags:listRow>
-	<tags:listCell><tags:createField property="[${iterator.index}].visitTypeProjName,[${iterator.index}].visitType" separator=" - " component="visitConfigOptions" metadataName="protocolVisitOptionConfig.visitTypeInList" mode="vw"/></tags:listCell>
+	<tags:listCell><tags:createField property="[${iterator.index}].visitTypeProjName,[${iterator.index}].visitType" separator=" - " component="visitConfigOptions" metadataName="protocolVisitConfigOption.visitTypeInList" mode="vw"/></tags:listCell>
 </tags:listRow>	  
 </c:forEach>
 --%>
