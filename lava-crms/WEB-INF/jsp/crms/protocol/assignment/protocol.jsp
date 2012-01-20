@@ -70,11 +70,11 @@
 
 <c:forEach items="${command.components[component].children}" var="timepoint" varStatus="timepointIterator">
 <tags:listRow>
-	<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.assignment.protocolAssessmentTimepoint" component="protocolAssessmentTimepoint" idParam="${timepoint.id}" locked="${item.locked}"/></tags:listCell>
+	<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.assignment.protocolTimepoint" component="protocolTimepoint" idParam="${timepoint.id}" locked="${item.locked}"/></tags:listCell>
 	<tags:listCell><tags:createField property="children[${timepointIterator.index}].config.label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell>
 		Timepoint
-		<tags:listActionURLButton buttonImage="view" actionId="lava.crms.protocol.setup.protocolAssessmentTimepointConfig" eventId="protocolAssessmentTimepointConfig__view" idParam="${timepoint.config.id}"/>	    
+		<tags:listActionURLButton buttonImage="view" actionId="lava.crms.protocol.setup.protocolTimepointConfig" eventId="protocolTimepointConfig__view" idParam="${timepoint.config.id}"/>	    
 	</tags:listCell>
 	<tags:listCell><tags:createField property="children[${timepointIterator.index}].assignDescrip" component="${component}" metadataName="protocol.assignDescrip" mode="${fieldMode}"/></tags:listCell>
 </tags:listRow>	
