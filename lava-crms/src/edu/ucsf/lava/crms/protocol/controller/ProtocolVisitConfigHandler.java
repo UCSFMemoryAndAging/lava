@@ -6,16 +6,19 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.validation.BindingResult;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
+import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.controller.ComponentCommand;
+import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig;
-import edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig;
+import edu.ucsf.lava.crms.protocol.model.ProtocolConfigTracking;
 import edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfig;
+import edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfigOption;
 
 public class ProtocolVisitConfigHandler extends CrmsEntityComponentHandler {
 
@@ -40,7 +43,7 @@ public class ProtocolVisitConfigHandler extends CrmsEntityComponentHandler {
 		ProtocolVisitConfig visitConfig = (ProtocolVisitConfig) backingObjects.get(getDefaultObjectName());
 		LavaDaoFilter filter = EntityBase.newFilterInstance(getCurrentUser(request));
 		filter.addDaoParam(filter.daoNamedParam("visitConfigId", visitConfig.getId()));
-		ProtocolTrackingConfig visitConfigTree = (ProtocolTrackingConfig) EntityBase.MANAGER.findOneByNamedQuery("protocol.visitConfigTree", filter);
+		ProtocolConfigTracking visitConfigTree = (ProtocolConfigTracking) EntityBase.MANAGER.findOneByNamedQuery("protocol.visitConfigTree", filter);
 		backingObjects.put("visitConfigTree", visitConfigTree);
 				
 		return backingObjects;
@@ -52,6 +55,13 @@ public class ProtocolVisitConfigHandler extends CrmsEntityComponentHandler {
 		ProtocolTimepointConfig timepointConfig = (ProtocolTimepointConfig) ProtocolTimepointConfig.MANAGER.getOne(EntityBase.newFilterInstance().addIdDaoEqualityParam(Long.valueOf(context.getFlowScope().getString("param"))));
 		timepointConfig.addProtocolVisitConfig(visitConfig);
 		visitConfig.setProjName(timepointConfig.getProjName());
+		
+		// create the default option
+		ProtocolVisitConfigOption visitOptionConfig = new ProtocolVisitConfigOption();
+		//TODO: set as the defaultOption on this ProtocolVisitConfig
+		visitOptionConfig.setProjName(timepointConfig.getProjName());
+		visitConfig.addOption(visitOptionConfig);
+		
 		return command;
 	}
 	
@@ -62,7 +72,16 @@ public class ProtocolVisitConfigHandler extends CrmsEntityComponentHandler {
 
 		//	load up dynamic lists
 		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
+		dynamicLists.put("context.projectList", listManager.getDynamicList(getCurrentUser(request), "context.projectList"));
 		
+		// if user has not specified a project for listing project visitTypes, use the project 
+		// of this protocol (note: this should generally not be necessary since the visitTypeProjName is 
+		// defaulted to the protocol's project at creation, but the user could have set it to blank)
+		if (visitConfig.getOptions().iterator().next().getProjName() == null) {
+			visitConfig.getOptions().iterator().next().setProjName(visitConfig.getProjName());
+		}
+		dynamicLists.put("visit.visitTypes", listManager.getDynamicList("visit.visitTypes", 
+			"projectName", visitConfig.getOptions().iterator().next().getProjName(), String.class));
 		model.put("dynamicLists", dynamicLists);
 
 		// set a flag indicating whether this is the primary ProtocolVisitConfig for the view to display
@@ -107,5 +126,28 @@ public class ProtocolVisitConfigHandler extends CrmsEntityComponentHandler {
 		}
 	}	
 	
-	
+	protected Event doSaveAdd(RequestContext context, Object command, BindingResult errors) throws Exception{
+		ProtocolVisitConfig visitConfig = (ProtocolVisitConfig)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
+		ProtocolVisitConfigOption visitOptionConfig = visitConfig.getOptions().iterator().next();
+
+		// because the built-in mechanism for required field checks does not work for properties in a detail record,
+		// check required fields here
+		if (visitOptionConfig.getProjName() == null) {
+			LavaComponentFormAction.createRequiredFieldError(errors, "options[0].vistTypeProjName", getDefaultObjectName());
+		}		
+		if (visitOptionConfig.getVisitType() == null) {
+			LavaComponentFormAction.createRequiredFieldError(errors, "options[0].visitType", getDefaultObjectName());
+		}		
+		if (errors.hasFieldErrors()) {
+			LavaComponentFormAction.createCommandErrorsForFieldErrors(errors);
+			return new Event(this,ERROR_FLOW_EVENT_ID);
+		}
+		
+		// finish off configuration of auto-added initial visit option (the label is named after the projName/visitType)
+		visitOptionConfig.setLabel(new StringBuffer(visitOptionConfig.getProjName()).append(" - ").append(visitOptionConfig.getVisitType()).toString());
+		
+		Event returnEvent = super.doSaveAdd(context, command, errors);
+		return returnEvent;
+	}
+
 }
