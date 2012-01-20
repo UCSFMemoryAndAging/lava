@@ -19,13 +19,13 @@ public abstract class ProtocolVisitConfigBase extends ProtocolNodeConfig {
 		super();
 		this.addPropertyToAuditIgnoreList("protocolTimepointConfigBase");
 		this.addPropertyToAuditIgnoreList("protocolInstrumentConfigsBase");
-		this.addPropertyToAuditIgnoreList("protocolVisitOptionConfigsBase");
+		this.addPropertyToAuditIgnoreList("protocolVisitConfigOptionsBase");
 	}
 	
 
 	private ProtocolTimepointConfigBase protocolTimepointConfigBase;
 	private Set<? extends ProtocolInstrumentConfigBase> protocolInstrumentConfigsBase = new LinkedHashSet<ProtocolInstrumentConfigBase>();
-	private Set<? extends ProtocolVisitOptionConfigBase> protcolVisitOptionConfigsBase = new HashSet<ProtocolVisitOptionConfigBase>();
+	private Set<? extends ProtocolVisitConfigOptionBase> protcolVisitConfigOptionsBase = new HashSet<ProtocolVisitConfigOptionBase>();
 	
 	public ProtocolTimepointConfigBase getProtocolTimepointConfigBase() {
 		return protocolTimepointConfigBase;
@@ -43,12 +43,12 @@ public abstract class ProtocolVisitConfigBase extends ProtocolNodeConfig {
 		this.protocolInstrumentConfigsBase = protocolInstrumentConfigs;
 	}
 
-	public Set<? extends ProtocolVisitOptionConfigBase> getProtocolVisitOptionConfigsBase() {
-		return protcolVisitOptionConfigsBase;
+	public Set<? extends ProtocolVisitConfigOptionBase> getProtocolVisitConfigOptionsBase() {
+		return protcolVisitConfigOptionsBase;
 	}
 
-	public void setProtocolVisitOptionConfigsBase(Set<? extends ProtocolVisitOptionConfigBase> options) {
-		this.protcolVisitOptionConfigsBase = options;
+	public void setProtocolVisitConfigOptionsBase(Set<? extends ProtocolVisitConfigOptionBase> options) {
+		this.protcolVisitConfigOptionsBase = options;
 	}
 
 }
