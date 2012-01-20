@@ -1,15 +1,8 @@
 package edu.ucsf.lava.crms.protocol.model;
 
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
-import edu.ucsf.lava.core.model.EntityBase;
-import edu.ucsf.lava.core.model.EntityManager;
 import edu.ucsf.lava.crms.model.CrmsEntity;
 
 /**
@@ -19,7 +12,7 @@ import edu.ucsf.lava.crms.model.CrmsEntity;
  * 
  * The tree hierarchy is:
  * ProtocolConfig
- *   ProtocolTimepointConfig (subclass: ProtocolAssessmentTimepointConfig)
+ *   ProtocolTimepointConfig
  *     ProtocolVisitConfig (with a collection of ProtocolVisitConfigOption elements)
  *       ProtocolInstrumentConfig (with a collection of ProtocolInstrumentConfigOption elements)
  *       
@@ -30,7 +23,7 @@ import edu.ucsf.lava.crms.model.CrmsEntity;
  * objects of just one of the subclasses (because the base mapping is self-referencing via
  * a parent reference, which must generically be mapped to the base class -- and any query involving
  * a mapping with a base class joins to all of its subclasses). Instead, a separate base class exists 
- * for each protocol component type (where each base class plus the ProtocolTrackingConfig class map
+ * for each protocol component type (where each base class plus the ProtocolConfigTracking class map
  * the same base table) and the common properties are included rather than inherited.  
  * 
  * @author ctoohey
@@ -50,6 +43,9 @@ public abstract class ProtocolNodeConfig extends CrmsEntity {
 	public ProtocolNodeConfig(){
 		super();
 		setPatientAuth(false);
+		Calendar cal = Calendar.getInstance();
+		cal.set(2000, 0, 1);
+		this.setEffDate(cal.getTime());
 	}
 	
 	public String getProjName() {
