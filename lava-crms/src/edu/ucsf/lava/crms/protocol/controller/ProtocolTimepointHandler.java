@@ -14,15 +14,22 @@ import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.protocol.model.ProtocolTimepoint;
-import edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolTracking;
 
 public class ProtocolTimepointHandler extends CrmsEntityComponentHandler {
 
 	public ProtocolTimepointHandler() {
 		super();
+		setHandledEntity("protocolTimepoint", edu.ucsf.lava.crms.protocol.model.ProtocolTimepoint.class);
 	}
 
+	
+	protected String[] defineRequiredFields(RequestContext context, Object command) {
+	    setRequiredFields(new String[]{});
+	    return getRequiredFields();
+	}
+
+	
 	public Map getBackingObjects(RequestContext context, Map components) {
 		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
 		String flowMode = ActionUtils.getFlowMode(context.getActiveFlow().getId());
