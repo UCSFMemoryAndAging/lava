@@ -12,6 +12,17 @@
 <property name="currStatus" column="curr_status" type="string" length="25"/>
 <property name="currReason" column="curr_reason" type="string" length="25"/>
 <property name="currNote" column="curr_note" type="string" length="100"/>
+<property name="compStatus" column="comp_status" type="string" length="25"/>
+<property name="compReason" column="comp_reason" type="string" length="25"/>
+<property name="compNote" column="comp_note" type="string" length="100"/>
+<property name="compBy" column="comp_by" type="string" length="25"/>
+<property name="compDate" column="comp_date" type="date"/>
+<property name="schedWinStatus" column="sched_win_status" type="string" length="25"/>
+<property name="schedWinReason" column="sched_win_reason" type="string" length="25"/>
+<property name="schedWinNote" column="sched_win_note" type="string" length="100"/>
+<property name="collectWinStatus" column="collect_win_status" type="string" length="25"/>
+<property name="collectWinReason" column="collect_win_reason" type="string" length="25"/>
+<property name="collectWinNote" column="collect_win_note" type="string" length="100"/>
 <property name="assignDescrip" column="assign_desc" type="string" length="100"/>
 <property name="notes" column="notes" type="string" length="255"/>
 
