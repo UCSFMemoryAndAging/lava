@@ -14,12 +14,14 @@ public class ProtocolInstrumentConfig extends ProtocolInstrumentConfigBase {
 	}
 	
 	public Object[] getAssociationsToInitialize(String method) {
-		return new Object[]{this.getProtocolInstrumentOptionConfigsBase()};
+		return new Object[]{this.getProtocolInstrumentConfigOptionsBase()};
 	}
 
 	private Boolean optional;
+	private String category;
 	// a custom collection window allows an instrument to override the default collection
-	// window defined in the timepoint configuration to which this instrument belongs 
+	// window defined in the timepoint configuration to which this instrument belongs
+	private Boolean customCollectWinDefined;
 // only seems to make sense for an instrument to be able to override the anchor time and window
 // and not override with customWindowType="Float" where this individual instrument is collected
 // relative to other instruments because with customWindowType="Float" the instruments are working
@@ -38,7 +40,7 @@ public class ProtocolInstrumentConfig extends ProtocolInstrumentConfigBase {
 	private String defaultCompStatus;
 	private String defaultCompReason;
 	private String defaultCompNote;
-	private ProtocolInstrumentOptionConfig defaultOption;
+	private ProtocolInstrumentConfigOption defaultOption;
 	// defaultOptionId facilitates modifying the defaultOption association. the user selects a 
 	// defaultOption (ProtocolInstrumentOptionConfig) and that defaultOptionId is bound to this property. 
 	// if it differs from this entity's existing defaultOption id, the defaultOptionId is used to 
@@ -57,20 +59,20 @@ public class ProtocolInstrumentConfig extends ProtocolInstrumentConfigBase {
 	public void setProtocolVisitConfig(ProtocolVisitConfig protocolVisitBase) {
 		super.setProtocolVisitConfigBase(protocolVisitBase);
 	}
-	public Set<ProtocolInstrumentOptionConfig> getOptions() {
-		return (Set<ProtocolInstrumentOptionConfig>) super.getProtocolInstrumentOptionConfigsBase();
+	public Set<ProtocolInstrumentConfigOption> getOptions() {
+		return (Set<ProtocolInstrumentConfigOption>) super.getProtocolInstrumentConfigOptionsBase();
 	}
-	public void setOptions(Set<ProtocolInstrumentOptionConfig> options) {
-		super.setProtocolInstrumentOptionConfigsBase(options);
+	public void setOptions(Set<ProtocolInstrumentConfigOption> options) {
+		super.setProtocolInstrumentConfigOptionsBase(options);
 	}
 
 	
 	/*
 	 * Method to add a ProtocolInstrumentOptionConfig to an ProtocolInstrumentConfig's collection, managing the bi-directional relationship.
 	 */	
-	public void addOption(ProtocolInstrumentOptionConfig protocolInstrumentOptionConfig) {
-		protocolInstrumentOptionConfig.setProtocolInstrumentConfig(this);
-		this.getOptions().add(protocolInstrumentOptionConfig);
+	public void addOption(ProtocolInstrumentConfigOption protocolInstrumentConfigOption) {
+		protocolInstrumentConfigOption.setProtocolInstrumentConfig(this);
+		this.getOptions().add(protocolInstrumentConfigOption);
 	}
 	
 	public Boolean getOptional() {
@@ -78,6 +80,22 @@ public class ProtocolInstrumentConfig extends ProtocolInstrumentConfigBase {
 	}
 	public void setOptional(Boolean optional) {
 		this.optional = optional;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+	
+	public Boolean getCustomCollectWinDefined() {
+		return customCollectWinDefined;
+	}
+
+	public void setCustomCollectWinDefined(Boolean customCollectWinDefined) {
+		this.customCollectWinDefined = customCollectWinDefined;
 	}
 
 	public ProtocolVisitConfig getCustomCollectWinProtocolVisitConfig() {
@@ -126,11 +144,11 @@ public class ProtocolInstrumentConfig extends ProtocolInstrumentConfigBase {
 		this.defaultCompNote = defaultCompNote;
 	}
 
-	public ProtocolInstrumentOptionConfig getDefaultOption() {
+	public ProtocolInstrumentConfigOption getDefaultOption() {
 		return defaultOption;
 	}
 
-	public void setDefaultOption(ProtocolInstrumentOptionConfig defaultOption) {
+	public void setDefaultOption(ProtocolInstrumentConfigOption defaultOption) {
 		this.defaultOption = defaultOption;
 		if (this.defaultOption != null) {
 			this.defaultOptionId = this.defaultOption.getId();
