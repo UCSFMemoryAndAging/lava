@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"
+    [<!ENTITY protocolConfigOptionInclude SYSTEM "classpath://../hibernate/crms/protocol/protocolConfigOptionInclude.xml" >
+     <!ENTITY protocolConfigFilterInclude SYSTEM "classpath://../hibernate/crms/protocol/protocolConfigFilterInclude.xml" >]>
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigOptionBase" table="prot_config_option" select-before-update="true">
+
+		&protocolConfigOptionInclude;
+		
+		<many-to-one name="protocolInstrumentConfigBase" class="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigBase" column="parent_id" not-null="true" cascade="none"/>
+		
+		&protocolConfigFilterInclude;
+		
+	</class>		
+
+</hibernate-mapping>
+
+
+
