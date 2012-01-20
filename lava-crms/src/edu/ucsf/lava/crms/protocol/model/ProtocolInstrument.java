@@ -1,5 +1,12 @@
 package edu.ucsf.lava.crms.protocol.model;
 
+import static edu.ucsf.lava.crms.assessment.controller.InstrumentHandler.STATUS_CANCELLED;
+import static edu.ucsf.lava.crms.assessment.controller.InstrumentHandler.STATUS_COMPLETE;
+import static edu.ucsf.lava.crms.assessment.controller.InstrumentHandler.STATUS_INCOMPLETE;
+import static edu.ucsf.lava.crms.assessment.controller.InstrumentHandler.STATUS_PARTIALLY_COMPLETE;
+import static edu.ucsf.lava.crms.assessment.controller.InstrumentHandler.STATUS_SCHEDULED;
+import static edu.ucsf.lava.crms.assessment.controller.InstrumentHandler.STATUS_UNKNOWN;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -18,8 +25,10 @@ public class ProtocolInstrument extends ProtocolInstrumentBase {
 	}
 	
 	public Object[] getAssociationsToInitialize(String method) {
-		return new Object[]{/*this.getProtocolInstrumentBase(),*/
-				this.getProtocolInstrumentConfigBase().getProtocolInstrumentOptionConfigsBase(),
+		return new Object[]{
+				// note that its parent (ProtocolVisit) and configuration (ProtocolInstrumentConfig) are eagerly fetched
+				// so no need to initialize those
+				this.getProtocolInstrumentConfigBase().getProtocolInstrumentConfigOptionsBase(),
 				this.getPatient()};
 	}
 
@@ -31,14 +40,15 @@ public class ProtocolInstrument extends ProtocolInstrumentBase {
 
 	// collection window calculated either from custom configuration in its ProtocolInstrumentConfig, or the default collection
 	// window defined in ProtocolTimepointConfig
-	private ProtocolVisit collectWinProtocolVisit;
+	private ProtocolVisit collectWinProtocolVisit; // this is set in ProtocolHandler doSaveAdd when Protocol assigned to a Patient
 	private Date collectWinStart;
 	private Date collectWinEnd;
 	private Date collectAnchorDate; 
-	
+/** moved to ProtocolNode	
 	private String collectWinStatus;
 	private String collectWinReason;
 	private String collectWinNote;
+**/	
 	
 	/**
 	 * Convenience methods to convert ProtocolInstrumentBase method types to types of this subclass,
@@ -75,24 +85,6 @@ public class ProtocolInstrument extends ProtocolInstrumentBase {
 		this.instrId = instrId;
 	}
 	
-	public String getCollectWinStatus() {
-		return collectWinStatus;
-	}
-	public void setCollectWinStatus(String collectWinStatus) {
-		this.collectWinStatus = collectWinStatus;
-	}
-	public String getCollectWinReason() {
-		return collectWinReason;
-	}
-	public void setCollectWinReason(String collectWinReason) {
-		this.collectWinReason = collectWinReason;
-	}
-	public String getCollectWinNote() {
-		return collectWinNote;
-	}
-	public void setCollectWinNote(String collectWinNote) {
-		this.collectWinNote = collectWinNote;
-	}
 	public ProtocolVisit getCollectWinProtocolVisit() {
 		return collectWinProtocolVisit;
 	}
@@ -123,7 +115,7 @@ public class ProtocolInstrument extends ProtocolInstrumentBase {
 	 * should be done whenever configuration is changed. The date is persisted in the  
 	 * ProtocolInstrument collectAnchorDate property.
 	 * 
-	 * A ProtocolAssessmentTimepointConfig defines a collection window relative to the 
+	 * A ProtocolTimepointConfig defines a collection window relative to the 
 	 * timepoint's primary visit, which serves as the default collection window for all of the 
 	 * timepoint's instruments. However each instrument can override this collection window
 	 * by defining its own custom collection window in ProtocolInstrumentOptionConfig. 
@@ -141,17 +133,32 @@ public class ProtocolInstrument extends ProtocolInstrumentBase {
 		// ProtocolVisitConfig) within the same timepoint as this instrument in its
 		// ProtocolInstrumentConfig. if so, use the Visit associated with the ProtocolVisit
 		// defined in the configuration
-		if (this.getCollectWinProtocolVisit() != null && this.getCollectWinProtocolVisit().getVisit() != null) {
-			return this.getCollectWinProtocolVisit().getVisit().getVisitDate();
+		if (this.getProtocolInstrumentConfig().getCustomCollectWinDefined()) {
+			if (this.getCollectWinProtocolVisit() != null && this.getCollectWinProtocolVisit().getVisit() != null) {
+				return this.getCollectWinProtocolVisit().getVisit().getVisitDate();
+			}
+			else {
+				return null;
+			}
 		}
 		// if there is no custom collection window visit defined for this instrument, then
 		// use the Visit associated with the primary ProtocolVisit as defined by the timepoint, 
 		// ProtocolTimepointConfig
-		else if (this.getProtocolVisit().getProtocolTimepoint().getPrimaryProtocolVisit() != null &&
+//TODO: believe this works without explicitly retrieving ProtocolTimepointConfig in getAssociationsToInitialize 
+//because on retrieval of ProtocolInstrument eager fetching fetches ProtocolVisit (and ProtocolInstrumentConfig) 
+//which in turn has eager fetching that fetches ProtocolTimepoint (and ProtocolVisitConfig) which in turn eagerly
+//fetches ProtocolTimepointConfig (and Protocol)		
+		else if (this.getProtocolVisit().getProtocolTimepoint().getProtocolTimepointConfig().getCollectWindowDefined()) { 
+			if (this.getProtocolVisit().getProtocolTimepoint().getPrimaryProtocolVisit() != null &&
 				this.getProtocolVisit().getProtocolTimepoint().getPrimaryProtocolVisit().getVisit() != null) {
-			return this.getProtocolVisit().getProtocolTimepoint().getPrimaryProtocolVisit().getVisit().getVisitDate();
-		}		
+				return this.getProtocolVisit().getProtocolTimepoint().getPrimaryProtocolVisit().getVisit().getVisitDate();
+			}		
+			else {
+				return null;
+			}
+		}
 		else {
+			// no collection window defined
 			return null;
 		}
 	}
@@ -180,111 +187,188 @@ public class ProtocolInstrument extends ProtocolInstrumentBase {
 			
 			// if there are custom collection window attributes configured in the ProtocolInstrumentConfig,
 			// use those
-			if (this.getProtocolInstrumentConfig().getCustomCollectWinSize() != null 
-					&& this.getProtocolInstrumentConfig().getCustomCollectWinOffset() != null) {
-				// collectWinOffset is typically 0 or negative. it is negative to balance the scheduling
-				// window around collectAnchorDate
-				cal.add(Calendar.DATE, this.getProtocolInstrumentConfig().getCustomCollectWinOffset());
-				this.setCollectWinStart(cal.getTime());
-				cal.add(Calendar.DATE, this.getProtocolInstrumentConfig().getCustomCollectWinSize());
-				this.setCollectWinEnd(cal.getTime());
+			if (this.getProtocolInstrumentConfig().getCustomCollectWinDefined()) {
+				if (this.getProtocolInstrumentConfig().getCustomCollectWinSize() != null 
+						&& this.getProtocolInstrumentConfig().getCustomCollectWinOffset() != null) {
+					// collectWinOffset is typically 0 or negative. it is negative to balance the scheduling
+					// window around collectAnchorDate
+					cal.add(Calendar.DATE, this.getProtocolInstrumentConfig().getCustomCollectWinOffset());
+					this.setCollectWinStart(cal.getTime());
+					cal.add(Calendar.DATE, this.getProtocolInstrumentConfig().getCustomCollectWinSize());
+					this.setCollectWinEnd(cal.getTime());
+				}
 			}
 			// otherwise, use the default collection window configuration for the timepoint to which
 			// this instrument belongs
-			else {
+			else if (this.getProtocolVisit().getProtocolTimepoint().getProtocolTimepointConfig().getCollectWindowDefined()) { 
 				// collectWinOffset is typically 0 or negative. it is negative to balance the scheduling
 				// window around collectAnchorDate
-				cal.add(Calendar.DATE, ((ProtocolAssessmentTimepointConfig)this.getProtocolVisit().getProtocolTimepoint().getProtocolTimepointConfig()).getCollectWinOffset());
+				cal.add(Calendar.DATE, this.getProtocolVisit().getProtocolTimepoint().getProtocolTimepointConfig().getCollectWinOffset());
 				this.setCollectWinStart(cal.getTime());
-				cal.add(Calendar.DATE, ((ProtocolAssessmentTimepointConfig)this.getProtocolVisit().getProtocolTimepoint().getProtocolTimepointConfig()).getCollectWinSize());
+				cal.add(Calendar.DATE, this.getProtocolVisit().getProtocolTimepoint().getProtocolTimepointConfig().getCollectWinSize());
 				this.setCollectWinEnd(cal.getTime());
 			}
 		}
 	}
 
 
-	//TODO: under construction
 	public void updateStatus() {
-		//TODO: set collectStatus
-		//if there is an instrument associated 
-		  // if it has been completed
-		  // else
-     	    // compare its dcDate vs. the collection window
-            // if not in collection window yet, do not set status 
-		    // if within collection window: PENDING
-		    // if past collection windoe: PENDING - LATE
-		//else
-		//  could be same as else above, but since no instrument associated, do not know
-		//  which collection window to use, but could just use default window in this case
+		// Completion Status
 		
+		// Compute the Completion Status as one of the following:
+		// "Pending", "In Progress", "Completed", "Partial", "Not Completed"
 		
-		// calculate the collection window
-		// if an instrument has been associated, can check if there is a custom collection window
-		// defined for that instrType. otherwise, use the timepoint collection window.
-		// if no instrument has been associated, use the timepoint collection window.
-		// if the timepoint collection window has not been defined, then:
-		//   1) give some kind of warning msg on page or in some kind of validation report
-		//   2) just set compStatus PENDING; PENDING - LATE not an option 
-		//   3) could set collectWinStatus to N/A
+		// the compStatus property is used for the completion status of the instrument, without regard for
+		// whether or not the instrument was completed within the collection window or not (that will be
+		// reflected in the collectWinStatus)
 		
+		// compStatus is a calculated property, but may be modified by the user under certain circumstances. 
+		// compReason is available for the user to augment and/or override compStatus, a kind of secondary 
+		// status, and compNotes is available for the user to further clarify the completion status
 		
-		
-		
-		// if an instrument has been associated per the protocol definition, set the collection
-		// and completion status
-		// golden rule1: do not set a status if it already has a value as do not want to override
-		// the value a user has set
-		// golden rule2: allow user to override any computed status
-		if (this.instrument != null) {
+		// Instrument DCStatus values (list table: listname='DataCollectionStatus')
+		// Cancelled
+		// Cancelled - Alt Test Given
+		// Cancelled - Patient Factor
+		// Cancelled - Situational
+		// Scheduled
+		// Incomplete
+		// Incomplete - Not Returned
+		// Incomplete - Scoring
+		// Complete - Partially 
+		// Complete
+		// Unknown
+		// note: the above "Incomplete" statuses indicate that collection is in progress, i.e. the
+		// data is incomplete but collection is not complete yet, as opposed to the status
+		// "Complete - Partial", which indicates that the data is incomplete and collection is
+		// complete
 
-			if (this.instrument.getDcStatus() != null) {
-				if (instrument.getDcStatus().toLowerCase().startsWith("complete")) {
-					this.setCurrStatus("COMPLETED");
-				}
-				else if (this.instrument.getDcStatus().toLowerCase().startsWith("cancelled")) {
-				// note that the user may choose to override this and/or set compReason and compNote 
-					this.setCurrStatus("CANCELLED");
-				}
-				else if (this.instrument.getDcStatus().toLowerCase().startsWith("incomplete")) {
-					// note that the user may choose to override this and/or set compReason and compNote 
-					this.setCollectWinStatus("NOT COMPLETED");
-				}
-				else if (this.instrument.getDcStatus().toLowerCase().startsWith("scheduled")) {
-					this.setCollectWinStatus("PENDING");
-					
-//TODO:checking whether before/within/after collection window, and set to "", "PENDING", "PENDING - LATE", respectively
-// i.e. thought is that if not within collection window, there should be no status yet, i.e. coordinator can ignore,
-//  and that coordinator should definitely know if collection is late --- could use collection status for that, i.e.
-//  compStatus="PENDING" collectWinStatus="LATE" but seems clearer to just relegate collectWinStatus to the
-//  status of a completed instrument
-// if no collection window defined, then just set to PENDING					
-				}
-				else {
-					//TODO: log unhandled dcStatus
-				}
-			}	
 		
-			// collection status
-			if (this.getCurrStatus() != null && this.getCurrStatus().equals("COMPLETE")) {
-					
-					//TODO: compare dcDate vs. collect window: set collectStatus EARLY,COLLECTED or LATE
-				    // the collection window may be custom so need to check the ProtocolInstrumentOptions, find which option this
-				    //  instrType corresponds to, and find if there is a custom window
-					
-					//jhesse: think that ON TIME would be more accurate than "COLLECTED" given "EARLY" and "LATE"					
-					this.setCollectWinStatus("EARLY | ON TIME | LATE");
-			}
-				
+		Date winStart, winEnd;
+		Date currDate = new Date();
+		// the status determination uses the window during which the instrument should have been completed. use the collection
+		// window if it has been defined. otherwise use the scheduling window (there can be a default collection window defined
+		// at the timepoint config level and/or a custom collection window defined at the instrument config level)
+		// configured. the custom collection window visit will be null)
+		if (this.getProtocolVisit().getProtocolTimepoint().getProtocolTimepointConfig().getCollectWindowDefined() ||
+				this.getProtocolInstrumentConfig().getCustomCollectWinDefined()) {
+			winStart = this.getCollectWinStart();
+			winEnd = this.getCollectWinEnd();
 		}
 		else {
-			// if within or past the collection window and no instrument has been associated yet, seems
-			// like should set compStatus to something like "NO INSTRUMENT" to alert coordinator
-			
-			
-			
-			
+			// collection window not configured, so use the the scheduling window
+			winStart = this.getProtocolVisit().getProtocolTimepoint().getSchedWinStart();
+			winEnd= this.getProtocolVisit().getProtocolTimepoint().getSchedWinEnd(); 
 		}
 		
+		if (winStart == null || winEnd == null) {
+			// if a collection window references a visit that has not been assigned to the protocol, then can not compute the
+			// collection window and therefore can not determine which status to assign in this situation
+			
+			// collection window not defined
+//TODO: determine what this should be				
+			this.setCompStatus("TBD");
+		}
+		else if (this.instrument == null || this.instrument.getDcStatus() == null 
+				|| this.instrument.getDcStatus().startsWith(STATUS_CANCELLED)
+				|| this.instrument.getDcStatus().equals(STATUS_UNKNOWN)
+				|| this.instrument.getDcStatus().equals(STATUS_SCHEDULED)) {
+			if (currDate.before(winStart)) {
+				// before collection window
+				this.setCompStatus(PENDING);
+			}
+			else if (currDate.after(winEnd)) {
+				// after collection window
+				this.setCompStatus(NOT_COMPLETED);
+			}
+			else {
+				// during collection window
+				this.setCompStatus(PENDING_NOW);
+			}
+		}
+		else if (this.instrument.getDcStatus().startsWith(STATUS_INCOMPLETE)) {
+			if (currDate.before(winStart)) {
+				// before collection window
+				this.setCompStatus(PENDING);
+			}
+			else if (currDate.before(winEnd)) {
+				// during collection window
+				this.setCompStatus(IN_PROGRESS);
+			}
+			else {
+//TODO: this does not distinguish from above, i.e. without investigating, user will not know whether
+//the instrument was never assigned/never collected above, vs. collection has begun but incomplete here				
+				// after collection window
+				this.setCompStatus(NOT_COMPLETED);
+			}
+		}
+		else if (instrument.getDcStatus().equals(STATUS_PARTIALLY_COMPLETE)) {
+			this.setCompStatus(PARTIAL);
+		}
+		else if (instrument.getDcStatus().startsWith(STATUS_COMPLETE)) {
+			this.setCompStatus(COMPLETED);
+		}
+		else {
+			// log unhandled situation
+			logger.error("ProtocolInstrument:" + this.getId() + " unhandled situation determining compStatus");
+		}
+		
+
+		// Collection Status
+		
+		// Compute the Collection Status as one of the following:
+		// "Pending", "Early", "Collected", "Late", "N/A"
+		
+		// the collectWinStatus property is used for the status of when the instrument data was collected
+		// relative to the collection window
+		
+		// collectWinStatus is a calculated property and as such the user can not modify it. collectWinReason is
+		// available for the user to augment and/or override collectWinStatus, a kind of secondary status,
+		// and collectWinNotes is available for the user to further clarify the collection status
+		
+		// if no collection window has been defined (it is optional), return the not applicable status
+		if (!this.getProtocolVisit().getProtocolTimepoint().getProtocolTimepointConfig().getCollectWindowDefined() &&
+				!this.getProtocolInstrumentConfig().getCustomCollectWinDefined()) {
+			this.setCollectWinStatus(N_A);
+		}
+		else if (this.getCollectAnchorDate() == null) {
+			// if a collection window references a visit that has not been assigned to the protocol, then can not compute the
+			// collection window and therefore can not determine the collectWinStatus
+//TODO: determine what this should be				
+			this.setCollectWinStatus("TBD");
+//??			this.setCollectWinReason/Note("Collection window can not be calculated");
+		}
+		else if (this.getCompStatus().equals(PENDING)) {
+			// nothing collected and current date is prior to collection window
+			this.setCollectWinStatus(PENDING);
+		}
+		else if (this.getCompStatus().equals(PENDING_NOW) || this.getCompStatus().equals(IN_PROGRESS)) {
+			// nothing collected and current date is within collection window
+			this.setCollectWinStatus(PENDING_NOW);
+		}
+		else if (this.getCompStatus().equals(NOT_COMPLETED)) {
+			// nothing collected and current data is past collection window
+			this.setCollectWinStatus(PENDING_LATE);
+		}
+//TODO: decide if compStatus PARTIAL should be considered as final, such that collectWinStatus of
+// EARLY/COLLECTED/LATE can be used, or should it be paired with collectWinStatus of Pending
+		else if (this.getCompStatus().equals(PARTIAL) || this.getCompStatus().equals(COMPLETED)) {
+			if (this.getInstrument().getDcDate().before(this.getCollectWinStart())) {
+				this.setCollectWinStatus(EARLY);
+			}
+			else if (this.getInstrument().getDcDate().after(this.getCollectWinEnd())) {
+//TODO: distinguishing between PENDING - LATE (Alert), and LATE (Deviation), so should LATE be changed 
+//to COLLECTED - LATE to make things more clear?
+				this.setCollectWinStatus(LATE);
+			}
+			else { 
+				this.setCollectWinStatus(COLLECTED);
+			}
+		}
+		else {
+			// log unhandled situation
+			logger.error("ProtocolInstrument:" + this.getId() + " unhandled situation determining collectWinStatus");
+		}
 	}
 	
 
