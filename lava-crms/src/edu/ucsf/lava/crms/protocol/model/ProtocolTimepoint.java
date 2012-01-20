@@ -14,7 +14,7 @@ import edu.ucsf.lava.core.model.EntityManager;
  *
  *
  */
-public abstract class ProtocolTimepoint extends ProtocolTimepointBase {
+public class ProtocolTimepoint extends ProtocolTimepointBase {
 	public static EntityManager MANAGER = new EntityBase.Manager(ProtocolTimepoint.class);
 	
 	public ProtocolTimepoint(){
@@ -22,16 +22,31 @@ public abstract class ProtocolTimepoint extends ProtocolTimepointBase {
 		this.setAuditEntityType("ProtocolTimepoint");	
 	}
 	
-	// NOTE: this is an abstract class so getAssociationsToInitialize is called in the subclass
+	public Object[] getAssociationsToInitialize(String method) {
+		return new Object[]{
+				// note that its parent (Protocol) and configuration (ProtocolTimepointConfig) are eagerly fetched
+				// so no need to initialize those
+				this.getPatient(), 
+				this.getProtocolVisitsBase()};
+	}
 
-
-	private String schedWinStatus;
-	private String schedWinReason;
-	private String schedWinNote;
 	private Date schedAnchorDate; // calculated
 	private Date schedWinStart; // calculated
 	private Date schedWinEnd; // calculated
+/** moved to ProtocolNode	
+	private String schedWinStatus;
+	private String schedWinReason;
+	private String schedWinNote;
+***/	
 	private ProtocolVisit primaryProtocolVisit;
+	private Date collectAnchorDate;
+	private Date collectWinStart;
+	private Date collectWinEnd;
+/** moved to ProtcolNode	
+	private String collectWinStatus;
+	private String collectWinReason;
+	private String collectWinNote;
+	
 	
 	/**
 	 * Convenience methods to convert ProtocolTimepointBase method types to types of this subclass,
@@ -64,31 +79,6 @@ public abstract class ProtocolTimepoint extends ProtocolTimepointBase {
 		this.getProtocolVisits().add(protocolVisit);
 	}
 
-	
-
-	public String getSchedWinStatus() {
-		return schedWinStatus;
-	}
-
-	public void setSchedWinStatus(String schedWinStatus) {
-		this.schedWinStatus = schedWinStatus;
-	}
-
-	public String getSchedWinReason() {
-		return schedWinReason;
-	}
-
-	public void setSchedWinReason(String schedWinReason) {
-		this.schedWinReason = schedWinReason;
-	}
-
-	public String getSchedWinNote() {
-		return schedWinNote;
-	}
-
-	public void setSchedWinNote(String schedWinNote) {
-		this.schedWinNote = schedWinNote;
-	}
 
 	public Date getSchedAnchorDate() {
 		return schedAnchorDate;
@@ -122,6 +112,31 @@ public abstract class ProtocolTimepoint extends ProtocolTimepointBase {
 		this.primaryProtocolVisit = primaryProtocolVisit;
 	}
 	
+	public Date getCollectAnchorDate() {
+		return collectAnchorDate;
+	}
+
+	public void setCollectAnchorDate(Date collectAnchorDate) {
+		this.collectAnchorDate = collectAnchorDate;
+	}
+
+	public Date getCollectWinStart() {
+		return collectWinStart;
+	}
+
+	public void setCollectWinStart(Date collectWinStart) {
+		this.collectWinStart = collectWinStart;
+	}
+
+	public Date getCollectWinEnd() {
+		return collectWinEnd;
+	}
+
+	public void setCollectWinEnd(Date collectWinEnd) {
+		this.collectWinEnd = collectWinEnd;
+	}
+
+
 	/**
 	 * Calculate the ideal date that the timepoint would be anchored on for scheduling visits. This calculation 
 	 * should be done whenever configuration is changed. The date is persisted in the ProtocolTimepoint 
@@ -160,8 +175,8 @@ public abstract class ProtocolTimepoint extends ProtocolTimepointBase {
 			// is conditionally enforced as a required field. if here, this is not the first timepoint, so should not have
 			// to check this for null
 
-			// to get from the ProtocolAssessmentTimepointConfig to its corresponding ProtocolAssessmentTimepoint, iterate thru
-			// the latter until find it
+			// to get from the ProtocolTimepointConfig to its corresponding ProtocolTimepoint, iterate thru the latter 
+			// until find it
 			Long protocolRelativeTimepointId = null;
 			for (ProtocolTimepoint protocolTimepoint : this.getProtocol().getProtocolTimepoints()) {
 				if (relativeProtocolTimepointConfig.getId().equals(protocolTimepoint.getProtocolTimepointConfig().getId())) {
@@ -203,7 +218,10 @@ public abstract class ProtocolTimepoint extends ProtocolTimepointBase {
 	 * 
 	 * Note that because timepoints can have multiple visits, a scheduling window for the first timepoint 
 	 * still makes sense, as visits other than the primary visit must be scheduled within the window 
-	 * anchored by the primary visit.
+	 * anchored by the primary visit. Since schedWinOffset and schedWinSize are required fields the user
+	 * must set a scheduling window that makes sense for these multiple visits. 
+	 * If the first timepoint only has a single visit, the user can set them to 0 and the window will be 
+	 * satisfied since the only visit is the primary visit whose visitDate will be schedAnchorDate. 
 	 */
 	public void calcSchedWinDates() {
 		this.setSchedAnchorDate(this.calcSchedAnchorDate());
@@ -221,6 +239,107 @@ public abstract class ProtocolTimepoint extends ProtocolTimepointBase {
 		}
 	}
 
+
+	/**
+	 * Calculate a default ideal date on which all instruments in this timepoint would be collected. The 
+	 * date is persisted in the ProtocolTimepoint collectAnchorDate property.
+	 * 
+	 * A ProtocolTimepointConfig defines a collection window relative to the 
+	 * timepoint's primary visit, which serves as the default collection window for all of the 
+	 * timepoint's instruments. Note that each instrument can override this collection window
+	 * by defining its own custom collection window in ProtocolInstrumentOptionConfig. That
+	 * calculation is done in ProtocolInstrument. 
+	 *  
+	 * If a Visit has not yet been associated with the primary ProtocolVisit, then the 
+	 * collectAnchorDate can not be calculated, and this method returns null. 
+	 */
+	public Date calcCollectAnchorDate() {
+		// the collection window is based on the visitDate of a Visit assigned to the
+		// primary ProtocolVisit of this ProtocolTimepoint
+		if (this.getPrimaryProtocolVisit().getVisit() != null) {
+			return this.getPrimaryProtocolVisit().getVisit().getVisitDate();
+		}		
+		else {
+			return null;
+		}
+	}
+	
+	
+	/**
+	 * Given the calculation done by calcCollectAnchorDate, calculate a default data collection window 
+	 * defined in this protocol's configuration representing the acceptable window within which data 
+	 * collection for all instruments in this timepoint should occur.
+	 * 
+	 * The configuration's collectWinOffset determines the beginning of the collection window,
+	 * collectWinStart, as follows:
+	 *  0 equals the collectAnchorDate
+	 *  negative value represents number of days before collectAnchorDate
+	 *  positive value represents number of days after collectAnchorDate
+	 *  
+	 * Once the beginning of the collection window is determined, collectWinSize represents the size of
+	 * the window and can be used to determine collectWinEnd.
+	 */
+	public void calcCollectWinDates() {
+		this.setCollectAnchorDate(this.calcCollectAnchorDate());
+		
+		if (this.getCollectAnchorDate() != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(this.getCollectAnchorDate());
+			// collectWinOffset is typically 0 or negative. it is negative to balance the scheduling
+			// window around collectAnchorDate
+			cal.add(Calendar.DATE, this.getProtocolTimepointConfig().getCollectWinOffset());
+			this.setCollectWinStart(cal.getTime());
+			cal.add(Calendar.DATE, this.getProtocolTimepointConfig().getCollectWinSize());
+			this.setCollectWinEnd(cal.getTime());
+		}
+	}
+	
+	
+
+	public void updateStatus() {
+		// Completion Status
+		
+		// determine the compStatus by iterating thru the visits of this timepoint and
+		// using the most severe visit compStatus as the overall compStatus for the timepoint
+		String updatedCompStatus = null;
+		for (ProtocolVisit protocolVisit : this.getProtocolVisits()) {
+			// visits configured as optional should not be considered
+			if (!protocolVisit.getProtocolVisitConfig().getOptional()) {
+				updatedCompStatus = this.rollupCompStatusHelper(protocolVisit, updatedCompStatus);
+			}
+		}
+		this.setCompStatus(updatedCompStatus);
+			
+		
+		// Scheduling Status
+		
+		// determine the schedWinStatus by iterating thru the visits of this timepoint and
+		// using the most severe visit schedWinStatus as the overall schedWinStatus for the timepoint
+		String updatedSchedWinStatus = null;
+		for (ProtocolVisit protocolVisit : this.getProtocolVisits()) {
+			// visits configured as optional should not be considered
+			if (!protocolVisit.getProtocolVisitConfig().getOptional()) {
+				updatedSchedWinStatus = this.rollupSchedWinStatusHelper(protocolVisit, updatedSchedWinStatus);
+			}
+		}
+		this.setSchedWinStatus(updatedSchedWinStatus);
+
+		
+		// Collection Status
+		
+		// determine the collectWinStatus by iterating thru the visits of this timepoint and
+		// using the most severe visit collectWinStatus as the overall collectWinStatus for the timepoint
+		String updatedCollectWinStatus = null;
+		for (ProtocolVisit protocolVisit : this.getProtocolVisits()) {
+			// visits configured as optional should not be considered
+			if (!protocolVisit.getProtocolVisitConfig().getOptional()) {
+				updatedCollectWinStatus = this.rollupCollectWinStatusHelper(protocolVisit, updatedCollectWinStatus);
+			}
+		}
+		this.setCollectWinStatus(updatedCollectWinStatus);
+	}
+	
+	
 	
 	/** 
 	 * Perform any calculations done in ProtocolTimepoint. This method should be called 
@@ -229,6 +348,9 @@ public abstract class ProtocolTimepoint extends ProtocolTimepointBase {
 	 */
 	public void calculate() {
 		this.calcSchedWinDates();
+		this.calcCollectWinDates();
 	}
+	
+	
 
 }
