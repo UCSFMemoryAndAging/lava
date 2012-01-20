@@ -15,19 +15,23 @@ import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
-import edu.ucsf.lava.crms.protocol.model.ProtocolAssessmentTimepointConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig;
-import edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig;
+import edu.ucsf.lava.crms.protocol.model.ProtocolConfigTracking;
 import edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfig;
 
 public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 
 	public ProtocolTimepointConfigHandler() {
 		super();
-		setHandledEntity("timepointConfig", edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig.class);
+		setHandledEntity("protocolTimepointConfig", edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig.class);
 	}
 
+	protected String[] defineRequiredFields(RequestContext context, Object command) {
+	    setRequiredFields(new String[]{"label","schedWinSize","schedWinOffset"});
+	    return getRequiredFields();
+	}
+	
 	public Map getBackingObjects(RequestContext context, Map components) {
 		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
 		String flowMode = ActionUtils.getFlowMode(context.getActiveFlow().getId());
@@ -39,7 +43,7 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 		ProtocolTimepointConfig timepointConfig = (ProtocolTimepointConfig) backingObjects.get(getDefaultObjectName());
 		LavaDaoFilter filter = EntityBase.newFilterInstance(getCurrentUser(request));
 		filter.addDaoParam(filter.daoNamedParam("timepointConfigId", timepointConfig.getId()));
-		ProtocolTrackingConfig timepointConfigTree = (ProtocolTrackingConfig) EntityBase.MANAGER.findOneByNamedQuery("protocol.timepointConfigTree", filter);
+		ProtocolConfigTracking timepointConfigTree = (ProtocolConfigTracking) EntityBase.MANAGER.findOneByNamedQuery("protocol.timepointConfigTree", filter);
 		
 		backingObjects.put("timepointConfigTree", timepointConfigTree);
 		
@@ -67,10 +71,10 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
 		
 		// list for schedWinRelativeTimepoint
-		// a timepoint config has a scheduling window which can be relative to any other timepoint (unless it is flagged as
-		// the first timepoint). generate a list of all of the timepoint configs belonging to the same protocol config as 
-		// this timepoint config (excluding this timepoint config, since a timepoint scheduling window would not relative to
-		// itself) 
+		// a timepoint config has a scheduling window which can be relative to any other timepoint, except for the first
+		// timepoint, which can is not relative to anything. generate a list of all of the timepoint configs belonging to the 
+		// same protocol config as this timepoint config (excluding this timepoint config, since a timepoint scheduling window 
+		// would not relative to itself) 
 		Map schedWinRelativeTimepointList = listManager.getDynamicList(getCurrentUser(request),"protocol.schedWinRelativeTimepoint", 
 			new String[]{"protocolId", "timepointId"}, 
 			new Object[]{timepointConfig.getProtocolConfig().getId(), flowMode.equals("add") ? -1 : timepointConfig.getId()},
@@ -80,11 +84,6 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 
 		// list for primaryProtocolVisitConfig, list of ProtocolVisitConfigs belonging to this 
 		// ProtocolTimepointConfig 
-		// TODO: given that no visits exist when this Timepoint is just being added, need an approach 
-		// for this. wizard? adding VisitConfig (and InstrumentConfig) when a TimepointConfig is added?
-		// UPDATE: Yes, Add Timepoint should use a DTO that accepts ProjName/VisitType and InstrType input
-		// and use those to build out the ProtocolVisitConfig/ProtocolVisitOptionConfig, and 
-		// ProtocolInstrumentConfig/ProtocolInstrumentOptionConfig
 		Map primaryProtocolVisitConfigList = listManager.getDynamicList(getCurrentUser(request),"protocol.primaryProtocolVisitConfig", 
 			new String[]{"timepointConfigId"}, 
 			new Object[]{flowMode.equals("add") ? -1 : timepointConfig.getId()},
@@ -138,15 +137,16 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 		String flowMode = ActionUtils.getFlowMode(context.getActiveFlow().getId());
 		ProtocolTimepointConfig timepointConfig = ((ProtocolTimepointConfig)((ComponentCommand)command).getComponents().get(this.getDefaultObjectName()));
 
-		// look at required fields. since they are conditionally determined, can not set them in the
-		// standard way, since that takes place before binding, before properties have the values on
-		// which conditional logic depends
+		// look at required fields. since whether they are required or not is conditional based on user input, 
+		// can not configure them in the standard way for required fields, since that takes place before binding, 
+		// before properties have the values on which conditional logic depends
 		
 		// cannot enforce not-null for the scheduling window properties because they will be null for the first timepoint.
-		// however, do not want them to be null for subsequent problems as that will alleviate issues enforcing the
+		// however, do not want them to be null for subsequent timepoints as that will alleviate issues enforcing the
 		// protocol over time and in particular will allow calculating a daysFromProtocolStart for every subsequent
-		// timepoint, which is in turn used to order the timepoints
-		
+		// timepoint, which is in turn used to order the timepoints (also, in determining completion status need to 
+		// compare the current time relative to a time window, which is either the scheduling window or a collection
+		// window, and collection window is optional and may not be defined, so make sure that scheduling window is defined)
 		if (!isFirstProtocolTimepointConfig(timepointConfig, flowMode)) { 
 			if (timepointConfig.getSchedWinRelativeTimepointId() == null) {
 				LavaComponentFormAction.createRequiredFieldError(errors, "schedWinRelativeTimepointId", getDefaultObjectName());
@@ -156,6 +156,24 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 			}
 			if (timepointConfig.getSchedWinRelativeUnits() == null) {
 				LavaComponentFormAction.createRequiredFieldError(errors, "schedWinRelativeUnits", getDefaultObjectName());
+			}
+		}
+		
+		if (timepointConfig.getCollectWindowDefined()) {
+			if (timepointConfig.getCollectWinOffset() == null) {
+				LavaComponentFormAction.createRequiredFieldError(errors, "collectWinOffset", getDefaultObjectName());
+			}
+			if (timepointConfig.getCollectWinSize() == null) {
+				LavaComponentFormAction.createRequiredFieldError(errors, "collectWinSize", getDefaultObjectName());
+			}
+		}
+		
+		if (timepointConfig.getRepeating()) {
+			if (timepointConfig.getRepeatInterval() == null) {
+				LavaComponentFormAction.createRequiredFieldError(errors, "repeatInterval", getDefaultObjectName());
+			}
+			if (timepointConfig.getRepeatInitialNum() == null) {
+				LavaComponentFormAction.createRequiredFieldError(errors, "repeatInitialNum", getDefaultObjectName());
 			}
 		}
 		
@@ -184,7 +202,7 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 
 	protected void handlePrimaryProtocolVisitConfigChange(RequestContext context, Object command, BindingResult errors){
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		ProtocolAssessmentTimepointConfig timepointConfig = (ProtocolAssessmentTimepointConfig)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
+		ProtocolTimepointConfig timepointConfig = (ProtocolTimepointConfig)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
 		if(doesIdDifferFromEntityId(timepointConfig.getPrimaryProtocolVisitConfigId(),timepointConfig.getPrimaryProtocolVisitConfig())){
 			if(timepointConfig.getPrimaryProtocolVisitConfigId()==null){
 				timepointConfig.setPrimaryProtocolVisitConfig(null); 	//clear the association
