@@ -26,7 +26,7 @@ public class ProtocolTracking extends ProtocolNode {
 	}
 
 	private ProtocolTracking parent;
-	private ProtocolTrackingConfig config; 
+	private ProtocolConfigTracking config; 
 	// use TreeSet so collection can be sorted chronologically in subclasses, if desired
 	private Set<ProtocolTracking> children = new TreeSet<ProtocolTracking>();
 
@@ -38,11 +38,11 @@ public class ProtocolTracking extends ProtocolNode {
 		this.parent = parent;
 	}
 	
-	public ProtocolTrackingConfig getConfig() {
+	public ProtocolConfigTracking getConfig() {
 		return config;
 	}
 
-	public void setConfig(ProtocolTrackingConfig config) {
+	public void setConfig(ProtocolConfigTracking config) {
 		this.config = config;
 	}
 
@@ -62,4 +62,14 @@ public class ProtocolTracking extends ProtocolNode {
 	public void calculate() {
 		
 	}
+	
+	/**
+	 * ProtocolTracking does not do any calculations as it is a lightweight representation
+	 * used for all types of Protocol components and does not have the properties required
+	 * for calculations, as these live in the subclasses.
+	 */
+	public void updateStatus() {
+		
+	}
+	
 }
