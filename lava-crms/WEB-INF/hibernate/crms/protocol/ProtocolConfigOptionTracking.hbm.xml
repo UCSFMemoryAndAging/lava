@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"
+    [<!ENTITY protocolConfigOptionInclude SYSTEM "classpath://../hibernate/crms/protocol/protocolConfigOptionInclude.xml" >
+     <!ENTITY protocolConfigFilterInclude SYSTEM "classpath://../hibernate/crms/protocol/protocolConfigFilterInclude.xml" >]>
+    
+<hibernate-mapping>
+
+	<!-- This class exists to allow protocol config queries which only involving the 
+		protocol config option base table. There are no classes which subclass this class,
+		so no polymorphic joins are done to option subclasses. -->
+
+	<class name="edu.ucsf.lava.crms.protocol.model.ProtocolConfigOptionTracking" table="prot_config_option" select-before-update="true">
+
+		&protocolConfigOptionInclude;
+		
+		<!--  parent not mapped because it is not needed for tracking retrieval. the parent_id is used for a bi-directional
+			relationship for ProtocolVisitConfig/ProtocolVisitOptionConfig and 
+			ProtocolInstrumentConfig/ProtocolInstrumentOptionConfig because by having a bi-directional, Hibernate can take 
+			care of persisting from the child end, i.e. the option end, so the option handlers do not need an instance of 
+			the parent in order to persist a new option.  -->
+
+		&protocolConfigFilterInclude;
+
+	</class>		
+
+</hibernate-mapping>
+
+
+
