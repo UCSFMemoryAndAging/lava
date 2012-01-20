@@ -16,8 +16,6 @@ import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.protocol.model.Protocol;
-import edu.ucsf.lava.crms.protocol.model.ProtocolAssessmentTimepoint;
-import edu.ucsf.lava.crms.protocol.model.ProtocolAssessmentTimepointConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolInstrument;
 import edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfig;
@@ -118,7 +116,7 @@ public class ProtocolHandler extends CrmsEntityComponentHandler {
 		
 		for (ProtocolTimepointConfig timepointConfig: protocolConfig.getProtocolTimepointConfigs()) {
 			ProtocolTimepoint protocolTimepoint = null;
-			protocolTimepoint = new ProtocolAssessmentTimepoint();
+			protocolTimepoint = new ProtocolTimepoint();
 			protocol.addProtocolTimepoint(protocolTimepoint);
 			protocolTimepoint.setProtocolTimepointConfig(timepointConfig);
 			protocolTimepoint.setListOrder(timepointConfig.getListOrder());
