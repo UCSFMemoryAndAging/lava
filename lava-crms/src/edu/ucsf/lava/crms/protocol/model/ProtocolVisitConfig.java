@@ -31,12 +31,13 @@ public class ProtocolVisitConfig extends ProtocolVisitConfigBase {
 	public Object[] getAssociationsToInitialize(String method) {
 		return new Object[]{
 				this.getProtocolInstrumentConfigsBase(), 
-				this.getProtocolVisitOptionConfigsBase(), 
+				this.getProtocolVisitConfigOptionsBase(), 
 				this.getProtocolTimepointConfigBase().getProtocolVisitConfigsBase()};
 	}
 	
 	private Boolean optional;
-	private ProtocolVisitOptionConfig defaultOption;
+	private String category;
+	private ProtocolVisitConfigOption defaultOption;
 	// defaultOptionId facilitates modifying the defaultOption association. the user selects a 
 	// defaultOption (ProtocolVisitOptionConfig) and that defaultOptionId is bound to this property. 
 	// if it differs from this entity's existing defaultOption id, the defaultOptionId is used to 
@@ -60,11 +61,11 @@ public class ProtocolVisitConfig extends ProtocolVisitConfigBase {
 	public void setProtocolInstrumentConfigs(Set<ProtocolInstrumentConfig> protocolInstrumentConfigs) {
 		super.setProtocolInstrumentConfigsBase(protocolInstrumentConfigs);
 	}
-	public Set<ProtocolVisitOptionConfig> getOptions() {
-		return (Set<ProtocolVisitOptionConfig>) super.getProtocolVisitOptionConfigsBase();
+	public Set<ProtocolVisitConfigOption> getOptions() {
+		return (Set<ProtocolVisitConfigOption>) super.getProtocolVisitConfigOptionsBase();
 	}
-	public void setOptions(Set<ProtocolVisitOptionConfig> options) {
-		super.setProtocolVisitOptionConfigsBase(options);
+	public void setOptions(Set<ProtocolVisitConfigOption> options) {
+		super.setProtocolVisitConfigOptionsBase(options);
 	}
 	
 	/*
@@ -92,7 +93,7 @@ public class ProtocolVisitConfig extends ProtocolVisitConfigBase {
 	/*
 	 * Method to add a ProtocolVisitConfigOption to a ProtocolVisit's collection, managing the bi-directional relationship.
 	 */	
-	public void addOption(ProtocolVisitOptionConfig protocolVisitConfigOption) {
+	public void addOption(ProtocolVisitConfigOption protocolVisitConfigOption) {
 		protocolVisitConfigOption.setProtocolVisitConfig(this);
 		this.getOptions().add(protocolVisitConfigOption);
 	}
@@ -104,11 +105,19 @@ public class ProtocolVisitConfig extends ProtocolVisitConfigBase {
 		this.optional = optional;
 	}
 
-	public ProtocolVisitOptionConfig getDefaultOption() {
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public ProtocolVisitConfigOption getDefaultOption() {
 		return defaultOption;
 	}
 
-	public void setDefaultOption(ProtocolVisitOptionConfig defaultOption) {
+	public void setDefaultOption(ProtocolVisitConfigOption defaultOption) {
 		this.defaultOption = defaultOption;
 		if (this.defaultOption != null) {
 			this.defaultOptionId = this.defaultOption.getId();
