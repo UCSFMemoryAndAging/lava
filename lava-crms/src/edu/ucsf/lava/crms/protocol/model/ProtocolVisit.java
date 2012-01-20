@@ -1,5 +1,6 @@
 package edu.ucsf.lava.crms.protocol.model;
 
+import java.util.Date;
 import java.util.Set;
 
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
@@ -24,33 +25,32 @@ public class ProtocolVisit extends ProtocolVisitBase {
 	
 	public Object[] getAssociationsToInitialize(String method) {
 		return new Object[]{
-				//TODO: at the moment there is an issue with initializing associations. since the ..Base classes map
-				//the associations, the properties/getters in the ..Base classes must be used for initialization. So
-				//the proxies that are created are proxies for the ..Base classes, but upon initialization, the objects
-				//materialized are subclasses of the ..Base classes, and the process of initializing subclass with 
-				//a ..Base proxy does not appear to work
-				//for now, using lazy="false" to eagerly load associations (but not collections which do not suffer
-				//the problem), but that results in loading chains, e.g. each component loads its parent, which in
-				//turn loads its parent until get to the root of the hierarchy. this is why the following are
-				//commented out.
-				//possible solution is to implement our own initialization which gets around the problem that
-				//Hibernate initialization suffers
+				// there is an issue with initializing associations. since the ..Base classes map
+				// the associations, the properties/getters in the ..Base classes must be used for initialization. So
+				// the proxies that are created are proxies for the ..Base classes, but upon initialization, the objects
+				// materialized are subclasses of the ..Base classes, and the process of initializing subclass with 
+				// a ..Base proxy does not appear to work
+				// for now, using lazy="false" to eagerly load associations (but not collections which do not suffer
+				// the problem), but that results in loading chains, e.g. each component loads its parent, which in
+				// turn loads its parent until get to the root of the hierarchy. the hierarchy is not deep here so
+				// not a major issue
+				// possible solution is to implement our own initialization which gets around the problem that
+				// Hibernate initialization suffers
 				
-				/*this.getProtocolTimepointBase(), */
-				/*this.getProtocolVisitConfigBase(), */
+				// note that its parent (Protocol) and configuration (ProtocolTimepointConfig) are eagerly fetched
+				// so no need to initialize this.getProtocolTimepointBase() and this.getProtocolVisitConfigBase()
 				this.getProtocolInstrumentsBase(),
 				this.getPatient(),
 				this.getVisit(),
 				// the rest of these are needed to allow traversal of the object graph in scheduling window calculations;
 				// initialize here so do not have to explicitly retrieve them
-				// TODO: look at modifying transaction configuration to leave Hibernate session open during entire request
-				// rather than opening/closing on each call to the DAO, so that the object graph can be traversed as 
-				// needed without this kind of configuration.
-				this.getProtocolVisitConfigBase().getProtocolVisitOptionConfigsBase(),
-				/*this.getProtocolTimepointBase().getProtocolTimepointConfigBase(), */
+				this.getProtocolVisitConfigBase().getProtocolVisitConfigOptionsBase(),
 				this.getProtocolTimepointBase().getProtocolVisitsBase(), 
-				/*this.getProtocolTimepointBase().getProtocolBase(),*/
 				this.getProtocolTimepointBase().getProtocolBase().getProtocolTimepointsBase()
+				// again, the parent of this instance, ProtocolTimepoint, has its parent and config loaded, so no need
+				// to initialized these here:
+				/*this.getProtocolTimepointBase().getProtocolTimepointConfigBase(), */
+				/*this.getProtocolTimepointBase().getProtocolBase(),*/
 				};
 	}
  
@@ -108,13 +108,145 @@ public class ProtocolVisit extends ProtocolVisitBase {
 		this.visitId = visitId;
 	}
 	
+	
+	public void updateStatus() {
+
+		// Completion Status
+		
+		// determine the compStatus by iterating thru the instruments of this visit and
+		// using the most severe instrument compStatus as the overall compStatus for the visit
+		String updatedCompStatus = null;
+		for (ProtocolInstrument protocolInstrument : this.getProtocolInstruments()) {
+			// instruments configured as optional should not be considered
+			if (!protocolInstrument.getProtocolInstrumentConfig().getOptional()) {
+				updatedCompStatus = this.rollupCompStatusHelper(protocolInstrument, updatedCompStatus);
+			}
+		}
+		this.setCompStatus(updatedCompStatus);
+			
+
+		// Collection Status
+			
+		// determine the collectWinStatus by iterating thru the instruments of this visit and
+		// using the most severe instrument collectWinStatus as the overall collectWinStatus for the visit
+		String updatedCollectWinStatus = null;
+		for (ProtocolInstrument protocolInstrument : this.getProtocolInstruments()) {
+			// instruments configured as optional should not be considered
+			if (!protocolInstrument.getProtocolInstrumentConfig().getOptional()) {
+				updatedCollectWinStatus = this.rollupCollectWinStatusHelper(protocolInstrument, updatedCollectWinStatus);
+			}
+		}
+		this.setCollectWinStatus(updatedCollectWinStatus);
+		
+			
+		// Scheduling Status
+		
+		// compute the status of the scheduling window (schedWinStatus) as one of the following:
+//TODO: if in fact this status represents whether a visit was scheduled and completed vs. just scheduled,
+//then the status "Scheduled" is confusing, because in the Visit statuses, Complete and Came In indicated
+//completion, whereas Scheduled just indicates the visit has been scheduled	withour regard for whether it
+//completed			
+		// "Pending", "Pending - Late", "Early", "Scheduled", "Late", "N/A"
+// and possibly "TBD", "Late"==>"Scheduled Late" (which would prob. mean "Early"==>"Scheduled - Early"		
+		
+		// the status is based on the status of the assigned visit (visitStatus) in conjunction with the visit time vs.
+		// the scheduling window, or, if the visit has not completed yet, the current time vs. the scheduling
+		// window
+		
+//TODO: decide whether better to use VisitStatus or dcStatus(compStatus), i.e. will/should VisitStatus be reliably updated on top of dcStatus		
+		// VisitStatus values (list table: listname='VisitStatus')
+		// CAME IN
+		// COMPLETE
+		// NO SHOW
+		// PATIENT CANCELLED
+		// SCHEDULED
+		// % CANCELLED (where % is app specific representing the research clinic that cancelled the visit)
+
+		// if a visit is scheduled before a visit which it references is scheduled, then can not compute the
+		// scheduling window and therefore can not determine the status
+		if (this.getProtocolTimepoint().getSchedAnchorDate() == null) {
+			this.setSchedWinStatus(TBD);
+//??			this.setSchedWinReason/Note("References unscheduled visit");
+		}
+		else if (this.getVisit() == null || this.getVisit().getVisitStatus() == null ||
+				(this.getVisit().getVisitStatus().toLowerCase().equals("no show") || this.getVisit().getVisitStatus().toLowerCase().endsWith("cancelled"))) {
+			// Visit not assigned, or VStatus IN (NO SHOW, *CANCELLED) 
+			
+			Date currDate = new Date();
+			if (currDate.before(this.getProtocolTimepoint().getSchedWinStart())) {
+				// current date before scheduling window = PENDING
+				this.setSchedWinStatus(PENDING);
+			}
+			else if (currDate.after(this.getProtocolTimepoint().getSchedWinEnd())) {
+				// current date past scheduling window = PENDING - LATE
+				this.setSchedWinStatus(PENDING_LATE);
+			}
+			else { // current date is within the scheduling window
+				this.setSchedWinStatus(PENDING);
+			}
+		}
+		else if (this.getVisit().getVisitStatus().toLowerCase().equals("scheduled")) {
+			// VStatus = SCHEDULED
+			// note: compare current date instead of VDate because VDate represents completed Visit, e.g. just
+			//       because VDate is within scheduling window where VStatus=SCHEDULED, if current date is past
+			//       scheduling window, visit is late
+//TODO: questions about before/within scheduling window. 
+//a) when Visit scheduled before/within scheduling window, since Visit scheduled and everything on time, temptation is to 
+//   set schedWinStatus to SCHEDULED, but since Visit is not complete yet, PENDING is more accurate			
+//b) given assigning status of PENDING (or PENDING - LATE), does not distinguish between visit assigned and above where visit 
+//   not assigned. but the fact that the visit is not assigned should be highlighted along with schedWinStatus so that 
+//   should clarify			
+			// current date before scheduling window = PENDING
+			// current date within scheduling window = PENDING
+			// current date after scheduling window = PENDING - LATE
+			Date currDate = new Date();
+			if (currDate.before(this.getProtocolTimepoint().getSchedWinStart())) {
+				// current date before scheduling window = PENDING
+				this.setSchedWinStatus(PENDING);
+			}
+			else if (currDate.after(this.getProtocolTimepoint().getSchedWinEnd())) {
+				// current date past scheduling window = PENDING - LATE
+				// note: does not matter if Visit with VStatus=SCHEDULED is later than the current date so is still
+				// on time in terms of the VDate. what matters is the protocol scheduling window dates. taking this a
+				// step further, when VDate arrives if VStatus changes to COMPLETE, then schedWinStatus becomes
+				// SCHEDULED_LATE
+				this.setSchedWinStatus(PENDING_LATE);
+			}
+			else { // current date is within the scheduling window
+				this.setSchedWinStatus(PENDING_NOW);
+			}
+		}
+		else if (this.getVisit().getVisitStatus().toLowerCase().equals("came in") || this.getVisit().getVisitStatus().toLowerCase().equals("complete")) {
+			// VStatus = CAME IN || COMPLETE
+			// VDate before scheduling window = EARLY (SCHEDULED - EARLY)
+			// VDate during scheduling window = SCHEDULED (SCHEDULED - ON TIME)
+			// VDate after scheduling window = LATE (SCHEDULED - LATE)
+			if (this.getVisit().getVisitDate().before(this.getProtocolTimepoint().getSchedWinStart())) {
+				// current date before scheduling window = PENDING
+				this.setSchedWinStatus(EARLY);
+			}
+			else if (this.getVisit().getVisitDate().after(this.getProtocolTimepoint().getSchedWinEnd())) {
+//TODO: distinguishing between PENDING - LATE (Alert), and LATE (Deviation), so should LATE be changed 
+//to SCHEDULED - LATE to make things more clear?
+				// current date past scheduling window = PENDING - LATE
+				this.setSchedWinStatus(LATE);
+			}
+			else { // current date is within the scheduling window
+				this.setSchedWinStatus(SCHEDULED);
+			}
+		}
+		else {
+			// log unhandled situation
+			logger.error("ProtocolVisit:" + this.getId() + " unhandled situation determining schedWinStatus");
+		}
+	}
+	
 	/** 
 	 * Perform any calculations done in ProtocolVisit. This method should be called 
 	 * whenever anything that may affect these calculations occurs, such as changes in the
 	 * Protocol configuration, and assigning a Visit to the Protocol.
 	 */
 	public void calculate() {
-		// nothing to do at this time
 	}
 	
 	public boolean afterUpdate() {
