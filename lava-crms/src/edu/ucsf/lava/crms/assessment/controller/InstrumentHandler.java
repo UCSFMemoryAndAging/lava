@@ -45,13 +45,15 @@ import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 public class InstrumentHandler extends CrmsEntityComponentHandler {
 
 	private Map<String,FileLoader> fileLoaders;
-	protected static final String STATUS_SCHEDULED = "Scheduled";
-	protected static final String STATUS_COMPLETE = "Complete";
-	protected static final String STATUS_PARTIALLY_COMPLETE = "Partially Complete";
-	protected static final String STATUS_INCOMPLETE = "Incomplete";
-	protected static final String STATUS_VERIFIED_DOUBLE_ENTRY = "Verified - Double Entry";
-	protected static final String STATUS_VERIFIED_REVIEW = "Verified - Review";
-	protected static final String STATUS_VERIFY_DEFER = "Defer";
+	public static final String STATUS_SCHEDULED = "Scheduled";
+	public static final String STATUS_COMPLETE = "Complete";
+	public static final String STATUS_CANCELLED = "Cancelled";
+	public static final String STATUS_PARTIALLY_COMPLETE = "Complete - Partially";
+	public static final String STATUS_INCOMPLETE = "Incomplete";
+	public static final String STATUS_UNKNOWN = "Unknown";
+	public static final String STATUS_VERIFIED_DOUBLE_ENTRY = "Verified - Double Entry";
+	public static final String STATUS_VERIFIED_REVIEW = "Verified - Review";
+	public static final String STATUS_VERIFY_DEFER = "Defer";
 	private static final String VISIT_LIST = "addInstrVisitList";	
     protected static final String DOUBLE_ENTER_MISMATCH_ERROR_CODE = "doubleEnterMismatch";
     protected static final String DOUBLE_ENTER_MISMATCH_AT_POS_ERROR_CODE = "doubleEnterMismatchAtPosition";
