@@ -20,10 +20,7 @@ import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.protocol.model.ProtocolInstrument;
-import edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentOptionConfig;
-import edu.ucsf.lava.crms.protocol.model.ProtocolVisit;
-import edu.ucsf.lava.crms.protocol.model.ProtocolVisitOptionConfig;
-import edu.ucsf.lava.crms.scheduling.model.Visit;
+import edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigOption;
 
 public class ProtocolInstrumentHandler extends CrmsEntityComponentHandler {
 
@@ -50,10 +47,11 @@ public class ProtocolInstrumentHandler extends CrmsEntityComponentHandler {
 		// order the list by proximity to the instrument's collection window
 		Map allMatchingInstrs = new LinkedHashMap();
 
+//TODO: just use instrument options directly in jsp		
 		// create a list of instrTypes that can fulfill the instrument requirement. put the default
 		// instrType at the beginning of the list
 		List<String> instrTypes = new ArrayList<String>();
-		for (ProtocolInstrumentOptionConfig option : protocolInstrument.getProtocolInstrumentConfig().getOptions()) {
+		for (ProtocolInstrumentConfigOption option : protocolInstrument.getProtocolInstrumentConfig().getOptions()) {
 			//TODO: ck effDate,expDate and if not currently effective, ignore						
 			//TODO: defaultOption not implemented yet
 			//if (option.getDefaultOption()) {
@@ -74,17 +72,21 @@ public class ProtocolInstrumentHandler extends CrmsEntityComponentHandler {
 		if (proximityDate == null) {
 			proximityDate = new Date();
 		}
-		// iterate thru the instrTypes retrieving a list of matching Instruments for each, and appending
-		// each list on the end of the allMatchingInstrs Map. since the instrTypes list has the defaultOption
-		// first, the Instruments that match the default instrType will be first in the resulting list.
-		for (String instrType : instrTypes) {
+		
+		// iterate thru the instrument options retrieving a list of instruments for each, and appending
+		// each list on the end of the allMatchingInstrs Map. 
+		// since the mapped ordering of the instrument options is by effective date (descending) and within a
+		// given effective date by the default flag (where default options come first), this resulting merged 
+		// list of matching instruments across all options should be in order of most desired matches 
+		// to least desired (and from above, within a given option, matches will be ordered by proximity)
+		for (ProtocolInstrumentConfigOption option : protocolInstrument.getProtocolInstrumentConfig().getOptions()) {
 			Map matchingInstrs = listManager.getDynamicList(getCurrentUser(request), "protocol.matchingInstruments", 
-					new String[]{"patientId", "instrType", "collectAnchorDate"},
+					new String[]{"patientId", "instrType", "collectAnchorDate", "effDate", "expDate"},
 					new Object[]{protocolInstrument.getPatient().getId(), 
-						instrType, 
-						proximityDate}, 
-					new Class[]{Long.class, String.class, Date.class});	
-//ASSUME WILL NEED TO REMOVE THE BLANK ENTRY FROM LISTS AFTER THE FIRST ONE						
+						option.getInstrType(), 
+						proximityDate, option.getEffectiveEffDate(), option.getEffectiveExpDate()}, 
+					new Class[]{Long.class, String.class, Date.class, Date.class, Date.class});	
+//ASSUME WILL NEED TO REMOVE THE BLANK ENTRY FROM LISTS AFTER THE FIRST ONE IF MULTIPLE OPTIONS						
 		
 			allMatchingInstrs.putAll(matchingInstrs);
 		}
@@ -113,7 +115,6 @@ public class ProtocolInstrumentHandler extends CrmsEntityComponentHandler {
 			if(protocolInstrument.getInstrId()==null){
 				protocolInstrument.setInstrument(null); 	//clear the association
 			}else{
-// InstrumentTracking is enough for OR mapping layer to set the association and persist
 				InstrumentTracking instrTracking = (InstrumentTracking) InstrumentTracking.MANAGER.getById(protocolInstrument.getInstrId(), Instrument.newFilterInstance(getCurrentUser(request)));
 				Class instrClass = instrumentManager.getInstrumentClass(instrTracking.getInstrTypeEncoded());
 				Instrument instr = (Instrument) Instrument.MANAGER.getById(instrClass, protocolInstrument.getInstrId());
@@ -170,24 +171,34 @@ public class ProtocolInstrumentHandler extends CrmsEntityComponentHandler {
 				Class instrClass = instrumentManager.getInstrumentClass(instrTracking.getInstrTypeEncoded());
 				Instrument instr = (Instrument) Instrument.MANAGER.getById(instrClass, subflowEntityId);
 				
-				//TODO: the plan is to pass the allowable InstrType to Add Instrument so it will restrict the Add
+				//TODO: possibly: pass the allowable InstrType to Add Instrument so it will restrict the Add
 				//to those, guaranteeing that the added Instrument fulfills the Protocol Instruemnt Configuration
 				//however, until that is done, validate the InstrType after the fact
 				
-				// validate the visit type against the visit types configured as options for this ProtocolVisit
-				boolean matchingInstr = false;
-				for (ProtocolInstrumentOptionConfig option : protocolInstrument.getProtocolInstrumentConfig().getOptions()) {
+				// validate the instrument type against the instrument types configured as options for this ProtocolInstrument
+				boolean typeMatch = false, dateMatch = false;
+				ProtocolInstrumentConfigOption optionMatched = null; // used for error messaging
+				for (ProtocolInstrumentConfigOption option : protocolInstrument.getProtocolInstrumentConfig().getOptions()) {
 					if (instr.getInstrType().equals(option.getInstrType())) {
-						matchingInstr = true;
-						break;
+						typeMatch = true;
+						// now check whether the instrument is within the effective window for the option
+						if ((option.getEffectiveEffDate() == null || !instr.getDcDate().before(option.getEffectiveEffDate())) 
+								&& (option.getEffectiveExpDate() == null || !instr.getDcDate().after(option.getEffectiveExpDate()))) {
+							optionMatched = option;
+							dateMatch = true;
+							break;
+						}
 					}
 				}
-				if (!matchingInstr) {
+				if (!typeMatch) {
 					StringBuffer instrTypesSb = new StringBuffer();
-					for (ProtocolInstrumentOptionConfig option : protocolInstrument.getProtocolInstrumentConfig().getOptions()) {
+					for (ProtocolInstrumentConfigOption option : protocolInstrument.getProtocolInstrumentConfig().getOptions()) {
 						instrTypesSb.append("  [").append(option.getInstrType()).append("]");
 					}
 					LavaComponentFormAction.createCommandError(errors, "protocol.instrTypeMismatch", new String[]{instr.getInstrType(), instrTypesSb.toString()});
+				}
+				else if (!dateMatch) {
+					LavaComponentFormAction.createCommandError(errors, "protocol.instrDateMismatch", new Object[]{instr.getInstrType(), instr.getDcDate(), optionMatched.getEffectiveEffDate(), optionMatched.getEffectiveExpDate()});
 				}
 				else {
 					// only set the id here, not the Instrument object itself, as this needs to simulate user select of an Instrument. if call
