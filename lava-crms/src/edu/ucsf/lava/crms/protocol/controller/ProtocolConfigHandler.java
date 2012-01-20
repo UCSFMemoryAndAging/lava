@@ -15,8 +15,7 @@ import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.protocol.model.ProtocolConfig;
-import edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig;
-import edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig;
+import edu.ucsf.lava.crms.protocol.model.ProtocolConfigTracking;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 
 public class ProtocolConfigHandler extends CrmsEntityComponentHandler {
@@ -45,7 +44,7 @@ public class ProtocolConfigHandler extends CrmsEntityComponentHandler {
 		ProtocolConfig protocolConfig = (ProtocolConfig) backingObjects.get(getDefaultObjectName());
 		LavaDaoFilter filter = EntityBase.newFilterInstance(getCurrentUser(request));
 		filter.addDaoParam(filter.daoNamedParam("protocolConfigId", protocolConfig.getId()));
-		ProtocolTrackingConfig protocolConfigTree = (ProtocolTrackingConfig) EntityBase.MANAGER.findOneByNamedQuery("protocol.protocolConfigTree", filter);
+		ProtocolConfigTracking protocolConfigTree = (ProtocolConfigTracking) EntityBase.MANAGER.findOneByNamedQuery("protocol.protocolConfigTree", filter);
 		backingObjects.put("protocolConfigTree", protocolConfigTree);
 		
 		return backingObjects;
