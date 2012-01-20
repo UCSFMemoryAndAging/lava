@@ -51,19 +51,4 @@ public class ProtocolConfigTracking extends ProtocolNodeConfig {
 		this.options = options;
 	}
 
-
-/***	
-	public int compareTo(ProtocolTracking protocolTracking) throws ClassCastException {
-		if (this.getListOrder() > protocolTracking.getListOrder()) {
-			return 1;
-		}
-		else if (this.getListOrder() < protocolTracking.getListOrder()) {
-			return -1;
-		}
-		else {
-			return 0;
-		}
-	}
-***/	
-	
 }
