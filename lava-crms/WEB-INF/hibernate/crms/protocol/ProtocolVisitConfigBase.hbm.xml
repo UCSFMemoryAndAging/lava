@@ -23,9 +23,9 @@
 	
 	<!-- really only needs to be unilateral, but bilateral is much easier to deal with since the child end of 
 		the association is persisted, so when in that handler do not have to deal with persisting the parent -->
-	<set name="protocolVisitOptionConfigsBase" table="prot_opt_config" inverse="true" cascade="all,delete-orphan" lazy="true">
+	<set name="protocolVisitConfigOptionsBase" table="prot_opt_config" inverse="true" cascade="all,delete-orphan" order-by="eff_date desc,default_option desc" lazy="true">
 		<key column="parent_id"/>
-		<one-to-many class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitOptionConfigBase"/>
+		<one-to-many class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfigOptionBase"/>
 	</set>		 
 
 	&protocolConfigFilterInclude;
