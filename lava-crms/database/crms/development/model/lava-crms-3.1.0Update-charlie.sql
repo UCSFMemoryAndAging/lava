@@ -29,6 +29,7 @@ parent_id int, -- will be NULL for Protocol nodes
 list_order int, -- will be NULL for Protocol nodes since they are never children
 ProjName varchar(75) NOT NULL,
 label varchar(25) NOT NULL,
+summary varchar(100),
 notes varchar(255),
 eff_date date,
 exp_date date,
