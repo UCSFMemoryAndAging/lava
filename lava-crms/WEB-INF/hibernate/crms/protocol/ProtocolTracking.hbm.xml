@@ -18,7 +18,7 @@
 		&protocolInclude;
 		
 		<many-to-one name="parent" class="edu.ucsf.lava.crms.protocol.model.ProtocolTracking" column="parent_id" cascade="none"/>
-		<many-to-one name="config" column="config_node_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolTrackingConfig"/>	
+		<many-to-one name="config" column="config_node_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolConfigTracking"/>	
 	
 		<!-- bidirectional. the parent is mapped above. -->
 		<set name="children" table="prot_node" inverse="true" cascade="all,delete-orphan" order-by="list_order">
