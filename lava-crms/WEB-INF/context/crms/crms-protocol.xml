@@ -20,23 +20,7 @@
 		</list></property>
 	</bean>
 
-	<!-- NOT YET IMPLEMENTED: concept is to subclass protocolRepeatingTimepoint and when patient enrolls
-		in protocol a patientProtocolTreatmentSchedule will be created  
-	<bean id="lava.crms.protocol.setup.protocolTreatmentSchedule" parent="crmsEntityFlowAction">
-		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.setup.protocolConfig</value>
-		</list></property>
-	</bean>		
- 	-->
-
-	<bean id="lava.crms.protocol.setup.protocolAssessmentTimepointConfig" parent="crmsEntityFlowAction">
-		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.setup.protocolConfig</value>
-			<value>lava.crms.protocol.assignment.protocol</value>
-		</list></property>
-	</bean>		
-		
-	<bean id="lava.crms.protocol.setup.protocolRepeatingTimepointConfig" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.setup.protocolTimepointConfig" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
 			<value>lava.crms.protocol.setup.protocolConfig</value>
 			<value>lava.crms.protocol.assignment.protocol</value>
@@ -46,19 +30,19 @@
 	<bean id="lava.crms.protocol.setup.protocolVisitConfig" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
 			<value>lava.crms.protocol.setup.protocolConfig</value>
-			<value>lava.crms.protocol.setup.protocolAssessmentTimepointConfig</value>
+			<value>lava.crms.protocol.setup.protocolTimepointConfig</value>
 			<value>lava.crms.protocol.assignment.protocol</value>
-			<value>lava.crms.protocol.assignment.protocolAssessmentTimepoint</value>
+			<value>lava.crms.protocol.assignment.protocolTimepoint</value>
 		</list></property>
 		<property name="subFlows"><list>
 			<value>lava.crms.scheduling.visit.visit</value>
 		</list></property>
 	</bean>
 			
-	<bean id="lava.crms.protocol.setup.protocolVisitOptionConfig" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.setup.protocolVisitConfigOption" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
 			<value>lava.crms.protocol.setup.protocolConfig</value>
-			<value>lava.crms.protocol.setup.protocolAssessmentTimepointConfig</value>
+			<value>lava.crms.protocol.setup.protocolTimepointConfig</value>
 			<value>lava.crms.protocol.setup.protocolVisitConfig</value>
 		</list></property>
 	</bean>
@@ -66,18 +50,18 @@
 	<bean id="lava.crms.protocol.setup.protocolInstrumentConfig" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
 			<value>lava.crms.protocol.setup.protocolConfig</value>
-			<value>lava.crms.protocol.setup.protocolAssessmentTimepointConfig</value>
+			<value>lava.crms.protocol.setup.protocolTimepointConfig</value>
 			<value>lava.crms.protocol.setup.protocolVisitConfig</value>
 			<value>lava.crms.protocol.assignment.protocol</value>
-			<value>lava.crms.protocol.assignment.protocolAssessmentTimepoint</value>
+			<value>lava.crms.protocol.assignment.protocolTimepoint</value>
 			<value>lava.crms.protocol.assignment.protocolVisit</value>
 		</list></property>
 	</bean>
    	
-	<bean id="lava.crms.protocol.setup.protocolInstrumentOptionConfig" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.setup.protocolInstrumentConfigOption" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
 			<value>lava.crms.protocol.setup.protocolConfig</value>
-			<value>lava.crms.protocol.setup.protocolAssessmentTimepointConfig</value>
+			<value>lava.crms.protocol.setup.protocolTimepointConfig</value>
 			<value>lava.crms.protocol.setup.protocolVisitConfig</value>
 			<value>lava.crms.protocol.setup.protocolInstrumentConfig</value>
 		</list></property>
@@ -98,15 +82,7 @@
 		</list></property>
 	</bean>					 
 	
-	<!-- NOT IMPLEMENTED YET
-	<bean id="lava.crms.protocol.assignment.patientProtocolTreatmentTimepoint" parent="crmsEntityFlowAction">
-		<property name="parentFlows"><list>
-			<value>lava.crms.protocol.assignment.protocol</value>
-		</list></property>
-	</bean>	
-	 -->
-
-	<bean id="lava.crms.protocol.assignment.protocolAssessmentTimepoint" parent="crmsEntityFlowAction">
+	<bean id="lava.crms.protocol.assignment.protocolTimepoint" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
 			<value>lava.crms.protocol.assignment.protocol</value>
 		</list></property>
@@ -115,7 +91,7 @@
 	<bean id="lava.crms.protocol.assignment.protocolVisit" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
 			<value>lava.crms.protocol.assignment.protocol</value>
-			<value>lava.crms.protocol.assignment.protocolAssessmentTimepoint</value>
+			<value>lava.crms.protocol.assignment.protocolTimepoint</value>
 		</list></property>
 		<property name="subFlows"><list>
 			<value>lava.crms.scheduling.visit.visit</value>
@@ -125,7 +101,7 @@
 	<bean id="lava.crms.protocol.assignment.protocolInstrument" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
 			<value>lava.crms.protocol.assignment.protocol</value>
-			<value>lava.crms.protocol.assignment.protocolAssessmentTimepoint</value>
+			<value>lava.crms.protocol.assignment.protocolTimepoint</value>
 			<value>lava.crms.protocol.assignment.protocolVisit</value>
 		</list></property>
 		<property name="subFlows"><list>
@@ -133,6 +109,19 @@
 		</list></property>
 	</bean>
    	
+<!-- 
+	<bean id="lava.crms.protocol.completion.patientProtocolStatuses" parent="crmsPatientSectionListAction"/>
+ -->
+	<bean id="lava.crms.protocol.completion.projectProtocolCompletionStatuses" parent="crmsSectionListAction"/>
+
+	<bean id="lava.crms.protocol.completion.protocolCompletionStatus" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+		<!-- 
+			<value>lava.crms.protocol.completion.patientProtocolCompletionStatuses</value>
+		 -->
+			<value>lava.crms.protocol.completion.projectProtocolCompletionStatuses</value>
+		</list></property>
+	</bean>					 
 	
 	
 	<!-- form action definitions -->
@@ -145,34 +134,24 @@
 		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolConfigHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	 
 
-	<!-- NOT IMPLEMENTED YET  
-	<bean id="protocolTreatmentScheduleFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolTreatmentScheduleHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>  	 
-	 -->
- 
-	<bean id="protocolAssessmentTimepointConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolAssessmentTimepointConfigHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>  	 
-
-	<bean id="protocolRepeatingTimepointConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolRepeatingTimepointConfigHandler" parent="crmsHandler"/>
+	<bean id="protocolTimepointConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolTimepointConfigHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	 
 
 	<bean id="protocolVisitConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolVisitConfigHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	 
 
-	<bean id="protocolVisitOptionConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolVisitOptionConfigHandler" parent="crmsHandler"/>
+	<bean id="protocolVisitConfigOptionFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolVisitConfigOptionHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	 
 
 	<bean id="protocolInstrumentConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolInstrumentConfigHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	 
 
-	<bean id="protocolInstrumentOptionConfigFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolInstrumentOptionConfigHandler" parent="crmsHandler"/>
+	<bean id="protocolInstrumentConfigOptionFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolInstrumentConfigOptionHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	 
 
 	<bean id="patientProtocolsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
@@ -187,15 +166,9 @@
 		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>
 
-	<bean id="protocolAssessmentTimepointFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolAssessmentTimepointHandler" parent="crmsHandler"/>
+	<bean id="protocolTimepointFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolTimepointHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>
-
-	<!-- NOT YET IMPLEMENTED	
-	<bean id="protocolTreatmentTimepointFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolTreatmentTimepointHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>
-	 -->
 
 	<bean id="protocolVisitFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolVisitHandler" parent="crmsHandler"/>
@@ -206,11 +179,19 @@
 	</list></constructor-arg></bean>  	 
 
 
+	<bean id="projectProtocolCompletionStatusesFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProjectProtocolCompletionStatusesHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+
+	<bean id="protocolCompletionStatusFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolCompletionStatusHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+
 
 
 	<!-- lists -->
 	
-	<bean id="list.repeatingTimepoint.numTimepoints" parent="list.numericRange">
+	<bean id="list.repeatingTimepoint.initialNum" parent="list.numericRange">
 		<property name="defaultMinValue" value="1"/>
 		<property name="defaultMaxValue" value="999"/>
 	</bean>
@@ -218,16 +199,6 @@
 	<bean id="list.repeatingTimepoint.interval" parent="list.numericRange">
 		<property name="defaultMinValue" value="1"/>
 		<property name="defaultMaxValue" value="90"/>
-	</bean>
-
-	<bean id="list.protocol.treatmentTypes" parent="list.dataOnly">
-		<property name="data"><list>
-			<bean parent="list.data"><constructor-arg value="Radiation"/><constructor-arg value="Radiation"/></bean>
-			<bean parent="list.data"><constructor-arg value="Chemo - Avastin"/><constructor-arg value="Chemo - Avastin"/></bean>
-			<bean parent="list.data"><constructor-arg value="Chemo - Tarceva"/><constructor-arg value="Chemo - Tarceva"/></bean>
-			<bean parent="list.data"><constructor-arg value="Chemo - TMZ"/><constructor-arg value="Chemo - TMZ"/></bean>
-			<bean parent="list.data"><constructor-arg value="Chemo - Temodar"/><constructor-arg value="Chemo - Temodar"/></bean>
-		</list></property>
 	</bean>
 
 	<bean id="list.protocol.allTimepointConfigs" parent="list.dynamic">
@@ -241,7 +212,7 @@
 	</bean>  
 
 	<bean id="list.protocol.schedWinRelativeAmount" parent="list.numericRange">
-		<property name="defaultMinValue" value="0"/>
+		<property name="defaultMinValue" value="-9999"/>
 		<property name="defaultMaxValue" value="9999"/>
 	</bean>
 	
@@ -254,6 +225,14 @@
 			<bean parent="list.data"><constructor-arg value="Months"/><constructor-arg value="3"/></bean>
 			<bean parent="list.data"><constructor-arg value="Years"/><constructor-arg value="4"/></bean>
  -->			
+		</list></property>	
+	</bean>
+
+	<bean id="list.protocol.schedWinRelativeMode" parent="list.dataOnly">
+		<property name="defaultSort" value="valueNumeric"/>	
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Calendar"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Working"/><constructor-arg value="2"/></bean>
 		</list></property>	
 	</bean>
 
@@ -328,5 +307,14 @@
 		<property name="query" value="list.protocol.matchingInstruments"/>
 		<property name="defaultSort" value="none"/>
 	</bean>  
+
+	<bean id="list.protocolCompletionStatus.quickFilter" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Pending"/><constructor-arg value="Pending"/></bean>
+			<bean parent="list.data"><constructor-arg value="Not Completed"/><constructor-arg value="Not Completed"/></bean>
+			<bean parent="list.data"><constructor-arg value="Partially Completed"/><constructor-arg value="Partially Completed"/></bean>
+			<bean parent="list.data"><constructor-arg value="Completed"/><constructor-arg value="Completed"/></bean>
+		</list></property>
+	</bean>
 	
 </beans>	
