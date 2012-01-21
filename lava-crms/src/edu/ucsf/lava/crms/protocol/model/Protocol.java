@@ -73,14 +73,19 @@ public class Protocol extends ProtocolBase {
 	public void setEnrollmentStatus(EnrollmentStatus enrollmentStatus) {
 		this.enrollmentStatus = enrollmentStatus;
 	}
+	
 
 	
 	/**
-	 * This method iterates thru the entire Protocol tree structure, calling calculate on every
-	 * node. This method requires that the complete Protocol tree is loaded.
+	 * This method iterates thru the entire Protocol tree structure, calling calculate and
+	 * updateStatus on every node. This method requires that the complete Protocol tree is loaded.
 	 */
 	public void calculate() {
-		// if there is anything to calculate on the Protocol node, do it here
+		// if there is anything to calculate on the Protocol node itself, do it here
+		// ...
+	
+		// because statuses are based on the scheduling and collection window calculations, do
+		// all calculations first prior to calling the updateStatus methods
 		
 		for (ProtocolTimepoint protocolTimepoint: this.getProtocolTimepoints()) {
 			protocolTimepoint.calculate();
@@ -91,14 +96,42 @@ public class Protocol extends ProtocolBase {
 				}
 			}			
 		}
-
+		
 	}
 	
+	/**
+	 * Update the status at every level of the Protocol tree. Because higher level statuses
+	 * may get their values by rolling up the statuses from a lower level, update the statuses
+	 * from the lowest level first, and then upwards.
+	 */
+	public void updateStatus() {
+		for (ProtocolTimepoint protocolTimepoint: this.getProtocolTimepoints()) {
+			for (ProtocolVisit protocolVisit: protocolTimepoint.getProtocolVisits()) {
+				for (ProtocolInstrument protocolInstrument: protocolVisit.getProtocolInstruments()) {
+					protocolInstrument.updateStatus();
+				}
+			}			
+		}
+		
+		// visit rolls up the statuses of its instruments
+		for (ProtocolTimepoint protocolTimepoint: this.getProtocolTimepoints()) {
+			for (ProtocolVisit protocolVisit: protocolTimepoint.getProtocolVisits()) {
+				protocolVisit.updateStatus();
+			}			
+		}
+		
+		// timepoint rolls up the statuses of its visits
+		for (ProtocolTimepoint protocolTimepoint: this.getProtocolTimepoints()) {
+			protocolTimepoint.updateStatus();
+		}
+	}	
+	
 	public boolean afterCreate() {
-		// as part of creation, the full protocol tree has been created so safe to call calculate
+		// as part of creation, the full protocol tree has been created so it is safe to call calculate
 		//TODO: not much point in doing this unless the process of creating Protocol, i.e. assigning patient
 		//to protocol, includes assigning a Visit to the first timepoint
 		this.calculate();
+		this.updateStatus();
 		// return true to save again
 		return true;
 	}
