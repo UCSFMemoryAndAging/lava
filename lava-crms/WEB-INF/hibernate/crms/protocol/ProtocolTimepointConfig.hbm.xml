@@ -12,10 +12,20 @@
 	<many-to-one name="schedWinRelativeTimepoint" column="sched_win_rel_tp_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig" lazy="false"/>
 	<property name="schedWinRelativeAmount" column="sched_win_rel_amt" type="short"/>
 	<property name="schedWinRelativeUnits" column="sched_win_rel_units" type="short"/>
+	<property name="schedWinRelativeMode" column="sched_win_rel_mode" type="short"/>
 	<property name="schedWinDaysFromStart" column="sched_win_days_from_start" type="short"/>
 	<property name="schedWinSize" column="sched_win_size" type="short"/>
 	<property name="schedWinOffset" column="sched_win_offset" type="short"/>
+	<property name="duration" column="duration" type="short"/>
+	<property name="schedAutomatic" column="sched_auto" type="boolean"/>
 	<many-to-one name="primaryProtocolVisitConfig" column="pri_prot_visit_conf_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfig" lazy="false"/>
+	<property name="collectWindowDefined" column="collect_win_def" type="boolean"/>
+	<property name="collectWinSize" column="collect_win_size" type="short"/>
+	<property name="collectWinOffset" column="collect_win_offset" type="short"/>
+	<property name="repeating" column="repeating" type="boolean"/>
+	<property name="repeatInterval" column="rpt_interval" type="short"/>
+	<property name="repeatInitialNum" column="rpt_init_num" type="short"/>
+	<property name="repeatCreateAutomatic" column="rpt_create_auto" type="boolean"/>
 </joined-subclass>
 
 	
