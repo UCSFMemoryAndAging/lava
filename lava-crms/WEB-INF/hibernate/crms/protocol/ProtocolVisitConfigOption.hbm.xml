@@ -1,0 +1,15 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+     
+<hibernate-mapping>
+
+<joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfigOption" table="prot_visit_config_option" extends="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfigOptionBase" select-before-update="true">
+	<key column="option_id"/>
+	<property name="projName" column="ProjName" type="string" length="75"/> 	
+	<property name="visitType" column="visit_type" type="string" length="25"/> 	
+</joined-subclass>
+	
+</hibernate-mapping>
