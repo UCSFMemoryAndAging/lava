@@ -17,6 +17,7 @@
 			where v.patient.id = :patientId
 			and v.projName = :visitProjName
 			and v.visitType = :visitType
+			and (v.visitDate >= :effDate and v.visitDate <= :expDate)
 			order by abs(datediff(v.visitDate, :schedAnchorDate))
 	]]></query>	
 	
