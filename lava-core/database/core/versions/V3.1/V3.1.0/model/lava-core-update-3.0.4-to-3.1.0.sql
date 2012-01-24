@@ -77,7 +77,7 @@ DROP TABLE IF EXISTS `lavaserverinstance` ;
 
 
 DELIMITER $$
-USE `lava_core`$$
+
 CREATE PROCEDURE `lq_get_objects` (user_name varchar(50), host_name varchar(25))
 BEGIN
 SELECT concat(`instance`,'_',`scope`,'_',`module`) as query_source,concat(`section`,'_',`target`) as query_object_name , `short_desc`, `standard`,`primary_link`,`secondary_link` from `query_objects`;
@@ -85,7 +85,7 @@ END$$
 
 DELIMITER ;
 DELIMITER $$
-USE `lava_core`$$
+
 CREATE PROCEDURE `lq_audit_event` (user_name varchar(50),host_name varchar(25),lq_query_object varchar(100),lq_query_type varchar(25))
 BEGIN
 
@@ -104,7 +104,7 @@ $$
 
 DELIMITER ;
 DELIMITER $$
-USE `lava_core`$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `lq_check_user_auth`(user_login varchar(50),host_name varchar(25))
 BEGIN
 DECLARE user_id int;
@@ -119,7 +119,7 @@ END$$
 
 DELIMITER ;
 DELIMITER $$
-USE `lava_core`$$
+
 CREATE  PROCEDURE `lq_check_version`(pModule varchar(25), pMajor integer, pMinor integer, pFix integer)
 BEGIN
 
