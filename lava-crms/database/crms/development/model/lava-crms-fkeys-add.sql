@@ -17,28 +17,11 @@ ALTER TABLE `crmsauthuserrole` ADD CONSTRAINT `crmsauthuserrole__URID`
  ON DELETE NO ACTION
  ON UPDATE NO ACTION, ADD INDEX `crmsauthuserrole__URID` (`URID` ASC) ;
 
- ALTER TABLE `crms_file` ADD CONSTRAINT `crms_file__patient` 
- FOREIGN KEY (`pidn` )
- REFERENCES `patient` (`PIDN` )
+ALTER TABLE `crms_file` ADD CONSTRAINT `crms_file__id` 
+ FOREIGN KEY (`id` )
+ REFERENCES `lava_file` (`id` )
  ON DELETE NO ACTION
- ON UPDATE NO ACTION, ADD INDEX `crms_file__patient` (`pidn` ASC) ;
-
-ALTER TABLE `crms_file` ADD CONSTRAINT `crms_file__enrollment` 
- FOREIGN KEY (`enroll_stat_id` )
- REFERENCES `enrollmentstatus` (`EnrollStatID` )
- ON DELETE NO ACTION
- ON UPDATE NO ACTION, ADD INDEX `crms_file__enrollment` (`enroll_stat_id` ASC) ;
+ ON UPDATE NO ACTION, ADD INDEX `crms_file__id` (`id` ASC) ;
 
 
-ALTER TABLE `crms_file` ADD CONSTRAINT `crms_file__visit` 
- FOREIGN KEY (`vid` )
- REFERENCES `visit` (`VID` )
- ON DELETE NO ACTION
- ON UPDATE NO ACTION, ADD INDEX `crms_file__visit` (`vid` ASC) ;
 
-
-ALTER TABLE `crms_file` ADD CONSTRAINT `crms_file__instrument`
- FOREIGN KEY (`instr_id` )
- REFERENCES `instrumenttracking` (`InstrID` )
- ON DELETE NO ACTION
- ON UPDATE NO ACTION, ADD INDEX `crms_file__instrument` (`instr_id` ASC) ;
