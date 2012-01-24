@@ -392,9 +392,27 @@ public class Instrument extends CrmsEntity {
 	}
 	
 
-	public void calculate() throws Exception {
-	}
-	
+	/**
+	 * Perform any updates that need to be done on saving a new instrument or updating an
+	 * existing instrument. 
+	 * 
+	 * Subclasses can override this method to perform any calculations needed, such as calculated fields.
+	 *  
+	 * Any instrument specific overrides **should** call this base class implementation. 
+	 * 
+	 * If different functionality is needed for saving a new instrument than for updating an 
+	 * existing instrument, do not override this method. Override beforeCreate/afterCreate for
+	 * saving new, and beforeUpdate/afterUpdate for updating existing.
+	 * 
+	 * If beforeCreate or beforeUpdate is overridden in an instrument subclass, it **should** call
+	 * this method.
+	 * 
+	 * note: the CalculateController exists to allow changing instrument calculations and applying
+	 * them retrospectively. it does this by calling save on each instrument instance to recalculate,
+	 * which results in calling the beforeUpdate hook. if beforeUpdate is not overridden, then
+	 * updateCalculatedFields is called. if beforeUpdate is overridden, it should call 
+	 * super.updateCalculatedFields() 
+	 */
 	public void updateCalculatedFields(){
 		super.updateCalculatedFields();
 		updateAgeAtDC();
