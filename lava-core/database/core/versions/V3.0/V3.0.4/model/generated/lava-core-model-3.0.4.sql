@@ -660,6 +660,7 @@ CREATE  TABLE IF NOT EXISTS `lava_core`.`preference` (
   `name` VARCHAR(255) NOT NULL ,
   `description` VARCHAR(1000) NULL ,
   `value` VARCHAR(255) NULL ,
+  `visible` int(11) NOT NULL DEFAULT '1',
   `modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`preference_id`) ,
   INDEX `preference__user_id` (`user_id` ASC) ,
