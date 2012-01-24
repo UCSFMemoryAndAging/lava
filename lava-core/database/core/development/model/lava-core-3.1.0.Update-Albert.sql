@@ -1,9 +1,3 @@
--- add label2 to viewproperty table; if it already exists then just ignore the error
-ALTER TABLE `viewproperty` ADD COLUMN `label2` varchar(25) AFTER `label`;
-
--- --------------------------------------------------------------------------------
--- datadictionary
--- --------------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `datadictionary` (
 `id` int NOT NULL AUTO_INCREMENT,

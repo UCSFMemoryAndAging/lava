@@ -369,7 +369,6 @@ INSERT INTO VersionHistory() VALUES('LAVAQUERYAPP','3.0.0',NOW(),3,0,0,1);
 
 INSERT INTO `preference` VALUES ('1', null, 'calendar', 'displayRange', 'Default View (e.g. Month, Week)', 'Month', '0', '2010-01-26 14:10:06');
 INSERT INTO `preference` VALUES ('2', null, 'calendar', 'showDayLength', 'Sets day length in week or day views to display either full day or work day', 'Work Day', '0', '2010-01-26 17:13:23');
-INSERT INTO `preference` VALUES ('3', null, 'CFR_confocal_calendar', 'receive_cancellation_alert', 'Set to YES if you wish to receive an email alert when a scheduled reservation for the confocal microscope has been cancelled', '1', '1', '2010-02-08 13:20:46');
 INSERT INTO `preference` VALUES ('4', null, 'baseList', 'pageSize', 'The default page view size for lists.', '25', '1', '2012-01-20 16:37:29');
 
 

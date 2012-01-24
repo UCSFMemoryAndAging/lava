@@ -178,22 +178,26 @@ SELECT CONCAT('INSERT INTO hibernateproperty (`instance`,`scope`,`entity`,`prope
                                     `scope` like ScopeMask
             ORDER BY `entity`, `dbOrder`;
 
-SELECT CONCAT('INSERT INTO `list` (`ListName`,`scope`,`NumericKey`,`modified`) VALUES(',
+SELECT CONCAT('INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES(',
         	  CASE WHEN `ListName` IS NULL THEN 'NULL,' ELSE CONCAT('''',`ListName`,''',') END,
+        	  CASE WHEN `instance` IS NULL THEN 'NULL,' ELSE CONCAT('''',`instance`,''',') END,
         	  CASE WHEN `scope` IS NULL THEN 'NULL,' ELSE CONCAT('''',`scope`,''',') END,
         	  CASE WHEN `NumericKey` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`NumericKey` as char),',') END,
               CASE WHEN `modified` IS NULL THEN 'NULL' ELSE CONCAT('''',CAST(`modified` as char),'''') END,
             ');')
-            FROM `list` WHERE `scope` like ScopeMask
+            FROM `list` WHERE `instance` like InstanceMask and `scope` like ScopeMask
             ORDER BY `ListName`; 
 
-SELECT CONCAT('INSERT INTO `listvalues` (`ListID`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`)',
-			' SELECT `ListID`,',CASE WHEN lv.`ValueKey` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(lv.`ValueKey`,'''','\\'''),''',') END,
+SELECT CONCAT('INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`)',
+			' SELECT `ListID`,',
+             CASE WHEN lv.`instance` IS NULL THEN 'NULL,' ELSE CONCAT('''',lv.`instance`,''',') END,
+        	  CASE WHEN lv.`scope` IS NULL THEN 'NULL,' ELSE CONCAT('''',lv.`scope`,''',') END,
+             CASE WHEN lv.`ValueKey` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(lv.`ValueKey`,'''','\\'''),''',') END,
         	  CASE WHEN lv.`ValueDesc` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(lv.`ValueDesc`,'''','\\'''),''',') END,
-				CASE WHEN lv.`OrderID` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(lv.`OrderID` as char),',') END,
+				  CASE WHEN lv.`OrderID` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(lv.`OrderID` as char),',') END,
               CASE WHEN lv.`modified` IS NULL THEN 'NULL' ELSE CONCAT('''',CAST(lv.`modified` as char),'''') END,
             ' FROM `list` where `ListName`=''',l.`ListName`,''';')
-            FROM `listvalues` lv INNER JOIN `list` l on l.`ListId`=lv.`ListID` WHERE l.`scope` like ScopeMask
+            FROM `listvalues` lv INNER JOIN `list` l on l.`ListId`=lv.`ListID` WHERE  lv.`instance` like InstanceMask and lv.`scope` like ScopeMask
             ORDER BY l.`ListName`, lv.ORDERID, lv.ValueKey;
 
 END
