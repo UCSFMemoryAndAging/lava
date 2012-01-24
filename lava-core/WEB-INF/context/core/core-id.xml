@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+     
+    <!-- The id manager.  Primarily responsible for serving as an organizing entity for
+    	id  mappings linked with the lava instance. -->
+	<bean id="idManager" class="edu.ucsf.lava.core.id.IdManager" >
+		<property name="idMappings"><ref bean="idMappings"/></property>
+		</bean>
+    
+    <!-- A collection bean that needs to be injected into each IdMapping bean -->
+    <bean id="idMappings" class="edu.ucsf.lava.core.id.IdMappings"/>
+    
+	<!-- Abstract parent beans for the id mapping beans to inherit from -->
+	<bean id="baseIdMapping" abstract="true" class="edu.ucsf.lava.core.id.AbstractIdMapping">
+		<property name="id" value="lava_default"/>
+		<property name="idMappings"><ref bean="idMappings"/></property>
+	</bean>	
+	
+	<bean id="defaultLavaIdMapping" parent="baseIdMapping" class="edu.ucsf.lava.core.id.BaseIdMapping"/>
+
+	
+</beans>
+	

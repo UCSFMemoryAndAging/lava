@@ -5,6 +5,7 @@ import edu.ucsf.lava.core.audit.AuditManager;
 import edu.ucsf.lava.core.auth.AuthManager;
 import edu.ucsf.lava.core.environment.EnvironmentManager;
 import edu.ucsf.lava.core.file.FileManager;
+import edu.ucsf.lava.core.id.IdManager;
 import edu.ucsf.lava.core.list.ListManager;
 import edu.ucsf.lava.core.metadata.MetadataManager;
 import edu.ucsf.lava.core.scope.ScopeManager;
@@ -63,6 +64,15 @@ public class CoreManagerUtils extends LavaBeanUtils {
 	public static FileManager getFileManager(){
 		return getFileManager(getManagers());
 	}	
+	
+	public static IdManager getIdManager(Managers managers){
+		return (IdManager) managers.get(IdManager.ID_MANAGER_NAME);
+	}
+
+	public static IdManager getIdManager(){
+		return getIdManager(getManagers());
+	}
+	
 	
 	public static ScopeManager getScopeManager(Managers managers){
 		return (ScopeManager) managers.get(ScopeManager.SCOPE_MANAGER_NAME);

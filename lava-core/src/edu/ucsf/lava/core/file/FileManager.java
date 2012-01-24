@@ -16,6 +16,10 @@ public class FileManager extends LavaManager  {
 		public static String FILE_MANAGER_NAME="fileManager";
 		
 	
+		public FileManager() {
+			super(FILE_MANAGER_NAME);
+		}
+
 		protected FileRepositories repositories;
 
 		public FileRepositories getRepositories() {

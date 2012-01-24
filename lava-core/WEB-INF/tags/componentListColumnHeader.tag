@@ -38,10 +38,10 @@
 		${label}
 	</c:when>
 	<c:when test="${empty command.components[component].filter.sort[sort]}">
-			${label}&nbsp;<a href="javascript:void" onClick="javascript:document.${pageName}._eventId.value='${component}__sort_${sort}';document.${pageName}.submit(); return false;"><img src="images/BUTT_sortAscend.png" alt="Sort" name="${component}__Sort_${sort}" border="0"></a>
+			${label}&nbsp;<a href="javascript:void" onClick="javascript:document.${pageName}._eventId.value='${component}__sort_${sort}';document.${pageName}.submit(); return false;"><img src="images/BUTT_sortAscend.png" alt="Sort" name="${component}__Sort_${sort}" border="0" title="Sort"></a>
 	</c:when>
 	<c:otherwise>
-	    	${label}&nbsp;<a href="javascript:void" onClick="javascript:document.${pageName}._eventId.value='${component}__sort_${sort}';document.${pageName}.submit(); return false;"><img src="${command.components[component].filter.sort[sort]=='true' ? 'images/BUTT_sortedAscend.png' : 'images/BUTT_sortedDescend.png'}" alt="Toggle Sort" name="${component}__Sort_${sort}" border="0"></a>
+	    	${label}&nbsp;<a href="javascript:void" onClick="javascript:document.${pageName}._eventId.value='${component}__sort_${sort}';document.${pageName}.submit(); return false;"><img src="${command.components[component].filter.sort[sort]=='true' ? 'images/BUTT_sortedAscend.png' : 'images/BUTT_sortedDescend.png'}" alt="Toggle Sort" name="${component}__Sort_${sort}" border="0" title="Toggle Sort"></a>
 	</c:otherwise>
 </c:choose>
 </th>

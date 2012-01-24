@@ -20,6 +20,7 @@
 <import resource="core-environment.xml"/>
 <import resource="core-file.xml"/>
 <import resource="core-home.xml"/>
+<import resource="core-id.xml"/>
 <import resource="core-list.xml"/>
 <import resource="core-managers.xml"/>
 <import resource="core-mappings.xml"/>

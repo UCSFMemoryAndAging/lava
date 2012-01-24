@@ -2,6 +2,7 @@ package edu.ucsf.lava.core.dao.hibernate;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.commons.logging.Log;
@@ -35,7 +36,7 @@ public class StoredProcHibernateCallback implements HibernateCallback {
     }
 
     public Object doInHibernate(Session session) throws HibernateException, SQLException {
-
+    	Object result = null;
     	Connection con = session.connection();
     	CallableStatement proc = null;
     	try{
@@ -56,15 +57,22 @@ public class StoredProcHibernateCallback implements HibernateCallback {
 			}
 
     		proc.execute();
+    		
+    		ResultSet resultset = proc.getResultSet();
+    		// assume one result
+    		if (resultset.next()) {
+    			result = resultset.getObject(1);
+    		}
 
     		// iterate thru the parameters to return the value of output parameters 
 			for (int i=0; i < this.paramValues.length; i++) {
 				if (this.paramIOFlags[i] == 'o') {
 					// register the parameter as an output parameter
-		    		proc.registerOutParameter(this.paramValues.length, this.paramTypes[this.paramTypes.length-1]); 
+					proc.registerOutParameter(this.paramValues.length, this.paramTypes[this.paramTypes.length-1]); 
 		    		this.paramValues[i] = proc.getObject(i+1);
 				}
 			}
+			
     	}
     	catch(HibernateException e){
     		logger.error(e.toString());
@@ -82,6 +90,6 @@ public class StoredProcHibernateCallback implements HibernateCallback {
 	    	proc.close();
 	    	}
     	}
-	return null;
+	return result;
     }
 }

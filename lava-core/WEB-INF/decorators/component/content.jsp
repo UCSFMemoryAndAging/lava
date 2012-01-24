@@ -194,14 +194,14 @@ document.getElementById("javascriptInfoMsg").value = "No Prior Diagnosis Record 
  	  	<div class="errorHeaderLine"></div>
 	  	<ol class="errorList">
 		<c:choose>
+		
 			<c:when test="${isInstrument && error.code == 'required.command' 
 						&& (componentView == 'enter' || componentView == 'doubleEnter' || componentView == 'collect')}">
 			  	<li class="errorListItem"><spring:message message="${error}"/>
-				<%-- if there are required field errors, prompt user if they want to mark missing fields 
-					as codes, give them a select box to choose the missing data code to use --%>
+				<%-- only use codes that make sense for auto-filling, i.e. no "logical skip" --%>
 					<span class="errorListItemPrompt"><spring:message code="required.instrumentResult"/></span>
 					<tags:singleSelectNoBind property="missingDataCode" fieldId="missingDataCode" 
-						propertyValue="" list="${missingCodesMap}" styleClass="inputData"/>
+						propertyValue="" list="${missingCodesMapAutoFill}" styleClass="inputData"/>
 				</li>
 			</c:when>
 			<c:otherwise>

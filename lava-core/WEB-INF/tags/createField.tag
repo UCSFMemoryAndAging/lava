@@ -281,6 +281,8 @@
 	
 			
 			<%-- use the listRequestId or listName to obtain its list data structure, which is of type java.util.Map<String,String> --%>			   
+			<%--EMORY change: widgetList wasn't clearing any prior widgetList before binding a property that doesn't use widgetList; occurs during multiprops --%>
+			<c:set var="widgetList" value=""/>
 			<c:if test="${not empty listRequestId || not empty listName}">
 				<%--first try to find a static list--%>			
 			    <c:set var="widgetList" value="${lists[listRequestId]}"/>

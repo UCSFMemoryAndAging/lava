@@ -234,7 +234,10 @@ public class ReportComponentHandler extends LavaComponentHandler {
 	 	model = super.addReferenceData(context, command, errors, model);
 
 	 	if (state.getId().equals("reportSetup")) {
-		    // put flags in the model so view decorator knows which filter fields to create
+	 		// load in static lists for reportSetup, e.g. for file format/extensions
+			this.addListsToModel(model, listManager.getStaticListsForEntity("reportSetup"));
+			
+			// put flags in the model so view decorator knows which filter fields to create
 		    model.put("dateCriteria", this.dateCriteria);
 
 		}

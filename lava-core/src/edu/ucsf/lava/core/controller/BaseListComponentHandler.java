@@ -27,6 +27,7 @@ import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.action.model.Action;
 import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
+import edu.ucsf.lava.core.home.model.PreferenceUtils;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.LavaEntity;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
@@ -37,8 +38,11 @@ import edu.ucsf.lava.core.session.CoreSessionUtils;
  * 
  */
 public abstract class BaseListComponentHandler extends LavaComponentHandler {
-
-	protected int pageSize = 10;
+	protected static final String PREFERENCE_CONTEXT = "baselist";
+	protected static final String PAGESIZE_PARAM = "pageSize";
+	protected static final Integer DEFAULT_PAGESIZE = 10;
+	
+	protected int pageSize;
 	protected ScrollableListSourceProvider sourceProvider; // every handler subclass must set this
 	protected Set<String> listedEntityNames = new HashSet<String>();
 	
@@ -49,6 +53,14 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 				"recordNav","pageSize","refresh","refreshReturnToPage","close","export",
 				"custom","custom2","custom3","customEnd","customEnd2","customEnd3"}));
 		authEvents = new ArrayList(); // none of the list events require explicit permission
+		// for pageSize, look up any defaults in Preference table first
+		try {
+			// TODO: allow individual list handlers to lookup a Preference default for pageSize
+			//  we'd need a unique list identifier for preference context
+			pageSize = Integer.parseInt(PreferenceUtils.getPrefValue(null, PREFERENCE_CONTEXT, PAGESIZE_PARAM, DEFAULT_PAGESIZE.toString()));
+		} catch (NumberFormatException ex) {
+			pageSize = DEFAULT_PAGESIZE;
+		}
 	}
 
 	/**
@@ -710,7 +722,7 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 				// iterate thru the list of selected items, which has nothing selected at this point,
 				// and select each entity that is in the group
                 for (ScrollablePagedListHolder.ListItem listItem : (List<ScrollablePagedListHolder.ListItem>) plh.getSource()) {
-                	if (entity.getId().equals(((LavaEntity)listItem.getEntity()).getId())) {
+                	if ((listItem.getEntity() != null) && entity.getId().equals(((LavaEntity)listItem.getEntity()).getId())) {
                 		listItem.setSelected(true);
                 	}
                 }
