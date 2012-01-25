@@ -61,7 +61,13 @@
        <property name="closedNote" column="ClosedNote" type="string" length="100"/>
        <property name="enrollmentNotes" column="EnrollmentNotes" type="string" length="500"/>
 
-	
+	<!--  Uniqueness property needed so as could be used in property-ref in Visit.hbm.xml
+	        This is a legacy support, since visits connect to enrollmentstatus by PIDN/ProjName instead of EnrollStatID -->
+        <properties name="enrollment_unique" unique="true" insert="false" update="false">
+           <!-- the insert="false" and update="false" are needed as the fields are already used as properties -->
+           <many-to-one name="patient" column="PIDN" class="edu.ucsf.lava.crms.people.model.Patient" not-null="true" insert="false" update="false"/>
+           <property name="projName" column="ProjName" type="string" length="25" not-null="true" insert="false" update="false"/>
+        </properties>
 
 	<!-- filters -->
 	<filter name="patientAuth"/> 

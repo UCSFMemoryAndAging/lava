@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,10 +17,8 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.DefaultBindingErrorProcessor;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -59,6 +58,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
     protected static final String DOUBLE_ENTER_MISMATCH_AT_POS_ERROR_CODE = "doubleEnterMismatchAtPosition";
     protected static final String COMMAND_DOUBLE_ENTER_MISMATCH_ERROR_CODE = "doubleEnterMismatch.command";
     protected static final String COMMAND_DOUBLE_ENTER_MATCH_INFO_CODE = "info.doubleEnterMatch.command";
+    protected static final String LOGICAL_SKIP_DATA_CODE = "-6";
     protected static final String INCOMPLETE_MISSING_DATA_CODE = "-7"; 
     protected static final String MISSING_DATA_CODE = "-9";     
     public static final String INSTRUMENT_DETAILS = "instrumentDetails";
@@ -141,8 +141,10 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 	    		setRequiredFields(new String[]{
 	    				"packet",
 	    				"formId",
-	    				"visitNum",
-	    				"initials"});
+	    				"visitNum"
+	    				// initials are not required at NACC
+	    				//"initials"
+	    				});
 	    	}
 	    	else {
 		    	setRequiredFields(new String[0]);
@@ -213,7 +215,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		// but, do use the entity name (via getDefaultObjectName) and since it is always the same across
 		// instruments (currently it is "instrument"), that is thread safe. so have to call setHandledEntity
 		// just for setting getDefaultObjectName
-		setHandledEntity("instrument", null); 
+		setHandledEntity(INSTRUMENT, null); 
 
 		Map backingObjects = new HashMap<String,Object>();
 		if (flowMode.equals("add")) {
@@ -464,6 +466,17 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			// decimal domain
 			Map map = listManager.getDefaultStaticList(instrument.getInstrTypeEncoded()+".codes");
 			model.put("missingCodesMap", map);
+			
+			// provide another missing codes map list to be used during auto-filling.  This will be the same
+			// list but without any 'Logical Skip' values
+			Map mapAutoFill = new HashMap<String,Map<String,String>>();
+			Iterator it = map.entrySet().iterator();
+		    while (it.hasNext()) {
+		        Map.Entry pairs = (Map.Entry)it.next();
+		        if (!pairs.getKey().equals(LOGICAL_SKIP_DATA_CODE))
+		        	mapAutoFill.put(pairs.getKey(), pairs.getValue());
+		    }
+			model.put("missingCodesMapAutoFill", mapAutoFill);			
 
 			// this is only need for informant instruments 
 			dynamicLists.put("instrument.informants", 
@@ -705,6 +718,15 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		this.handledEvents.add(".*__nextPage");
 		this.handledEvents.add(".*__recordNav");
 		this.handledEvents.add(".*__pageSize");
+	    // EMORY change: we will need to handle refresh events, whether to instrument__refresh or an
+        //   instrument-specific one (e.g. udssubjectdemo2__refresh).  This is needed when non-modal
+        //   instrument viewing is turned on, which allows (say) the patient context to be set.  When
+        //   this is the case, and if the patient is not found, a "patient not found" warning is given
+        //   and the contextChangeResult state transitions to (say) udssubjectdemo2__refresh
+        //   (note: not instrument__refresh, which is already handled).
+        //   Thus we now have the need to handle these type of "refresh" event requests too.
+        this.handledEvents.add(".*__refresh");  // i.e. regardless of the specific instrument
+		
 	}
 	
 	// override base class doSaveAdd (called on "applyAdd", "saveAdd" event)

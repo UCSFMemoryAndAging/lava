@@ -12,6 +12,7 @@ import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
 
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
+import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 import edu.ucsf.lava.crms.model.CrmsEntity;
 import edu.ucsf.lava.crms.people.model.Patient;
 
@@ -35,6 +36,9 @@ public class Visit extends CrmsEntity {
 	private Date waitListDate;
 	private String visitDescrip; // computed
 	private Short ageAtVisit; //set by trigger
+	
+	// add a connection to the enrollmentstatus since all visits must belong to an enrollment
+	private EnrollmentStatus enrollmentstatus;
 
 
     public static final String CLINIC_CALENDAR_DATE = "clinicCalendarDate"; 
@@ -159,7 +163,9 @@ public class Visit extends CrmsEntity {
 	public Short getAgeAtVisit() {return this.ageAtVisit;}
 	public void setAgeAtVisit(Short ageAtVisit) {this.ageAtVisit = ageAtVisit;}
 	
-
+	public EnrollmentStatus getEnrollmentstatus() {return enrollmentstatus;}
+	public void setEnrollmentstatus(EnrollmentStatus enrollmentstatus) {this.enrollmentstatus = enrollmentstatus;}
+	
 	public void updateCalculatedFields(){
 		super.updateCalculatedFields();
 		updateAgeAtVisit();
@@ -172,8 +178,20 @@ public class Visit extends CrmsEntity {
 		
 		if(patient==null){ setAgeAtVisit(null);}
 			
-		Integer calcAge = calcAge(patient.getBirthDate(),getVisitDate());
-		setAgeAtVisit((calcAge==null)?null:calcAge.shortValue());
+		Integer age = calcAge(patient.getBirthDate(),getVisitDate());
+		
+		/**
+		 * Logic here is that if the visit has a date > date of the patient death (e.g. an informant measure collected
+		 * 2 weeks after patient death, then the age of the patient at visit is based on the patients death date
+		 * not the  date of the visit.
+		 */
+		Integer patientAge = getPatient().getAge();
+		if((age != null) && (patientAge != null) && (age > patientAge)){
+			age = patientAge;
+		}
+		
+		setAgeAtVisit((age==null)?null:age.shortValue());
+		
 	}
 	
 	public void updateVisitDescrip(){

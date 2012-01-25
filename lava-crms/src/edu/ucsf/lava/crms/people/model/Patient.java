@@ -32,7 +32,6 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	private String suffix;
 	private String degree;
 	private Date birthDate; 
-	private Integer age; 
 	private Byte gender;
 	private String hand;
 	private Boolean deceased; //db default=0
@@ -142,8 +141,17 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 		trackDirty("birthDate",(birthDate==null) ? null : new Timestamp(birthDate.getTime()));
 		}
 	
-	public Integer getAge() {return age;}
-	public void setAge(Integer age) {this.age = age;}
+	
+	
+	public Integer getAge() {
+		if(this.deathDate==null){
+			return this.calcAge(this.birthDate);
+		}else{
+			return this.calcAge(this.birthDate,this.deathDate);
+		}
+	}
+	
+	
 	
 	public Byte getGender() {return gender;}
 	public void setGender(Byte gender) {this.gender = gender;}
@@ -278,12 +286,8 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 		updateFullNameNoSuffix();
 		updateFullNameRev();
 		updateFullNameRevNoSuffix();
-		updateAge();
 	}
 
-	protected void updateAge(){
-		setAge(calcAge(getBirthDate(),(getDeathDate()==null) ? new Date(): getDeathDate()));
-	}
 	
 	protected void updateFullName(){
 		StringBuffer buffer = new StringBuffer();

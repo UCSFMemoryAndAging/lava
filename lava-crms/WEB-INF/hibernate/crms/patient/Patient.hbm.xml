@@ -20,7 +20,6 @@
 		<property name="suffix" column="Suffix" type="string" length="15"/>
 		<property name="degree" column="Degree" type="string" length="15"/>
 		<property name="birthDate" column="DOB" type="timestamp"/>
-		<property name="age" column="AGE" type="integer"/>
 		<property name="gender" column="Gender" type="byte"/>
 		<property name="hand" column="Hand" type="string" length="25"/>
 		<property name="deceased" column="Deceased" type="boolean"/>

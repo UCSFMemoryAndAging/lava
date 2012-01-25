@@ -24,7 +24,7 @@
 		<!-- override projectAuth filter default condition because column name (ProjUnitDesc) differs 
 			from that used in default which is used by all other entities (ProjName) -->
 		<filter name="projectAuth">
-		    ProjUnitDesc in (Select pr_pu.ProjUnitDesc from ProjectUnit pr_pu where pr_pu.ProjUnitDesc=ProjUnitDesc and (pr_pu.ProjUnitDesc in (:projectList)))
+		    ProjUnitDesc in (Select pr_pu.ProjUnitDesc from projectunit pr_pu where pr_pu.ProjUnitDesc=ProjUnitDesc and (pr_pu.ProjUnitDesc in (:projectList)))
 		</filter>
 	</class>
 

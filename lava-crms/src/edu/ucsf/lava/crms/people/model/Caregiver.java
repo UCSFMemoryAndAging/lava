@@ -353,6 +353,7 @@ public class Caregiver extends CrmsEntity {
 	
 	/**
 	 * TODO://add concept of deathdate to caregivers so the age can be calced correctly
+	 * and update to use same approach as for patient...e.g. read only field.
 	 *
 	 */
 	protected void updateAge(){

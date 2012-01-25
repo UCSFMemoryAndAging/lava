@@ -426,6 +426,13 @@ public class Instrument extends CrmsEntity {
 	public void updateLatestFlag(){
 		
 	}
+	
+	/**
+	 * Logic here is that if the instrument has a dcdate > date of the patient death (e.g. an informant measure collected
+	 * 2 weeks after patient death, then the age of the patient at Data collection is based on the patients death date
+	 * not the dc date of the instrument.
+	 */
+	
 	public void updateAgeAtDC(){
 		if(getPatient()!=null){
 			Integer age = calcAge(getPatient().getBirthDate(),getDcDate());

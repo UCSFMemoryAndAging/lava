@@ -37,7 +37,8 @@
 
 <content tag="listColumns">
 <tags:listRow>
-<tags:componentListColumnHeader component="${component}" label="Action" width="7%"/>
+<%-- EMORY change: increased Action width from 7% to 9%, as wasn't displaying in one line in Firefox --%>
+<tags:componentListColumnHeader component="${component}" label="Action" width="9%"/>
 <tags:componentListColumnHeader component="${component}" label="Patient (Contact Name)" width="20%" sort="patient.fullNameRev"/>
 <tags:componentListColumnHeader component="${component}"  label="Active" width="5%"/>
 <tags:componentListColumnHeader component="${component}" label="Address" width="20%" sort="state,city,address"/>
