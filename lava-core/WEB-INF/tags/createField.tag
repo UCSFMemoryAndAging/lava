@@ -600,7 +600,8 @@
 			<c:if test="${status.count == 1 || (status.count == 2 && context != 'c')}">
 				<c:choose>	
 					<c:when test="${dataElement == 'readonlyText'}">	
-						<tags:readonlyText property="${bindProperty}" alignment="${alignment}" list="${widgetList}"  styleClass="${style == 'numeric' ? 'readonlyDataNumeric' : 'readonlyData'} ${not empty dataStyle ? dataStyle :''}" inlineData="${inlineReadonlyData}"/>
+						<%-- the noLabel style could be applied to other dataElement types here. so far only needed for readonlyText to prevent a left margin for labels when createField is within a list (style tableForm) where there are no labels --%>
+						<tags:readonlyText property="${bindProperty}" alignment="${alignment}" list="${widgetList}"  styleClass="${mode == 'le' || mode == 'lv' ? 'noLabel' : ''} ${style == 'numeric' ? 'readonlyDataNumeric' : 'readonlyData'} ${not empty dataStyle ? dataStyle :''}" inlineData="${inlineReadonlyData}"/>
 					</c:when>
 					<c:when test="${dataElement == 'readonlyPassword'}">	
 						<tags:readonlyPassword property="${bindProperty}" alignment="${alignment}" list="${widgetList}"  styleClass="${style == 'numeric' ? 'readonlyDataNumeric' : 'readonlyData'} ${not empty dataStyle ? dataStyle :''}" inlineData="${inlineReadonlyData}"/>
