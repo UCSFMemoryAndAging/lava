@@ -2105,6 +2105,13 @@ table.tableForm td.wideLabels .readonlyData,table.tableForm td.wideLabels .reado
 	margin-left: 45%; /* label width of 44% plus 1% for margin */
 }
 
+/* note that this is declared after the above set of label rules, because it has the same specificity and should
+have precedence,  i.e. if there is no label, do not account for a label */
+table.tableForm td .noLabel
+	{
+	margin-left: 0; 
+}
+
 /* within a table, a group of rows can be styled (see listRowGroup.tag) */
 tbody.rowGroup {
 	border-top: solid 2px #C0C0C0;
