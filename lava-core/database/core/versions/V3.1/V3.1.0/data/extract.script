@@ -1,0 +1,1 @@
+mysql -s -r -u root -p [dbname] < extract-core-data.sql > lava-core-data-[version].sql

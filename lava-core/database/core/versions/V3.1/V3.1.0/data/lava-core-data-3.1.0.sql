@@ -365,7 +365,7 @@ INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`Or
 
 
 
-INSERT INTO VersionHistory() VALUES('LAVAQUERYAPP','3.0.0',NOW(),3,0,0,1);
+
 
 INSERT INTO `preference` VALUES ('1', null, 'calendar', 'displayRange', 'Default View (e.g. Month, Week)', 'Month', '0', '2010-01-26 14:10:06');
 INSERT INTO `preference` VALUES ('2', null, 'calendar', 'showDayLength', 'Sets day length in week or day views to display either full day or work day', 'Work Day', '0', '2010-01-26 17:13:23');

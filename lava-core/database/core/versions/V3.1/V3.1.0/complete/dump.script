@@ -1,0 +1,1 @@
+mysqldump -R -c --compact --tz-utc=FALSE --extended-insert=FALSE -u root -p lava_core > lava-core-dump.sql
