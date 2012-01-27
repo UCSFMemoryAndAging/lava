@@ -40,8 +40,7 @@ KEY fk_prot_node_config__parent_id (parent_id),
 CONSTRAINT fk_prot_node_config__parent_id FOREIGN KEY (parent_id) REFERENCES prot_node_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
+AUTO_INCREMENT = 1;
 
 
 CREATE TABLE prot_config_option (
@@ -59,9 +58,7 @@ KEY fk_prot_config_option__parent_id (parent_id),
 CONSTRAINT fk_prot_config_option__parent_id FOREIGN KEY (parent_id) REFERENCES prot_node_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
-
+AUTO_INCREMENT = 1;
 
 CREATE TABLE prot_protocol_config (
 node_id int NOT NULL AUTO_INCREMENT,
@@ -72,8 +69,7 @@ KEY fk_prot_protocol_config__node_id (node_id),
 CONSTRAINT fk_prot_protocol_config__node_id FOREIGN KEY (node_id) REFERENCES prot_node_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
+AUTO_INCREMENT = 1;
 
 CREATE TABLE prot_tp_config (
 node_id int NOT NULL AUTO_INCREMENT,
@@ -102,8 +98,7 @@ KEY fk_prot_tp_config__sched_win_rel_tp_id (sched_win_rel_tp_id),
 CONSTRAINT fk_prot_tp_config__sched_win_rel_tp_id FOREIGN KEY (sched_win_rel_tp_id) REFERENCES prot_tp_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
+AUTO_INCREMENT = 1;
 
 
 CREATE TABLE prot_visit_config (
@@ -115,8 +110,7 @@ KEY fk_prot_visit_config__node_id (node_id),
 CONSTRAINT fk_prot_visit_config__node_id FOREIGN KEY (node_id) REFERENCES prot_node_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
+AUTO_INCREMENT = 1;
 
 
 CREATE TABLE prot_visit_config_option (
@@ -128,9 +122,7 @@ KEY fk_prot_visit_config_option__option_id (option_id),
 CONSTRAINT fk_prot_visit_config_option__option_id FOREIGN KEY (option_id) REFERENCES prot_config_option (option_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
-
+AUTO_INCREMENT = 1;
 
 CREATE TABLE prot_instr_config (
 node_id int NOT NULL AUTO_INCREMENT,
@@ -150,8 +142,7 @@ KEY fk_prot_instr_config__collect_win_prot_visit_conf_id (collect_win_prot_visit
 CONSTRAINT fk_prot_instr_config__collect_win_prot_visit_conf_id FOREIGN KEY (collect_win_prot_visit_conf_id) REFERENCES prot_visit_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
+AUTO_INCREMENT = 1;
 
 
 CREATE TABLE prot_instr_config_option (
@@ -162,8 +153,7 @@ KEY fk_prot_instr_config_option__option_id (option_id),
 CONSTRAINT fk_prot_instr_config_option__option_id FOREIGN KEY (option_id) REFERENCES prot_config_option (option_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
+AUTO_INCREMENT = 1;
 
 
 
@@ -202,9 +192,7 @@ KEY fk_prot_node__config_node_id (config_node_id),
 CONSTRAINT fk_prot_node__config_node_id FOREIGN KEY (config_node_id) REFERENCES prot_node_config (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
-
+AUTO_INCREMENT = 1;
 
 CREATE TABLE prot_protocol (
 node_id int NOT NULL AUTO_INCREMENT,
@@ -217,8 +205,7 @@ KEY fk_prot_protocol__EnrollStatID (EnrollStatID),
 CONSTRAINT fk_prot_protocol__EnrollStatID FOREIGN KEY (EnrollStatID) REFERENCES enrollmentstatus (EnrollStatID) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
+AUTO_INCREMENT = 1;
 
 
 CREATE TABLE prot_tp (
@@ -235,9 +222,7 @@ KEY fk_prot_tp__node_id (node_id),
 CONSTRAINT fk_prot_tp__node_id FOREIGN KEY (node_id) REFERENCES prot_node (node_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
- 
+AUTO_INCREMENT = 1;
 
 CREATE TABLE prot_visit (
 node_id int NOT NULL AUTO_INCREMENT,
@@ -249,8 +234,7 @@ KEY fk_prot_visit__VID (VID),
 CONSTRAINT fk_prot_visit__VID FOREIGN KEY (VID) REFERENCES visit (VID) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
+AUTO_INCREMENT = 1;
 
 
 CREATE TABLE prot_instr (
@@ -266,7 +250,6 @@ KEY fk_prot_instr__InstrID (InstrID),
 CONSTRAINT fk_prot_instr__InstrID FOREIGN KEY (InstrID) REFERENCES instrumenttracking (InstrID) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) 
 ENGINE=InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = latin1;
+AUTO_INCREMENT = 1;
 
 
