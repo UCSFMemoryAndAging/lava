@@ -60,7 +60,7 @@ public class StoredProcHibernateCallback implements HibernateCallback {
     		
     		ResultSet resultset = proc.getResultSet();
     		// assume one result
-    		if (resultset.next()) {
+    		if (resultset != null && resultset.next()) {
     			result = resultset.getObject(1);
     		}
 
