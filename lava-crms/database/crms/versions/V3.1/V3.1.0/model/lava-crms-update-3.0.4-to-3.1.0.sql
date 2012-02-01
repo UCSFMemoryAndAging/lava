@@ -28,7 +28,7 @@ ALTER TABLE `visit`
 
 CREATE TABLE IF NOT EXISTS `archive_crms_update_3_1_0_patientconsent` LIKE `patientconsent`;
 
-INSERT INTO  `archive_crms_3_1_0_patientconsent` SELECT * from `patientconsent`;
+INSERT INTO  `archive_crms_update_3_1_0_patientconsent` SELECT * from `patientconsent`;
 
 ALTER TABLE `patientconsent` DROP COLUMN `CTcarepart` , DROP COLUMN `CTpart` , DROP COLUMN `CTmusic` , DROP COLUMN `CTfollowup` , DROP COLUMN `CTotherstudy` , DROP COLUMN `CT4t` , DROP COLUMN `CT1point5T` , DROP COLUMN `CTmediaedu` , DROP COLUMN `CTaudio` , DROP COLUMN `CTvideo` , DROP COLUMN `CTlumbar` , DROP COLUMN `CTGeneticShare` , DROP COLUMN `CTGenetic` , DROP COLUMN `CTDNA` , DROP COLUMN `CTneuro` , DROP COLUMN `CTreasearch` , ADD COLUMN `HIPAA` TINYINT(4) NULL DEFAULT NULL  AFTER `ConsentType` ;
 
