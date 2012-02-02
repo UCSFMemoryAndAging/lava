@@ -17,5 +17,5 @@
 
 ${empty label ? '':label}&nbsp;
 <tags:singleSelect property="command.components[${component}].filter.activeQuickFilter" fieldId="activeQuickFilter" 
-		list="${staticLists[listItemSource]}" attributesText="onChange=&quot;document.${empty pageName ? component : pageName}.action='#${component}';submitForm(document.${empty pageName ? component : pageName},'${component}__applyQuickFilter')&quot; "/>
+		list="${lists[listItemSource]}" attributesText="onChange=&quot;document.${empty pageName ? component : pageName}.action='#${component}';submitForm(document.${empty pageName ? component : pageName},'${component}__applyQuickFilter')&quot; "/>
 <BR>
