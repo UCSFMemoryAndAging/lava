@@ -89,9 +89,8 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
         // the parent flow. also, the subflow handler will need to put the value into flowScope so that the subflow
         // outputMapper can retrieve the value and in order to map it in buildOutputMapper
         
-        // for flows that add a new entity, this will allow the parent flow to get the id of that new entity from
-        // flowScope.newId 
-        subflowInputOutputMapper.addOutputMapping(mapping().source("subflowEntityId").target("flowScope.subflowEntityId").value());
+        // for flows that add a new entity, this will allow the parent flow to get the new entity from flowScope.newEntity 
+        subflowInputOutputMapper.addOutputMapping(mapping().source("subflowEntity").target("flowScope.subflowEntity").value());
         // have subflows return their action id in case the parent flow needs to know which subflow just returned
         subflowInputOutputMapper.addOutputMapping(mapping().source("subflowActionId").target("flowScope.subflowActionId").value());
         //TODO: consider adding output parameters "outParam", "outParam1", etc. to subflowInputOutputMapper, akin to 

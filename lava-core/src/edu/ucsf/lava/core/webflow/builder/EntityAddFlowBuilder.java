@@ -59,11 +59,11 @@ public class EntityAddFlowBuilder extends BaseFlowBuilder {
     }
     
 	public void buildOutputMapper() throws FlowBuilderException {
-		// return the newly created entity id to the parent flow in case it needs to know
-		Mapping newIdMapping = mapping().source("flowScope.newId").target("subflowEntityId").value();
+		// return the newly created entity to the parent flow in case it needs to know
+		Mapping newEntityMapping = mapping().source("flowScope.newEntity").target("subflowEntity").value();
 		// return the action id of this subflow to the parent flow in case it needs to know
 		Mapping actionIdMapping = mapping().source("flowScope.actionId").target("subflowActionId").value();
-		getFlow().setOutputMapper(new DefaultAttributeMapper().addMapping(newIdMapping).addMapping(actionIdMapping));
+		getFlow().setOutputMapper(new DefaultAttributeMapper().addMapping(newEntityMapping).addMapping(actionIdMapping));
 	}
  
 }
