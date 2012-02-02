@@ -199,6 +199,8 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 			// one problem with this: the view subflow could have spawned an edit subflow which modified the 
 			// element, so the fact that the subflow is a view action does not guarantee that the entity was not
 			// modified
+			// if editable lists are implemented, would not want to refresh here because pending edits would be
+			// lost. as a rule, if a list is editable, it should not be the kind of list that can have subflows
 			this.refreshBackingObjects(context, command, errors);
 		}
 	}
