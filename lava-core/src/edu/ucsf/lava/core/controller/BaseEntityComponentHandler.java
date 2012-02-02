@@ -221,7 +221,9 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 	 * 
 	 * The default behavior is based on the most common paradigm for an entity subflow, i.e. an entity view flow
 	 * spawns an entity edit subflow, and when the edit subflow returns, the entity should be refreshed in the
-	 * view flow to reflect changes that were made
+	 * view flow to reflect changes that were made. Do NOT want this behavior if an edit flow spawns a subflow 
+	 * because the edit flow entity may have pending edits that have not been saved (or cancelled) and doing
+	 * a refresh would lose those pending modifications.
 	 * 
 	 * note: this is not an event handler. it is a flow action state action (initiated by returning
 	 * from a subflow). also, the FormAction method that calls this always returns success, because once back 
@@ -229,9 +231,12 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 	 * will be displayed as error messages in the parent view.
 	 */
 	public void subFlowReturnHook(RequestContext context, Object command, BindingResult errors) throws Exception {
-		Object obj = context.getFlowScope().get("cancelled");
-		if (!((Boolean)context.getFlowScope().get("cancelled"))) {
-			this.refreshBackingObjects(context, command, errors);
+		String flowMode = ActionUtils.getFlowMode(context.getActiveFlow().getId());
+		if (flowMode.equals("view")) {
+			Object obj = context.getFlowScope().get("cancelled");
+			if (!((Boolean)context.getFlowScope().get("cancelled"))) {
+				this.refreshBackingObjects(context, command, errors);
+			}
 		}
 	}
 
@@ -547,7 +552,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 			// do refresh in case any db triggers populated fields on saveAdd
 			returnEvent = refreshHandledObjects(context, components, errors);
 			// populate flowScope.newId for any subflows that have an output mapper to return to the parent flow
-			context.getFlowScope().put("newId",((LavaEntity)(((ComponentCommand)command).getComponents().get(getDefaultObjectName()))).getId());		
+			context.getFlowScope().put("newEntity",((LavaEntity)(((ComponentCommand)command).getComponents().get(getDefaultObjectName()))));		
 		}
 		return returnEvent;
 	}
