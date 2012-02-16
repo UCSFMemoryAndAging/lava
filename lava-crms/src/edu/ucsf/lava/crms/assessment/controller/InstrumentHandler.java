@@ -701,7 +701,11 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		String eventId = ActionUtils.getEventId(context);
 		
 		for (String handledEvent: handledEvents){
-			if (eventId.matches(handledEvent)) {
+			// since all instrument refresh events should be handled they are covered by a regular expression
+			// wildcard. however, the visitInstrumetns__refresh which the InstrumentAddFlowBuilder posts after
+			// user changes the Visit (after reRender event) should be handled by the secondary visitInstruments
+			// handler, not the InstrumentHandler
+			if (!eventId.equals("visitInstruments__refresh") && eventId.matches(handledEvent)) {
 				return true;
 			}
 		}
