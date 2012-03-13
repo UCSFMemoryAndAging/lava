@@ -11,6 +11,8 @@
 
 <%@ attribute name="property" required="true" 
        description="The name of the property.  properties that are subproperties (e.g. patient.birthDate) will be formated as patient_birthdate for metadata lookups" %>
+<%@ attribute name="property2" 
+       description="Optional second property to be output within same cell in same <div> block, i.e. on same line, separated by the separator attribute" %>
 <%@ attribute name="component" required="true" 
        description="All lists are implemented in components" %>
 <%@ attribute name="entityType" 
@@ -40,6 +42,9 @@
 	   description="[optional] CSS style to use for the data element, in combination with the default
 	                'inputData' or 'inputDataNumeric' or 'readonlyData' or 'readonlyDataNumeric' style
 	                (assuming that the specificity of the rules in the stylesheet are the same)"%>
+<%@ attribute name="separator"
+	   description="[optional] output to separate the property data elements when more than one property
+                        is specified in the property attribute (see description for property attribute)." %>
 
 
 <c:set var="escapedProperty"><tags:escapeProperty property="${property}"/></c:set>
@@ -47,6 +52,11 @@
 	<c:set var="metadataName" value="${empty entityType ? '':entityType}${empty entityType?'':'.'}${escapedProperty}"/>
 </c:if>
 
-<tags:createField property="pageList[${listIndex}].entity.${property}" component="${component}" entityType="${empty entityType?'':entityType}" 
+<c:if test="${not empty property2}">
+	<c:set var="listProperty2" value=",pageList[${listIndex}].entity.${property2}"/>
+</c:if>	
+
+<tags:createField property="pageList[${listIndex}].entity.${property}${listProperty2}" component="${component}" entityType="${empty entityType?'':entityType}" 
 		metadataName="${metadataName}" mode="${empty mode  ? '':mode}" fieldStyle="${empty fieldStyle ?'':fieldStyle}" labelAlignment="${empty labelAlignment ?'':labelAlignment}" 
-		labelStyle="${empty labelStyle ?'':labelStyle}"  optionsAlignment="${empty optionsAlignment ?'':optionsAlignment}" dataStyle="${empty dataStyle ?'':dataStyle}"/>
+		labelStyle="${empty labelStyle ?'':labelStyle}"  optionsAlignment="${empty optionsAlignment ?'':optionsAlignment}" dataStyle="${empty dataStyle ?'':dataStyle}"
+		separator="${empty separator ? '':separator}"/>
