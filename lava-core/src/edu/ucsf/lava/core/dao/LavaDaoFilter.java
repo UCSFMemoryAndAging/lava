@@ -44,16 +44,17 @@ public interface LavaDaoFilter extends Serializable {
 	public Map getOuterAliases();
 	public Object getOuterAlias(String collectionName);
 	
+	public Object getParam(String paramName);
 	public LavaDaoFilter setParam(String paramName, Object paramValue);
-	public LavaDaoFilter addQuickFilter(String quickFilterName, LavaDaoParam quickFilterParam);
+	public Map<String,Object> getParams();
 	public LavaDaoFilter clearParam(String paramName);
 	public LavaDaoFilter clearParams();
-	public boolean isParamEmpty(String paramName);
-	public LavaDaoFilter clearQuickFilters();
-	public Map getParams();
-	public Map getQuickFilters();
-	public Object getParam(String paramName);
 	public boolean paramsNotEqualTo(Map<String,Object> oldParams);
+	public boolean isParamEmpty(String paramName);
+
+	public Map getQuickFilters();
+	public LavaDaoFilter clearQuickFilters();
+	public LavaDaoFilter addQuickFilter(String quickFilterName, LavaDaoParam quickFilterParam);
 	public void setActiveQuickFilter(String activeQuickFilter);
 	public String getActiveQuickFilter();
 	
