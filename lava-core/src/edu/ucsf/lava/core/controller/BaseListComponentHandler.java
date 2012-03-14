@@ -49,7 +49,7 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 	public BaseListComponentHandler() {
 		super();
 		this.setDefaultMode("lv");
-		defaultEvents = new ArrayList(Arrays.asList(new String[]{"applyFilter","clearFilter","toggleFilter","clearSort","prevPage","nextPage",
+		defaultEvents = new ArrayList(Arrays.asList(new String[]{"applyFilter","applyQuickFilter","clearFilter","toggleFilter","clearSort","prevPage","nextPage",
 				"recordNav","pageSize","refresh","refreshReturnToPage","close","export",
 				"custom","custom2","custom3","customEnd","customEnd2","customEnd3"}));
 		authEvents = new ArrayList(); // none of the list events require explicit permission
@@ -298,6 +298,9 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 		if(event.equals("applyFilter")){
 			return this.handleApplyFilterEvent(context,command,errors);
 		}
+		if(event.equals("applyQuickFilter")){
+			return this.handleApplyQuickFilterEvent(context,command,errors);
+		}
 		else if(event.equals("clearFilter")){
 			return this.handleClearFilterEvent(context,command,errors);
 		}	
@@ -388,6 +391,32 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 	
 	//The default apply filter action 
 	protected Event doApplyFilter(RequestContext context, Object command, BindingResult errors) throws Exception{
+		ComponentCommand componentCommand = (ComponentCommand) command;
+		ScrollablePagedListHolder plh = (ScrollablePagedListHolder) componentCommand.getComponents().get(this.getDefaultObjectName());
+		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
+		// because SourceProvider is part of command object and must be Serializable so that web flow
+		// continuations work, yet its listHandler field is transient because certain superclasses beyond
+		// the scope of our app are not Serializable (e.g. HibernateDaoSupport class), the listHandler
+		// field needs to be explicitly reset before each list refresh, because upon deserialization it
+		// is null
+		((BaseListSourceProvider)plh.getSourceProvider()).setListHandler(this);
+		try {
+			plh.doRefresh();
+		}
+		catch (Exception e) {
+			addObjectErrorForException(errors, e);
+			returnEvent = new Event(this,ERROR_FLOW_EVENT_ID);
+		}
+		return returnEvent;
+	}
+		
+	
+	public Event handleApplyQuickFilterEvent(RequestContext context, Object command, BindingResult errors) throws Exception{
+		return doApplyQuickFilter(context,command,errors);
+	}
+	
+	//The default apply quick filter action 
+	protected Event doApplyQuickFilter(RequestContext context, Object command, BindingResult errors) throws Exception{
 		ComponentCommand componentCommand = (ComponentCommand) command;
 		ScrollablePagedListHolder plh = (ScrollablePagedListHolder) componentCommand.getComponents().get(this.getDefaultObjectName());
 		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
