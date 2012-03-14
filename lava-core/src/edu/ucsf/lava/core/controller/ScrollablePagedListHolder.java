@@ -269,15 +269,6 @@ public class ScrollablePagedListHolder extends RefreshablePagedListHolder {
 		// want to put an id in each listItem so that metadata can be tied to an item even if
 		// its entity has not been loaded, e.g. allowing the user to select all items in a list 
 		// which includes unloaded items
-		// TODO: if the size of the list is larger than the number of initial elements loaded
-		// (DEFAULT_INITIAL_ELEMENTS) but smaller than the threshold to use idCache, then a 
-		// cursor is used which only retrieves those elements needed for the current page. in 
-		// this case, under the current design, the id for unloaded items will not be available 
-		// to store in ListItem, as it is when idCache is used. so the design will have to be 
-		// modified. possible solution is to use idCache whenever there are unloaded elements.  
-		
-		//TODO: look at using the List<ListItem> structure to serve as the idCache,
-		//so that idCache is not needed in LavaDaoFilter anymore		
 		if (filter.getIdCache() != null) {
 			int i=0;
 			for (Object id : filter.getIdCache()) {
