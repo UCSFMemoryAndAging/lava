@@ -667,10 +667,14 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 		private EntityManagerBase manager;
 		private Class entityClass;
 		
-		
 		public Manager(Class entityClass){
 			this.entityClass = entityClass;
-			manager = new EntityManagerBase();
+			this.manager = new EntityManagerBase();
+		}
+		
+		public Manager(Class entityClass, EntityManagerBase manager){
+			this.entityClass = entityClass;
+			this.manager = manager;
 		}
 		
 		public Object create() {
@@ -694,6 +698,10 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 			manager.flushAndEvict(entity);
 		}
 		
+		public void lock(Object entity) {
+			manager.lock(entity);
+		}
+
 		public void executeSQLProcedure(String procedureName, Object[] paramValues, int[] paramTypes, char[] paramIOFlags) {
 			manager.executeSQLProcedure(procedureName, paramValues, paramTypes, paramIOFlags);
 		}
@@ -784,9 +792,9 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 			return entityClass;
 		}
 
-
-	
-		
+		public EntityManagerBase getManager() {
+			return manager;
+		}
 		
 		
 	}
