@@ -13,6 +13,7 @@ public interface EntityManager {
 		public Object create();
 		public void delete(Object object);
 		public void evict(Object entity);
+		public void lock(Object entity);
 		public List get(LavaDaoFilter filter);
 		public List get();
 		public Object getById(Long id, LavaDaoFilter filter);

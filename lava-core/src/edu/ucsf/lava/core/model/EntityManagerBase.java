@@ -39,6 +39,9 @@ public class EntityManagerBase {
 		public  void evict(Object entity) {
 			getDao().evict(entity);
 		}
+		public  void lock(Object entity) {
+			getDao().lock(entity);
+		}
 		public  List get(Class entityClass,LavaDaoFilter filter) {
 			return getDao().find(entityClass, filter);
 		}
