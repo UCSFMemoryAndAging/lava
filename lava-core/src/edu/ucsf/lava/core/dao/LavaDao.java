@@ -17,6 +17,7 @@ public interface LavaDao {
 	public Integer getResultCount(Class clazz, LavaDaoFilter filter);	
 	public void flushAndEvict(Object entity);
 	public void evict(Object entity);
+	public void lock(Object entity);
 	public void initialize(Object entity);
 	public List<Long> getEntityIds(Class entityClass,LavaDaoFilter filter);
 	public void executeSQLProcedure(String procedureName, Object[] paramValues, int[] paramTypes, char[] paramIOFlags);

@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.HibernateException;
+import org.hibernate.LockMode;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import edu.ucsf.lava.core.dao.LavaDao;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.LavaEntity;
+
 
 public class LavaDaoHibernateImpl extends HibernateDaoSupport implements LavaDao {
 	
@@ -192,6 +194,10 @@ public class LavaDaoHibernateImpl extends HibernateDaoSupport implements LavaDao
 		getHibernateTemplate().evict(entity);
 	}
 
+	public void lock(Object entity){
+		getHibernateTemplate().lock(entity, LockMode.NONE);
+	}
+	
 	public void evict(Object entity){
 		getHibernateTemplate().evict(entity);
 	}
