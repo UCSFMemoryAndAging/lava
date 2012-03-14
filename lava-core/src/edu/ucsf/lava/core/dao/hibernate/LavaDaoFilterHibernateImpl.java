@@ -17,6 +17,7 @@ import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.dao.LavaDaoParam;
 import edu.ucsf.lava.core.dao.LavaDaoProjection;
+import edu.ucsf.lava.core.dao.LavaNonParamHandler;
 import edu.ucsf.lava.core.dao.LavaParamHandler;
 
 
@@ -193,8 +194,24 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 		return this;
 	}
 	public LavaDaoFilter clearParams() {
-		params.clear();
-		
+		// do not want "non params" removed as want them to retain their value. difficulty
+		// with iterating over a Map and (selectively) removing items from that Map due to
+		// ConcurrentModificationException, so instead save away the "non params" then clear
+		// the Map and restore them
+		Map<String,Object> saveNonParams = new HashMap<String,Object>();
+		for (String param : params.keySet()) {
+			for (LavaParamHandler handler : paramHandlers) {
+				if (handler.handleParam(this, param)) {
+					if (handler instanceof LavaNonParamHandler) {
+						saveNonParams.put(param, this.getParam(param));
+					}
+					break;
+				}
+			}
+		}
+		this.params.clear();
+		// restore non params
+		this.params.putAll(saveNonParams);
 		return this;
 	}
 	
@@ -488,6 +505,7 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 		for (String name: params.keySet()){
 			boolean handled=false;
 			for (LavaParamHandler handler: paramHandlers){
+				// handleParam adds the param to daoParams (unless the handler is LavaIgnoreParamHandler/LavaNonParamHandler)
 				if(handled==false && handler.handleParam(this,name)){
 					handled=true;
 				}
