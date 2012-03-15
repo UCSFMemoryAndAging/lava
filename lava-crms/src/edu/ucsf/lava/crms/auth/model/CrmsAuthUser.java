@@ -8,15 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hibernate.Hibernate;
-
 import edu.ucsf.lava.core.auth.AuthDaoUtils;
 import edu.ucsf.lava.core.auth.model.AuthRole;
 import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.auth.model.AuthUserRole;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
-import edu.ucsf.lava.core.model.EntityManager;
 import edu.ucsf.lava.crms.dao.CrmsDaoFilterUtils;
 import edu.ucsf.lava.crms.enrollment.ProjectUnitUtils;
 import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
@@ -32,11 +29,12 @@ public class CrmsAuthUser extends AuthUser{
 	public static CrmsAuthUser.Manager MANAGER = new CrmsAuthUser.Manager();
 	
 	public static final String PROJECT_LIST_PLACEHOLDER = "NO_PROJECTS_IN_LIST"; //if no project access, this value will keep SQL statements valid --this term gets added to an in clause and will return no projects
+	protected boolean crmsAuthUserContextInit = false; //flag used by crmsAuthUserContext filters to determine when to perform initialization actions.
 	
 	/**
 	 * List of projects that the user can access data from.  This list only provides access to 
 	 * data that is associated with patients that the user is authorized to access.  That patient
-	 * access is rpresented by the patientProjectAccessList.
+	 * access is represented by the patientProjectAccessList.
 	 */
 	private List<String> projectAccessList;
 	/**
@@ -50,14 +48,21 @@ public class CrmsAuthUser extends AuthUser{
 	 */
 	private List<String> patientProjectAccessList;
 	/**
-	 * Indeicates that the user has access to patients associated with all projects in the system.
+	 * Indicates that the user has access to patients associated with all projects in the system.
 	 */
 	private Boolean allPatientProjectAccess;
 
 	
-	
 	public CrmsAuthUser(){
 		super();
+	}
+	
+	public boolean isCrmsAuthUserContextInit() {
+		return crmsAuthUserContextInit;
+	}
+
+	public void setCrmsAuthUserContextInit(boolean crmsAuthUserContextInit) {
+		this.crmsAuthUserContextInit = crmsAuthUserContextInit;
 	}
 	
 	/**
