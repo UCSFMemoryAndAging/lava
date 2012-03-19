@@ -108,7 +108,7 @@ uiHtml_Window.getInstance().appendEventHandler("load", function(e) {
 	<c:import url="/WEB-INF/jsp/${footerURL}"/>
 </div> <!-- end footer -->
 <div id="copyright">
-   <spring:message code="${webappInstance}.copyright" text="Copyright &copy; 2005-2011 University of California Regents. All Rights Reserved."/>
+   <spring:message code="${webappInstance}.copyright" text="Copyright &copy; 2005-2012 University of California Regents. All Rights Reserved."/>
 </div>
  
 </div> <!-- end center column (or right, if only two columns) -->
