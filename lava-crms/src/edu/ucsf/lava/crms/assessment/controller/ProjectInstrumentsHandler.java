@@ -78,6 +78,8 @@ public class ProjectInstrumentsHandler extends CrmsCalendarComponentHandler {
 	 * Generate the export as a String and return it. Also, set the default export
 	 * filename and return via the defaultFilename argument.
 	 * 
+	 * This is more or less a stopgap until the LAVA Query tool is ready.
+	 * 
 	 * @param context
 	 * @param command
 	 * @param errors
