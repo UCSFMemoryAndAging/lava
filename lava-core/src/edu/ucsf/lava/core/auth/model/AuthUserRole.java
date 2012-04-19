@@ -117,7 +117,14 @@ public class AuthUserRole extends CoreEntity {
 	
 	
 
-
+	public boolean isContextAuthorized(AuthorizationContext authorizationContext) {
+		if (((CoreAuthorizationContext)authorizationContext).getScope().equals(CoreAuthorizationContext.CORE_SCOPE)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 	
 	
 	
