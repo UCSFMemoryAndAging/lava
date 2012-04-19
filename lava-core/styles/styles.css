@@ -798,7 +798,7 @@ a.eventButtonMedium {
 	text-align: center;
 	text-decoration: none;
 	background: url('../images/BUTT_medium.png') no-repeat center center;
-	padding: 3px 25px;
+	padding: 3px 20px;
 }
 
 a.eventButtonMedium:hover {
@@ -813,7 +813,7 @@ a.eventButtonLarge {
 	text-align: center;
 	text-decoration: none;
 	background: url('../images/BUTT_large.png') no-repeat center center;
-	padding: 3px 25px;
+	padding: 3px 20px;
 	/* this provides the separation if multiple buttons */
 }
 
@@ -829,7 +829,7 @@ a.eventButtonXLarge {
 	text-align: center;
 	text-decoration: none;
 	background: url('../images/BUTT_xlarge.png') no-repeat center center;
-	padding: 3px 25px;
+	padding: 3px 20px;
 	/* this provides the separation if multiple buttons */
 }
 
