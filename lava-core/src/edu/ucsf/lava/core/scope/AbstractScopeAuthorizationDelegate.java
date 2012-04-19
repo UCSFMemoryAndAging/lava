@@ -46,7 +46,7 @@ public abstract class AbstractScopeAuthorizationDelegate implements ScopeAuthori
 		}
 		//next check in the roleCache for each role
 		for(AuthUserRole r : user.getEffectiveRoles()){
-			if(roleCache.isAuthorized(r.getRole().getRoleName(),action)){
+			if(roleCache.isAuthorized(r.getRole().getRoleName(),action) && r.isContextAuthorized(authorizationContext)){
 				//add to the user cache 
 				userCache.cacheAuthCheck(action,authorizationContext,true);
 				return true;
