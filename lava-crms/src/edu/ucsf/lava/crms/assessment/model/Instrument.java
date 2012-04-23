@@ -106,6 +106,16 @@ public class Instrument extends CrmsEntity {
 		setDcStatus(dcStatus);
 	}
 
+	/**
+	 * Convenience constructor for instantiating an instance just so instrTypeEncoded can be generated.
+	 * @param instrType
+	 * @param instrVer
+	 */
+	public Instrument(String instrType, String instrVer) {
+		this();
+		setInstrType(instrType);
+		setInstrVer(instrVer);
+	}
 	
 	public static Instrument create(Class clazz, Patient p, Visit v, String projName, String instrType, Date dcDate, String dcStatus) {
 		Instrument instrObj = null;
