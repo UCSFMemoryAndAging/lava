@@ -6,6 +6,8 @@ import edu.ucsf.lava.core.auth.CoreAuthorizationContext;
 import edu.ucsf.lava.core.model.CoreEntity;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
+import edu.ucsf.lava.core.scope.ScopeAuthorizationContext;
+
 public class AuthUserRole extends CoreEntity {
 
 	
@@ -118,7 +120,7 @@ public class AuthUserRole extends CoreEntity {
 	
 
 	public boolean isContextAuthorized(AuthorizationContext authorizationContext) {
-		if (((CoreAuthorizationContext)authorizationContext).getScope().equals(CoreAuthorizationContext.CORE_SCOPE)) {
+		if (((ScopeAuthorizationContext)authorizationContext).getScope().equals(CoreAuthorizationContext.CORE_SCOPE)) {
 			return true;
 		}
 		else {

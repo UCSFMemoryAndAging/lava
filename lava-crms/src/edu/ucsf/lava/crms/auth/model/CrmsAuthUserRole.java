@@ -4,6 +4,7 @@ import edu.ucsf.lava.core.auth.AuthorizationContext;
 import edu.ucsf.lava.core.auth.model.AuthUserRole;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
+import edu.ucsf.lava.core.scope.ScopeAuthorizationContext;
 import edu.ucsf.lava.crms.auth.CrmsAuthorizationContext;
 import edu.ucsf.lava.crms.enrollment.ProjectUnitUtils;
 
@@ -48,12 +49,15 @@ public class CrmsAuthUserRole extends AuthUserRole {
 
 
 	public boolean isContextAuthorized(AuthorizationContext authorizationContext) {
-		if (((CrmsAuthorizationContext)authorizationContext).getScope().equals(CrmsAuthorizationContext.CRMS_SCOPE)
-				&& this.getAuthorizationContext().matches(authorizationContext)) {
-			return true;
+		if (((ScopeAuthorizationContext)authorizationContext).getScope().equals(CrmsAuthorizationContext.CRMS_SCOPE)) {
+			if (this.getAuthorizationContext().matches(authorizationContext)) {
+				return true;				
+			} else {
+				return false;
+			}
 		}
 		else {
-			return false;
+			return super.isContextAuthorized(authorizationContext);
 		}
 	}
 	
