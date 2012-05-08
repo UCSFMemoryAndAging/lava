@@ -25,7 +25,8 @@ public class ProtocolVisitConfigOption extends ProtocolVisitConfigOptionBase {
 	// facilitates allowing user to specify visitType from project other than the project for
 	// which the protocol config is defined, so that patients that are co-enrolled in two or more 
 	// projects will be accommodated
-	private String projName;
+	// note: not using projName property as there is a projName in the base class
+	private String visitTypeProjName;
 	private String visitType; 
 	
 	/**
@@ -40,11 +41,11 @@ public class ProtocolVisitConfigOption extends ProtocolVisitConfigOptionBase {
 		super.setProtocolVisitConfigBase(protocolVisit);
 	}
 
-	public String getProjName() {
-		return projName;
+	public String getVisitTypeProjName() {
+		return visitTypeProjName;
 	}
-	public void setProjName(String projName) {
-		this.projName = projName;
+	public void setVisitTypeProjName(String visitTypeProjName) {
+		this.visitTypeProjName = visitTypeProjName;
 	}
 	public String getVisitType() {
 		return visitType;
@@ -52,6 +53,32 @@ public class ProtocolVisitConfigOption extends ProtocolVisitConfigOptionBase {
 	public void setVisitType(String visitType) {
 		this.visitType = visitType;
 	}
+	
+
+	protected void updateSummary() {
+		StringBuffer block = new StringBuffer(this.getVisitTypeProjName()).append("~").append(this.getVisitType());
+		if (this.getDefaultOption()) {
+			block.append(" (default)");
+		}
+		this.setSummary(block.toString());
+	}
+	
+	
+	public void updateCalculatedFields(){
+		super.updateCalculatedFields();
+		this.updateSummary();
+		// label is not currently used but is required so set it
+		if (this.getLabel() == null) {
+			String theLabel = new StringBuffer(this.getVisitTypeProjName()).append(" - ").append(this.getVisitType()).toString();
+			if (theLabel.length() > 25) {
+				theLabel = this.getVisitType();
+			}
+			this.setLabel(theLabel);
+		}
+	}
+
+
+	
 	
 	/**
 	 * This method returns the effective effDate for this option. This is done by going up the
