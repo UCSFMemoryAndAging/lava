@@ -24,7 +24,6 @@
 	<tags:outputText textKey="protocol.visitPrimaryVisitConfig" inline="false" styleClass="bold"/>
 </c:if>
 <tags:createField property="optional" component="${component}"/>
-<tags:createField property="defaultOptionId" component="${component}"/>
 <tags:createField property="notes" component="${component}"/>
 <tags:createField property="effDate" component="${component}"/>
 <tags:createField property="expDate" component="${component}"/>
@@ -35,7 +34,7 @@
 <page:applyDecorator name="component.entity.section">
   <page:param name="sectionId">anonymous</page:param>
   <page:param name="sectionNameKey"> </page:param>
-<tags:createField property="options[0].visitTypeProjName" component="${component}" metadataName="protocolVisitConfigOption.visitTypeProjName"/>
+<tags:createField property="options[0].projName" component="${component}" metadataName="protocolVisitConfigOption.projName"/>
 <tags:createField property="options[0].visitType" component="${component}" metadataName="protocolVisitConfigOption.visitType"/>
 </page:applyDecorator>
 </c:if>
@@ -56,20 +55,20 @@
 <page:applyDecorator name="component.entity.section">
   <page:param name="sectionId">visitConfigTree</page:param>
   <page:param name="sectionNameKey">protocol.visitConfigTree.section</page:param>
-  
-<div class="verticalSpace10">&nbsp;</div>
-<tags:actionURLButton buttonText="Add Instrument"  actionId="lava.crms.protocol.setup.protocolInstrumentConfig" eventId="protocolInstrumentConfig__add" component="${component}" parameters="param,${visitId}" locked="${currentPatient.locked}"/>   
-<div class="verticalSpace10">&nbsp;</div>
 
+<div class="verticalSpace10">&nbsp;</div>
+<tags:actionURLButton buttonText="Add Instr Conf"  actionId="lava.crms.protocol.setup.protocolInstrumentConfig" eventId="protocolInstrumentConfig__add" component="${component}" parameters="param,${visitId}" locked="${currentPatient.locked}"/>   
+<div class="verticalSpace10">&nbsp;</div>
+  
 <tags:tableForm>  
 
 <tags:listRow>
 	<tags:listColumnHeader label="Action" width="10%"/>
 	<tags:listColumnHeader label="Protocol Component" width="26%"/>
 	<tags:listColumnHeader label="Type" width="16%" />
+	<tags:listColumnHeader label="Summary" width="30%" />
 	<tags:listColumnHeader label="Eff. Date" width="9%" />
 	<tags:listColumnHeader label="Exp. Date" width="9%" />
-	<tags:listColumnHeader label="Notes" width="30%" />
 </tags:listRow>
 
 <c:forEach items="${command.components[component].children}" var="protocolInstrumentConfig" varStatus="instrumentIterator">
@@ -79,22 +78,19 @@
 		<tags:createField property="children[${instrumentIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
 	</tags:listCell>
 	<tags:listCell>Instrument</tags:listCell>
+	<tags:listCell><tags:createField property="children[${instrumentIterator.index}].summary" component="${component}" metadataName="protocolConfig.summary" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="children[${instrumentIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="children[${instrumentIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
-	<tags:listCell><tags:createField property="children[${instrumentIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
 </tags:listRow>
 
 		<c:forEach items="${protocolInstrumentConfig.options}" var="protocolInstrumentConfigOption" varStatus="instrumentOptionIterator">
 		<tags:listRow>
 			<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolInstrumentConfigOption" component="protocolInstrumentConfigOption" idParam="${protocolInstrumentConfigOption.id}" locked="${item.locked}"/></tags:listCell>
-			<tags:listCell>
-				<c:forEach begin="1" end="3">&nbsp;</c:forEach>
-				<tags:createField property="children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
-			</tags:listCell>
+			<tags:listCell>&nbsp;</tags:listCell>
 			<tags:listCell>Instrument Option</tags:listCell>
+			<tags:listCell><tags:createField property="children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].summary" component="${component}" metadataName="protocolConfig.summary" mode="${fieldMode}"/></tags:listCell>
 			<tags:listCell><tags:createField property="children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 			<tags:listCell><tags:createField property="children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
-			<tags:listCell><tags:createField property="children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
 		</tags:listRow>
 		</c:forEach>
 
@@ -112,22 +108,22 @@
 <tags:tableForm>  
 <tags:listRow>
 	<tags:listColumnHeader label="Action" width="10%"/>
-	<tags:listColumnHeader label="Option" width="21%"/>
+	<tags:listColumnHeader label="Summary" width="44%"/>
 	<tags:listColumnHeader label="Effective Date" width="23%" />
 	<tags:listColumnHeader label="Expiration Date" width="23%" />
-	<tags:listColumnHeader label="Notes" width="23%" />
 </tags:listRow>
 
 <c:forEach items="${command.components[component].options}" var="protocolVisitConfigOption" varStatus="visitOptionIterator">
 <tags:listRow>
 	<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolVisitConfigOption" component="protocolVisitConfigOption" idParam="${protocolVisitConfigOption.id}" locked="${item.locked}"/></tags:listCell>
-	<tags:listCell><tags:createField property="options[${visitOptionIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/></tags:listCell>
+	<tags:listCell><tags:createField property="options[${visitOptionIterator.index}].summary" component="${component}" metadataName="protocolConfig.summary" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="options[${visitOptionIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="options[${visitOptionIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
-	<tags:listCell><tags:createField property="options[${visitOptionIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
 </tags:listRow>	
 </c:forEach>
-</tags:tableForm> 
+</tags:tableForm>
+
+ 
 </page:applyDecorator>
 
 </c:if>
