@@ -20,10 +20,13 @@
 <tags:createField property="id" component="${component}"/>
 </c:if>
 <tags:createField property="label" component="${component}"/>
-<tags:createField property="notes" component="${component}"/>
+<tags:createField property="defaultOption" component="${component}"/>
 <tags:createField property="instrType" component="${component}"/>
+<tags:outputText textKey="protocol.instrumentConfigOption.instrVerNotRequired" inline="false" styleClass="italic"/>
+<tags:createField property="instrVer" component="${component}"/>
 <tags:createField property="effDate" component="${component}"/>
 <tags:createField property="expDate" component="${component}"/>
+<tags:createField property="notes" component="${component}"/>
 </page:applyDecorator>
 
 </page:applyDecorator>    
