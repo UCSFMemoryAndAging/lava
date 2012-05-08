@@ -22,9 +22,6 @@
 </c:if>
 <tags:createField property="label" component="${component}"/>
 <tags:createField property="optional" component="${component}"/>
-<%-- NOT IMPLEMENTED YET
-<tags:createField property="defaultOptionId" component="${component}"/>
- --%>
 <tags:createField property="notes" component="${component}"/>
 <tags:createField property="effDate" component="${component}"/>
 <tags:createField property="expDate" component="${component}"/>
@@ -58,6 +55,8 @@
   <page:param name="sectionId">anonymous</page:param>
   <page:param name="sectionNameKey"> </page:param>
 <tags:createField property="options[0].instrType" component="${component}" metadataName="protocolInstrumentConfig.instrType"/>
+<tags:outputText textKey="protocol.instrumentConfigOption.instrVerNotRequired" inline="false" styleClass="italic"/>
+<tags:createField property="options[0].instrVer" component="${component}" metadataName="protocolInstrumentConfig.instrVer"/>
 </page:applyDecorator>
 </c:if>
 
@@ -84,19 +83,17 @@
 <tags:tableForm>  
 <tags:listRow>
 	<tags:listColumnHeader label="Action" width="10%"/>
-	<tags:listColumnHeader label="Option" width="21%"/>
+	<tags:listColumnHeader label="Summary" width="44%" />
 	<tags:listColumnHeader label="Effective Date" width="23%" />
 	<tags:listColumnHeader label="Expiration Date" width="23%" />
-	<tags:listColumnHeader label="Notes" width="23%" />
 </tags:listRow>
 
 <c:forEach items="${command.components[component].options}" var="protocolInstrumentConfigOption" varStatus="instrumentOptionIterator">
 <tags:listRow>
 	<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolInstrumentConfigOption" component="protocolInstrumentConfigOption" idParam="${protocolInstrumentConfigOption.id}" locked="${item.locked}"/></tags:listCell>
-	<tags:listCell><tags:createField property="options[${instrumentOptionIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/></tags:listCell>
+	<tags:listCell><tags:createField property="options[${instrumentOptionIterator.index}].summary" component="${component}" metadataName="protocolConfig.summary" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="options[${instrumentOptionIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="options[${instrumentOptionIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
-	<tags:listCell><tags:createField property="options[${instrumentOptionIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
 </tags:listRow>	
 </c:forEach>
 </tags:tableForm> 
