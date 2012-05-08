@@ -15,8 +15,10 @@
 	<many-to-one name="protocolVisitConfigBase" class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfigBase" column="parent_id" lazy="false"/>
 	
 	<!-- really only needs to be unilateral, but bilateral is much easier to deal with since the child end of 
-	the association is persisted, so when in that handler do not have to deal with persisting the parent -->
-	<set name="protocolInstrumentConfigOptionsBase" table="prot_option" inverse="true" cascade="all,delete-orphan"  order-by="eff_date desc,default_option desc" lazy="true">
+	the association is persisted, so when in that handler do not have to deal with persisting the parent.
+	fetch eagerly as there will usually only be one or a few options and they are typically always needed when
+	the ProtocolVisitConfig is retrieved (plus convenience of eager fetching outweighs minor performance hit) -->
+	<set name="protocolInstrumentConfigOptionsBase" table="prot_option" inverse="true" cascade="all,delete-orphan"  order-by="eff_date desc,default_option desc" lazy="false">
 		<key column="parent_id"/>
 		<one-to-many class="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigOptionBase"/>
 	</set>		 
