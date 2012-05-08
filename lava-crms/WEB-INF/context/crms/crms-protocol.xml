@@ -70,9 +70,7 @@
 	<!-- all protocols to which the current patient is assigned (list of patientProtocol assignment records) -->
 	<bean id="lava.crms.protocol.assignment.patientProtocols" parent="crmsPatientModuleListAction"/>
  
- 	<!-- all patients assigned to all protocols for a project or across all projects, where
-		a quick filter will filter on individual protocols (and that filter list should also be
-		filtered by project -->
+ 	<!-- all patients assigned to all protocols for a project or across all projects -->
 	<bean id="lava.crms.protocol.assignment.projectProtocols" parent="crmsModuleListAction"/>
 
 	<bean id="lava.crms.protocol.assignment.protocol" parent="crmsEntityFlowAction">
@@ -93,9 +91,6 @@
 			<value>lava.crms.protocol.assignment.protocol</value>
 			<value>lava.crms.protocol.assignment.protocolTimepoint</value>
 		</list></property>
-		<property name="subFlows"><list>
-			<value>lava.crms.scheduling.visit.visit</value>
-		</list></property>
 	</bean>
 			
 	<bean id="lava.crms.protocol.assignment.protocolInstrument" parent="crmsEntityFlowAction">
@@ -104,24 +99,38 @@
 			<value>lava.crms.protocol.assignment.protocolTimepoint</value>
 			<value>lava.crms.protocol.assignment.protocolVisit</value>
 		</list></property>
+	</bean>
+	
+	<bean id="baseProjectStatusList" abstract="true" parent="crmsSectionListAction">
 		<property name="subFlows"><list>
-			<value>lava.crms.assessment.instrument.instrument</value>
+			<value>lava.crms.protocol.assignment.protocol</value>
+			<value>lava.crms.protocol.assignment.protocolTimepoint</value>
+			<value>lava.crms.protocol.assignment.protocolVisit</value>
+			<value>lava.crms.protocol.assignment.protocolInstrument</value>
+		</list></property>
+	</bean>
+	
+	<bean id="basePatientStatusList" abstract="true" parent="crmsPatientSectionListAction">
+		<property name="subFlows"><list>
+			<value>lava.crms.protocol.assignment.protocol</value>
+			<value>lava.crms.protocol.assignment.protocolTimepoint</value>
+			<value>lava.crms.protocol.assignment.protocolVisit</value>
+			<value>lava.crms.protocol.assignment.protocolInstrument</value>
 		</list></property>
 	</bean>
    	
-<!-- 
-	<bean id="lava.crms.protocol.completion.patientProtocolStatuses" parent="crmsPatientSectionListAction"/>
- -->
-	<bean id="lava.crms.protocol.completion.projectProtocolCompletionStatuses" parent="crmsSectionListAction"/>
+	<bean id="lava.crms.protocol.scheduling.projectSchedulingStatus" parent="baseProjectStatusList"/>
+	<bean id="lava.crms.protocol.scheduling.patientSchedulingStatus" parent="basePatientStatusList"/>
 
-	<bean id="lava.crms.protocol.completion.protocolCompletionStatus" parent="crmsEntityFlowAction">
-		<property name="parentFlows"><list>
-		<!-- 
-			<value>lava.crms.protocol.completion.patientProtocolCompletionStatuses</value>
-		 -->
-			<value>lava.crms.protocol.completion.projectProtocolCompletionStatuses</value>
-		</list></property>
-	</bean>					 
+	<bean id="lava.crms.protocol.collection.projectCollectionStatus" parent="baseProjectStatusList"/>
+	<bean id="lava.crms.protocol.collection.patientCollectionStatus" parent="basePatientStatusList"/>
+
+	<bean id="lava.crms.protocol.completion.projectCompletionStatus" parent="baseProjectStatusList"/>
+	<bean id="lava.crms.protocol.completion.patientCompletionStatus" parent="basePatientStatusList"/>
+
+	<bean id="lava.crms.protocol.deviation.projectDeviationStatus" parent="baseProjectStatusList"/>
+	<bean id="lava.crms.protocol.deviation.patientDeviationStatus" parent="basePatientStatusList"/>
+
 	
 	
 	<!-- form action definitions -->
@@ -179,26 +188,58 @@
 	</list></constructor-arg></bean>  	 
 
 
-	<bean id="projectProtocolCompletionStatusesFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProjectProtocolCompletionStatusesHandler" parent="crmsHandler"/>
+	<bean id="projectSchedulingStatusFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProjectSchedulingStatusHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  
 
-	<bean id="protocolCompletionStatusFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.protocol.controller.ProtocolCompletionStatusHandler" parent="crmsHandler"/>
+	<bean id="patientSchedulingStatusFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.PatientSchedulingStatusHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>
 
+	<bean id="projectCollectionStatusFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProjectCollectionStatusHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+
+	<bean id="patientCollectionStatusFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.PatientCollectionStatusHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+
+	<bean id="projectCompletionStatusFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProjectCompletionStatusHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+
+	<bean id="patientCompletionStatusFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.PatientCompletionStatusHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+
+	<bean id="projectDeviationStatusFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.ProjectDeviationStatusHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
+
+	<bean id="patientDeviationStatusFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.protocol.controller.PatientDeviationStatusHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  
 
 
 	<!-- lists -->
+	<bean id="list.protocol.timepointDuration" parent="list.numericRange">
+		<property name="defaultMinValue" value="1"/>
+		<property name="defaultMaxValue" value="999"/>
+	</bean>
 	
-	<bean id="list.repeatingTimepoint.initialNum" parent="list.numericRange">
+	<bean id="list.protocol.repeatingInitialNum" parent="list.numericRange">
 		<property name="defaultMinValue" value="1"/>
 		<property name="defaultMaxValue" value="999"/>
 	</bean>
 
-	<bean id="list.repeatingTimepoint.interval" parent="list.numericRange">
+	<bean id="list.protocol.repeatingInterval" parent="list.numericRange">
 		<property name="defaultMinValue" value="1"/>
-		<property name="defaultMaxValue" value="90"/>
+		<property name="defaultMaxValue" value="365"/>
+	</bean>
+
+	<bean id="list.protocol.repeatingNewNum" parent="list.numericRange">
+		<property name="defaultMinValue" value="1"/>
+		<property name="defaultMaxValue" value="99"/>
 	</bean>
 
 	<bean id="list.protocol.allTimepointConfigs" parent="list.dynamic">
@@ -216,23 +257,23 @@
 		<property name="defaultMaxValue" value="9999"/>
 	</bean>
 	
-	<bean id="list.protocol.schedWinRelativeUnits" parent="list.dataOnly">
-		<property name="defaultSort" value="valueNumeric"/>	
+	<bean id="list.protocol.timeUnits" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>	
 		<property name="data"><list>
-			<bean parent="list.data"><constructor-arg value="Days"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Days"/><constructor-arg value="Days"/><constructor-arg value="1"/></bean>
 <!-- not implemented yet so hide for now 			
-			<bean parent="list.data"><constructor-arg value="Weeks"/><constructor-arg value="2"/></bean>
-			<bean parent="list.data"><constructor-arg value="Months"/><constructor-arg value="3"/></bean>
-			<bean parent="list.data"><constructor-arg value="Years"/><constructor-arg value="4"/></bean>
+			<bean parent="list.data"><constructor-arg value="Weeks"/><constructor-arg value="Weeks"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Months"/><constructor-arg value="Months"/><constructor-arg value="3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Years"/><constructor-arg value="Years"/><constructor-arg value="4"/></bean>
  -->			
 		</list></property>	
 	</bean>
 
 	<bean id="list.protocol.schedWinRelativeMode" parent="list.dataOnly">
-		<property name="defaultSort" value="valueNumeric"/>	
+		<property name="defaultSort" value="orderIndex"/>	
 		<property name="data"><list>
-			<bean parent="list.data"><constructor-arg value="Calendar"/><constructor-arg value="1"/></bean>
-			<bean parent="list.data"><constructor-arg value="Working"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Calendar"/><constructor-arg value="Calendar"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Working"/><constructor-arg value="Working"/><constructor-arg value="2"/></bean>
 		</list></property>	
 	</bean>
 
@@ -264,6 +305,14 @@
 	<bean id="list.protocol.collectWinOffset" parent="list.numericRange">
 		<property name="defaultMinValue" value="-999"/>
 		<property name="defaultMaxValue" value="999"/>
+	</bean>
+
+	<bean id="list.protocol.repeatType" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Absolute"/><constructor-arg value="absolute"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Relative"/><constructor-arg value="relative"/><constructor-arg value="2"/></bean>
+		</list></property>
 	</bean>
 	
 	<!-- tpInterWinStatus: for protocolInstrument -->
@@ -306,14 +355,200 @@
 	<bean id="list.protocol.matchingInstruments" parent="list.dynamic">
 		<property name="query" value="list.protocol.matchingInstruments"/>
 		<property name="defaultSort" value="none"/>
+	</bean>
+
+	<bean id="list.protocol.allProtocolLabels" parent="list.dynamic">
+		<property name="query" value="list.protocol.allProtocolLabels"/>
+		<property name="defaultSort" value="none"/>
 	</bean>  
 
-	<bean id="list.protocolCompletionStatus.quickFilter" parent="list.dataOnly">
+	<bean id="list.protocol.allTimepointLabels" parent="list.dynamic">
+		<property name="query" value="list.protocol.allTimepointLabels"/>
+		<property name="defaultSort" value="none"/>
+	</bean>  
+
+	<bean id="list.protocol.allVisitLabels" parent="list.dynamic">
+		<property name="query" value="list.protocol.allVisitLabels"/>
+		<property name="defaultSort" value="none"/>
+	</bean>  
+
+	<bean id="list.protocol.allInstrLabels" parent="list.dynamic">
+		<property name="query" value="list.protocol.allInstrLabels"/>
+		<property name="defaultSort" value="none"/>
+	</bean>  
+	
+	<bean id="list.protocol.currStatus" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
 		<property name="data"><list>
-			<bean parent="list.data"><constructor-arg value="Pending"/><constructor-arg value="Pending"/></bean>
-			<bean parent="list.data"><constructor-arg value="Not Completed"/><constructor-arg value="Not Completed"/></bean>
-			<bean parent="list.data"><constructor-arg value="Partially Completed"/><constructor-arg value="Partially Completed"/></bean>
-			<bean parent="list.data"><constructor-arg value="Completed"/><constructor-arg value="Completed"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending"/><constructor-arg value="Pending"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="In Progress"/><constructor-arg value="In Progress"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Not Completed"/><constructor-arg value="Not Completed"/><constructor-arg value="3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Completed"/><constructor-arg value="Completed"/><constructor-arg value="4"/></bean>
+		</list></property>
+	</bean>
+	  
+	<bean id="list.protocol.currReason" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Capacity"/><constructor-arg value="Capacity"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Coord. Issue"/><constructor-arg value="Coord. Issue"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Exhausted"/><constructor-arg value="Exhausted"/><constructor-arg value="3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Out of Time"/><constructor-arg value="Out of Time"/><constructor-arg value="4"/></bean>
+			<bean parent="list.data"><constructor-arg value="Refused"/><constructor-arg value="Refused"/><constructor-arg value="5"/></bean>
+			<bean parent="list.data"><constructor-arg value="Unavailable"/><constructor-arg value="Unavailable"/><constructor-arg value="6"/></bean>
+			<bean parent="list.data"><constructor-arg value="Other"/><constructor-arg value="Other"/><constructor-arg value="7"/></bean>
+		</list></property>
+	</bean>
+	  
+	<bean id="list.protocol.compStatus" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Not Started"/><constructor-arg value="Not Started"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending"/><constructor-arg value="Pending"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="In Progress"/><constructor-arg value="In Progress"/><constructor-arg value="3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Not Completed"/><constructor-arg value="Not Completed"/><constructor-arg value="4"/></bean>
+			<bean parent="list.data"><constructor-arg value="Partial"/><constructor-arg value="Partial"/><constructor-arg value="5"/></bean>
+			<bean parent="list.data"><constructor-arg value="Completed"/><constructor-arg value="Completed"/><constructor-arg value="6"/></bean>
+		</list></property>
+	</bean>
+	  
+	<bean id="list.protocol.compReason" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Capacity"/><constructor-arg value="Capacity"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Coord. Issue"/><constructor-arg value="Coord. Issue"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Exhausted"/><constructor-arg value="Exhausted"/><constructor-arg value="3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Out of Time"/><constructor-arg value="Out of Time"/><constructor-arg value="4"/></bean>
+			<bean parent="list.data"><constructor-arg value="Refused"/><constructor-arg value="Refused"/><constructor-arg value="5"/></bean>
+			<bean parent="list.data"><constructor-arg value="Unavailable"/><constructor-arg value="Unavailable"/><constructor-arg value="6"/></bean>
+			<bean parent="list.data"><constructor-arg value="Other"/><constructor-arg value="Other"/><constructor-arg value="7"/></bean>
+		</list></property>
+	</bean>
+	  
+	<bean id="list.protocol.schedWinStatus" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Not Started"/><constructor-arg value="Not Started"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending"/><constructor-arg value="Pending"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Early"/><constructor-arg value="Early"/><constructor-arg value="3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Scheduled"/><constructor-arg value="Scheduled"/><constructor-arg value="4"/></bean>
+			<bean parent="list.data"><constructor-arg value="Late"/><constructor-arg value="Late"/><constructor-arg value="5"/></bean>
+			<bean parent="list.data"><constructor-arg value="N/A"/><constructor-arg value="N/A"/><constructor-arg value="6"/></bean>
+		</list></property>
+	</bean>
+	  
+	<bean id="list.protocol.schedWinReason" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Coord. Issue"/><constructor-arg value="Coord. Issue"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Refused"/><constructor-arg value="Refused"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Unavailable"/><constructor-arg value="Unavailable"/><constructor-arg value="3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Other"/><constructor-arg value="Other"/><constructor-arg value="4"/></bean>
+		</list></property>
+	</bean>
+	  
+	<bean id="list.protocol.collectWinStatus" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Not Started"/><constructor-arg value="Not Started"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending"/><constructor-arg value="Pending"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Early"/><constructor-arg value="Early"/><constructor-arg value="3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Collected"/><constructor-arg value="Collected"/><constructor-arg value="4"/></bean>
+			<bean parent="list.data"><constructor-arg value="Late"/><constructor-arg value="Late"/><constructor-arg value="5"/></bean>
+			<bean parent="list.data"><constructor-arg value="N/A"/><constructor-arg value="N/A"/><constructor-arg value="6"/></bean>
+		</list></property>
+	</bean>
+
+	<bean id="list.protocol.collectWinReason" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Capacity"/><constructor-arg value="Capacity"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Coord. Issue"/><constructor-arg value="Coord. Issue"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Exhausted"/><constructor-arg value="Exhausted"/><constructor-arg value="3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Out of Time"/><constructor-arg value="Out of Time"/><constructor-arg value="4"/></bean>
+			<bean parent="list.data"><constructor-arg value="Refused"/><constructor-arg value="Refused"/><constructor-arg value="5"/></bean>
+			<bean parent="list.data"><constructor-arg value="Unavailable"/><constructor-arg value="Unavailable"/><constructor-arg value="6"/></bean>
+			<bean parent="list.data"><constructor-arg value="Other"/><constructor-arg value="Other"/><constructor-arg value="7"/></bean>
+		</list></property>
+	</bean>
+	  
+
+	<bean id="list.protocol.schedulingStatusQuickFilter" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Pending"/><constructor-arg value="Pending"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending Late"/><constructor-arg value="Pending Late"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending > 6 Months Late"/><constructor-arg value="Pending > 6 Months Late"/><constructor-arg value="3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending > 1 Year Late"/><constructor-arg value="Pending > 1 Year Late"/><constructor-arg value="4"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending Now"/><constructor-arg value="Pending Now"/><constructor-arg value="5"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending Early"/><constructor-arg value="Pending Early"/><constructor-arg value="6"/></bean>
+			<bean parent="list.data"><constructor-arg value="Not Started"/><constructor-arg value="Not Started"/><constructor-arg value="7"/></bean>
+			<!-- for this QuickFilter "Scheduled" encompasses "Early", "Scheduled" and "Late". the protocol.deviation section differentiates between those -->
+			<bean parent="list.data"><constructor-arg value="Scheduled"/><constructor-arg value="Scheduled"/><constructor-arg value="8"/></bean>
+		</list></property>
+	</bean>
+
+	<bean id="list.protocol.collectionStatusQuickFilter" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Pending"/><constructor-arg value="Pending"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending Late"/><constructor-arg value="Pending Late"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending > 6 Months Late"/><constructor-arg value="Pending > 6 Months Late"/><constructor-arg value="3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending > 1 Year Late"/><constructor-arg value="Pending > 1 Year Late"/><constructor-arg value="4"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending Now"/><constructor-arg value="Pending Now"/><constructor-arg value="5"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending Early"/><constructor-arg value="Pending Early"/><constructor-arg value="6"/></bean>
+			<bean parent="list.data"><constructor-arg value="Not Started"/><constructor-arg value="Not Started"/><constructor-arg value="7"/></bean>
+			<!-- for this QuickFilter "Collected" encompasses "Early", "Collected" and "Late". the protocol.deviation section differentiates between those -->
+			<bean parent="list.data"><constructor-arg value="Collected"/><constructor-arg value="Collected"/><constructor-arg value="8"/></bean>
+		</list></property>
+	</bean>
+
+	<bean id="list.protocol.completionStatusQuickFilter" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Not Started"/><constructor-arg value="Not Started"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Pending"/><constructor-arg value="Pending"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="In Progress"/><constructor-arg value="In Progress"/><constructor-arg value="3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Not Completed"/><constructor-arg value="Not Completed"/><constructor-arg value="4"/></bean>
+			<bean parent="list.data"><constructor-arg value="Completed"/><constructor-arg value="Completed"/><constructor-arg value="5"/></bean>
+			<bean parent="list.data"><constructor-arg value="Completed (Partial)"/><constructor-arg value="Completed (Partial)"/><constructor-arg value="6"/></bean>
+		</list></property>
+	</bean>
+
+	<bean id="list.protocol.deviationStatusQuickFilter" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Early"/><constructor-arg value="Early"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Late"/><constructor-arg value="Late"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Scheduled Early"/><constructor-arg value="Scheduled Early"/><constructor-arg value="3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Scheduled Late"/><constructor-arg value="Scheduled Late"/><constructor-arg value="4"/></bean>
+			<bean parent="list.data"><constructor-arg value="Collected Early"/><constructor-arg value="Collected Early"/><constructor-arg value="5"/></bean>
+			<bean parent="list.data"><constructor-arg value="Collected Late"/><constructor-arg value="Collected Late"/><constructor-arg value="6"/></bean>
+		</list></property>
+	</bean>
+
+	<bean id="list.protocol.deviationStatusInstrumentQuickFilter" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Early"/><constructor-arg value="Early"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Late"/><constructor-arg value="Late"/><constructor-arg value="2"/></bean>
+		</list></property>
+	</bean>
+	
+	<bean id="list.protocol.fmtGranularity" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Timepoint"/><constructor-arg value="Timepoint"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Visit"/><constructor-arg value="Visit"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Instrument"/><constructor-arg value="Instrument"/><constructor-arg value="3"/></bean>
+		</list></property>
+	</bean>
+
+	<bean id="list.protocol.fmtColumns" parent="list.dataOnly">
+		<property name="defaultSort" value="orderIndex"/>
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Summary"/><constructor-arg value="Summary"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Expanded"/><constructor-arg value="Expanded"/><constructor-arg value="2"/></bean>
 		</list></property>
 	</bean>
 	
