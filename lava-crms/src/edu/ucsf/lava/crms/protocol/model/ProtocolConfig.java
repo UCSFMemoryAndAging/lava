@@ -43,6 +43,7 @@ public class ProtocolConfig extends ProtocolConfigBase {
 		this.getProtocolTimepointConfigs().add(protocolTimepointConfig);
 	}	
 
+	private String descrip;
 	private String category;
 	private ProtocolTimepointConfig firstProtocolTimepointConfig;
 	// firstProtocolTimepointConfigId facilitates modifying the firstProtocolTimepointConfig association. the user selects a 
@@ -52,7 +53,15 @@ public class ProtocolConfig extends ProtocolConfigBase {
 	// associated firstProtocolTimepointConfig
 	private Long firstProtocolTimepointConfigId;
 
-    public String getCategory() {
+    public String getDescrip() {
+		return descrip;
+	}
+
+	public void setDescrip(String descrip) {
+		this.descrip = descrip;
+	}
+
+	public String getCategory() {
 		return category;
 	}
 
@@ -69,14 +78,16 @@ public class ProtocolConfig extends ProtocolConfigBase {
 		if (this.firstProtocolTimepointConfig != null) {
 			this.firstProtocolTimepointConfigId = this.firstProtocolTimepointConfig.getId();
 		}
+		else {
+			this.firstProtocolTimepointConfigId = null;
+		}
 	}
 
 	public Long getFirstProtocolTimepointConfigId() {
 		return firstProtocolTimepointConfigId;
 	}
 
-	public void setFirstProtocolTimepointConfigId(
-			Long firstProtocolTimepointConfigId) {
+	public void setFirstProtocolTimepointConfigId(Long firstProtocolTimepointConfigId) {
 		this.firstProtocolTimepointConfigId = firstProtocolTimepointConfigId;
 	}
 
@@ -88,9 +99,14 @@ public class ProtocolConfig extends ProtocolConfigBase {
 		// in the same order. then when a ProtocolTracking query is done, the timepointConfigs can be
 		// retrieved using an orderBy on listOrder
 		short i = 1;
-		for (ProtocolTimepointConfig protocolTimepoint : this.getProtocolTimepointConfigs()) {
-			protocolTimepoint.setListOrder(i++);
+		for (ProtocolTimepointConfig protocolTimepointConfig : this.getProtocolTimepointConfigs()) {
+			protocolTimepointConfig.setListOrder(i++);
 		}
 	}
-		
+
+	public void beforeCreate() {
+		super.beforeCreate();
+		this.setNodeType(PROTOCOL_NODE);
+	}
+
 }
