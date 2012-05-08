@@ -30,12 +30,20 @@ import edu.ucsf.lava.crms.model.CrmsEntity;
  *
  */
 public abstract class ProtocolNodeConfig extends CrmsEntity {
+	public static String PROTOCOL_NODE = "PROTOCOL";
+	public static String TIMEPOINT_NODE = "TIMEPOINT";
+	public static String VISIT_NODE = "VISIT";
+	public static String INSTRUMENT_NODE = "INSTRUMENT";
+	
+	private String nodeType;
+	private Boolean optional;
 	// because every type of protocolConfig tree node subclasses this class, projName is 
 	// denormalized (which makes for simpler configuration of project authorization filtering)
 	private String projName;
 	private String label;
+	private Boolean repeating;
+	private String summary;
 	private String notes;
-	private String defaultStaff;
 	private Short listOrder;
 	private Date effDate;
 	private Date expDate;
@@ -48,6 +56,22 @@ public abstract class ProtocolNodeConfig extends CrmsEntity {
 		this.setEffDate(cal.getTime());
 	}
 	
+	public String getNodeType() {
+		return nodeType;
+	}
+
+	public void setNodeType(String nodeType) {
+		this.nodeType = nodeType;
+	}
+
+	public Boolean getOptional() {
+		return optional;
+	}
+
+	public void setOptional(Boolean optional) {
+		this.optional = optional;
+	}
+
 	public String getProjName() {
 		return projName;
 	}
@@ -62,6 +86,22 @@ public abstract class ProtocolNodeConfig extends CrmsEntity {
 
 	public void setLabel(String label) {
 		this.label = label;
+	}
+	
+	public Boolean getRepeating() {
+		return repeating;
+	}
+
+	public void setRepeating(Boolean repeating) {
+		this.repeating = repeating;
+	}
+
+	public String getSummary() {
+		return summary;
+	}
+
+	public void setSummary(String summary) {
+		this.summary = summary;
 	}
 
 	public String getNotes() {
@@ -88,14 +128,6 @@ public abstract class ProtocolNodeConfig extends CrmsEntity {
 		this.expDate = expDate;
 	}
 
-	public String getDefaultStaff() {
-		return defaultStaff;
-	}
-
-	public void setDefaultStaff(String defaultStaff) {
-		this.defaultStaff = defaultStaff;
-	}
-	
 	public Short getListOrder() {
 		return listOrder;
 	}
