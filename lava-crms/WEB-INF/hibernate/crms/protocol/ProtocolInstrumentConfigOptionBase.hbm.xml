@@ -8,7 +8,7 @@
     
 <hibernate-mapping>
 
-	<class name="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigOptionBase" table="prot_config_option" select-before-update="true">
+	<class name="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigOptionBase" table="prot_node_config_option" select-before-update="true">
 
 		&protocolConfigOptionInclude;
 		
