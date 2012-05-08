@@ -12,7 +12,7 @@
 		protocol config option base table. There are no classes which subclass this class,
 		so no polymorphic joins are done to option subclasses. -->
 
-	<class name="edu.ucsf.lava.crms.protocol.model.ProtocolConfigOptionTracking" table="prot_config_option" select-before-update="true">
+	<class name="edu.ucsf.lava.crms.protocol.model.ProtocolConfigOptionTracking" table="prot_node_config_option" select-before-update="true">
 
 		&protocolConfigOptionInclude;
 		
