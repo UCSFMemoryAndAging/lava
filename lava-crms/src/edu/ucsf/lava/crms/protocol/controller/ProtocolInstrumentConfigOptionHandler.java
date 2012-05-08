@@ -24,7 +24,8 @@ public class ProtocolInstrumentConfigOptionHandler extends CrmsEntityComponentHa
 	}
 
 	protected String[] defineRequiredFields(RequestContext context, Object command) {
-	    setRequiredFields(new String[]{"label","instrType"});
+		// for now, not using label for options
+	    setRequiredFields(new String[]{"instrType"});
 	    return getRequiredFields();
 	}
 	
