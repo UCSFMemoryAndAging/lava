@@ -24,10 +24,10 @@ public class Protocol extends ProtocolBase {
 	
 	public Object[] getAssociationsToInitialize(String method) {
 		return new Object[]{
-				/*this.getProtocolBase(),*/
 				this.getPatient(),
 				this.getEnrollmentStatus(),
-				this.getProtocolTimepointsBase()};
+				this.getProtocolTimepointsBase()
+				};
 	}
 
 	private Date assignedDate;
@@ -125,6 +125,37 @@ public class Protocol extends ProtocolBase {
 			protocolTimepoint.updateStatus();
 		}
 	}	
+
+	/**
+	 * Anything that may need to happen at any level of the protocol tree after a change in 
+	 * status should be done in this method.
+	 */
+	public void postUpdateStatus() {
+		for (ProtocolTimepoint protocolTimepoint: this.getProtocolTimepoints()) {
+			protocolTimepoint.postUpdateStatus();
+			for (ProtocolVisit protocolVisit: protocolTimepoint.getProtocolVisits()) {
+				protocolVisit.postUpdateStatus();
+				for (ProtocolInstrument protocolInstrument: protocolVisit.getProtocolInstruments()) {
+					protocolInstrument.postUpdateStatus();
+				}
+			}			
+		}
+	}
+
+/***	
+	public void orderTimepoints() {
+		// iterate thru the timepoints, which have been sorted chronologically by schedWinDaysFromStart, and 
+		// assign values to listOrder so the sorting is persisted at the ProtocolTracking level
+		// note: the TreeSet structure is used to sort ProtocolTimepointConfig via the ProtocolTimepointConfig
+		// compareTo method. the sort is "transferred" to ProtocolTracking by populating listOrder 
+		// in the same order. then when a ProtocolTracking query is done, the timepointConfigs can be
+		// retrieved using an orderBy on listOrder
+		short i = 1;
+		for (ProtocolTimepoint protocolTimepoint : this.getProtocolTimepoints()) {
+			protocolTimepoint.setListOrder(i++);
+		}
+	}
+**/
 	
 	public boolean afterCreate() {
 		// as part of creation, the full protocol tree has been created so it is safe to call calculate
@@ -132,6 +163,7 @@ public class Protocol extends ProtocolBase {
 		//to protocol, includes assigning a Visit to the first timepoint
 		this.calculate();
 		this.updateStatus();
+		this.postUpdateStatus();
 		// return true to save again
 		return true;
 	}
