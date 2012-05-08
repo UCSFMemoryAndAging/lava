@@ -4,9 +4,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import edu.ucsf.lava.core.model.EntityBase;
-import edu.ucsf.lava.core.model.EntityManager;
-
 /**
  * 
  * @author ctoohey
@@ -25,7 +22,7 @@ public abstract class ProtocolVisitConfigBase extends ProtocolNodeConfig {
 
 	private ProtocolTimepointConfigBase protocolTimepointConfigBase;
 	private Set<? extends ProtocolInstrumentConfigBase> protocolInstrumentConfigsBase = new LinkedHashSet<ProtocolInstrumentConfigBase>();
-	private Set<? extends ProtocolVisitConfigOptionBase> protcolVisitConfigOptionsBase = new HashSet<ProtocolVisitConfigOptionBase>();
+	private Set<? extends ProtocolVisitConfigOptionBase> protocolVisitConfigOptionsBase = new HashSet<ProtocolVisitConfigOptionBase>();
 	
 	public ProtocolTimepointConfigBase getProtocolTimepointConfigBase() {
 		return protocolTimepointConfigBase;
@@ -44,11 +41,11 @@ public abstract class ProtocolVisitConfigBase extends ProtocolNodeConfig {
 	}
 
 	public Set<? extends ProtocolVisitConfigOptionBase> getProtocolVisitConfigOptionsBase() {
-		return protcolVisitConfigOptionsBase;
+		return protocolVisitConfigOptionsBase;
 	}
 
 	public void setProtocolVisitConfigOptionsBase(Set<? extends ProtocolVisitConfigOptionBase> options) {
-		this.protcolVisitConfigOptionsBase = options;
+		this.protocolVisitConfigOptionsBase = options;
 	}
 
 }
