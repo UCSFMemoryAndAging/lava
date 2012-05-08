@@ -22,7 +22,8 @@ public class ProtocolVisitConfigOptionHandler extends CrmsEntityComponentHandler
 	}
 
 	protected String[] defineRequiredFields(RequestContext context, Object command) {
-	    setRequiredFields(new String[]{"label","visitTypeProjName","visitType"});
+		// for now, not using label for options
+	    setRequiredFields(new String[]{"visitTypeProjName","visitType"});
 	    return getRequiredFields();
 	}
 	
@@ -36,14 +37,16 @@ public class ProtocolVisitConfigOptionHandler extends CrmsEntityComponentHandler
 		// would require doSaveAdd retrieving ProtocolVisitConfig again to persist it). ProtocolVisitConfig
 		// addOption manages both ends of the association, but only have to persist the collection end, ProtocolVisitOptionConfig
 		visitConfig.addOption(visitOptionConfig);
+		// for project authorization
 		visitOptionConfig.setProjName(visitConfig.getProjName());
-		visitOptionConfig.setProjName(visitConfig.getProjName());
+		// projName to allow visitTypes from projects other than the protocol's project
+		visitOptionConfig.setVisitTypeProjName(visitConfig.getProjName());
 		
 		// the visit option has its own projName to allow visits to fulfill the protocol that are associated with a project
 		// other than the protocol's project. this facilitates protocol subjects that are co-enrolled in two or more projects
 		// where visits from any of the projects could be used to fulfill the protocol for that subject.
 		// default this to the protocol's project
-		visitOptionConfig.setProjName(visitConfig.getProjName());
+		visitOptionConfig.setVisitTypeProjName(visitConfig.getProjName());
 		return command;
 	}
 
@@ -60,8 +63,8 @@ public class ProtocolVisitConfigOptionHandler extends CrmsEntityComponentHandler
 		// if user has not specified a project for listing project visitTypes, use the project 
 		// of this protocol (note: this should generally not be necessary since the visitTypeProjName is 
 		// defaulted to the protocol's project at creation, but the user could have set it to blank)
-		if (visitOptionConfig.getProjName() == null) {
-			visitOptionConfig.setProjName(visitOptionConfig.getProjName());
+		if (visitOptionConfig.getVisitTypeProjName() == null) {
+			visitOptionConfig.setVisitTypeProjName(visitOptionConfig.getProjName());
 		}
 		dynamicLists.put("visit.visitTypes", listManager.getDynamicList("visit.visitTypes", 
 			"projectName", visitOptionConfig.getProjName(), String.class));
