@@ -8,7 +8,8 @@
 
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfigOption" table="prot_visit_config_option" extends="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfigOptionBase" select-before-update="true">
 	<key column="option_id"/>
-	<property name="projName" column="ProjName" type="string" length="75"/> 	
+	<!-- do not conflict with protName property from base class (used for authorization) -->
+	<property name="visitTypeProjName" column="ProjName" type="string" length="75"/> 	
 	<property name="visitType" column="visit_type" type="string" length="25"/> 	
 </joined-subclass>
 	
