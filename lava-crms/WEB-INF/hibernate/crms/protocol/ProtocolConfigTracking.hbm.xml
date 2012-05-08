@@ -22,7 +22,7 @@
 		<!-- bilateral -->
 		<!-- could not use a list element here because of known problem with Hibernate with bidirectional relationship. instead
 			maintaining a list_order column to order children, where list_order can be set by a subclass which orders on some
-			subclass specific field, e.g. the ProtocolConfig set of ProtocolTimepointConfig is a java.util.SortedSet (TreeSet)
+			subclass specific field, e.g. the ProtocolConfig set of ProtocolTimepointConfig is a java.util.Set (TreeSet)
 			and has a natural ordering based on the schedWinDaysFromStart property (so that timepoints are ordered chronologically)
 			and every time a ProtocolTimepointConfig is saved this natural ordering is transferred to list_order so that when 
 			just retrieving the tracking objects the proper ordering is maintained -->
@@ -34,7 +34,7 @@
 		 
 		<!-- unilateral (but bilateral when prot_option is mapped in ProtocolNode as that works better
 			for persistence. ProtocolTracking is just for retrieval) -->
-		<set name="options" table="prot_opt_config" cascade="all,delete-orphan">
+		<set name="options" table="prot_node_config_option" cascade="all,delete-orphan">
 			<key column="parent_id"/>
 			<one-to-many class="edu.ucsf.lava.crms.protocol.model.ProtocolConfigOptionTracking"/>
 		</set>		 
