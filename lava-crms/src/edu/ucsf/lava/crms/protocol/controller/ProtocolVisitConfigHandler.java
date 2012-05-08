@@ -52,15 +52,23 @@ public class ProtocolVisitConfigHandler extends CrmsEntityComponentHandler {
 	protected Object initializeNewCommandInstance(RequestContext context, Object command){
 		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
 		ProtocolVisitConfig visitConfig = (ProtocolVisitConfig) command;
+		
 		ProtocolTimepointConfig timepointConfig = (ProtocolTimepointConfig) ProtocolTimepointConfig.MANAGER.getOne(EntityBase.newFilterInstance().addIdDaoEqualityParam(Long.valueOf(context.getFlowScope().getString("param"))));
 		timepointConfig.addProtocolVisitConfig(visitConfig);
 		visitConfig.setProjName(timepointConfig.getProjName());
 		
-		// create the default option
-		ProtocolVisitConfigOption visitOptionConfig = new ProtocolVisitConfigOption();
-		//TODO: set as the defaultOption on this ProtocolVisitConfig
-		visitOptionConfig.setProjName(timepointConfig.getProjName());
-		visitConfig.addOption(visitOptionConfig);
+		// an option will be automatically created as part of ProtocolVisitConfig creation, so 
+		// instantiate the option here. the view will access this option directly for input and binding
+		ProtocolVisitConfigOption visitConfigOption = new ProtocolVisitConfigOption();
+		// projName for authorization
+		visitConfigOption.setProjName(timepointConfig.getProjName());
+		// projName to allow visitTypes from projects other than the protocol's project
+		visitConfigOption.setVisitTypeProjName(timepointConfig.getProjName());
+		// default the option to be a default (there can be any number of default options, though typically 
+		// the configuration would have one default option (at any given time as defined by effDate and expDate
+		// on the option) along with possibly one or more alternate options
+		visitConfigOption.setDefaultOption(Boolean.TRUE);
+		visitConfig.addOption(visitConfigOption);
 		
 		return command;
 	}
@@ -77,8 +85,8 @@ public class ProtocolVisitConfigHandler extends CrmsEntityComponentHandler {
 		// if user has not specified a project for listing project visitTypes, use the project 
 		// of this protocol (note: this should generally not be necessary since the visitTypeProjName is 
 		// defaulted to the protocol's project at creation, but the user could have set it to blank)
-		if (visitConfig.getOptions().iterator().next().getProjName() == null) {
-			visitConfig.getOptions().iterator().next().setProjName(visitConfig.getProjName());
+		if (visitConfig.getOptions().iterator().next().getVisitTypeProjName() == null) {
+			visitConfig.getOptions().iterator().next().setVisitTypeProjName(visitConfig.getProjName());
 		}
 		dynamicLists.put("visit.visitTypes", listManager.getDynamicList("visit.visitTypes", 
 			"projectName", visitConfig.getOptions().iterator().next().getProjName(), String.class));
@@ -86,7 +94,7 @@ public class ProtocolVisitConfigHandler extends CrmsEntityComponentHandler {
 
 		// set a flag indicating whether this is the primary ProtocolVisitConfig for the view to display
 		// that info
-		model.put("primaryVisitConfigFlag", isPrimaryProtocolVisitConfig(visitConfig, flowMode));
+		model.put("primaryVisitConfigFlag", visitConfig.isPrimaryProtocolVisitConfig());
 		
 		return super.addReferenceData(context, command, errors, model);
 	}
@@ -99,6 +107,7 @@ public class ProtocolVisitConfigHandler extends CrmsEntityComponentHandler {
 	 * @param flowMode
 	 * @return
 	 */
+/*** SHOULD NOT NEED, as ProtocolTimepointConfig isFirstProtocolTimepointConfig should suffice	
 	protected Boolean isPrimaryProtocolVisitConfig(ProtocolVisitConfig visitConfig, String flowMode) {
 		// if adding, the new ProtocolVisitConfig does not have an id yet since hasn't been saved, so can
 		// not set it as the primary visit config on ProtocolTimepointConfig, so can not just call 
@@ -124,7 +133,8 @@ public class ProtocolVisitConfigHandler extends CrmsEntityComponentHandler {
 				return visitConfig.isPrimaryProtocolVisitConfig();
 			}
 		}
-	}	
+	}
+***/		
 	
 	protected Event doSaveAdd(RequestContext context, Object command, BindingResult errors) throws Exception{
 		ProtocolVisitConfig visitConfig = (ProtocolVisitConfig)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
@@ -133,7 +143,7 @@ public class ProtocolVisitConfigHandler extends CrmsEntityComponentHandler {
 		// because the built-in mechanism for required field checks does not work for properties in a detail record,
 		// check required fields here
 		if (visitOptionConfig.getProjName() == null) {
-			LavaComponentFormAction.createRequiredFieldError(errors, "options[0].vistTypeProjName", getDefaultObjectName());
+			LavaComponentFormAction.createRequiredFieldError(errors, "options[0].projName", getDefaultObjectName());
 		}		
 		if (visitOptionConfig.getVisitType() == null) {
 			LavaComponentFormAction.createRequiredFieldError(errors, "options[0].visitType", getDefaultObjectName());
@@ -144,7 +154,8 @@ public class ProtocolVisitConfigHandler extends CrmsEntityComponentHandler {
 		}
 		
 		// finish off configuration of auto-added initial visit option (the label is named after the projName/visitType)
-		visitOptionConfig.setLabel(new StringBuffer(visitOptionConfig.getProjName()).append(" - ").append(visitOptionConfig.getVisitType()).toString());
+		// note: concatenating projName and visitType could exceed column limit
+		visitOptionConfig.setLabel(visitOptionConfig.getVisitType());
 		
 		Event returnEvent = super.doSaveAdd(context, command, errors);
 		return returnEvent;
