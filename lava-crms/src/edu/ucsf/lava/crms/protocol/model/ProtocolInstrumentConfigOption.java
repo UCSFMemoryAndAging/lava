@@ -21,7 +21,8 @@ public class ProtocolInstrumentConfigOption extends ProtocolInstrumentConfigOpti
 		this.setAuditEntityType("ProtocolInstrumentConfigOption");		
 	}
 	
-	private String instrType; 
+	private String instrType;
+	private String instrVer;
 	
 	/**
 	 * Convenience methods to convert ProtocolInstrumentConfigOptionBase method types to types 
@@ -40,6 +41,33 @@ public class ProtocolInstrumentConfigOption extends ProtocolInstrumentConfigOpti
 	public void setInstrType(String instrType) {
 		this.instrType = instrType;
 	}
+
+	public String getInstrVer() {
+		return instrVer;
+	}
+	public void setInstrVer(String instrVer) {
+		this.instrVer = instrVer;
+	}
+	
+	protected void updateSummary() {
+		StringBuffer block = new StringBuffer(this.getInstrType());
+		if (this.getDefaultOption()) {
+			block.append(" (default)");
+		}
+		this.setSummary(block.toString());
+	}
+	
+	
+	public void updateCalculatedFields(){
+		super.updateCalculatedFields();
+		this.updateSummary();
+		// label is not currently used but is required so set it
+		if (this.getLabel() == null) {
+			this.setLabel(new StringBuffer(this.getInstrType()).toString());
+		}
+	}
+
+
 	
 	/**
 	 * This method returns the effective effDate for this option. This is done by going up the
