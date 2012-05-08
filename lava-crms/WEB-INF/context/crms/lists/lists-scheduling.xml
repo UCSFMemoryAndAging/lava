@@ -3,7 +3,6 @@
 
 
 <beans>
-
 	
 	<bean id="list.visit.status" parent="list.standardValueNoLabel">
 		<property name="dbListName" value="VisitStatus"/>
@@ -28,6 +27,12 @@
 		<property name="query" value="list.visit.visitLocations"/>
 	</bean>
 			
-			
-				
+	<bean id="list.visit.quickFilter" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Scheduled / Complete Only"/><constructor-arg value="Scheduled / Complete Only"/></bean>
+			<bean parent="list.data"><constructor-arg value="Canceled / No Show Only"/><constructor-arg value="Canceled / No Show Only"/></bean>
+			<bean parent="list.data"><constructor-arg value="All Visits"/><constructor-arg value="All Visits"/></bean>
+		</list></property>
+	</bean>
+
 </beans>  	
