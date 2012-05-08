@@ -8,6 +8,7 @@
 
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolConfig" table="prot_protocol_config" extends="edu.ucsf.lava.crms.protocol.model.ProtocolConfigBase" select-before-update="true">
 	<key column="node_id"/> 
+	<property name="descrip" column="descrip" type="string" length="255"/>
 	<property name="category" column="category" type="string" length="25"/>
 	<many-to-one name="firstProtocolTimepointConfig" column="first_prot_tp_conf_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig"/>
 </joined-subclass>
@@ -34,6 +35,13 @@
 			order by timepointConfig.schedWinDaysFromStart
 	]]></query>	
 	
+	<query name="list.protocol.allProtocolLabels"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(protocolConfig.label, protocolConfig.label)
+			from edu.ucsf.lava.crms.protocol.model.ProtocolConfig as protocolConfig
+			where protocolConfig.label is not null
+			group by protocolConfig.label
+			order by protocolConfig.label
+	]]></query>	
 	
  
 </hibernate-mapping>
