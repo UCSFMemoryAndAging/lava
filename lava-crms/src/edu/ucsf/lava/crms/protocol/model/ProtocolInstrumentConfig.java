@@ -14,10 +14,13 @@ public class ProtocolInstrumentConfig extends ProtocolInstrumentConfigBase {
 	}
 	
 	public Object[] getAssociationsToInitialize(String method) {
-		return new Object[]{this.getProtocolInstrumentConfigOptionsBase()};
+		// options are eagerly fetched
+		return new Object[]{
+// should not need the following since options now are eagerly fetched				
+////				this.getProtocolInstrumentConfigOptionsBase()
+				};
 	}
 
-	private Boolean optional;
 	private String category;
 	// a custom collection window allows an instrument to override the default collection
 	// window defined in the timepoint configuration to which this instrument belongs
@@ -40,13 +43,6 @@ public class ProtocolInstrumentConfig extends ProtocolInstrumentConfigBase {
 	private String defaultCompStatus;
 	private String defaultCompReason;
 	private String defaultCompNote;
-	private ProtocolInstrumentConfigOption defaultOption;
-	// defaultOptionId facilitates modifying the defaultOption association. the user selects a 
-	// defaultOption (ProtocolInstrumentOptionConfig) and that defaultOptionId is bound to this property. 
-	// if it differs from this entity's existing defaultOption id, the defaultOptionId is used to 
-	// retrieve its defaultOption which is then set on this entity via setDefaultOption to change 
-	// the associated defaultOption
-	private Long defaultOptionId;
 	
 	
 	/**
@@ -75,13 +71,6 @@ public class ProtocolInstrumentConfig extends ProtocolInstrumentConfigBase {
 		this.getOptions().add(protocolInstrumentConfigOption);
 	}
 	
-	public Boolean getOptional() {
-		return optional;
-	}
-	public void setOptional(Boolean optional) {
-		this.optional = optional;
-	}
-
 	public String getCategory() {
 		return category;
 	}
@@ -143,25 +132,35 @@ public class ProtocolInstrumentConfig extends ProtocolInstrumentConfigBase {
 	public void setDefaultCompNote(String defaultCompNote) {
 		this.defaultCompNote = defaultCompNote;
 	}
-
-	public ProtocolInstrumentConfigOption getDefaultOption() {
-		return defaultOption;
+	
+	protected void updateSummary() {
+		StringBuffer block = new StringBuffer();
+		if (this.getCustomCollectWinDefined()) {
+			block.append("Custom Collect Window\n");
+			block.append("From Visit: ").append(this.getCustomCollectWinProtocolVisitConfig() != null ? this.getCustomCollectWinProtocolVisitConfig().getLabel() : "").append("\n");
+			block.append("Offset:").append(this.getCustomCollectWinOffset()).append("  Size:").append(this.getCustomCollectWinSize()).append("\n");
+		}
+		if (this.getOptional()) {
+			block.append(" (optional)");
+		}
+		
+		this.setSummary(block.toString());
 	}
-
-	public void setDefaultOption(ProtocolInstrumentConfigOption defaultOption) {
-		this.defaultOption = defaultOption;
-		if (this.defaultOption != null) {
-			this.defaultOptionId = this.defaultOption.getId();
+	
+	
+	public void updateCalculatedFields(){
+		super.updateCalculatedFields();
+		
+		this.updateSummary();
+		
+		for (ProtocolInstrumentConfigOption instrConfigOption : this.getOptions()) {
+			instrConfigOption.updateSummary();
 		}
 	}
 
-	public Long getDefaultOptionId() {
-		return defaultOptionId;
+	public void beforeCreate() {
+		super.beforeCreate();
+		this.setNodeType(INSTRUMENT_NODE);
 	}
-	
-	public void setDefaultOptionId(Long defaultOptionId) {
-		this.defaultOptionId = defaultOptionId;
-	}
-	
-	
+
 }
