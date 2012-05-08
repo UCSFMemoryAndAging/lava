@@ -17,13 +17,9 @@ import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.protocol.model.Protocol;
 import edu.ucsf.lava.crms.protocol.model.ProtocolConfig;
-import edu.ucsf.lava.crms.protocol.model.ProtocolInstrument;
-import edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolTimepoint;
 import edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolTracking;
-import edu.ucsf.lava.crms.protocol.model.ProtocolVisit;
-import edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfig;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 
 public class ProtocolHandler extends CrmsEntityComponentHandler {
@@ -34,7 +30,7 @@ public class ProtocolHandler extends CrmsEntityComponentHandler {
 	}
 
 	protected String[] defineRequiredFields(RequestContext context, Object command) {
-		setRequiredFields(new String[]{"protocolConfigId","assignedDate"});
+		setRequiredFields(new String[]{"assignedDate"});
 		return getRequiredFields();
 	}
 	
@@ -111,66 +107,38 @@ public class ProtocolHandler extends CrmsEntityComponentHandler {
 		
 		// patientProtocol already has the patient set
 		protocol.setProtocolConfig(protocolConfig);
+		protocol.setNodeType(protocolConfig.getNodeType());
 		protocol.setProjName(protocolConfig.getProjName());
 		
-		
 		for (ProtocolTimepointConfig timepointConfig: protocolConfig.getProtocolTimepointConfigs()) {
-			ProtocolTimepoint protocolTimepoint = null;
-			protocolTimepoint = new ProtocolTimepoint();
-			protocol.addProtocolTimepoint(protocolTimepoint);
-			protocolTimepoint.setProtocolTimepointConfig(timepointConfig);
-			protocolTimepoint.setListOrder(timepointConfig.getListOrder());
-			protocolTimepoint.setPatient(protocol.getPatient());
-			protocolTimepoint.setProjName(timepointConfig.getProjName());
-			for (ProtocolVisitConfig visitConfig: timepointConfig.getProtocolVisitConfigs()) {
-				ProtocolVisit protocolVisit = new ProtocolVisit();
-				protocolTimepoint.addProtocolVisit(protocolVisit);
-				protocolVisit.setProtocolVisitConfig(visitConfig);
-				protocolVisit.setPatient(protocol.getPatient());
-				protocolVisit.setProjName(visitConfig.getProjName());
-				for (ProtocolInstrumentConfig instrumentConfig: visitConfig.getProtocolInstrumentConfigs()) {
-					ProtocolInstrument protocolInstrument = new ProtocolInstrument();
-					protocolVisit.addProtocolInstrument(protocolInstrument);
-					protocolInstrument.setProtocolInstrumentConfig(instrumentConfig);
-					protocolInstrument.setPatient(protocol.getPatient());
-					protocolInstrument.setProjName(instrumentConfig.getProjName());
-				}
-			}
-			// now that all protocolVisits have been added for the current protocolTimepoint, set the 
-			// primaryProtocolVisit for protocolTimepoint based on the primaryProtocolVisitConfig
-			// of timepointConfig
-			
-			// get the id of the primaryProtocolVisitConfig
-			Long primaryProtocolVisitConfigId = timepointConfig.getPrimaryProtocolVisitConfigId();
-			// iterate thru the protocolVisits until find the one whose protocolVisitConfig id matches this
-			for (ProtocolVisit protocolVisit: protocolTimepoint.getProtocolVisits()) {
-				if (protocolVisit.getProtocolVisitConfig().getId().equals(primaryProtocolVisitConfigId)) {
-					protocolTimepoint.setPrimaryProtocolVisit(protocolVisit);
-					break;
-				}
+			// setup to handle repeating timepoints
+			// if this is a repeating timepoint, create the specified initial number
+			int numRepeatingTimepoints = 1;
+			if (timepointConfig.getRepeating() != null && timepointConfig.getRepeating()) {
+				numRepeatingTimepoints = timepointConfig.getRepeatInitialNum();
 			}
 			
-			
-			// now that all protocolVisits have been added for the current protocolTimepoint, need to set
-			// the custom collection window anchor for each protocolInstrument, i.e. the protocolVisit
-			// that is the anchor
-			for (ProtocolVisit protocolVisit: protocolTimepoint.getProtocolVisits()) {
-				for (ProtocolInstrument protocolInstrument: protocolVisit.getProtocolInstruments()) {
-					// set the collectWinProtocolVisit for this protocolInstrument based on the 
-					// customCollectWinProtocolVisitConfig of instrumentConfig
-					Long collectWinProtocolVisitConfigId = protocolInstrument.getProtocolInstrumentConfig().getCustomCollectWinProtocolVisitConfigId();
-					// iterate thru the protocolVisits until find one whose protocolVisitConfig id matches this
-					for (ProtocolVisit protocolVisit2: protocolTimepoint.getProtocolVisits()) {
-						if (protocolVisit2.getProtocolVisitConfig().getId().equals(collectWinProtocolVisitConfigId)) {
-							protocolInstrument.setCollectWinProtocolVisit(protocolVisit2);
-							break;
-						}
-					}
+			for (short i=1; i <= numRepeatingTimepoints; i++) {
+				ProtocolTimepoint protocolTimepoint = null;
+				if (timepointConfig.getRepeating() != null && timepointConfig.getRepeating()) {
+					protocolTimepoint = ProtocolTimepoint.createRepeatingTimepointFromConfig(protocol, timepointConfig, i);
 				}
-			}
-			
+				else {
+					protocolTimepoint = ProtocolTimepoint.createTimepointFromConfig(protocol, timepointConfig);
+				}
+				
+				// add the timepoint to the protocol for the patient
+				protocol.addProtocolTimepoint(protocolTimepoint);
+			}			
 		}
-		
+//		protocol.orderTimepoints();
+	
+		// as this is a non-standard add, i.e. not adding via an add view which will return to a list view,
+		// do not need to do the standard doSaveAdd, and in fact the refresh that is done has caused problems
+		// because for some reason in some cases the ProtocolTimepoint ProtocolTimepointConfig is set null 
+		// as a result of the refresh and this causes a NullPointerException in ProtocolTimepoint compareTo
+		// so skip that and just to the save part
+		//return saveHandledObjects(context, ((ComponentCommand)command).getComponents(), errors);
 		return super.doSaveAdd(context, command, errors);
 	}
 	
