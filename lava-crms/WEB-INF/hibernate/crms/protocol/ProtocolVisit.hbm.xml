@@ -8,17 +8,16 @@
 
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolVisit" table="prot_visit" extends="edu.ucsf.lava.crms.protocol.model.ProtocolVisitBase" select-before-update="true">
 	<key column="node_id"/> 
-	<many-to-one name="visit" column="VID" class="edu.ucsf.lava.crms.scheduling.model.Visit" lazy="false"/>	
 </joined-subclass>
 
 	<query name="list.protocol.matchingVisits"><![CDATA[
 	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(v.visitDescrip, v.id)
 			from edu.ucsf.lava.crms.scheduling.model.Visit as v
 			where v.patient.id = :patientId
-			and v.projName = :visitProjName
+			and v.projName = :visitTypeProjName
 			and v.visitType = :visitType
 			and (v.visitDate >= :effDate and v.visitDate <= :expDate)
-			order by abs(datediff(v.visitDate, :schedAnchorDate))
+			order by abs(datediff(v.visitDate, :schedWinAnchorDate))
 	]]></query>	
 	
 </hibernate-mapping>
