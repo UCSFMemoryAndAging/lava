@@ -5,9 +5,13 @@
 	
 <timestamp name="modified" column="modified"/>
 
+<property name="nodeType" column="node_type" type="string" length="25" not-null="true"/>
+<property name="optional" column="optional" type="boolean"/>
 <property name="listOrder" column="list_order" type="short"/>
 <property name="projName" column="ProjName" type="string" length="75" not-null="true"/>
 <property name="label" column="label" type="string" length="25" not-null="true"/>
+<property name="repeating" column="repeating" type="boolean"/>
+<property name="summary" column="summary" type="string" length="100"/>
 <property name="notes" column="notes" type="string" length="255"/>
 <property name="effDate" column="eff_date" type="date"/>
 <property name="expDate" column="exp_date" type="date"/>
