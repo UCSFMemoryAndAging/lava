@@ -1,10 +1,7 @@
 package edu.ucsf.lava.crms.protocol.model;
 
-import java.util.Date;
-
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
-import edu.ucsf.lava.crms.model.CrmsEntity;
 
 /**
  * @author ctoohey
@@ -13,7 +10,7 @@ import edu.ucsf.lava.crms.model.CrmsEntity;
  * protocol option base table. 
  */
 
-public class ProtocolConfigOptionTracking extends ProtocolConfigOptionBase {
+public class ProtocolConfigOptionTracking extends ProtocolNodeConfigOption {
 	public static EntityManager MANAGER = new EntityBase.Manager(ProtocolConfigOptionTracking.class);
 	
 	public ProtocolConfigOptionTracking(){
