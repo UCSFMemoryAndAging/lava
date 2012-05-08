@@ -13,7 +13,7 @@ import edu.ucsf.lava.core.model.EntityManager;
  *
  */
 
-public class ProtocolVisitConfigOptionBase extends ProtocolConfigOptionBase {
+public class ProtocolVisitConfigOptionBase extends ProtocolNodeConfigOption {
 	public ProtocolVisitConfigOptionBase(){
 		super();
 		this.addPropertyToAuditIgnoreList("protocolVisitConfigBase");
