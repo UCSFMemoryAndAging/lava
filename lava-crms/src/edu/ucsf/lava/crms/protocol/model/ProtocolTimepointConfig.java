@@ -14,11 +14,22 @@ import edu.ucsf.lava.core.model.EntityManager;
  */
 public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	public static EntityManager MANAGER = new EntityBase.Manager(ProtocolTimepointConfig.class);
+	public static String SCHED_WIN_UNITS_DAYS = "Days";
+	public static String SCHED_WIN_UNITS_WEEKS = "Weeks";
+	public static String SCHED_WIN_UNITS_MONTHS = "Months";
+	public static String SCHED_WIN_UNITS_YEARS = "Years";
 	
 	public ProtocolTimepointConfig(){
 		super();
-		this.setAuditEntityType("ProtocolTimepointConfig");	
-		this.setDuration((short)0);
+		this.setAuditEntityType("ProtocolTimepointConfig");
+		// defaults
+		this.setDuration((short)1);
+		this.setSchedWinRelativeUnits(SCHED_WIN_UNITS_DAYS);
+		this.setSchedWinRelativeWeekend(Boolean.FALSE); // do not count weekend days
+		this.setSchedWinRelativeHoliday(Boolean.FALSE); // do not count holidays
+		this.setRepeatIntervalUnits(SCHED_WIN_UNITS_DAYS); 
+		this.setRepeatIntervalWeekend(Boolean.FALSE); // do not count weekend days
+		this.setRepeatIntervalHoliday(Boolean.FALSE); // do not count holidays
 	}
 	
 	public Object[] getAssociationsToInitialize(String method) {
@@ -28,7 +39,6 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	}
 	
 
-	private Boolean optional;
 	// scheduling window is the window in which the timepoint must be scheduled
 	private ProtocolTimepointConfig schedWinRelativeTimepoint; 
 	// schedWinRelativeTimepointId facilitates modifying the schedWinRelativeTimepoint association. the user selects a 
@@ -37,20 +47,20 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	// which is then set on this entity via setSchedWinRelativeTimepoint to change the associated schedWinRelativeTimepoint
 	private Long schedWinRelativeTimepointId;
 	private Short schedWinRelativeAmount; // 0 for first timepoint
-	private Short schedWinRelativeUnits; // days, weeks, months ??
-	private Short schedWinRelativeMode; // working days, calendar days, etc.
+	private String schedWinRelativeUnits; // Days  TODO: unimplemented: Weeks, Months, Years
+	private Boolean schedWinRelativeWeekend; // TODO: if flag not set (default) and Units=DAYS, do not count weekends  
+	private Boolean schedWinRelativeHoliday; // TODO: if flag not set (default) and Units=DAYS, do not count holidays  
 	private Short schedWinDaysFromStart; // computed from schedWinRelativeTimepoint and schedWinDaysFrom, and used for ordering timepoints
 	private Short schedWinSize; //days
 	// determines the start of the scheduling window, where 0 is equal to schedAnchorDate (calculated in ProtocolTimepoint), 
 	// negative value goes backward in time relative to schedAnchorDate, and positive value goes forward in time.
 	private Short schedWinOffset; //days
-	private Short duration; // duration of the timepoint in days, where null or 0 indicates same day duration
 	private Boolean schedAutomatic; // when this timepoint is complete, automatically schedule the next timepoint
 	
 	// the primary visit for the timepoint.
 	// this will serve as the visit to use for calculating the collect window (note that unlike the
 	// scheduling window, there is no collectWinDaysFrom offset; this ProtocolVisitConfig's Visit visitDate
-	// is the collectAnchorDate for the timepoint)
+	// is the collectWinAnchorDate for the timepoint)
 	private ProtocolVisitConfig primaryProtocolVisitConfig;
 	// primaryProtocolVisitConfigId facilitates modifying the primaryProtocolVisitConfig association. the user selects a 
 	// primaryProtocolVisitConfig and that primaryProtocolVisitConfigId is bound to this property. if it differs from this 
@@ -61,14 +71,22 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	private Boolean collectWindowDefined;
 	private Short collectWinSize;
 	private Short collectWinOffset;
+	
+	// duration for the timepoint, if any, in units of days (calendar days). if a timepoint is complete within a day
+	// the duration is 1
+	private Short duration;
 
 	// repeating timepoint configuration
 	// The representation of a Timepoint that that repeats at regular intervals over time. In 
 	// the protocol config there is only one instance of this timepoint, but when a patient 
 	// is assigned to the protocol, a specified number of timepoints are created. Additional
 	// timepoints are created automatically or manually.
-	private Boolean repeating;
+	// repeating property is in tracking superclass for efficient querying limited to tracking table
+	private String repeatType; // ABSOLUTE (always compute anchor from first) or RELATIVE (always compute anchor from prior repeating timepoint)
 	private Short repeatInterval; // days
+	private String repeatIntervalUnits; // Days  TODO: unimplemented: Weeks, Months, Years
+	private Boolean repeatIntervalWeekend; // TODO: if flag not set (default) and Units=DAYS, do not count weekends  
+	private Boolean repeatIntervalHoliday; // TODO: if flag not set (default) and Units=DAYS, do not count holidays  
 	// initial num timepoints to create when patient assigned to protocol
 	private Short repeatInitialNum; 
 	// automatically create the next timepoint when the current timepoint is complete
@@ -106,22 +124,30 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	 * having a flag on each ProtocolTimepointConfig to designate itself as the first, which would 
 	 * require synchronization among all sibling ProtocolTimepointConfigs)
 	 * 
+	 * note: using the id property here instead of getFirstProtocolTimepointConfig.getId() means do not
+	 * have to eagerly load the first ProtocolTimepointConfig
+	 * 
 	 * @return true if this is the first timepoint config, false if not.
 	 */
 	public Boolean isFirstProtocolTimepointConfig() {
-		// using the id property here instead of getFirstProtocolTimepointConfig.getId() means do not
-		// have to eagerly load the first ProtocolTimepointConfig 
-		return this.getProtocolConfig().getFirstProtocolTimepointConfigId().equals(this.getId());
-	}
-
-	public Boolean getOptional() {
-		return optional;
-	}
-
-	public void setOptional(Boolean optional) {
-		this.optional = optional;
+		// if adding, no id since it has not been saved yet
+		if (this.getId() == null) {
+			// if there is not a first timepoint config yet, then this will be the first, as the business rule is that
+			// if there is only one timepoint config it must be marked as the first
+			if (this.getProtocolConfig().getFirstProtocolTimepointConfigId() == null) {
+				return Boolean.TRUE;
+			}
+			else {
+				return Boolean.FALSE;
+			}
+		}
+		else {
+			// existing ProtocolTimepointConfig, so can check the ProtocolConfig to see if this is the first 
+			return this.getProtocolConfig().getFirstProtocolTimepointConfigId().equals(this.getId());
+		}
 	}
 	
+
 	public ProtocolTimepointConfig getSchedWinRelativeTimepoint() {
 		return schedWinRelativeTimepoint;
 	}
@@ -149,20 +175,30 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 		this.schedWinRelativeAmount = schedWinRelativeAmount;
 	}
 	
-	public Short getSchedWinRelativeUnits() {
+	public String getSchedWinRelativeUnits() {
 		return schedWinRelativeUnits;
 	}
 	
-	public void setSchedWinRelativeUnits(Short schedWinRelativeUnits) {
+	public void setSchedWinRelativeUnits(String schedWinRelativeUnits) {
 		this.schedWinRelativeUnits = schedWinRelativeUnits;
 	}
 
-	public Short getSchedWinRelativeMode() {
-		return schedWinRelativeMode;
+	public Boolean getSchedWinRelativeWeekend() {
+		return schedWinRelativeWeekend;
 	}
-	public void setSchedWinRelativeMode(Short schedWinRelativeMode) {
-		this.schedWinRelativeMode = schedWinRelativeMode;
+
+	public void setSchedWinRelativeWeekend(Boolean schedWinRelativeWeekend) {
+		this.schedWinRelativeWeekend = schedWinRelativeWeekend;
 	}
+
+	public Boolean getSchedWinRelativeHoliday() {
+		return schedWinRelativeHoliday;
+	}
+
+	public void setSchedWinRelativeHoliday(Boolean schedWinRelativeHoliday) {
+		this.schedWinRelativeHoliday = schedWinRelativeHoliday;
+	}
+
 	public Short getSchedWinDaysFromStart() {
 		return schedWinDaysFromStart;
 	}
@@ -185,14 +221,6 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 
 	public void setSchedWinOffset(Short schedWinOffset) {
 		this.schedWinOffset = schedWinOffset;
-	}
-	
-	public Short getDuration() {
-		return duration;
-	}
-	
-	public void setDuration(Short duration) {
-		this.duration = duration;
 	}
 	
 	public Boolean getSchedAutomatic() {
@@ -246,12 +274,52 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 		this.collectWinOffset = collectWinOffset;
 	}
 	
+	public Short getDuration() {
+		return duration;
+	}
+
+	public void setDuration(Short duration) {
+		this.duration = duration;
+	}
+
+	public String getRepeatType() {
+		return repeatType;
+	}
+
+	public void setRepeatType(String repeatType) {
+		this.repeatType = repeatType;
+	}
+
 	public Short getRepeatInterval() {
 		return repeatInterval;
 	}
 
 	public void setRepeatInterval(Short repeatInterval) {
 		this.repeatInterval = repeatInterval;
+	}
+	
+	public String getRepeatIntervalUnits() {
+		return repeatIntervalUnits;
+	}
+
+	public void setRepeatIntervalUnits(String repeatIntervalUnits) {
+		this.repeatIntervalUnits = repeatIntervalUnits;
+	}
+
+	public Boolean getRepeatIntervalWeekend() {
+		return repeatIntervalWeekend;
+	}
+
+	public void setRepeatIntervalWeekend(Boolean repeatIntervalWeekend) {
+		this.repeatIntervalWeekend = repeatIntervalWeekend;
+	}
+
+	public Boolean getRepeatIntervalHoliday() {
+		return repeatIntervalHoliday;
+	}
+
+	public void setRepeatIntervalHoliday(Boolean repeatIntervalHoliday) {
+		this.repeatIntervalHoliday = repeatIntervalHoliday;
 	}
 
 	public Short getRepeatInitialNum() {
@@ -270,14 +338,6 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 		this.repeatCreateAutomatic = repeatCreateAutomatic;
 	}
 
-	public Boolean getRepeating() {
-		return repeating;
-	}
-
-	public void setRepeating(Boolean repeating) {
-		this.repeating = repeating;
-	}
-
 	/**
 	 * Calculate the scheduling offset of this timepoint relative to earlier timepoints, in one of these ways:
 	 *   1) if this is the first timepoint config, then return 0
@@ -291,9 +351,11 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 		if (this.isFirstProtocolTimepointConfig()) {
 			return 0;
 		}
+/** this is just a simplified case of the next case, so prob get rid of it to prevent confusion 		
 		else if (this.getSchedWinRelativeTimepoint().isFirstProtocolTimepointConfig()) {
 			return this.getSchedWinRelativeAmount();
 		}
+**/		
 		else {
 			//TODO: if units are other than days, convert to days. 
 			// problem is that there is no actual date involved, so can not use the Java Calendar API, so this is not 
@@ -301,49 +363,73 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 			// they are listed in a logical order for the user. once a patient is assigned to the protocol and a
 			// Protocol structure is created, will be dealing in real dates, so then the Calendar API can be used
 			// in converting schedWinRelativeAmount 
+			//UPDATE: could hypothetically create a Calendar instance for July 1st, 2000, then add schedWinRelativeAmount
+			//based on Mode/Units per technique in ProtocolTimepoint calcSchedAnchorDate to get a Date, and then
+			//get days between them (where this is just the absolute value of days for ordering purposes so do
+			//not have to further convert this number of days to number of working days)
+			//HOWEVER, if Days, then this would not work, as have to removed weekends/holidays (if flagged that way)
+			//but then when get an end Date, do the diff from beginning Date to get absolute days
 			
 			// if (this.getSchedWinRelativeUnits().equals(WEEKS)) {
 			// }
 			// ...
 			return (short) (this.getSchedWinRelativeTimepoint().calcDaysFromProtocolStart() + this.getSchedWinRelativeAmount());
 		}
-
-		/*** FOR TESTING ONLY !! will blow up if no timepoints. in ProtocolHandler addReferenceData:	
-		Timepoint tpFirst = protocol.getFirstTimepoint();
-		Timepoint tpLast = protocol.getLastTimepoint();
-		// getDuration or something should be a method on Protocol
-		Short duration = tpLast.daysFromProtocolStart(tpFirst);
-		****/	
 	}
 	
+	protected void updateSummary() {
+		StringBuffer block = new StringBuffer();
+		if (isFirstProtocolTimepointConfig()) { 
+			block.append("First Timepoint\n");
+		}
+		else {
+			block.append(getSchedWinRelativeAmount()).append(" ").append(getSchedWinRelativeUnits()).append(" relative to: ").append(getSchedWinRelativeTimepoint().getLabel()).append("\n");
+		}
+		if (getCollectWindowDefined()) {
+			block.append("Collect Window Size:").append(getCollectWinOffset()).append("  Offset:").append(getCollectWinOffset()).append("\n");
+		}
+		if (getRepeating() != null && getRepeating()) {
+			block.append("Repeating every ").append(getRepeatInterval()).append(" Days").append("\n");
+		}
+		if (this.getOptional()) {
+			block.append("(optional)");
+		}
+		this.setSummary(block.toString());
+	}
+
+	
+	public void updateCalculatedFields(){
+		super.updateCalculatedFields();
+		
+		// update the property used for ordering ProtocolTimepointConfigs
+		this.setSchedWinDaysFromStart(this.calcDaysFromProtocolStart());
+		
+		this.updateSummary();
+	}
+
+	public void beforeCreate() {
+		super.beforeCreate();
+		this.setNodeType(TIMEPOINT_NODE);
+	}
+
 	public boolean afterCreate() {
 		// flag as the first timepoint config if it is the only timepoint config
-		if (this.getProtocolConfig().getProtocolTimepointConfigs().size() == 1) {
+		// note: have to do in afterCreate because need the id of the newly created entity
+		if (this.getProtocolConfig().getFirstProtocolTimepointConfigId() == null) {
 			this.getProtocolConfig().setFirstProtocolTimepointConfig(this);
 			// this is special case as the only place that firstProtocolTimepointConfig gets set on 
 			// ProtocolConfig other than its own handler. have to save ProtocolConfig here
 			this.getProtocolConfig().save();
 		}
 		
-		// update the property used for ordering ProtocolTimepointConfigs
-		this.setSchedWinDaysFromStart(this.calcDaysFromProtocolStart());
-		
-		// always save again, as node value has been set
-		return true;
-	}
-
-
-	public boolean afterUpdate() {
-		// update the property used for ordering ProtocolTimepointConfigs
-		this.setSchedWinDaysFromStart(this.calcDaysFromProtocolStart());
-		// always save again, as node value has been set
-		return true;
+		// do not need to save this entity, just the parent explicitly saved above
+		return false;
 	}
 
 	
 	/**
-	 * The ProtocolTimepointConfig collection in ProtocolConfig is a java.util.SortedSet (based on O/R 
-	 * mapping configuration), i.e. a java.util.TreeMap. This compareTo method implements the Comparable
+	 * The ProtocolTimepointConfig collection in ProtocolConfig is a java.util.Set (based on O/R 
+	 * mapping configuration), i.e. a java.util.TreeSet. This compareTo method implements the Comparable
 	 * interface to set the natural ordering as chronological, i.e. by the days from the scheduling 
 	 * window of this ProtocolTimepointConfig from the first ProtocolTimepointConfig (which is considered
 	 * time 0). 
@@ -353,20 +439,20 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 	 *  in a ProtocolConfig tree (and which only contains base class members, including listOrder, but
 	 *  not schedWinDaysFromStart). ProtocolTimepointConfigHandler calls orderTimepoints method to do this.
 	 */
-	public int compareTo(ProtocolTimepointConfig protocolTimepoint) throws ClassCastException {
-		if (this.getSchedWinDaysFromStart() == null && protocolTimepoint.getSchedWinDaysFromStart() == null) {
+	public int compareTo(ProtocolTimepointConfig protocolTimepointConfig) throws ClassCastException {
+		if (this.getSchedWinDaysFromStart() == null && protocolTimepointConfig.getSchedWinDaysFromStart() == null) {
 			return 0;
 		}
-		else if (this.getSchedWinDaysFromStart() != null && protocolTimepoint.getSchedWinDaysFromStart() == null) {
+		else if (this.getSchedWinDaysFromStart() != null && protocolTimepointConfig.getSchedWinDaysFromStart() == null) {
 			return 1;
 		}
-		else if (this.getSchedWinDaysFromStart() == null && protocolTimepoint.getSchedWinDaysFromStart() != null) {
+		else if (this.getSchedWinDaysFromStart() == null && protocolTimepointConfig.getSchedWinDaysFromStart() != null) {
 			return -1;
 		}
 		
-        if (this.getSchedWinDaysFromStart() > protocolTimepoint.getSchedWinDaysFromStart())
+        if (this.getSchedWinDaysFromStart() > protocolTimepointConfig.getSchedWinDaysFromStart())
             return 1;
-        else if (this.getSchedWinDaysFromStart() < protocolTimepoint.getSchedWinDaysFromStart())
+        else if (this.getSchedWinDaysFromStart() < protocolTimepointConfig.getSchedWinDaysFromStart())
             return -1;
         else
             return 0;    
