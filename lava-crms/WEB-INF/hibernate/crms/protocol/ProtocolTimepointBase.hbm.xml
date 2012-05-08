@@ -16,7 +16,7 @@
 	<many-to-one name="protocolTimepointConfigBase" column="config_node_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfigBase" lazy="false"/>	
 	
 	<!-- visits is a bidirectional relationship whose corresponding parent mapping is in ProtocolVisitBase -->
-	<set name="protocolVisitsBase" table="prot_node" inverse="true" cascade="all,delete-orphan" order-by="list_order" lazy="true">
+	<set name="protocolVisitsBase" table="prot_node" inverse="true" cascade="all,delete-orphan" lazy="true">
 		<key column="parent_id"/>
 		<one-to-many class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitBase"/> 
 	</set>
