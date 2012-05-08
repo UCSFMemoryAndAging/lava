@@ -23,13 +23,18 @@
 </c:if>
 <tags:createField property="label" component="${component}"/>
 <tags:createField property="projName" component="${component}"/>
-<%-- NOT IMPLEMENTED YET (JUST NEED CATEGORY LIST OF DIFFERENT PROTOCOL CATEGORIES)
-<tags:createField property="category" component="${component}"/>
- --%>
+<tags:createField property="descrip" component="${component}"/>
 <c:if test="${componentView != 'view'}">
-<tags:outputText textKey="protocol.firstTimepointConfigInfo" inline="false" styleClass="italic"/>
+<%-- only show text if not First Timepoint because if First it would be redundant with text shown below --%>
+<tags:ifComponentPropertyNotEmpty component="protocolConfig" property="firstProtocolTimepointConfigId">  
+	<tags:outputText textKey="protocol.firstTimepointConfigInfo" inline="false" styleClass="italic"/>
+	<tags:createField property="firstProtocolTimepointConfigId" component="${component}"/>
+</tags:ifComponentPropertyNotEmpty>	
+<tags:ifComponentPropertyEmpty component="protocolConfig" property="firstProtocolTimepointConfigId">
+	<%-- if no First Timepoint Config yet, no sense in having the property editable --%>  
+	<tags:createField property="firstProtocolTimepointConfigId" component="${component}" mode="vw"/>
+</tags:ifComponentPropertyEmpty>	
 </c:if>
-<tags:createField property="firstProtocolTimepointConfigId" component="${component}" mode="${componentView == 'add' ? 'vw' : componentMode}"/>
 <tags:createField property="effDate" component="${component}"/>
 <tags:createField property="expDate" component="${component}"/>
 <tags:createField property="notes" component="${component}"/>
@@ -49,24 +54,25 @@
 <c:set var="component" value="protocolConfigTree"/>
 
 <page:applyDecorator name="component.entity.section">
-  <page:param name="sectionId">protocolConfigTree</page:param>
-  <page:param name="sectionNameKey">protocol.protocolConfigTree.section</page:param>
-  
+  <page:param name="sectionId">timepoints</page:param>
+  <page:param name="sectionNameKey">protocolConfig.timepoints.section</page:param>
+
+<tags:ifComponentPropertyEmpty component="protocolConfig" property="firstProtocolTimepointConfigId">  
+	<tags:outputText textKey="protocol.addFirstTimepointConfig" inline="false" styleClass="italic"/>
+</tags:ifComponentPropertyEmpty>	
 <div class="verticalSpace10">&nbsp;</div>
-<tags:actionURLButton buttonText="Add Timepoint" actionId="lava.crms.protocol.setup.protocolTimepointConfig" eventId="protocolTimepointConfig__add" component="${component}" parameters="param,${protocolId}" locked="${currentPatient.locked}"/>
+<tags:actionURLButton buttonText="Add Timepoint Conf" actionId="lava.crms.protocol.setup.protocolTimepointConfig" eventId="protocolTimepointConfig__add" component="${component}" parameters="param,${protocolId}" locked="${currentPatient.locked}"/>
 <div class="verticalSpace10">&nbsp;</div>
 
 <tags:tableForm>  
 
 <tags:listRow>
 	<tags:listColumnHeader label="Action" width="10%"/>
-	<tags:listColumnHeader label="Protocol Component" width="40%"/>
-	<tags:listColumnHeader label="Type" width="30%" />
+	<tags:listColumnHeader label="Protocol Component" width="25%"/>
+	<tags:listColumnHeader label="Type" width="15%" />
+	<tags:listColumnHeader label="Summary" width="30%" />
 	<tags:listColumnHeader label="Eff. Date" width="10%" />
 	<tags:listColumnHeader label="Exp. Date" width="10%" />
-<%--	
-	<tags:listColumnHeader label="Notes" width="30%" />
- --%>	
 </tags:listRow>
 
 <c:forEach items="${command.components[component].children}" var="protocolTimepointConfig" varStatus="timepointIterator">
@@ -74,11 +80,9 @@
 	<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolTimepointConfig" component="protocolTimepointConfig" idParam="${protocolTimepointConfig.id}" locked="${item.locked}"/></tags:listCell>
 	<tags:listCell><tags:createField property="children[${timepointIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell>Timepoint</tags:listCell>
+	<tags:listCell><tags:createField property="children[${timepointIterator.index}].summary" component="${component}"  metadataName="protocolConfig.summary" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="children[${timepointIterator.index}].effDate" component="${component}" metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="children[${timepointIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
-<%--	
-	<tags:listCell><tags:createField property="children[${timepointIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
---%>	
 </tags:listRow>	
 
 	<c:forEach items="${protocolTimepointConfig.children}" var="protocolVisitConfig" varStatus="visitIterator">
@@ -89,26 +93,19 @@
 			<tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
 		</tags:listCell>
 		<tags:listCell>Visit</tags:listCell>
+		<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].summary" component="${component}"  metadataName="protocolConfig.summary" mode="${fieldMode}"/></tags:listCell>
 		<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 		<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
-<%--	
-		<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
---%>		
 	</tags:listRow>
 	
 		<c:forEach items="${protocolVisitConfig.options}" var="protocolVisitConfigOption" varStatus="visitOptionIterator">
 		<tags:listRow>
 			<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolVisitConfigOption" component="protocolVisitConfigOption" idParam="${protocolVisitConfigOption.id}" locked="${item.locked}"/></tags:listCell>
-			<tags:listCell>
-				<c:forEach begin="1" end="11">&nbsp;</c:forEach>
-				<tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].options[${visitOptionIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
-			</tags:listCell>
+			<tags:listCell>&nbsp;</tags:listCell>
 			<tags:listCell>Visit Option</tags:listCell>
+			<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].options[${visitOptionIterator.index}].summary" component="${component}"  metadataName="protocolConfig.summary" mode="${fieldMode}"/></tags:listCell>
 			<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].options[${visitOptionIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 			<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].options[${visitOptionIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
-<%--	
-			<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].options[${visitOptionIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
---%>			
 		</tags:listRow>
 		</c:forEach>
 
@@ -120,26 +117,19 @@
 					<tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
 				</tags:listCell>
 				<tags:listCell>Instrument</tags:listCell>
+				<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].summary" component="${component}"  metadataName="protocolConfig.summary" mode="${fieldMode}"/></tags:listCell>
 				<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 				<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
-<%--	
-				<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
---%>				
 			</tags:listRow>
 			
 					<c:forEach items="${protocolInstrumentConfig.options}" var="protocolInstrumentConfigOption" varStatus="instrumentOptionIterator">
 					<tags:listRow>
 						<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolInstrumentConfigOption" component="protocolInstrumentConfigOption" idParam="${protocolInstrumentConfigOption.id}" locked="${item.locked}"/></tags:listCell>
-						<tags:listCell>
-							<c:forEach begin="1" end="19">&nbsp;</c:forEach>
-							<tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
-						</tags:listCell>
+						<tags:listCell>&nbsp;</tags:listCell>
 						<tags:listCell>Instrument Option</tags:listCell>
+						<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].summary" component="${component}"  metadataName="protocolConfig.summary" mode="${fieldMode}"/></tags:listCell>
 						<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 						<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
-<%--	
-						<tags:listCell><tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
---%>						
 					</tags:listRow>
 					</c:forEach>
 			
