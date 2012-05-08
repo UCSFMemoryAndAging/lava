@@ -8,7 +8,6 @@
 
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfig" table="prot_instr_config" extends="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigBase" select-before-update="true">
 	<key column="node_id"/> 
-	<property name="optional" column="optional" type="boolean"/>
 	<property name="category" column="category" type="string" length="25"/>
 	<property name="customCollectWinDefined" column="collect_win_def" type="boolean"/>
 	<many-to-one name="customCollectWinProtocolVisitConfig" column="collect_win_prot_visit_conf_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfig" lazy="false"/>
@@ -19,4 +18,12 @@
 	<property name="defaultCompNote" column="default_comp_note" type="string" length="100"/>
 </joined-subclass>
 	
+	<query name="list.protocol.allInstrLabels"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(instrConfig.label, instrConfig.label)
+			from edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfig as instrConfig
+			where instrConfig.label is not null
+			group by instrConfig.label
+			order by instrConfig.label
+	]]></query>	
+
 </hibernate-mapping>
