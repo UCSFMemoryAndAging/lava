@@ -6,6 +6,7 @@
 	
 <property name="projName" column="ProjName" type="string" length="75"/>
 <property name="label" column="label" type="string" length="25" not-null="true"/>
+<property name="summary" column="summary" type="string" length="100"/>
 <property name="notes" column="notes" type="string" length="255"/>
 <property name="defaultOption" column="default_option" type="boolean"/>
 <property name="effDate" column="eff_date" type="date"/>
