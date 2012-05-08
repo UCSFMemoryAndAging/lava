@@ -9,6 +9,7 @@
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigOption" table="prot_instr_config_option" extends="edu.ucsf.lava.crms.protocol.model.ProtocolInstrumentConfigOptionBase" select-before-update="true">
 	<key column="option_id"/> 
 	<property name="instrType" column="instr_type" type="string" length="25"/>
+	<property name="instrVer" column="instr_ver" type="string" length="25"/>
 </joined-subclass>
 	
 </hibernate-mapping>
