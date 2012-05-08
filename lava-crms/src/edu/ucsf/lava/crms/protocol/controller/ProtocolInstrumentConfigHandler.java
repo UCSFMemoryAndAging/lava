@@ -49,19 +49,23 @@ public class ProtocolInstrumentConfigHandler extends CrmsEntityComponentHandler 
 		return backingObjects;
 	}
 	
-	
 	protected Object initializeNewCommandInstance(RequestContext context, Object command){
 		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
 		ProtocolInstrumentConfig instrumentConfig = (ProtocolInstrumentConfig) command;
+
 		ProtocolVisitConfig visitConfig = (ProtocolVisitConfig) ProtocolVisitConfig.MANAGER.getOne(EntityBase.newFilterInstance().addIdDaoEqualityParam(Long.valueOf(context.getFlowScope().getString("param"))));
 		visitConfig.addProtocolInstrumentConfig(instrumentConfig);
 		instrumentConfig.setProjName(visitConfig.getProjName());
 		
-		// create the default option
-		ProtocolInstrumentConfigOption instrOptionConfig = new ProtocolInstrumentConfigOption();
-		//TODO: set as the defaultOption on this ProtocolInstrumentConfig
-		instrOptionConfig.setProjName(visitConfig.getProjName());
-		instrumentConfig.addOption(instrOptionConfig);
+		// an option will be automatically created as part of ProtocolInstrumentConfig creation, so 
+		// instantiate the option here. the view will access this option directly for input and binding
+		ProtocolInstrumentConfigOption instrConfigOption = new ProtocolInstrumentConfigOption();
+		instrConfigOption.setProjName(visitConfig.getProjName());
+		// default the option to be a default (there can be any number of default options, though typically 
+		// the configuration would have one default option (at any given time as defined by effDate and expDate
+		// on the option) along with possibly one or more alternate options
+		instrConfigOption.setDefaultOption(Boolean.TRUE);
+		instrumentConfig.addOption(instrConfigOption);
 		
 		return command;
 	}
