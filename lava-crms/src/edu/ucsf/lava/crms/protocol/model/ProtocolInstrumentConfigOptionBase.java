@@ -1,7 +1,5 @@
 package edu.ucsf.lava.crms.protocol.model;
 
-import edu.ucsf.lava.core.model.EntityBase;
-import edu.ucsf.lava.core.model.EntityManager;
 
 /**
  * @author ctoohey
@@ -9,7 +7,7 @@ import edu.ucsf.lava.core.model.EntityManager;
  *
  */
 
-public abstract class ProtocolInstrumentConfigOptionBase extends ProtocolConfigOptionBase {
+public abstract class ProtocolInstrumentConfigOptionBase extends ProtocolNodeConfigOption {
 	public ProtocolInstrumentConfigOptionBase(){
 		super();
 		this.addPropertyToAuditIgnoreList("protocolInstrumentConfigBase");
