@@ -16,8 +16,8 @@ import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.protocol.model.ProtocolConfig;
-import edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolConfigTracking;
+import edu.ucsf.lava.crms.protocol.model.ProtocolTimepointConfig;
 import edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfig;
 
 public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
@@ -52,12 +52,19 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 	
 	protected Object initializeNewCommandInstance(RequestContext context, Object command){
 		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
-		ProtocolTimepointConfig protocolTimepoint = (ProtocolTimepointConfig) command;
+		ProtocolTimepointConfig protocolTimepointConfig = (ProtocolTimepointConfig) command;
 		
 		ProtocolConfig protocolConfig = (ProtocolConfig) ProtocolConfig.MANAGER.getOne(EntityBase.newFilterInstance().addIdDaoEqualityParam(Long.valueOf(context.getFlowScope().getString("param"))));
-		protocolConfig.addProtocolTimepointConfig(protocolTimepoint);
-		protocolTimepoint.setProjName(protocolConfig.getProjName());
-		
+		protocolConfig.addProtocolTimepointConfig(protocolTimepointConfig);
+		protocolTimepointConfig.setProjName(protocolConfig.getProjName());
+
+		// if adding the first timepoint, the most likely settings for the scheduling window offset/size will be
+		// 0 so default them (unless there are multiple visits in the first timepoint, these values do not apply,
+		// but they are required fields)
+		if (protocolTimepointConfig.isFirstProtocolTimepointConfig()) {
+			protocolTimepointConfig.setSchedWinOffset((short)0);
+			protocolTimepointConfig.setSchedWinSize((short)0);
+		}
 		return command;
 	}
 
@@ -72,7 +79,7 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 		
 		// list for schedWinRelativeTimepoint
 		// a timepoint config has a scheduling window which can be relative to any other timepoint, except for the first
-		// timepoint, which can is not relative to anything. generate a list of all of the timepoint configs belonging to the 
+		// timepoint, which is not relative to anything. generate a list of all of the timepoint configs belonging to the 
 		// same protocol config as this timepoint config (excluding this timepoint config, since a timepoint scheduling window 
 		// would not relative to itself) 
 		Map schedWinRelativeTimepointList = listManager.getDynamicList(getCurrentUser(request),"protocol.schedWinRelativeTimepoint", 
@@ -93,42 +100,9 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 		model.put("dynamicLists", dynamicLists);
 		
 		// need to flag the view as to whether this is marked as the first ProtocolTimepointConfig
-		model.put("firstTimepointFlag", isFirstProtocolTimepointConfig(timepointConfig, flowMode));
+		model.put("firstTimepointFlag", timepointConfig.isFirstProtocolTimepointConfig());
 		
 		return super.addReferenceData(context, command, errors, model);
-	}
-
-	/**
-	 * Helper method to determine if the ProtocolTimepointConfig is marked as the first timepoint config.
-	 * 
-	 * @param timepointConfig
-	 * @param flowMode
-	 * @return
-	 */
-	protected Boolean isFirstProtocolTimepointConfig(ProtocolTimepointConfig timepointConfig, String flowMode) {
-		// if adding, the new ProtocolTimepointConfig does not have an id yet since hasn't been saved, so can
-		// not set it as the first timepoint config on ProtocolConfig, so can not just call 
-		// isFirstProtocolTimepointConfig here
-		
-		// if there is just one ProtocolTimepointConfig in ProtocolConfig's collection, return true, as the
-		// business rule is if there is only one timepoint config it must be marked as the first (this
-		// covers whether editing existing or adding new, because if adding, the ProtocolTimepointConfig has 
-		// already been added to the ProtocolConfig collection in initializeNewCommandInstance)
-		if (timepointConfig.getProtocolConfig().getProtocolTimepointConfigs().size() == 1) {
-			return Boolean.TRUE;
-		}
-		// if there is more than one, then if adding, this can not be marked as the first timepoint yet since
-		// it does not exist yet (has not been saved). if editing existing, then call the standard method
-		// to determine if this is the first (it is guaranteed that one will be marked as first as long as
-		// there is one or more in existence)
-		else {
-			if (flowMode.equals("add")) {
-				return Boolean.FALSE;
-			}
-			else {
-				return timepointConfig.isFirstProtocolTimepointConfig();
-			}
-		}
 	}
 
 
@@ -147,7 +121,7 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 		// timepoint, which is in turn used to order the timepoints (also, in determining completion status need to 
 		// compare the current time relative to a time window, which is either the scheduling window or a collection
 		// window, and collection window is optional and may not be defined, so make sure that scheduling window is defined)
-		if (!isFirstProtocolTimepointConfig(timepointConfig, flowMode)) { 
+		if (!timepointConfig.isFirstProtocolTimepointConfig()) { 
 			if (timepointConfig.getSchedWinRelativeTimepointId() == null) {
 				LavaComponentFormAction.createRequiredFieldError(errors, "schedWinRelativeTimepointId", getDefaultObjectName());
 			}
@@ -168,9 +142,12 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 			}
 		}
 		
-		if (timepointConfig.getRepeating()) {
+		if (timepointConfig.getRepeating() != null && timepointConfig.getRepeating()) {
 			if (timepointConfig.getRepeatInterval() == null) {
 				LavaComponentFormAction.createRequiredFieldError(errors, "repeatInterval", getDefaultObjectName());
+			}
+			if (timepointConfig.getRepeatInterval() == null) {
+				LavaComponentFormAction.createRequiredFieldError(errors, "repeatIntervalUnits", getDefaultObjectName());
 			}
 			if (timepointConfig.getRepeatInitialNum() == null) {
 				LavaComponentFormAction.createRequiredFieldError(errors, "repeatInitialNum", getDefaultObjectName());
@@ -253,14 +230,10 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 	protected Event doConfirmDelete(RequestContext context, Object command, BindingResult errors) throws Exception{
 		Map components = ((ComponentCommand)command).getComponents();
 		
-//TODO: if mapping firstTimepoint as an association in ProtocolConfig works, then it is possible that
-// on deleting a ProtocolTimepointConfig will take care of clearing that association before the delete
-// need to check this.
-		
-// but if mapping as association does not work (because mapping an association to a collection item of the same entity)
-// then definitely on deleting have to explictly set the ProtocolConfig firstTimepointId to null here to clear it		
-		ProtocolTimepointConfig tp = (ProtocolTimepointConfig)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
-		
+		ProtocolTimepointConfig tp = (ProtocolTimepointConfig)((ComponentCommand)command).getComponents().get(getDefaultObjectName());		
+		if (tp.isFirstProtocolTimepointConfig()) {
+			tp.getProtocolConfig().setFirstProtocolTimepointConfig(null);
+		}
 		
 		return super.deleteHandledObjects(context, components, errors);
 	}	
