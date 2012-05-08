@@ -8,17 +8,6 @@
 
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolTimepoint" table="prot_tp" extends="edu.ucsf.lava.crms.protocol.model.ProtocolTimepointBase" select-before-update="true">
 	<key column="node_id"/>
-	<property name="schedAnchorDate" column="sched_anchor_date" type="date"/>
-	<property name="schedWinStart" column="sched_win_start" type="date"/>
-	<property name="schedWinEnd" column="sched_win_end" type="date"/>
-	<property name="collectAnchorDate" column="collect_anchor_date" type="date"/>
-	<property name="collectWinStart" column="collect_win_start" type="date"/>
-	<property name="collectWinEnd" column="collect_win_end" type="date"/>
-<!-- moved to protocolInclude.xml	
-	<property name="schedWinStatus" column="sched_win_status" type="string" length="25"/>
-	<property name="schedWinReason" column="sched_win_reason" type="string" length="25"/>
-	<property name="schedWinNote" column="sched_win_note" type="string" length="100"/>
- -->	
 	<many-to-one name="primaryProtocolVisit" column="pri_prot_visit_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolVisit" lazy="false"/>
 </joined-subclass>
 
