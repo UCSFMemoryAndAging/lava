@@ -53,6 +53,18 @@
 			<value>lava.crms.assessment.uds.projectUdsInstruments</value>
 			<value>lava.crms.assessment.uds.patientUdsSubmissions</value>
 			<value>lava.crms.assessment.uds.projectUdsSubmissions</value>
+			<value>lava.crms.protocol.assignment.protocol</value>
+			<value>lava.crms.protocol.assignment.protocolTimepoint</value>
+			<value>lava.crms.protocol.assignment.protocolVisit</value>
+			<value>lava.crms.protocol.assignment.protocolInstrument</value>
+			<value>lava.crms.protocol.scheduling.projectSchedulingStatus</value>
+			<value>lava.crms.protocol.scheduling.patientSchedulingStatus</value>
+			<value>lava.crms.protocol.collection.projectCollectionStatus</value>
+			<value>lava.crms.protocol.collection.patientCollectionStatus</value>
+			<value>lava.crms.protocol.completion.projectCompletionStatus</value>
+			<value>lava.crms.protocol.completion.patientCompletionStatus</value>
+			<value>lava.crms.protocol.deviation.projectDeviationStatus</value>
+			<value>lava.crms.protocol.deviation.patientDeviationStatus</value>
 		</list></property>
 	</bean>
 	
