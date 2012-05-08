@@ -21,7 +21,7 @@
 		<many-to-one name="config" column="config_node_id" class="edu.ucsf.lava.crms.protocol.model.ProtocolConfigTracking"/>	
 	
 		<!-- bidirectional. the parent is mapped above. -->
-		<set name="children" table="prot_node" inverse="true" cascade="all,delete-orphan" order-by="list_order">
+		<set name="children" table="prot_node" inverse="true" cascade="all,delete-orphan" order-by="conf_sched_win_days_from_start,repeat_num">
 			<key column="parent_id"/>
 			<one-to-many class="edu.ucsf.lava.crms.protocol.model.ProtocolTracking"/> 
 		</set>
@@ -29,7 +29,7 @@
 		&protocolFilterInclude;
 		
 	</class>		
-	
+
 	<query name="protocol.protocolTree"><![CDATA[
 		from edu.ucsf.lava.crms.protocol.model.ProtocolTracking protocol
 		left join fetch protocol.config
@@ -58,8 +58,8 @@
 		left join fetch visit.children instrument
 		left join fetch instrument.config
 		where visit.id = :visitId
-	]]></query>	
-
+	]]></query>
+	
 </hibernate-mapping>
 
 
