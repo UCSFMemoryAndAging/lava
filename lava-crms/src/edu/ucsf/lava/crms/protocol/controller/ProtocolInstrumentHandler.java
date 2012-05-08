@@ -209,7 +209,6 @@ public class ProtocolInstrumentHandler extends CrmsEntityComponentHandler {
 		Protocol protocolTree = (Protocol) EntityBase.MANAGER.findOneByNamedQuery("protocol.completeProtocolTree", filter);
 		protocolTree.calculate();
 		protocolTree.updateStatus();
-		// save from the Protocol down and hen return false so will not re-save from ProtocolVisit on down
 		protocolTree.save();
 		
 		return returnEvent;
