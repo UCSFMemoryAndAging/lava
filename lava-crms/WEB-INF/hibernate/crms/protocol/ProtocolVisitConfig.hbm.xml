@@ -8,8 +8,15 @@
 
 <joined-subclass name="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfig" table="prot_visit_config" extends="edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfigBase" select-before-update="true">
 	<key column="node_id"/> 
-	<property name="optional" column="optional" type="boolean"/>
 	<property name="category" column="category" type="string" length="25"/>
 </joined-subclass>
-	
+
+	<query name="list.protocol.allVisitLabels"><![CDATA[
+	   SELECT new edu.ucsf.lava.core.list.model.LabelValueBean(visitConfig.label, visitConfig.label)
+			from edu.ucsf.lava.crms.protocol.model.ProtocolVisitConfig as visitConfig
+			where visitConfig.label is not null
+			group by visitConfig.label
+			order by visitConfig.label
+	]]></query>	
+
 </hibernate-mapping>
