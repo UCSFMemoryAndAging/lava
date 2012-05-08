@@ -22,15 +22,12 @@
 <tags:createField property="id" component="${component}"/>
 </c:if>
 <tags:createField property="label" component="${component}"/>
-<tags:createField property="notes" component="${component}"/>
-
 <tags:createField property="defaultOption" component="${component}"/>
 <tags:createField property="visitTypeProjName" component="${component}"/>
 <tags:createField property="visitType" component="${component}"/>
-
 <tags:createField property="effDate" component="${component}"/>
 <tags:createField property="expDate" component="${component}"/>
-
+<tags:createField property="notes" component="${component}"/>
 </page:applyDecorator>
 
 <c:if test="${componentMode != 'vw'}">
