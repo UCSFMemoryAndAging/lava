@@ -10,7 +10,7 @@
   <page:param name="component">${component}</page:param>
   <page:param name="focusField">label</page:param>  
   <page:param name="pageHeadingArgs"><tags:componentProperty component="${component}" property="label"/></page:param>
-  <page:param name="quicklinks">sched,primary,collect,repeat</page:param>
+  <page:param name="quicklinks">sched,primary,collect,repeat${componentView == 'view' ? ',visits' : ''}</page:param>
 
 <page:applyDecorator name="component.entity.content">
   <page:param name="component">${component}</page:param>
@@ -23,10 +23,16 @@
 <tags:createField property="id" component="${component}" entityType="protocolTimepointConfig"/>
 </c:if>
 <tags:createField property="label" component="${component}" entityType="protocolTimepointConfig"/>
-<tags:createField property="optional" component="${component}" entityType="protocolTimepointConfig"/>
+<tags:createField property="duration" component="${component}" entityType="protocolTimepointConfig"/>
+<tags:createField property="optional" component="${component}" entityType="protocolTimepointConfig" labelAlignment="right" labelStyle="checkboxRight"/>
 <tags:createField property="effDate" component="${component}" entityType="protocolTimepointConfig"/>
 <tags:createField property="expDate" component="${component}" entityType="protocolTimepointConfig"/>
 <tags:createField property="notes" component="${component}" entityType="protocolTimepointConfig"/>
+<%-- for debugging only
+<spring:bind path="command.components['${component}'].schedWinDaysFromStart">
+debug: days from protocol start=${status.value}</br>  
+</spring:bind>
+--%>  
 </page:applyDecorator>
 
 <page:applyDecorator name="component.entity.section">
@@ -39,7 +45,10 @@
 	</c:when>
 	<c:otherwise>
 		<tags:createField property="schedWinRelativeTimepointId" component="${component}"/>
+		<tags:outputText textKey="protocol.timepointSchedWinRelative" inline="false" styleClass="italic"/>
 		<tags:createField property="schedWinRelativeAmount,schedWinRelativeUnits" component="${component}"/>
+		<tags:createField property="schedWinRelativeWeekend" component="${component}" labelAlignment="right" labelStyle="checkboxRight"/>
+		<tags:createField property="schedWinRelativeHoliday" component="${component}" labelAlignment="right" labelStyle="checkboxRight"/>
 	</c:otherwise>
 </c:choose>
 <c:if test="${firstTimepointFlag}">
@@ -49,16 +58,10 @@
 <tags:createField property="schedWinOffset" component="${component}"/>
 <tags:outputText textKey="protocol.timepointSchedWinSize" inline="false" styleClass="italic"/>
 <tags:createField property="schedWinSize" component="${component}"/>
-<tags:outputText textKey="protocol.timepointDuration" inline="false" styleClass="italic"/>
-<tags:createField property="duration" component="${component}"/>
 <%--comment out until implemented (add to skip logic too)
 <tags:outputText textKey="protocol.timepointSchedAuto" inline="false" styleClass="italic"/>
 <tags:createField property="schedAutomatic" component="${component}"/>
  --%>
-<%-- for debugging only --%>
-<spring:bind path="command.components['${component}'].schedWinDaysFromStart">
-days from protocol start=${status.value}</br>  
-</spring:bind>
 </page:applyDecorator>
 
 <page:applyDecorator name="component.entity.section">
@@ -85,7 +88,10 @@ days from protocol start=${status.value}</br>
   <page:param name="sectionId">repeat</page:param>
   <page:param name="sectionNameKey">${component}.repeat.section</page:param>
 <tags:createField property="repeating" component="${component}" labelAlignment="right" labelStyle="checkboxRight"/>
-<tags:createField property="repeatInterval" component="${component}"/>
+<tags:createField property="repeatType" component="${component}"/>
+<tags:createField property="repeatInterval,repeatIntervalUnits" component="${component}"/>
+<tags:createField property="repeatIntervalWeekend" component="${component}" labelAlignment="right" labelStyle="checkboxRight"/>
+<tags:createField property="repeatIntervalHoliday" component="${component}" labelAlignment="right" labelStyle="checkboxRight"/>
 <tags:outputText textKey="protocol.timepointRepeatNum" inline="false" styleClass="italic"/>
 <tags:createField property="repeatInitialNum" component="${component}"/>
 <tags:createField property="repeatCreateAutomatic" component="${component}"/>
@@ -105,11 +111,11 @@ days from protocol start=${status.value}</br>
 <c:set var="component" value="timepointConfigTree"/>
 
 <page:applyDecorator name="component.entity.section">
-  <page:param name="sectionId">addVisit</page:param>
-  <page:param name="sectionNameKey">protocolTimepointConfig.addVisit.section</page:param>
+  <page:param name="sectionId">visits</page:param>
+  <page:param name="sectionNameKey">protocolTimepointConfig.visits.section</page:param>
   
 <div class="verticalSpace10">&nbsp;</div>
-<tags:actionURLButton buttonText="Add Visit" actionId="lava.crms.protocol.setup.protocolVisitConfig" eventId="protocolVisitConfig__add" component="${component}" parameters="param,${timepointId}" locked="${currentPatient.locked}"/>
+<tags:actionURLButton buttonText="Add Visit Config" actionId="lava.crms.protocol.setup.protocolVisitConfig" eventId="protocolVisitConfig__add" component="${component}" parameters="param,${timepointId}" locked="${currentPatient.locked}"/>
 <div class="verticalSpace10">&nbsp;</div>
 
 <tags:tableForm>  
@@ -118,9 +124,9 @@ days from protocol start=${status.value}</br>
 	<tags:listColumnHeader label="Action" width="10%"/>
 	<tags:listColumnHeader label="Protocol Component" width="26%"/>
 	<tags:listColumnHeader label="Type" width="16%" />
+	<tags:listColumnHeader label="Summary" width="30%" />
 	<tags:listColumnHeader label="Eff. Date" width="9%" />
 	<tags:listColumnHeader label="Exp. Date" width="9%" />
-	<tags:listColumnHeader label="Notes" width="30%" />
 </tags:listRow>
 
 <c:forEach items="${command.components[component].children}" var="protocolVisitConfig" varStatus="visitIterator">
@@ -128,22 +134,19 @@ days from protocol start=${status.value}</br>
 	<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolVisitConfig" component="protocolVisitConfig" idParam="${protocolVisitConfig.id}" locked="${item.locked}"/></tags:listCell>
 	<tags:listCell><tags:createField property="children[${visitIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell>Visit</tags:listCell>
+	<tags:listCell><tags:createField property="children[${visitIterator.index}].summary" component="${component}" metadataName="protocolConfig.summary" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="children[${visitIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 	<tags:listCell><tags:createField property="children[${visitIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
-	<tags:listCell><tags:createField property="children[${visitIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
 </tags:listRow>	
 
-	<c:forEach items="${protocolVisit.options}" var="protocolVisitConfigOption" varStatus="visitOptionIterator">
+	<c:forEach items="${protocolVisitConfig.options}" var="protocolVisitConfigOption" varStatus="visitOptionIterator">
 	<tags:listRow>
 		<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolVisitConfigOption" component="protocolVisitConfigOption" idParam="${protocolVisitConfigOption.id}" locked="${item.locked}"/></tags:listCell>
-		<tags:listCell>
-			<c:forEach begin="1" end="3">&nbsp;</c:forEach>
-			<tags:createField property="children[${visitIterator.index}].options[${visitOptionIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
-		</tags:listCell>
+		<tags:listCell>&nbsp;</tags:listCell>
 		<tags:listCell>Visit Option</tags:listCell>
+		<tags:listCell><tags:createField property="children[${visitIterator.index}].options[${visitOptionIterator.index}].summary" component="${component}" metadataName="protocolConfig.summary" mode="${fieldMode}"/></tags:listCell>
 		<tags:listCell><tags:createField property="children[${visitIterator.index}].options[${visitOptionIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 		<tags:listCell><tags:createField property="children[${visitIterator.index}].options[${visitOptionIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
-		<tags:listCell><tags:createField property="children[${visitIterator.index}].options[${visitOptionIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
 	</tags:listRow>
 	</c:forEach>
 	
@@ -155,22 +158,19 @@ days from protocol start=${status.value}</br>
 				<tags:createField property="children[${visitIterator.index}].children[${instrumentIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
 			</tags:listCell>
 			<tags:listCell>Instrument</tags:listCell>
+			<tags:listCell><tags:createField property="children[${visitIterator.index}].children[${instrumentIterator.index}].summary" component="${component}" metadataName="protocolConfig.summary" mode="${fieldMode}"/></tags:listCell>
 			<tags:listCell><tags:createField property="children[${visitIterator.index}].children[${instrumentIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 			<tags:listCell><tags:createField property="children[${visitIterator.index}].children[${instrumentIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
-			<tags:listCell><tags:createField property="children[${visitIterator.index}].children[${instrumentIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
 		</tags:listRow>
 		
 				<c:forEach items="${protocolInstrumentConfig.options}" var="protocolInstrumentConfigOption" varStatus="instrumentOptionIterator">
 				<tags:listRow>
 					<tags:listCell><tags:listActionURLStandardButtons actionId="lava.crms.protocol.setup.protocolInstrumentConfigOption" component="protocolInstrumentConfigOption" idParam="${protocolInstrumentConfigOption.id}" locked="${item.locked}"/></tags:listCell>
-					<tags:listCell>
-						<c:forEach begin="1" end="11">&nbsp;</c:forEach>
-						<tags:createField property="children[${visitIterator.index}].children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].label" component="${component}"  metadataName="protocolConfig.label" mode="${fieldMode}"/>
-					</tags:listCell>
+					<tags:listCell>&nbsp;</tags:listCell>
 					<tags:listCell>Instrument Option</tags:listCell>
+					<tags:listCell><tags:createField property="children[${visitIterator.index}].children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].summary" component="${component}" metadataName="protocolConfig.summary" mode="${fieldMode}"/></tags:listCell>
 					<tags:listCell><tags:createField property="children[${visitIterator.index}].children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].effDate" component="${component}"  metadataName="protocolConfig.effDate" mode="${fieldMode}"/></tags:listCell>
 					<tags:listCell><tags:createField property="children[${visitIterator.index}].children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].expDate" component="${component}" metadataName="protocolConfig.expDate" mode="${fieldMode}"/></tags:listCell>
-					<tags:listCell><tags:createField property="children[${visitIterator.index}].children[${instrumentIterator.index}].options[${instrumentOptionIterator.index}].notes" component="${component}" metadataName="protocolConfig.notes" mode="${fieldMode}"/></tags:listCell>
 				</tags:listRow>
 				</c:forEach>
 		
@@ -192,8 +192,8 @@ days from protocol start=${status.value}</br>
 
 <ui:formGuide simulateEvents="true">
 	<ui:observeForNull elementIds="repeating" component="${component}"/>
-	<ui:disable elementIds="repeatInterval,repeatInitialNum,repeatCreateAutomatic" component="${component}"/>
-	<ui:setValue elementIds="repeatInterval,repeatInitialNum,repeatCreateAutomatic" component="${component}" value=""/>
+	<ui:disable elementIds="repeatType,repeatInterval,repeatIntervalUnits,repeatInitialNum,repeatCreateAutomatic" component="${component}"/>
+	<ui:setValue elementIds="repeatType,repeatInterval,repeatIntervalUnits,repeatInitialNum,repeatCreateAutomatic" component="${component}" value=""/>
 </ui:formGuide>
 
 </c:if>
