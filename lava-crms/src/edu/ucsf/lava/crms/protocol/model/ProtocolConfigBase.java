@@ -1,11 +1,7 @@
 package edu.ucsf.lava.crms.protocol.model;
 
-import java.util.HashSet;
-import java.util.TreeSet;
 import java.util.Set;
-
-import edu.ucsf.lava.core.model.EntityBase;
-import edu.ucsf.lava.core.model.EntityManager;
+import java.util.TreeSet;
 
 /**
  * 
@@ -20,7 +16,7 @@ public abstract class ProtocolConfigBase extends ProtocolNodeConfig {
 		this.addPropertyToAuditIgnoreList("protocolTimepointConfigsBase");
 	}
 	
-	public Set<? extends ProtocolTimepointConfigBase> protocolTimepointConfigsBase = new TreeSet<ProtocolTimepointConfigBase>();
+	private Set<? extends ProtocolTimepointConfigBase> protocolTimepointConfigsBase = new TreeSet<ProtocolTimepointConfigBase>();
 	
 	public Set<? extends ProtocolTimepointConfigBase> getProtocolTimepointConfigsBase() {
 		return protocolTimepointConfigsBase;
