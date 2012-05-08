@@ -5,9 +5,10 @@
 	
 <timestamp name="modified" column="modified"/>
 
-<property name="listOrder" column="list_order" type="short"/>
+<property name="nodeType" column="node_type" type="string" length="25" not-null="true"/>
 <many-to-one name="patient" column="PIDN" class="edu.ucsf.lava.crms.people.model.Patient" not-null="true"/>
 <property name="projName" column="ProjName" type="string" length="75" not-null="true"/>
+<property name="repeatNum" column="repeat_num" type="short"/>
 <property name="strategy" column="strategy" type="short"/>
 <property name="currStatus" column="curr_status" type="string" length="25"/>
 <property name="currReason" column="curr_reason" type="string" length="25"/>
@@ -15,15 +16,38 @@
 <property name="compStatus" column="comp_status" type="string" length="25"/>
 <property name="compReason" column="comp_reason" type="string" length="25"/>
 <property name="compNote" column="comp_note" type="string" length="100"/>
+<property name="compStatusOverride" column="comp_status_ovr" type="boolean"/>
+<property name="compStatusComputed" column="comp_status_computed" type="string" length="25"/>
 <property name="compBy" column="comp_by" type="string" length="25"/>
 <property name="compDate" column="comp_date" type="date"/>
 <property name="schedWinStatus" column="sched_win_status" type="string" length="25"/>
 <property name="schedWinReason" column="sched_win_reason" type="string" length="25"/>
 <property name="schedWinNote" column="sched_win_note" type="string" length="100"/>
+<property name="confSchedWinDaysFromStart" column="conf_sched_win_days_from_start" type="short"/>
+<property name="schedWinAnchorDate" column="sched_win_anchor_date" type="date"/>
+<property name="schedWinStart" column="sched_win_start" type="date"/>
+<property name="schedWinEnd" column="sched_win_end" type="date"/>
+<property name="idealSchedWinAnchorDate" column="ideal_sched_win_anchor_date" type="date"/>
+<property name="idealSchedWinStart" column="ideal_sched_win_start" type="date"/>
+<property name="idealSchedWinEnd" column="ideal_sched_win_end" type="date"/>
+<many-to-one name="visit" column="VID" class="edu.ucsf.lava.crms.scheduling.model.Visit" lazy="false"/>	
 <property name="collectWinStatus" column="collect_win_status" type="string" length="25"/>
 <property name="collectWinReason" column="collect_win_reason" type="string" length="25"/>
 <property name="collectWinNote" column="collect_win_note" type="string" length="100"/>
-<property name="assignDescrip" column="assign_desc" type="string" length="100"/>
+<property name="collectWinAnchorDate" column="collect_win_anchor_date" type="date"/>
+<property name="collectWinStart" column="collect_win_start" type="date"/>
+<property name="collectWinEnd" column="collect_win_end" type="date"/>
+<property name="idealCollectWinAnchorDate" column="ideal_collect_win_anchor_date" type="date"/>
+<property name="idealCollectWinStart" column="ideal_collect_win_start" type="date"/>
+<property name="idealCollectWinEnd" column="ideal_collect_win_end" type="date"/>
+<property name="instrCollectWinAnchorDate" column="instr_collect_win_anchor_date" type="date"/>
+<property name="instrCollectWinStart" column="instr_collect_win_start" type="date"/>
+<property name="instrCollectWinEnd" column="instr_collect_win_end" type="date"/>
+<property name="idealInstrCollectWinAnchorDate" column="ideal_instr_collect_win_anchor_date" type="date"/>
+<property name="idealInstrCollectWinStart" column="ideal_instr_collect_win_start" type="date"/>
+<property name="idealInstrCollectWinEnd" column="ideal_instr_collect_win_end" type="date"/>
+<many-to-one name="instrument" column="InstrID" class="edu.ucsf.lava.crms.assessment.model.Instrument" lazy="false"/>
+<property name="summary" column="summary" type="string" length="100"/>
 <property name="notes" column="notes" type="string" length="255"/>
 
  	
