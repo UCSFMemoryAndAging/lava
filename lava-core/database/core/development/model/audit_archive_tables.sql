@@ -7,6 +7,9 @@
 -- of these history tables on the production database will not be used and can be 
 -- dropped.  
 
+-- also see the move_audit_logs.sql script in the util folder 
+
+
 drop table if exists audit_entity_history;
 create table audit_entity_history (
 audit_entity_id int not null,
