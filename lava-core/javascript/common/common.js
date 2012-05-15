@@ -8,7 +8,7 @@
 
 // the submitted flag prevents prompting user to confirm exit when leaving page via an 
 // action button. this only applies to modal pages, which set the window.onbeforeunload 
-// event handler which checks this flag (this event handler is set in editable.js which
+// event handler which checks this flag (this event handler is set in modal.js which
 // is only included by the modal decorator)
 var submitted = false;
 
