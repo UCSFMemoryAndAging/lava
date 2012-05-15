@@ -24,7 +24,9 @@
 </c:if>
 <tags:createField property="label" component="${component}" entityType="protocolTimepointConfig"/>
 <tags:createField property="duration" component="${component}" entityType="protocolTimepointConfig"/>
-<tags:createField property="optional" component="${component}" entityType="protocolTimepointConfig" labelAlignment="right" labelStyle="checkboxRight"/>
+<c:if test="${!firstTimepointFlag}">
+	<tags:createField property="optional" component="${component}" entityType="protocolTimepointConfig" labelAlignment="right" labelStyle="checkboxRight"/>
+</c:if>	
 <tags:createField property="effDate" component="${component}" entityType="protocolTimepointConfig"/>
 <tags:createField property="expDate" component="${component}" entityType="protocolTimepointConfig"/>
 <tags:createField property="notes" component="${component}" entityType="protocolTimepointConfig"/>
