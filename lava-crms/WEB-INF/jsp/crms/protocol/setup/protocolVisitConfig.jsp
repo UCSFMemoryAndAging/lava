@@ -23,7 +23,9 @@
 <c:if test="${primaryVisitConfigFlag}">
 	<tags:outputText textKey="protocol.visitPrimaryVisitConfig" inline="false" styleClass="bold"/>
 </c:if>
-<tags:createField property="optional" component="${component}"/>
+<c:if test="${!primaryVisitConfigFlag}">
+	<tags:createField property="optional" component="${component}"/>
+</c:if>	
 <tags:createField property="notes" component="${component}"/>
 <tags:createField property="effDate" component="${component}"/>
 <tags:createField property="expDate" component="${component}"/>
