@@ -26,6 +26,7 @@ public class ProtocolVisitConfig extends ProtocolVisitConfigBase {
 	public ProtocolVisitConfig(){
 		super();
 		this.setAuditEntityType("ProtocolVisitConfig");	
+		this.setOptional(Boolean.FALSE);
 	}
 	
 	public Object[] getAssociationsToInitialize(String method) {

@@ -11,6 +11,7 @@ public class ProtocolInstrumentConfig extends ProtocolInstrumentConfigBase {
 	public ProtocolInstrumentConfig(){
 		super();
 		this.setAuditEntityType("ProtocolInstrumentConfig");		
+		this.setOptional(Boolean.FALSE);
 	}
 	
 	public Object[] getAssociationsToInitialize(String method) {

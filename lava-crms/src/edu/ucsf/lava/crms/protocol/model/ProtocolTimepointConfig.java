@@ -23,6 +23,7 @@ public class ProtocolTimepointConfig extends ProtocolTimepointConfigBase {
 		super();
 		this.setAuditEntityType("ProtocolTimepointConfig");
 		// defaults
+		this.setOptional(Boolean.FALSE);
 		this.setDuration((short)1);
 		this.setSchedWinRelativeUnits(SCHED_WIN_UNITS_DAYS);
 		this.setSchedWinRelativeWeekend(Boolean.FALSE); // do not count weekend days
