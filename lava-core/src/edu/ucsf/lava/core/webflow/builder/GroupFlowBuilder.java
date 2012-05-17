@@ -107,7 +107,7 @@ public class GroupFlowBuilder extends BaseFlowBuilder {
     protected void buildSubFlowStates(){
     	// pass group to subflows in case they need it
 		subflowInputOutputMapper.addInputMapping(mapping().source("flowScope."+GROUP_MAPPING).target(GROUP_MAPPING).value());
-		super.buildSubFlowReturnStates();
+		super.buildSubFlowStates();
     }
 
     // override because if subflow is successful, transition to "iterate", and if subflow is cancelled, cancel 
