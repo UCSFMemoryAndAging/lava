@@ -37,7 +37,7 @@ so that the secondary group handler can create the group --%>
 		<%-- edit event represents "enter", "enterReview", "upload", etc. depending upon the instrument --%>
 		<tags:eventActionButton buttonImage="edit" component="${groupComponent}" action="edit" pageName="${pageName}" locked="${locked}"/>
 		<tags:eventActionButton buttonImage="status" component="${groupComponent}" action="status" pageName="${pageName}"/>
-		<tags:eventActionButton buttonImage="delete" component="${groupComponent}" action="delete" pageName="${pageName}" locked="${locked}"/>
+		<tags:eventActionButton buttonImage="delete" component="${groupComponent}" action="bulkDelete" pageName="${pageName}" locked="${locked}"/>
 	</tags:listCell> 
 	<tags:listCell colspan="5">
 		<span class="bold" id="numSelectedParent">&nbsp;</span> ${selectedCountMsg}&nbsp;&nbsp;
