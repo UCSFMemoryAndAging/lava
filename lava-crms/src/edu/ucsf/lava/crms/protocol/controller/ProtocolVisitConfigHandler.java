@@ -161,4 +161,16 @@ public class ProtocolVisitConfigHandler extends CrmsEntityComponentHandler {
 		return returnEvent;
 	}
 
+	protected Event doConfirmDelete(RequestContext context, Object command, BindingResult errors) throws Exception{
+		Map components = ((ComponentCommand)command).getComponents();
+		
+		ProtocolVisitConfig visitConfig = (ProtocolVisitConfig)((ComponentCommand)command).getComponents().get(getDefaultObjectName());		
+		if (visitConfig.isPrimaryProtocolVisitConfig()) {
+			visitConfig.getProtocolTimepointConfig().setPrimaryProtocolVisitConfig(null);
+			visitConfig.getProtocolTimepointConfig().save();
+		}
+		
+		return super.deleteHandledObjects(context, components, errors);
+	}	
+	
 }
