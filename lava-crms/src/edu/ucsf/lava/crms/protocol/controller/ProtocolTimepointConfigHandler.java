@@ -233,6 +233,7 @@ public class ProtocolTimepointConfigHandler extends CrmsEntityComponentHandler {
 		ProtocolTimepointConfig tp = (ProtocolTimepointConfig)((ComponentCommand)command).getComponents().get(getDefaultObjectName());		
 		if (tp.isFirstProtocolTimepointConfig()) {
 			tp.getProtocolConfig().setFirstProtocolTimepointConfig(null);
+			tp.getProtocolConfig().save();
 		}
 		
 		return super.deleteHandledObjects(context, components, errors);
