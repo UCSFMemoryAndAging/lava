@@ -18,6 +18,8 @@ DROP TABLE IF EXISTS prot_visit_config;
 DROP TABLE IF EXISTS prot_tp_config;
 DROP TABLE IF EXISTS prot_protocol_config;
 DROP TABLE IF EXISTS prot_node_config_option;
+-- old table that might still be around
+DROP TABLE IF EXISTS prot_config_option;
 DROP TABLE IF EXISTS prot_node_config;
 
 -- Protocol Config tables
