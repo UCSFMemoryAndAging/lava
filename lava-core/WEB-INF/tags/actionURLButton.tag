@@ -44,7 +44,9 @@
 <a href="<tags:actionURL actionId="${actionId}" flowExecutionKey="${flowExecutionKey}" eventId="${eventId}" idParam="${empty idParam? '':idParam}" parameters="${empty parameters? '':parameters}"/>" onClick="javascript:${javascript}" class="${(fn:length(buttonText) < 7) ? 'eventButtonSmall ' : (fn:length(buttonText) < 10) ? 'eventButtonMedium ' : (fn:length(buttonText) < 13) ? 'eventButtonLarge ' : 'eventButtonXLarge '} ${empty className ? 'eventButton':className}">${buttonText}</a>
 </c:if>
 
+<c:if test="${not empty javascript}">
 <a href="javascript:void" onClick="javascript:${javascript}document.${pageName}.action='${requestUrl}#${not empty fragment ? fragment : component}';submitForm(document.${pageName}, '${eventId}', '${target}'); return false"}">
+</c:if>
 
 <%-- if eventId is empty, URL starts a new flow, so no flowExecutionKey or eventId parameters (and the
      flowId is derived from the URL itself, where startMode defaults to 'view' if not specified) --%>
