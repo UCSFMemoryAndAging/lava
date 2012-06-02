@@ -299,3 +299,56 @@ ENGINE=InnoDB
 AUTO_INCREMENT = 1
 DEFAULT CHARACTER SET = latin1;
 
+
+
+-- the only modification here is that a column name in the temp_linkdata table was changed from pidn to PIDN
+-- because when it joins to the Visit or InstrumentTracking tables, which also have a PIDN column, both are 
+-- added to the InstrumentGrouping Available Fields and if move all Availalbe Fields en masses to Selected
+-- Fields, exact (i.e. case-sensitive) duplicates are automatically removed, but if one column is pidn and the
+-- other is PIDN then one is not removed and get a subsequent VBA error on the move
+DROP procedure IF EXISTS `lq_after_set_linkdata`;
+DELIMITER $$
+
+DELIMITER $$
+CREATE  PROCEDURE `lq_after_set_linkdata`(user_name varchar(50), host_name varchar(25),method VARCHAR(25))
+BEGIN
+IF method = 'VISIT' THEN
+  UPDATE temp_linkdata1, visit 
+  SET temp_linkdata1.pidn = visit.PIDN, temp_linkdata1.link_date = visit.VDATE, temp_linkdata1.link_type = method 
+  WHERE temp_linkdata1.link_id = visit.VID;
+ELSEIF method = 'INSTRUMENT' THEN
+  UPDATE temp_linkdata1, instrumenttracking 
+  SET temp_linkdata1.pidn = instrumenttracking.PIDN, temp_linkdata1.link_date = instrumenttracking.DCDATE, temp_linkdata1.link_type = method 
+  WHERE temp_linkdata1.link_id = instrumenttracking.InstrID;
+ELSE
+  UPDATE temp_linkdata1 SET link_type = method;
+END IF;
+#remove duplicates
+CREATE TEMPORARY TABLE temp_linkdata (
+  PIDN INTEGER NOT NULL,
+  link_date DATE NOT NULL,
+  link_id INTEGER NOT NULL,
+  link_type VARCHAR(50) NOT NULL);
+
+IF method = 'PIDN_DATE' THEN
+  #the link_id is an arbitrary incrementing integer, so we exclude it from determining if the row is unique  
+  INSERT INTO temp_linkdata(pidn,link_date,link_id,link_type) 
+  SELECT pidn,link_date, min(link_id), link_type FROM temp_linkdata1 GROUP BY pidn,link_date,link_type;
+ELSE
+  #the link_id is driving uniqueness and should be included in the grouping
+  INSERT INTO temp_linkdata(pidn,link_date,link_id,link_type) 
+  SELECT pidn,link_date, link_id, link_type FROM temp_linkdata1 GROUP BY pidn,link_date,link_id,link_type;
+END IF;
+
+
+
+ALTER TABLE temp_linkdata ADD INDEX(pidn,link_date,link_id);
+
+
+END$$
+
+$$
+DELIMITER ;
+
+
+DELIMITER ;
