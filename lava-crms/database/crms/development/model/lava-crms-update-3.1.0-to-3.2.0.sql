@@ -303,7 +303,7 @@ DEFAULT CHARACTER SET = latin1;
 
 -- the only modification here is that a column name in the temp_linkdata table was changed from pidn to PIDN
 -- because when it joins to the Visit or InstrumentTracking tables, which also have a PIDN column, both are 
--- added to the InstrumentGrouping Available Fields and if move all Availalbe Fields en masses to Selected
+-- added to the InstrumentGrouping Available Fields and if user moves all Available Fields en masses to Selected
 -- Fields, exact (i.e. case-sensitive) duplicates are automatically removed, but if one column is pidn and the
 -- other is PIDN then one is not removed and get a subsequent VBA error on the move
 DROP procedure IF EXISTS `lq_after_set_linkdata`;
@@ -350,5 +350,9 @@ END$$
 $$
 DELIMITER ;
 
+
+
+ALTER TABLE `projectunit`
+  ADD UNIQUE INDEX `projectunit_ProjUnitDesc_unique` (`ProjUnitDesc` ASC) ;
 
 DELIMITER ;
