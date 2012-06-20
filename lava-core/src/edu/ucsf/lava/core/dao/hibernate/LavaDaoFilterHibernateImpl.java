@@ -181,7 +181,7 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 		
     //param methods
 		
-	public Map<String,Object> getParams() {
+	public Map getParams() {
 		return params;
 	}
 	public Map getQuickFilters() {
