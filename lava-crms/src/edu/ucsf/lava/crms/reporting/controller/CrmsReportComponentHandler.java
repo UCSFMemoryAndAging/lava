@@ -108,6 +108,9 @@ public class CrmsReportComponentHandler extends ReportComponentHandler {
 		
 		if (this.projectCriteria) {
 			// initialize the projectList filter field to the current project
+			// it is critical that the filter param is intialized as a java.util.List here so that the 
+			// CustomCollectionEditor registered on java.util.List is used when binding the multiple select
+			// box used for projectList
 			List<String> selectedProjList = new ArrayList<String>();
 			if (CrmsSessionUtils.getCurrentProject(sessionManager,request) != null) {
 				selectedProjList.add(CrmsSessionUtils.getCurrentProject(sessionManager,request).getProjUnitDesc());
