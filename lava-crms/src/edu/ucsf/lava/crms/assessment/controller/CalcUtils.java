@@ -30,6 +30,17 @@ public class CalcUtils {
 		return sum;
 	}
 	
+	public static Double mean(Number[] nums) {
+		Double sum = new Double(0);
+		int count = 0;
+		for (int i=0; i<nums.length; i++) {
+			if (nums[i]==null || nums[i].doubleValue()<0) return new Double(ERROR_CODE_CANNOT_CALCULATE);
+			count++;
+			sum += nums[i].doubleValue();
+		}
+		return sum/count;
+	}
+	
 	public static Double mean(Number[] nums, Boolean ignoreNegatives) {
 		Double sum = new Double(0);
 		int count = 0;
