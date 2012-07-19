@@ -237,7 +237,7 @@ function formatDate(date,format) {
 	var i_format=0;
 	var c="";
 	var token="";
-	var y=date.getYear()+"";
+	var y=date.getFullYear()+"";
 	var M=date.getMonth()+1;
 	var d=date.getDate();
 	var E=date.getDay();
@@ -323,7 +323,7 @@ function getDateFromFormat(val,format) {
 	var token2="";
 	var x,y;
 	var now=new Date();
-	var year=now.getYear();
+	var year=now.getFullYear();
 	var month=now.getMonth()+1;
 	var date=1;
 	var hh=0;
@@ -1389,7 +1389,7 @@ function CP_getCalendar() {
 					if (this.displayType=="week-end") {
 						var d = new Date(selected_year,selected_month-1,selected_date,0,0,0,0);
 						d.setDate(d.getDate() + (7-col));
-						selected_year = d.getYear();
+						selected_year = d.getFullYear();
 						if (selected_year < 1000) { selected_year += 1900; }
 						selected_month = d.getMonth()+1;
 						selected_date = d.getDate();
