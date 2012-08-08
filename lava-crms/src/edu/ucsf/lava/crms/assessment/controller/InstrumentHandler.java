@@ -1092,14 +1092,19 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		else {
 			context.getFlowScope().put("mandatoryDoubleEnter", Boolean.FALSE);
 		}
-
-		// since dcStatus is initialized to STATUS_SCHEDULED for new instruments, consider it the
-		// same as null in terms of whether dcStatus can be overwritten		
-		if (instrument.getDcStatus() == null || instrument.getDcStatus().equals(STATUS_SCHEDULED)) {
+		
+		// consider missing/incomplete fields when calculating DCStatus
+		if (instrument.getDcStatus() != null && instrument.getDcStatus().equals(STATUS_PARTIALLY_COMPLETE)) {
+			// if already has partially-complete status then reconsider to ensure still the case
+			if (!instrument.hasMissingOrIncompleteFields()) {
+				instrument.setDcStatus(STATUS_COMPLETE);
+			}
+		} else {
 			if (instrument.hasMissingOrIncompleteFields()) {
 				instrument.setDcStatus(STATUS_PARTIALLY_COMPLETE);
 			}
 		}
+		
 		// infer status values, specific to the "enter" flow 
 		imputeEnterStatusValues(context, instrument);
 		
