@@ -137,6 +137,9 @@ public class DecimalRangeListConfig extends BaseListConfig {
 		
         for(float i = minValue.floatValue(); i <= maxValue.floatValue() + 0.01f;){
 			String value = decimalFormat.format(i);
+			// kludges to make sure no minus sign appears in front of zeros since it interferes with data entry (i.e. can't type 0 to get 0.0 or 0.00
+			if (value.equals("-0.00")) value="0.00";
+			if (value.equals("-0.0")) value="0.0";
 			results.add(new LabelValueBean(value,value,Integer.valueOf(orderIndex++)));
 			if (this.getDefaultFormat().equals(FORMAT_TWO_DECIMAL_PLACES)) {
 				i = i + 0.01f;
