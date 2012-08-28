@@ -542,3 +542,178 @@ $$
 DELIMITER ;
 
 
+
+-- --------------------------------------------------------------------------------
+-- util_CreateLQProc
+-- --------------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS `util_CreateLQProc`;
+
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `util_CreateLQProc`(LQ_Scope varchar(50), LQ_Section varchar(50), LQ_Target varchar(50), Instrument varchar(50), DataSource varchar(50))
+BEGIN
+
+SELECT CONCAT('\n',
+'-- -----------------------------------------------------\n',
+'-- procedure lq_get_', LQ_Section, '_', LQ_Target, '\n',
+'-- -----------------------------------------------------\n\n',
+'DROP PROCEDURE IF EXISTS `lq_get_', LQ_Section, '_', LQ_Target, '`;\n',
+'DELIMITER $$\n\n',
+'CREATE PROCEDURE `lq_get_', LQ_Section, '_', LQ_Target, '`(user_name varchar(50), host_name varchar(50), query_type varchar(25), query_subtype VARCHAR(25), query_days INTEGER)\n',
+'BEGIN\n',
+'CALL lq_audit_event(user_name, host_name, \'', LQ_Scope, '.', LQ_Section, '.', LQ_Target, '\', query_type);\n\n',
+'IF query_type = \'Simple\' THEN\n',
+'	SELECT p.PIDN, it.InstrType, it.DCDate, it.DCStatus, it.AgeAtDC, i.* FROM instrumenttracking it \n',
+'		INNER JOIN ', DataSource, ' i ON (it.InstrID = i.instr_id) \n',
+'		INNER JOIN temp_pidn p ON (p.PIDN = it.PIDN) \n',
+'	WHERE it.InstrType = \'', Instrument, '\' or it.InstrType is null \n',
+'	ORDER BY p.pidn, it.DCDate;\n',
+'      \n',
+'ELSEIF query_type = \'SimpleAllPatients\' THEN\n',
+'	SELECT p.PIDN, it.InstrType, it.DCDate, it.DCStatus, it.AgeAtDC, i.* FROM instrumenttracking it  \n',
+'		INNER JOIN ', DataSource, ' i ON (it.InstrID = i.instr_id)  \n',
+'		RIGHT OUTER JOIN temp_pidn p ON (p.PIDN = it.PIDN)  \n',
+'	WHERE it.InstrType =  \'', Instrument, '\' or it.InstrType is null \n',
+'	ORDER BY P.pidn, it.DCDate;\n',
+'	\n',
+'ELSEIF query_type = \'PrimaryAll\' THEN \n',
+'	CREATE TEMPORARY TABLE temp_linkdata as \n',
+'		SELECT p.PIDN,i.DCDate as link_date,i.InstrID as link_id, i.InstrType, i.DCDate, i.DCStatus, i.AgeAtDC, d.*  \n',
+'		FROM temp_pidn p INNER JOIN instrumenttracking i ON (p.PIDN=i.PIDN)  \n',
+'			INNER JOIN ', DataSource, ' d ON (i.InstrID=d.instr_id) \n',
+'		WHERE NOT i.DCStatus = \'Scheduled\' AND NOT i.DCStatus like \'Canceled%\' \n',
+'		ORDER BY p.pidn, i.DCDate, i.InstrID ;\n',
+'	ALTER TABLE temp_linkdata ADD INDEX(pidn,link_date,link_id);	\n',
+'	SELECT * from temp_linkdata;\n',
+'	\n',
+'ELSEIF query_type = \'PrimaryLatest\' THEN  \n',
+'	CREATE TEMPORARY TABLE temp_linkdata as \n',
+'		SELECT p.PIDN, i.DCDate as link_date,i.InstrID as link_id, i.InstrType, i.DCDate, i.DCStatus, i.AgeAtDC, d.*  \n',
+'		FROM temp_pidn p INNER JOIN instrumenttracking i ON (p.PIDN=i.PIDN)  \n',
+'			INNER JOIN ', DataSource, ' d ON (i.InstrID=d.instr_id) \n',
+'		WHERE i.DCDate = (SELECT MAX(i2.DCDate) from instrumenttracking i2 WHERE i2.PIDN=p.PIDN AND  \n',
+'			i2.InstrType = \'', Instrument, '\' AND NOT i2.DCStatus = \'Scheduled\' AND NOT i2.DCStatus like \'Canceled%\') \n',
+'		ORDER BY p.pidn, i.DCDate, i.InstrID;\n',
+'	ALTER TABLE temp_linkdata ADD INDEX(pidn,link_date,link_id);	\n',
+'	SELECT * from temp_linkdata;\n',
+'	\n',
+'ELSEIF query_type = \'PrimaryFirst\' THEN\n',
+'	CREATE TEMPORARY TABLE temp_linkdata as \n',
+'		SELECT p.PIDN,i.DCDate as link_date,i.InstrID as link_id, i.InstrType, i.DCDate, i.DCStatus, i.AgeAtDC, d.* \n',
+'		FROM temp_pidn p INNER JOIN instrumenttracking i ON (p.PIDN=i.PIDN) \n',
+'			INNER JOIN ', DataSource, ' d ON (i.InstrID=d.instr_id)\n',
+'		WHERE i.DCDate = (SELECT MIN(i2.DCDate) from instrumenttracking i2 WHERE i2.PIDN=p.PIDN AND \n',
+'			i2.InstrType = \'', Instrument, '\' AND NOT i2.DCStatus = \'Scheduled\' AND NOT i2.DCStatus like \'Canceled%\')\n',
+'		ORDER BY p.pidn, i.InstrID;\n',
+'	ALTER TABLE temp_linkdata ADD INDEX(pidn,link_date,link_id);	\n',
+'	SELECT * from temp_linkdata;\n',
+'	\n',
+'ELSEIF query_type IN (\'SecondaryAll\',\'SecondaryClosest\') THEN\n',
+'	#Create candidate table with secondary instruments \n',
+'	CREATE TEMPORARY TABLE temp_secondary_candidates AS\n',
+'		SELECT l.PIDN, l.link_date, l.link_id, i2.InstrType, i2.InstrID, DATEDIFF(l.link_date, i2.DCDate) AS Days \n',
+'		FROM temp_linkdata l INNER JOIN instrumenttracking i2 ON (i2.PIDN=l.PIDN) \n',
+'		WHERE i2.InstrType = \'', Instrument, '\';\n',
+'	ALTER TABLE temp_secondary_candidates ADD INDEX(pidn,link_date,link_id,Days);\n',
+'	\n',
+'	#get rid of earlier or later instruments as necessary\n',
+'	IF query_subtype = \'Earlier\' THEN DELETE from temp_secondary_candidates WHERE Days >0;\n',
+'	ELSEIF query_subtype = \'MoreRecent\' THEN DELETE from temp_secondary_candidates WHERE Days <0;\n',
+'	END IF;\n',
+'	\n',
+'	#limit records to specified day range      \n',
+'	DELETE FROM temp_secondary_candidates WHERE abs(Days) > query_days;\n',
+'\n',
+'	#only keep closest if appropriate\n',
+'	IF query_type = \'SecondaryClosest\' THEN\n',
+'		CREATE TEMPORARY TABLE temp_secondary_closest AS\n',
+'			SELECT pidn,link_date,link_id,MIN(ABS(Days)) as min_days \n',
+'			FROM temp_secondary_candidates\n',
+'			GROUP BY pidn,link_date,link_id;\n',
+'		ALTER TABLE temp_secondary_closest ADD INDEX (pidn,link_date,link_id);\n',
+'		DELETE FROM temp_secondary_candidates\n',
+'			WHERE ABS(days) <> \n',
+'				(SELECT min_days \n',
+'				FROM temp_secondary_closest s2 \n',
+'				WHERE (s2.pidn = temp_secondary_candidates.pidn and s2.link_date=temp_secondary_candidates.link_date and s2.link_id=temp_secondary_candidates.link_id));\n',
+'		DROP TABLE temp_secondary_closest;\n',
+'	END IF;\n',
+'\n',
+'	SELECT l.PIDN, l.link_date,l.link_id, i.InstrType,i.DCDate, temp_secondary_candidates.days as DayDiff, i.DCStatus, i.AgeAtDC, d.* \n',
+'	FROM temp_linkdata l\n',
+'		LEFT OUTER JOIN temp_secondary_candidates ON (l.pidn=temp_secondary_candidates.pidn and l.link_date = temp_secondary_candidates.link_date and l.link_id=temp_secondary_candidates.link_id) \n',
+'		LEFT JOIN instrumenttracking i ON (temp_secondary_candidates.InstrID=i.InstrID)\n',
+'		LEFT JOIN ', DataSource, ' d ON (i.InstrID=d.instr_id) ORDER BY l.pidn, l.link_date, l.link_id;\n',
+'\n',
+'	DROP TABLE temp_secondary_candidates;\n',
+'\n',
+'END IF;\n',
+'\n',
+'END$$\n',
+'\n',
+'$$\n',
+'DELIMITER ;\n',
+'\n');
+
+END
+
+$$
+DELIMITER ;
+
+
+-- --------------------------------------------------------------------------------
+-- util_CreateLQView
+-- --------------------------------------------------------------------------------
+
+DROP PROCEDURE IF EXISTS `util_CreateLQView`;
+
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `util_CreateLQView`(TableName varchar(50), Instrument varchar(50))
+BEGIN
+
+DECLARE lqTargetName varchar(50);
+DECLARE sqlText varchar(10000) DEFAULT '';
+DECLARE columnName varchar(50);
+DECLARE selectColumns varchar(10000) DEFAULT '';
+DECLARE done INT DEFAULT 0;
+DECLARE c CURSOR FOR SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=TableName;
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+SET lqTargetName = lower(Instrument);
+SET lqTargetName = replace(lqTargetName, ' ', '');
+
+SET sqlText = CONCAT(
+'-- -----------------------------------------------------\n',
+'-- view lq_view_', lqTargetName, '\n',
+'-- -----------------------------------------------------\n',
+'DROP VIEW IF EXISTS `lq_view_', lqTargetName, '`;\n',
+'CREATE OR REPLACE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `lq_view_', lqTargetName, '` AS select \n'
+
+);
+
+OPEN c;
+read_loop: LOOP
+  FETCH c INTO columnName;
+  IF done THEN
+    LEAVE read_loop;
+  END IF;
+  SET selectColumns = CONCAT(selectColumns, '`', columnName, '`,\n');
+END LOOP;
+CLOSE c;
+
+SET selectColumns = LEFT(selectColumns, length(selectColumns)-2);
+
+SET sqlText = CONCAT(
+sqlText,
+selectColumns,
+'\nFROM `instrumenttracking` `t1` inner join `', TableName, '` `t2` on (`t1`.`InstrID` = `t2`.`instr_id`)\n',
+'WHERE `t1`.`InstrType` = \'', Instrument, '\';\n'
+);
+
+SELECT sqlText;
+
+END
+
+$$
+DELIMITER ;
