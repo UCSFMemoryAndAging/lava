@@ -1,11 +1,7 @@
 package edu.ucsf.lava.crms.protocol.model;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import edu.ucsf.lava.core.model.EntityBase;
-import edu.ucsf.lava.core.model.EntityManager;
 
 /**
  * 
