@@ -103,7 +103,9 @@
 		</tags:listCell>	    
 		<tags:listCell>
 			<tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].summary" component="${component}" metadataName="protocol.summary" mode="${fieldMode}"/>
-			<tags:listActionURLButton buttonImage="view" actionId="lava.crms.scheduling.visit.visit" eventId="visit__view" idParam="${visit.visit.id}"/>	    
+			<c:if test="${not empty visit.visit}"> 
+				<tags:listActionURLButton buttonImage="view" actionId="lava.crms.scheduling.visit.visit" eventId="visit__view" idParam="${visit.visit.id}"/>	
+		    </c:if>
 		</tags:listCell>
 	</tags:listRow>
 	
@@ -120,7 +122,9 @@
 				</tags:listCell>
 				<tags:listCell>
 					<tags:createField property="children[${timepointIterator.index}].children[${visitIterator.index}].children[${instrumentIterator.index}].summary" component="${component}" metadataName="protocol.summary" mode="${fieldMode}"/>
-					<tags:listActionURLButton buttonImage="view" actionId="lava.crms.assessment.instrument.${instrument.instrument.instrTypeEncoded}" eventId="${instrument.instrument.instrTypeEncoded}__view" idParam="${instrument.instrument.id}"/>
+					<c:if test="${not empty instrument.instrument}"> 
+						<tags:listActionURLButton buttonImage="view" actionId="lava.crms.assessment.instrument.${instrument.instrument.instrTypeEncoded}" eventId="${instrument.instrument.instrTypeEncoded}__view" idParam="${instrument.instrument.id}"/>
+					</c:if>
 				</tags:listCell>	    
 			</tags:listRow>
 			</c:forEach>

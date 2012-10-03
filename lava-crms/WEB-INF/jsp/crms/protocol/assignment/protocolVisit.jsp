@@ -134,7 +134,9 @@
 	</tags:listCell>
 	<tags:listCell>
 		<tags:createField property="children[${instrumentIterator.index}].summary" component="${component}" metadataName="protocol.summary" mode="${fieldMode}"/>
-		<tags:listActionURLButton buttonImage="view" actionId="lava.crms.assessment.instrument.${instrument.instrument.instrTypeEncoded}" eventId="${instrument.instrument.instrTypeEncoded}__view" idParam="${instrument.instrument.id}"/>
+		<c:if test="${not empty instrument.instrument}"> 
+			<tags:listActionURLButton buttonImage="view" actionId="lava.crms.assessment.instrument.${instrument.instrument.instrTypeEncoded}" eventId="${instrument.instrument.instrTypeEncoded}__view" idParam="${instrument.instrument.id}"/>
+		</c:if>
 	</tags:listCell>
 </tags:listRow>
 </c:forEach>
