@@ -335,6 +335,20 @@ FROM `hibernateproperty` WHERE `Entity` = EntityIn and `Scope`=ScopeIn GROUP BY 
 END $$
 
 
+DROP PROCEDURE IF EXISTS `util_GetUdsUploadCsvRecord`$$
+CREATE  PROCEDURE  `util_GetUdsUploadCsvRecord`(EntityIn varchar(50), ScopeIn VARCHAR(25))
+BEGIN
+	
+SELECT CONCAT('buffer.append(UdsUploadUtils.formatField(get',
+	UPPER(LEFT(`property`,1)),
+	RIGHT(`property`,LENGTH(`property`)-1),
+	'())).append(",");')
+FROM `viewproperty` WHERE `entity`=EntityIn and `Scope`=ScopeIn ORDER BY `propOrder`;
+
+END $$
+
+
+
 DROP PROCEDURE IF EXISTS `util_GenerateCode`$$
 CREATE PROCEDURE  `util_GenerateCode`(EntityIn varchar(50), ScopeIn VARCHAR(25))
 BEGIN
@@ -343,6 +357,7 @@ CALL util_HibernateMapping(EntityIn,ScopeIn);
 CALL util_GetJavaModelProperties(EntityIn,ScopeIn);
 CALL util_GetResultFields(EntityIn,ScopeIn);
 CALL util_GetCreateFieldTags(EntityIn,ScopeIn);
+CALL util_GetUdsUploadCsvRecord(EntityIn,ScopeIn);
 
 END $$
 
