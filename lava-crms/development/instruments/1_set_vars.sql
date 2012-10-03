@@ -1,5 +1,7 @@
 set @instance='lava';
-set @scope='crms-nacc';
-set @entity='udsftldclinfeatures2';
-set @table='udsftldclinfeatures';
-set @instrname='UDS FTLD Clin Features';
+set @scope='app-demo';
+set @entity='entityname';
+set @table='entity_name';
+set @instrname='Instrument Name';
+set @lqsection='demo';
+set @lqtarget='lavaquerytarget';
