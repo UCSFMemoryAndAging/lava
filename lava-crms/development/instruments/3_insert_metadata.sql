@@ -1,4 +1,4 @@
-source 0_set_vars.sql
+source 1_set_vars.sql
 
 delete from hibernateproperty where instance=@instance and scope=@scope and entity=@entity;
 
