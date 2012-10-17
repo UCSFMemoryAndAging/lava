@@ -12,7 +12,7 @@
  <tags:createField property="patient.fullNameNoSuffix" component="${component}" metadataName="patient.fullNameNoSuffix"/>
    <tags:createField property="isCaregiver" component="${component}"/>
 	<tags:createField property="caregiverId" component="${component}" fieldStyle="${isCaregiver ? '' : 'invisible'}"/>
-	<tags:createField property="contactPatient" component="${component}"/>
+	<tags:createField property="contactPatient" component="${component}" fieldStyle="${isCaregiver ? 'invisible' : ''}"/>
 	<tags:createField property="isPatientResidence" component="${component}"/>
 
 <tags:createField property="active" component="${component}"/>
