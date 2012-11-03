@@ -17,7 +17,6 @@ import edu.ucsf.lava.core.controller.BaseListComponentHandler;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
-import edu.ucsf.lava.core.dao.hibernate.DaoHibernateNamedParam;
 import edu.ucsf.lava.crms.people.model.AddPatientCommand;
 import edu.ucsf.lava.crms.people.model.Patient;
 
