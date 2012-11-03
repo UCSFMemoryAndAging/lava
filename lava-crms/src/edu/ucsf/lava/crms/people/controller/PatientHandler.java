@@ -1,6 +1,7 @@
 package edu.ucsf.lava.crms.people.controller;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -61,6 +62,39 @@ public class PatientHandler extends CrmsEntityComponentHandler {
 			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"patient.futureBirthDate"}, new String[]{new SimpleDateFormat("MM/dd/yyyy").format(patient.getBirthDate())}, ""));
 			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
+		
+		// check to ensure death date was a valid date, yet accepting all dates having "unknown" parts
+		// beware input leniency, where 2/31/1999 gets saved as 3/3/1999 (a valid date); check equal date components
+		Calendar calculatedDOD = Calendar.getInstance();
+		Date deathDate = patient.getDeathDate();
+		if (deathDate!=null) {
+			calculatedDOD.setTime(deathDate);
+		
+			if (deathDate!=null && deathDate.after(new Date())) {
+				errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"patient.futureDeathDate"}, new String[]{patient.getDeathMonth().toString()+'/'+patient.getDeathDay().toString()+'/'+patient.getDeathYear().toString()}, ""));
+				return new Event(this,ERROR_FLOW_EVENT_ID);
+			}
+			if (patient.getDeathMonth()!=null && !patient.getDeathMonth().equals((short)99)
+				&& patient.getDeathDay()!=null && !patient.getDeathDay().equals((short)99)
+				&& patient.getDeathYear()!=null && !patient.getDeathYear().equals((short)9999)) {
+				// the date components should match exactly, else leniency was used
+				if (!patient.getDeathMonth().equals((short)(calculatedDOD.get(Calendar.MONTH)+1))
+					|| !patient.getDeathDay().equals((short)calculatedDOD.get(Calendar.DAY_OF_MONTH))
+					|| !patient.getDeathYear().equals((short)calculatedDOD.get(Calendar.YEAR))) {
+					errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"patient.invalidDeathDate"}, new String[]{patient.getDeathMonth().toString()+'/'+patient.getDeathDay().toString()+'/'+patient.getDeathYear().toString()}, ""));
+					return new Event(this,ERROR_FLOW_EVENT_ID);
+				}
+			}
+		}
+
+		
+		String modifiedBy = CrmsSessionUtils.getCrmsCurrentUser(sessionManager,((ServletExternalContext)context.getExternalContext()).getRequest()).getUserName();
+		if (modifiedBy != null && modifiedBy.length() > 25) {
+			// have to truncate due to database mismatch in column lengths
+			modifiedBy = modifiedBy.substring(0,24);
+		}
+		patient.setModifiedBy(modifiedBy);
+		
 		return super.doSave(context,command,errors);
 	}
 
