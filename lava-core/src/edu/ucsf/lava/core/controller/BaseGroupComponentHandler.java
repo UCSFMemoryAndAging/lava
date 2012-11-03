@@ -36,7 +36,7 @@ import edu.ucsf.lava.core.session.CoreSessionUtils;
 
 public abstract class BaseGroupComponentHandler extends LavaComponentHandler {
 	// keeps track of where we are in the group. initialized to 0 in GroupFlowBuilder
-	protected static String GROUP_INDEX = "groupIndex";
+	public static String GROUP_INDEX = "groupIndex";
 	// reference data model attribute used by view's to display prototype group
 	// functionality
 	protected static String GROUP_PROTOTYPE = "groupPrototype";
