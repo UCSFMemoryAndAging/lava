@@ -15,6 +15,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import edu.ucsf.lava.core.audit.model.AuditEntity;
 import edu.ucsf.lava.core.audit.model.AuditEvent;
 import edu.ucsf.lava.core.audit.model.AuditProperty;
+import edu.ucsf.lava.core.dto.PagedListItemDto;
 import edu.ucsf.lava.core.manager.LavaManager;
 import edu.ucsf.lava.core.model.EntityBase;
 
@@ -107,7 +108,15 @@ public class AuditManager extends LavaManager{
 				entity.getAuditEntityType(), auditType);
 	}
 	
-
+	// We may wish to track an entity accessed through a list DTO, e.g. tracking individual patients
+	// whose ePHI was shown in a FindPatient list.  Note that this will happen only during read accesses
+	// (SELECT audit type) since DTOs aren't persistent (i.e. no UPDATE/DELETE/INSERT).
+	public AuditEntity auditEntityFromListItemDto(PagedListItemDto dto, String auditType){
+		if(!isCurrentEventAudited() || !getCurrentAuditEvent().doAudit(auditType)){return null;}
+		return new AuditEntity(getCurrentAuditEvent(), dto.getId(), dto.getAuditParentEntityName(), 
+				dto.getAuditParentEntityType(), auditType);
+	}
+	
 	public boolean objectIsAudited(Object entity){
 		if(EntityBase.class.isAssignableFrom(entity.getClass()) && ((EntityBase)entity).isAudited()){
 			return true;
@@ -116,7 +125,6 @@ public class AuditManager extends LavaManager{
 	}
 	
 
-	
 	protected boolean isInternalProperty(String property){
 		if(	property.equals("modified")||
 			property.equals("class") ||
