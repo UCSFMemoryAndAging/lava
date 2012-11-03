@@ -19,11 +19,13 @@
 	<c:when test="${deidentified == 'false' or empty deidentified}">	    
 		<c:choose>
 			<c:when test="${componentView == 'view'}">
+				<tags:createField property="title" component="${component}"/> <%-- not included in fullName text --%>
 				<tags:createField property="fullName" component="${component}"/>
 			</c:when>
-			<c:otherwise>	
+			<c:otherwise>
+				<tags:createField property="title" component="${component}"/>
 				<tags:createField property="firstName" component="${component}"/>
-	  			<tags:createField property="middleInitial" component="${component}"/>
+	  			<tags:createField property="middleName" component="${component}"/>
 				<tags:createField property="lastName" component="${component}"/>
 				<tags:createField property="suffix" component="${component}"/>
 				<tags:createField property="degree" component="${component}"/>
@@ -40,7 +42,7 @@
 <tags:createField property="age" component="${component}"/>
 <tags:createField property="hand" component="${component}"/>
 <tags:createField property="deceased" component="${component}"/>
-<tags:createField property="deathDate" component="${component}"/>
+<tags:createField property="deathMonth,deathDay,deathYear" separator="/" component="${component}"/>
 
 
 </page:applyDecorator> 
@@ -49,7 +51,7 @@
   <page:param name="sectionId">recordManagement</page:param>
   <page:param name="sectionNameKey">patient.recordManagement.section</page:param>
   <page:param name="quicklinkPosition">top</page:param>
-<tags:createField property="enterBy" component="${component}"/>
+<tags:createField property="createdBy" component="${component}"/>
 <tags:createField property="dupNameFlag" component="${component}"/>
 </page:applyDecorator>
 
@@ -58,12 +60,14 @@
 
 
 <c:if test="${componentMode != 'vw'}">
-<ui:formGuide simulateEvents="true">
-    <ui:observe elementIds="${component}_deceased" forValue="[^1]|^$"/>
-   	<ui:disable elementIds="${component}_deathDate"/>
-   	<ui:setValue elementIds="${component}_deathDate" value=""/>
+<ui:formGuide>
+    <ui:observe elementIds="deceased" component="${component}" forValue="[^1]|^$"/>
+   	<ui:skip elementIds="deathMonth" component="${component}"/>
+   	<ui:skip elementIds="deathDay" component="${component}"/>
+   	<ui:skip elementIds="deathYear" component="${component}"/>
 </ui:formGuide>
-<ui:formGuide observeAndOr="or" ignoreDoOnLoad="true">
+s
+<ui:formGuide observeAndOr="or" ignoreDoOnLoad="true" simulateEvents="true">
     <ui:observe elementIds="${component}_deidentified" forValue="1"/>
     <ui:observeForNull elementIds="${component}_deidentified"/>
     <ui:submitForm form="${component}" event="${component}__reRender"/>
