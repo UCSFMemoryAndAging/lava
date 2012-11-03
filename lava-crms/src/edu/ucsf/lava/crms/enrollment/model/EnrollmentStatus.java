@@ -456,7 +456,7 @@ public class EnrollmentStatus extends CrmsEntity {
 		Date statusDate = null;
 		String statusNote = null;
 		
-		if(getClosedDate() != null && getClosedDate() != null){
+		if(getClosedDesc() != null && getClosedDate() != null){
 			status = getClosedDesc();
 			statusDate = getClosedDate();
 			statusNote = getClosedNote();
