@@ -14,7 +14,7 @@
 		<c:choose>
 			<c:when test="${deidentified == 'false' or empty deidentified}">	    
 		  		<tags:createField property="patient.firstName" component="${component}"/>
-	  			<tags:createField property="patient.middleInitial" component="${component}"/>
+	  			<tags:createField property="patient.middleName" component="${component}"/>
 				<tags:createField property="patient.lastName" component="${component}"/>
 				<tags:createField property="patient.suffix" component="${component}"/>
 				<tags:createField property="patient.degree" component="${component}"/>
