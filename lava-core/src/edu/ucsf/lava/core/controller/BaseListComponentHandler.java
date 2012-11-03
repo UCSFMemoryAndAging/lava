@@ -38,7 +38,7 @@ import edu.ucsf.lava.core.session.CoreSessionUtils;
  * 
  */
 public abstract class BaseListComponentHandler extends LavaComponentHandler {
-	protected static final String PREFERENCE_CONTEXT = "baselist";
+	protected static final String PREFERENCE_CONTEXT = "baseList";
 	protected static final String PAGESIZE_PARAM = "pageSize";
 	protected static final Integer DEFAULT_PAGESIZE = 10;
 	
