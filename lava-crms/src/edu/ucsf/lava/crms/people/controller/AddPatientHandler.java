@@ -123,17 +123,18 @@ public class AddPatientHandler extends CrmsEntityComponentHandler {
 		if (apc.getDeidentified()){
 			p.setLastName(Patient.DEIDENTIFIED);
 			p.setFirstName(apc.getSubjectId());
-			p.setMiddleInitial(null);
+			p.setMiddleName(null);
 			p.setSuffix(null);
 			p.setDegree(null);
 		}
 		
-		String enterBy = CrmsSessionUtils.getCrmsCurrentUser(sessionManager,((ServletExternalContext)context.getExternalContext()).getRequest()).getUserName();
-		if (enterBy != null && enterBy.length() > 25) {
+		String createdBy = CrmsSessionUtils.getCrmsCurrentUser(sessionManager,((ServletExternalContext)context.getExternalContext()).getRequest()).getUserName();
+		if (createdBy != null && createdBy.length() > 25) {
 			// have to truncate due to database mismatch in column lengths
-			enterBy = enterBy.substring(0,24);
+			createdBy = createdBy.substring(0,24);
 		}
-		p.setEnterBy(enterBy);
+		p.setCreatedBy(createdBy);
+		p.setCreated(new Date());
 		p.save();
 		// set the newly added patient as the current patient in context
 		PatientContextFilter patientContextFilter = (PatientContextFilter) ((ComponentCommand)command).getComponents().get("patientContext");
