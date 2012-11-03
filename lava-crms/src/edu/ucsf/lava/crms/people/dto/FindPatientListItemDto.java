@@ -3,12 +3,16 @@ package edu.ucsf.lava.crms.people.dto;
 import java.util.Date;
 
 import edu.ucsf.lava.core.dto.PagedListItemDto;
+import edu.ucsf.lava.crms.people.model.Patient;
 
 
 
 
 public class FindPatientListItemDto implements PagedListItemDto {
 
+	// used to note the parent class used while forming this DTO, for auditing purposes 
+	protected static Class auditParentEntity = Patient.class;
+	
 	protected Long id;
 	protected String fullNameRevNoSuffix;
 	protected Date birthDate;
@@ -35,6 +39,13 @@ public class FindPatientListItemDto implements PagedListItemDto {
 		this.id = id;
 	}
 
+	public String getAuditParentEntityName() {
+		return auditParentEntity.getSimpleName();
+	}
+
+	public String getAuditParentEntityType() {
+		return auditParentEntity.getSimpleName();
+	}
 
 	public String getFullNameRevNoSuffix() {
 		return fullNameRevNoSuffix;

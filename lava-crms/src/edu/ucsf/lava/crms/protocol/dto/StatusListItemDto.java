@@ -3,8 +3,12 @@ package edu.ucsf.lava.crms.protocol.dto;
 import java.util.Date;
 
 import edu.ucsf.lava.core.dto.PagedListItemDto;
+import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 
 public class StatusListItemDto implements PagedListItemDto {
+	// used to note the parent class used while forming this DTO, for auditing purposes 
+	protected static Class auditParentEntity = EnrollmentStatus.class;
+	
 	private Long id; // timepoint ID
 	private Long configId; // timepointConfig ID
 	private String fullNameRevNoSuffix;
@@ -68,6 +72,12 @@ public class StatusListItemDto implements PagedListItemDto {
 	}
 	public void setId(Long id) {
 		this.id = id;
+	}
+	public String getAuditParentEntityName() {
+		return auditParentEntity.getSimpleName();
+	}
+	public String getAuditParentEntityType() {
+		return auditParentEntity.getSimpleName();
 	}
 	public Long getConfigId() {
 		return configId;
@@ -376,5 +386,5 @@ public class StatusListItemDto implements PagedListItemDto {
 	public void setInstrIdealInstrCollectWinEnd(Date instrIdealInstrCollectWinEnd) {
 		this.instrIdealInstrCollectWinEnd = instrIdealInstrCollectWinEnd;
 	}
-	
+
 }

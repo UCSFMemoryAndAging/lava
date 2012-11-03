@@ -20,4 +20,11 @@ public interface PagedListItemDto extends Serializable{
 	 */
 	public Long getId();
 
+	/**
+	 * Allow auditing of entities accessed through this list DTO. Specify here the name and type to
+	 * be noted in the audit logs.
+	 */
+	public String getAuditParentEntityName();
+	public String getAuditParentEntityType();
+	
 }
