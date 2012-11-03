@@ -8,6 +8,7 @@
   <page:param name="sectionId">caregiver</page:param>
   <page:param name="sectionNameKey">caregiver.caregiver.section</page:param>
   <page:param name="quicklinkPosition">top</page:param>
+<tags:createField property="title" component="${component}"/>
 <tags:createField property="firstName" component="${component}"/>
 <tags:createField property="lastName" component="${component}"/>
 <tags:createField property="relation" component="${component}"/>

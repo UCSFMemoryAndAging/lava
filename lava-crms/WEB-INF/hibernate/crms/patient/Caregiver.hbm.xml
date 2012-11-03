@@ -16,6 +16,7 @@
 		<many-to-one name="patient" column="PIDN" class="edu.ucsf.lava.crms.people.model.Patient" not-null="true"/>
 		   <property name="lastName" column="Lname" type="string" length="25" not-null="true"/>
        <property name="firstName" column="FName" type="string" length="25" not-null="true"/>
+       <property name="title" column="Title" type="string" length="15"/>
        <property name="gender" column="Gender" type="byte"/>
        <property name="relation" column="PTRelation" type="string" length="25"/>
        <property name="livesWithPatient" column="LivesWithPT" type="short"/>

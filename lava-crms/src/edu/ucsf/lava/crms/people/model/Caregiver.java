@@ -1,6 +1,5 @@
 package edu.ucsf.lava.crms.people.model;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +13,7 @@ public class Caregiver extends CrmsEntity {
 	private edu.ucsf.lava.crms.people.model.Patient patient;
 	private String lastName;
 	private String firstName;
+	private String title;
 	private Byte gender;
 	private String relation;
 	private Short livesWithPatient;
@@ -278,6 +278,14 @@ public class Caregiver extends CrmsEntity {
 
 	public void setRolesDesc(String rolesDesc) {
 		this.rolesDesc = rolesDesc;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public String getTransLanguage() {
