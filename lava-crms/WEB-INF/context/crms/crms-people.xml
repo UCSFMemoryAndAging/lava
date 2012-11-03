@@ -4,11 +4,7 @@
 <beans>
    
    <!-- Patient/Project context handlers -->
-	
-	<bean id="patientContextHandler" class="edu.ucsf.lava.crms.ui.controller.PatientContextHandler" parent="lavaHandler"/>
-	<bean id="projectContextHandler" class="edu.ucsf.lava.crms.ui.controller.ProjectContextHandler" parent="lavaHandler"/>
 
-	
 	<!--  actions -->
 		<bean id="lava.crms.people.patient.patient" parent="crmsEntityFlowAction">
   					<property name="patientModuleDefault" value="true"/>
