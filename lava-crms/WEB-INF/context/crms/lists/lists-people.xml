@@ -4,6 +4,25 @@
 
 <beans>
 	
+	
+	<bean id="list.generic.deathdateMonth" parent="list.numericRange">
+		<property name="defaultCodes"><ref bean="list.ref.logicalSkipErrorCode"/></property>
+		<property name="defaultMinValue" value="1"/>	
+		<property name="defaultMaxValue" value="12"/>
+	</bean>	
+	
+	<bean id="list.generic.deathdateDay" parent="list.numericRange">
+		<property name="defaultCodes"><ref bean="list.ref.logicalSkipErrorCode"/></property>
+		<property name="defaultMinValue" value="1"/>	
+		<property name="defaultMaxValue" value="31"/>
+	</bean>	
+	
+	<bean id="list.generic.deathdateYear" parent="list.numericRange">
+		<property name="defaultCodes"><ref bean="list.ref.logicalSkipErrorCode"/></property>
+		<property name="defaultMinValue" value="1950"/>	
+		<property name="defaultMaxValue" value="2015"/>
+	</bean>	
+	
 	<bean id="list.generic.gender" parent="list.standardNumericValue">
 		<property name="dbListName" value="Gender"/>
 	</bean>
@@ -15,6 +34,11 @@
 	<bean id="list.generic.education" parent="list.standardValueNoLabel">
 		<property name="dbListName" value="Education"/>
 		<property name="defaultSort" value="valueNumeric"/>
+	</bean>
+
+	<bean id="list.generic.nameTitle" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="NameTitle"/>
+		<property name="defaultSort" value="orderIndex"/>
 	</bean>
 
 	<bean id="list.patient.handedness" parent="list.standardValueNoLabel">
