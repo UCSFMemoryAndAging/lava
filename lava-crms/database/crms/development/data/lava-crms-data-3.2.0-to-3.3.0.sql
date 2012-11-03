@@ -45,4 +45,13 @@ INSERT INTO listvalues (ListID, instance, scope, ValueKey, ValueDesc, OrderID) S
 
 /*!40000 ALTER TABLE `listvalues` ENABLE KEYS */;
 /*!40000 ALTER TABLE `list` ENABLE KEYS */;
+
+-- The prior messageCode was without the asterisk prefix, and so the viewproperty could not be found.  
+-- This resulted in all drug javascript lookups to exit early having only stored the drugids.  As a result, 
+-- all entered drugs saved without the useful generic and brand name values.
+UPDATE viewproperty
+  SET messageCode='*.udsmedications2.generic'
+  WHERE instance='lava' AND scope='crms-nacc' AND entity='udsmedications2' AND property='generic'
+
+
 UNLOCK TABLES;
