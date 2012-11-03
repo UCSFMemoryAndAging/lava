@@ -1,9 +1,9 @@
 package edu.ucsf.lava.crms.people.model;
 
 import java.sql.Timestamp;
-import java.util.Calendar;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
 
@@ -12,7 +12,6 @@ import java.util.Set;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
-import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 import edu.ucsf.lava.crms.model.CrmsEntity;
@@ -24,11 +23,16 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	
 	public static EntityManager MANAGER = new EntityBase.Manager(Patient.class);
 	
+	public static Short DODMO_UNKNOWN = 99;
+	public static Short DODDY_UNKNOWN = 99;
+	public static Short DODYR_UNKNOWN = 9999;
+	
 	private String lastName;  //set to DE-IDENTIFIED when subject record is de-identified
-	private Character middleInitial;
+	private String middleName;
 	private Boolean firstTime;  
 	private Boolean deidentified;
 	private String firstName;  //subjectId is an alias for firstName when deidentified = true
+	private String title;
 	private String suffix;
 	private String degree;
 	private Date birthDate; 
@@ -36,17 +40,22 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	private String hand;
 	private Boolean deceased; //db default=0
 	private Date deathDate;
+	private Short deathMonth;
+	private Short deathDay;
+	private Short deathYear;
 	private String primaryLanguage;
 	private String testingLanguage;
 	private Boolean transNeeded;
 	private String transLanguage;
-	private String enterBy;
 	private Boolean dupNameFlag; //db default=0
 	private String fullNameRev; 
 	private String fullName; 
 	private String fullNameRevNoSuffix; 
 	private String fullNameNoSuffix; 
-
+	private String createdBy;
+	private Date created;
+	private String modifiedBy;
+	
 	private Set doctors;
 	private Set enrollmentStatus;
 	private Set caregivers;
@@ -121,11 +130,14 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 		}
 	}
 	
-	public Character getMiddleInitial() {return middleInitial;}
-	public void setMiddleInitial(Character middleInitial) {this.middleInitial = middleInitial;}
+	public String getMiddleName() {return middleName;}
+	public void setMiddleName(String middleName) {this.middleName = middleName;}
 	
 	public String getFirstName() {return firstName;}
 	public void setFirstName(String firstName) {this.firstName = firstName;}
+	
+	public String getTitle() {return title;}
+	public void setTitle(String title) {this.title = title;}
 	
 	public String getSuffix() {return suffix;}
 	public void setSuffix(String suffix) {this.suffix = suffix;}
@@ -144,10 +156,10 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	
 	
 	public Integer getAge() {
-		if(this.deathDate==null){
+		if(this.getDeathDate()==null){
 			return this.calcAge(this.birthDate);
 		}else{
-			return this.calcAge(this.birthDate,this.deathDate);
+			return this.calcAge(this.birthDate,this.getDeathDate());
 		}
 	}
 	
@@ -162,16 +174,23 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	public Boolean getDeceased() {return deceased;}
 	public void setDeceased(Boolean deceased) {this.deceased = deceased;}
 	
-	public Date getDeathDate() {return deathDate;}
-	public void setDeathDate(Date deathDate) {
-		this.deathDate = deathDate;
-		trackDirty("deathDate",(deathDate==null) ? null : new Timestamp(deathDate.getTime()));
+	public Short getDeathMonth() {return deathMonth;}
+	public void setDeathMonth(Short deathMonth) {
+		this.deathMonth = deathMonth;
+		trackDirty("deathMonth", deathMonth);
 	}
-	
-	
-	
-	public String getEnterBy() {return enterBy;}
-	public void setEnterBy(String enterBy) {this.enterBy = enterBy;}
+
+	public Short getDeathDay() {return deathDay;}
+	public void setDeathDay(Short deathDay) {
+		this.deathDay = deathDay;
+		trackDirty("deathDay", deathDay);
+	}
+
+	public Short getDeathYear() {return deathYear;}
+	public void setDeathYear(Short deathYear) {
+		this.deathYear = deathYear;
+		trackDirty("deathYear", deathYear);
+	}
 	
 	public Boolean getDupNameFlag() {return dupNameFlag;}
 	public void setDupNameFlag(Boolean dupNameFlag) {this.dupNameFlag = dupNameFlag;}
@@ -196,9 +215,15 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	
 	public String getFullNameNoSuffix() {return fullNameNoSuffix;}
 	public void setFullNameNoSuffix(String fullNameNoSuffix) {this.fullNameNoSuffix = fullNameNoSuffix;}
+	
+	public String getCreatedBy() {return createdBy;}
+	public void setCreatedBy(String createdBy) {this.createdBy = createdBy;}
+	
+	public Date getCreated() {return created;}
+	public void setCreated(Date created) {this.created = created;}
 
-	
-	
+	public String getModifiedBy() {return modifiedBy;}
+	public void setModifiedBy(String modifiedBy) {this.modifiedBy = modifiedBy;}
 
 	public String getPrimaryLanguage() {
 		return primaryLanguage;
@@ -232,6 +257,19 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 		this.transNeeded = transNeeded;
 	}
 
+	public Character getMiddleInitial() {
+		// grab first letter of the middle name.  Do not use any non-letter characters (e.g. quotes, white space).
+		if (getMiddleName()==null) return null;
+		String middleInitial = getMiddleName().replaceAll("[^A-Za-z]*([A-Za-z]).*", "$1");
+		if (middleInitial != null && middleInitial.length()>0)
+			return middleInitial.toUpperCase().charAt(0);
+		else
+			return null;
+		
+	}
+	//public void setMiddleInitial(Character middleInitial) {this.middleInitial = middleInitial;}
+	
+	
 	public Boolean getDeidentified() {
 		return deidentified;
 	}
@@ -240,9 +278,10 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 		this.deidentified = deidentified;
 		if(this.deidentified){
 			this.lastName = this.DEIDENTIFIED;
+			this.title = null;
 			this.suffix = null;
 			this.degree = null;
-			this.middleInitial = null;
+			this.middleName = null;
 		}
 	}
 
@@ -254,13 +293,52 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 		this.firstName = subjectId;
 	}
 	
+	// the calculation for death date is done here and in a hibernate property formula
+	// it was done here because the PatientHandler needs a freshly calculated deathDate
+	//   to check if the new mo/dy/yr components match when saving (when assigned a leniency
+	//   is applied for dates that are invalid, so checking the components again ensures validity)
+	// it was done in a hibernate formula because we have filters out there (e.g. findPatient)
+	//   which use deathDate, so hibernate had to have this mapping anyway.  It only gets calculated
+	//   on reads, so not applied yet during saving
+	// TODO: combine these somehow to avoid duplicate code; just not sure how
+	public Date getDeathDate() {
+		// determine the DOD as best as possible; sometimes a date component is unknown
+		// the values of 1 will ensure the minimum age of death
+		// be aware of this when filtering based on deathDate
+		short default_month = 1;
+		short default_day = 1;
+		
+		if (getDeceased()==null || getDeceased().equals(false)) return null;
+		
+		// return null if death year is unknown (i.e. use no defaults for years)
+		//   or if any skip values exist (should be all skipped or none skipped, based on skip logic in view)
+		if (getDeathYear() == null || getDeathYear().equals(DODYR_UNKNOWN)) return null;
+		if (getDeathMonth()!=null && getDeathMonth().equals(EntityBase.DATA_CODES_LOGICAL_SKIP.shortValue())) return null;
+		if (getDeathDay()!=null && getDeathDay().equals(EntityBase.DATA_CODES_LOGICAL_SKIP.shortValue())) return null;
+		if (getDeathYear()!=null && getDeathYear().equals(EntityBase.DATA_CODES_LOGICAL_SKIP.shortValue())) return null;
+		
+		String dateAsString = (getDeathMonth() == null || getDeathMonth().equals(DODMO_UNKNOWN)) ? String.valueOf(default_month) : getDeathMonth().toString();
+		dateAsString += "/" + ((getDeathDay() == null || getDeathDay().equals(DODDY_UNKNOWN)) ? String.valueOf(default_day) : getDeathDay().toString());
+		dateAsString += "/" + getDeathYear().toString();
+		SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+		formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+		try {
+			return formatter.parse(dateAsString);
+		} catch (ParseException e) {
+			// likely will not be called now that leniency is applied
+			throw new IllegalArgumentException("Could not calculate death date from " + dateAsString + ": " + e.getMessage());
+		}
+	}
+	
+	public void setDeathDate(Date deathDate) { this.deathDate=deathDate; }
+	
 	/**
 	 * call save on all visits and instruments to ensure that age at visit and age at DC are 
 	 * correctly calculated
 	 */
 	public boolean afterUpdate(){
 		boolean resave = super.afterUpdate();
-		if(isDirty("deathDate") || isDirty("birthDate")){
+		if(isDirty("birthDate") || isDirty("deathMonth") || isDirty("deathDay") || isDirty("deathYear") ){
 			List<Visit> visits = getVisits(newFilterInstance());
 			for (Visit v:visits){
 				v.save();
@@ -287,7 +365,6 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 		updateFullNameRev();
 		updateFullNameRevNoSuffix();
 	}
-
 	
 	protected void updateFullName(){
 		StringBuffer buffer = new StringBuffer();
@@ -489,6 +566,12 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 		filter.setAlias("patient", "patient");
 		filter.addDaoParam(filter.daoEqualityParam("patient.id", this.getId()));
 		return InstrumentTracking.MANAGER.get(filter);
+	}
+	
+	public List getCaregivers(LavaDaoFilter filter){
+		filter.setAlias("patient", "patient");
+		filter.addDaoParam(filter.daoEqualityParam("patient.id", this.getId()));
+		return Caregiver.MANAGER.get(filter);
 	}
 	
 	public List getContactInfo(LavaDaoFilter filter){
