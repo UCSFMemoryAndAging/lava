@@ -31,7 +31,8 @@
               description="array of error messages, if any" %>             
 
 <spring:bind path="${property}">
-    <input type="text" id="${fieldId}" name="${status.expression}" value="${status.value}" autocomplete="off" 
+<%-- replace double quotes here with the HTML ascii equivalent, else all characters after the first double quote will be hidden in the view --%>
+    <input type="text" id="${fieldId}" name="${status.expression}" value="${fn:replace(status.value,'"','&#34;')}" autocomplete="off" 
 		class="${styleClass}" ${attributesText} size="${empty textBoxSize ? 20 : textBoxSize}" maxlength="${empty maxLength ? 255 : maxLength}">
 
 	<c:set var="errorFlag" value="${status.error}"/>
