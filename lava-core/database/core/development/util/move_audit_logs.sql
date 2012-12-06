@@ -1,5 +1,5 @@
 -- audit logs are typically archived to the audit history tables in a separate database
--- replaced all occurences of _AUDIT_HISTORY_SCHEMA_ with the name of the database where the
+-- replace all occurences of _AUDIT_HISTORY_SCHEMA_ with the name of the database where the
 -- audit history tables reside
 
 -- the model script audit_archive_tables should be run to create the history tables in the
