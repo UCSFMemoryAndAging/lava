@@ -47,7 +47,7 @@ ALTER TABLE `caregiver`
 -- View `patient_DOD`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `patient_DOD`;
-CREATE OR REPLACE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW
+CREATE OR REPLACE VIEW
 `patient_DOD`
 AS select `patient`.`PIDN` AS `PIDN`,
   -- empty date components are treated as "unknown"
@@ -65,7 +65,7 @@ AS select `patient`.`PIDN` AS `PIDN`,
 -- View `patient_age`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `patient_age`;
-CREATE OR REPLACE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `patient_age`
+CREATE OR REPLACE VIEW `patient_age`
 AS select `patient`.`PIDN` AS `PIDN`,
   ((if(isnull(date_format(`patient_DOD`.DOD,_utf8'%Y')),
        date_format(now(),_utf8'%Y'),
@@ -81,8 +81,7 @@ AS select `patient`.`PIDN` AS `PIDN`,
   
   
 DROP VIEW IF EXISTS `lq_view_demographics`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER 
-  VIEW `lq_view_demographics` AS select `patient`.`PIDN` AS `PIDN_demographics`,`patient`.`DOB` AS `DOB`,`patient_age`.`AGE` AS `AGE`,`patient`.`Gender` AS `Gender`,`patient`.`Hand` AS `Hand`,`patient`.`Deceased` AS `Deceased`,`patient_DOD`.`DOD` AS `DOD`,`patient`.`PrimaryLanguage` AS `PrimaryLanguage`,`patient`.`TestingLanguage` AS `TestingLanguage`,`patient`.`TransNeeded` AS `TransNeeded`,`patient`.`TransLanguage` AS `TransLanguage` from (`patient` join `patient_age` on((`patient`.`PIDN` = `patient_age`.`PIDN`)) join `patient_DOD` on (`patient`.`PIDN` = `patient_dod`.`PIDN`)) where (`patient`.`PIDN` > 0) */;
+CREATE VIEW `lq_view_demographics` AS select `patient`.`PIDN` AS `PIDN_demographics`,`patient`.`DOB` AS `DOB`,`patient_age`.`AGE` AS `AGE`,`patient`.`Gender` AS `Gender`,`patient`.`Hand` AS `Hand`,`patient`.`Deceased` AS `Deceased`,`patient_DOD`.`DOD` AS `DOD`,`patient`.`PrimaryLanguage` AS `PrimaryLanguage`,`patient`.`TestingLanguage` AS `TestingLanguage`,`patient`.`TransNeeded` AS `TransNeeded`,`patient`.`TransLanguage` AS `TransLanguage` from (`patient` join `patient_age` on((`patient`.`PIDN` = `patient_age`.`PIDN`)) join `patient_DOD` on (`patient`.`PIDN` = `patient_dod`.`PIDN`)) where (`patient`.`PIDN` > 0);
 
 -- ************************************************************
 -- EMORY: end patient/caregiver changes
