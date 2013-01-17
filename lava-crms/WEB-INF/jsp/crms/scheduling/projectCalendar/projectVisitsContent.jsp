@@ -4,9 +4,14 @@
 
 <c:if test="${not empty currentPatient}">
 <content tag="customActions">
-	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.scheduling.visit.visit" eventId="visit__add" component="${component}"/>	    
+	<tags:actionURLButton buttonText="Add"  actionId="lava.crms.scheduling.visit.visit" eventId="visit__add" component="${component}"/>
 </content>
 </c:if>
+
+<content tag="listQuickFilter">
+	<tags:listQuickFilter component="${component}" listItemSource="visit.quickFilter" label="Show:"/>
+</content>
+
 <content tag="listFilters">
 	
 		<!-- Standard calendar filters -->
