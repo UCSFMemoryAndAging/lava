@@ -45,6 +45,8 @@ public class FindPatientHandler extends CrmsListComponentHandler {
 		f.addParamHandler(new LavaDateRangeParamHandler("deathDate"));
 		
 		//turn off standard processing of params that need custom handling
+		// LavaDaoFilter does not support nested fields as Params so use non-nested Param and later
+		// manually convert to a nested field DaoParam
 		f.addParamHandler(new LavaIgnoreParamHandler("contactInfoEmail"));
 		f.addParamHandler(new LavaIgnoreParamHandler("contactInfoPhone"));
 		f.addParamHandler(new LavaIgnoreParamHandler("caregiverLastName"));
@@ -99,7 +101,7 @@ public class FindPatientHandler extends CrmsListComponentHandler {
 			for(Object result:results){
 				if(result.getClass().isArray()){
 					Object[] resultArray = (Object[])result;
-					FindPatientListItemDto dto = new FindPatientListItemDto();
+					FindPatientListItemDto dto = this.createDto();
 					int i = 0;
 					//transform common results
 					dto.setId((Long)resultArray[i++]);
@@ -134,11 +136,33 @@ public class FindPatientHandler extends CrmsListComponentHandler {
 			return dtoList;
 		}
 		
+		
+		protected FindPatientListItemDto createDto() {
+			return new FindPatientListItemDto();
+		}
+		
 		protected LavaDaoFilter resetFilter(LavaDaoFilter filter){
 			filter.clearAliases();
 			filter.clearDaoProjections();
 			filter.clearDaoParams();
 			
+			this.setProjections(filter);
+			
+			//do standard param handling
+			filter.convertParamsToDaoParams();
+			
+			this.customConvertParamsToDaoParams(filter);
+			
+			return filter;
+		}
+
+		/**
+		 * Subclasses should override to augment these for additional filter fields
+		 * 
+		 * @param filter
+		 * @return
+		 */
+		protected LavaDaoFilter setProjections(LavaDaoFilter filter) {
 			//add base properties
 			filter.addDaoProjection(filter.daoGroupProjection("id"));  //Patient ID
 			filter.addDaoProjection(filter.daoGroupProjection("fullNameRevNoSuffix"));
@@ -167,16 +191,20 @@ public class FindPatientHandler extends CrmsListComponentHandler {
 				filter.addDaoProjection(filter.daoGroupProjection("contactInfo.email"));
 				}else if(this.sortContainsAlias("contactInfo",filter)){
 					filter.clearSort(); //clear filter because prior sort is now invalid based on supplied filter criteria
-				}
-			
-			
-			
-			
-			
-				//do standard param handling
-			filter.convertParamsToDaoParams();
-			
-			
+			}
+			return filter;
+		}
+		
+		/**
+		 * Subclasses should override to augment these for additional filter fields
+		 * 
+		 * @param filter
+		 * @return
+		 */
+		protected LavaDaoFilter customConvertParamsToDaoParams(LavaDaoFilter filter) {
+			// special handling required for nested properties in associated classes
+			// LavaDaoFilter does not support nested fields as Params so convert from temporary Param
+			// name to a nested field DaoParam
 			
 			//add phone params
 			if(!filter.isParamEmpty("contactInfoPhone")){
@@ -188,31 +216,29 @@ public class FindPatientHandler extends CrmsListComponentHandler {
 										)
 								)
 												
-						);
-				}
+					);
+			}
+			
 			if(!filter.isParamEmpty("contactInfoEmail")){
 				String param = (String)filter.getParam("contactInfoEmail");
 				filter.addDaoParam(	filter.daoLikeParam("contactInfo.email", param));
-				}
+			}
 			
 			//add cargiver name params
 			if(!filter.isParamEmpty("caregiverLastName")){
 				String param = (String)filter.getParam("caregiverLastName");
 				filter.addDaoParam(filter.daoLikeParam("caregiver.lastName", param));
-				}
+			}
 			
 			if(!filter.isParamEmpty("caregiverFirstName")){
 				String param = (String)filter.getParam("caregiverFirstName");
 				filter.addDaoParam(filter.daoLikeParam("caregiver.firstName", param));
-				}
+			}
 			
-				
-			
-			return filter;
-			
-			
-			
+			return filter;	
 		}
+		
+		
 		protected boolean sortContainsAlias(String alias, LavaDaoFilter filter){
 			for (Object key:filter.getSort().keySet()){
 				if(((String)key).startsWith(alias)){
