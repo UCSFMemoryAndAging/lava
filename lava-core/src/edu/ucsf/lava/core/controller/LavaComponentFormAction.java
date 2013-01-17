@@ -157,6 +157,8 @@ public class LavaComponentFormAction extends BaseComponentFormAction {
 		registry.registerCustomEditor(Integer.class, new CustomNumberEditor(Integer.class,true));
 		// this will set all Float fields to null when empty string ("") is submitted
 		registry.registerCustomEditor(Float.class, new CustomNumberEditor(Float.class, true));
+		// this will set all Double fields to null when empty string ("") is submitted
+		registry.registerCustomEditor(Double.class, new CustomNumberEditor(Double.class, true));
 
 		// for multiple select box, this will bind selection(s) to a List (this works for a List<String>
 		// where select option values are String (equivalent to option text)
