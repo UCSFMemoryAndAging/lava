@@ -32,6 +32,19 @@ public class PatientCalendarHandler extends CrmsCalendarComponentHandler{
 		if (CrmsSessionUtils.getCurrentPatient(sessionManager,request)==null){
 			CrmsSessionUtils.setCurrentPatient(sessionManager,request,new Long(0));
 		}
+		
+		// quick filter settings
+		filter.setActiveQuickFilter("Scheduled / Complete Only");
+		filter.addQuickFilter("Scheduled / Complete Only", filter.daoNot(
+															filter.daoOr(
+																	filter.daoLikeParam("visitStatus","%Canceled%"),
+																	filter.daoLikeParam("visitStatus", "%No Show%"))));
+		
+		filter.addQuickFilter("Canceled / No Show Only",  filter.daoOr(
+															filter.daoLikeParam("visitStatus","%Canceled%"),
+															filter.daoLikeParam("visitStatus", "%No Show%")));
+		filter.addQuickFilter("All Visits",  null);
+		
 		filter.setAlias("patient", "patient");
 		filter.addDefaultSort("visitDate", false);
 		filter.addDefaultSort("visitTime", false);

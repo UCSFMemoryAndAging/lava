@@ -25,6 +25,20 @@ public class ProjectCalendarHandler extends CrmsCalendarComponentHandler {
 
 	public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+
+		// quick filter settings
+		filter.setActiveQuickFilter("Scheduled / Complete Only");
+		filter.addQuickFilter("Scheduled / Complete Only", filter.daoNot(
+															filter.daoOr(
+																	filter.daoLikeParam("visitStatus","%Canceled%"),
+																	filter.daoLikeParam("visitStatus", "%No Show%"))));
+		
+		filter.addQuickFilter("Canceled / No Show Only",  filter.daoOr(
+															filter.daoLikeParam("visitStatus","%Canceled%"),
+															filter.daoLikeParam("visitStatus", "%No Show%")));
+		filter.addQuickFilter("All Visits",  null);
+		
+		
 		filter.setAlias("patient", "patient");
 		filter.addDefaultSort("visitDate", false);
 		filter.addDefaultSort("visitTime", false);
