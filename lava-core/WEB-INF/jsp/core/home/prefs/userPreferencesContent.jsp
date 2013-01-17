@@ -45,7 +45,7 @@
 			<c:choose>
 				<c:when test="${empty style}">
 					<%-- metadata entry not found, so use standard style for field  --%>
-					<tags:listField listIndex="${iterator.index}" component="${component}" property="value" mode="lv"/>
+					<tags:listField listIndex="${iterator.index}" component="${component}" property="value" entityType="${component}" mode="lv"/>
 				</c:when>
 				<c:otherwise>
 					<%-- metadata entry found, so use style as defined in metadata --%>
