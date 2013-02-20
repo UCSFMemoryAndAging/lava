@@ -1,0 +1,1507 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+  "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+
+<!--
+ -
+ - Copyright 2004 uitags
+ -
+ - Licensed under the Apache License, Version 2.0 (the "License");
+ - you may not use this file except in compliance with the License.
+ - You may obtain a copy of the License at
+ -
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ -
+ - Unless required by applicable law or agreed to in writing, software
+ - distributed under the License is distributed on an "AS IS" BASIS,
+ - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ - See the License for the specific language governing permissions and
+ - limitations under the License.
+ -
+ -->
+
+<!--
+  - Information about the usage of the tags should be placed in this file.
+  - Information about property overriding should be placed in
+  - factory-default.properties.
+  -->
+<taglib>
+  <tlib-version>1.0.0-nonfinal4</tlib-version>
+  <jsp-version>1.2</jsp-version>
+  <short-name>uitags@EL_URI@</short-name>
+  <uri>http://uitags.sf.net/uitags@EL_URI@</uri>
+  <display-name>uitags@EL_URI@</display-name>
+
+  <!--
+    - ============================
+    - ========== common ==========
+    - ============================
+    -->
+  <tag>
+    <name>attribute</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@Attribute@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>attribute</display-name>
+    <description>A tag that allows JSP developers to add an additional HTML
+      attribute to the enclosing JSP tag (must be a JSP tag that has a
+      corresponding HTML tag).
+    </description>
+
+    <attribute>
+      <name>name</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the tag attribute.</description>
+    </attribute>
+
+    <attribute>
+      <name>value</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Value of the tag attribute.</description>
+    </attribute>
+  </tag>
+
+  <!--
+    - ==============================
+    - ========== calendar ==========
+    - ==============================
+    -->
+  <tag>
+    <name>calendar</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@calendar.Calendar@EL_CLS@Tag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>calendar</display-name>
+    <description></description>
+  </tag>
+
+  <tag>
+    <name>listMonths</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@calendar.ListMonths@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>listMonths</display-name>
+    <description></description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>monthLabels</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>@STRING_ARRAY@</type>
+      <description></description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>listYears</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@calendar.ListYears@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>listYears</display-name>
+    <description></description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>yearListObtainer</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>updateDate</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@calendar.UpdateDate@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>updateDate</display-name>
+    <description></description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>event</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>dateObtainer</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>calendarGrid</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@calendar.CalendarGrid@EL_CLS@Tag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>calendarGrid</display-name>
+    <description></description>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>class</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>weekLabels</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>@STRING_ARRAY@</type>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>classResolver</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>actionResolver</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+  </tag>
+
+
+
+  <!--
+    - ===============================
+    - ========== formGuide ==========
+    - ===============================
+    -->
+  <tag>
+    <name>formGuide</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.FormGuide@EL_CLS@Tag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>formGuide</display-name>
+    <description>The outer-most tag in the form guide facility, wrapping
+      &lt;observe&gt;, &lt;enable&gt;, &lt;disable&gt;, &lt;disable&gt;, &lt;insert&gt;,
+      &lt;skip&gt;, &lt;unskip&gt;, &lt;removeOption&gt;, &lt;submitForm&gt; and &lt;setValue&gt; tags.</description>
+
+    <attribute>
+      <name>listener</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>A life cycle listener for the form guide's events.
+      </description>
+    </attribute>
+    <attribute>
+      <name>ignoreDoOnLoad</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Flag whether the tag should not execute do actions on page load, i.e. in the case
+                   where all observe rules hold such that the do actions should be executed.
+                   Possible values 'true', 'false' (defaults to 'false').</description>
+    </attribute>
+    <attribute>
+      <name>ignoreUndoOnLoad</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Flag whether the tag should not execute undo actions on page load, i.e. in the case
+                   where all observe rules do not hold such that the undo actions should be executed.
+                   Possible values 'true', 'false' (defaults to 'false').</description>
+    </attribute>
+    <attribute>
+      <name>ignoreDo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Flag whether the tag should not execute do actions on a user event, i.e. in the case
+                   where all observe rules hold such that the do actions should be executed.
+                   Possible values 'true', 'false' (defaults to 'false').</description>
+    </attribute>
+    <attribute>
+      <name>ignoreUndo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Flag whether the tag should not execute undo actions on a user event, i.e. in the case
+                   where all observe rules do not hold such that the undo actions should be executed.
+                   Possible values 'true', 'false' (defaults to 'false').</description>
+    </attribute>
+    <attribute>
+      <name>prompt</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Prompt the user before performing the action(s) when observation(s) met, allowing user to cancel. (defaults to null, meaning no prompt).</description>
+    </attribute>
+    <attribute>
+      <name>alert</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Alert the user to some pertinent information. (defaults to null, meaning no alert).</description>
+    </attribute>
+    <attribute>
+      <name>ignoreAndOr</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Whether all or just one of the ignore conditions must be met, as specified by
+        &lt;ignore&gt; tags. Possible values are 'or' and 'and'. (defaults to 'and').</description>
+    </attribute>
+    <attribute>
+      <name>observeAndOr</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Whether all or just one of the observe conditions must be met, as specified by
+        &lt;observe&gt; tags. Possible values are 'or' and 'and'. (defaults to 'and').</description>
+    </attribute>
+    <attribute>
+      <name>simulateEvents</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>This attribute should be set "true" on the last formGuide tag in the page, and causes 
+        simulation of onchange events for all formGuide observed elements for the entire page so that the
+        page is setup properly on page load. For all formGuide tags other than the last, it need not be
+        specified and defaults to "false".</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>observe</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Observe@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>observe</display-name>
+    <description>Specifies one or more elements that participate in triggering the do/undo actions of other
+      child tags. This tag may be specified more than once within a &lt;formGuide&gt;, in which case
+      the do actions depend on all of them, in conjunction with the parent formGuide tags observeAndOr 
+      attribute. If the observe rules hold, the action child tags are executed; if not, the actions undo
+      function is executed, if the action has an undo function (e.g. skip action has an undo action 
+      called unskip).</description>
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's to observe.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names to observe (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>forValue</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Element value that determines whether this individual observe rule is met. Can be a regular expression.</description>
+    </attribute>
+    <attribute>
+      <name>negate</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag. If true, element(s) value must NOT match forValue for observation to be met.
+        (default is false).</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if element is a comboRadioSelect (default is false).</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>observeForNull</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.ObserveForNull@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>observeForNull</display-name>
+    <description>Specialized version of the observe tag where the observe rule is met when the element(s)
+      holds a null value. This is used for a checkbox, where an unchecked checkbox has value 'null'.
+      This tag may be specified more than once within a &lt;formGuide&gt;.</description>
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's to observe.</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names to observe (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>negate</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag. If true, element(s) value must NOT match null for observe rule to be met.
+        (default is false).</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>ignore</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Ignore@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>ignore</display-name>
+    <description>Specifies an ignore rule for each element. An ignore rule is met when the element
+      holds the forValue (subject to regular expression matching). This tag may be specified more than once
+      within a &lt;formGuide&gt;. All of the ignore rules togther, in conjunction with the parent formGuide 
+      tags ignoreAndOr attribute, are use to determine whether the entire formGuide tag should be ignored or not.</description>
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's for ignore rules.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names for ignore rules (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>forValue</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Element value that determines whether this individual ignore rule is met. Can be a regular expression.</description>
+    </attribute>
+    <attribute>
+      <name>negate</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag. If true, element(s) value must NOT match forValue for ignore rule to be met.
+        (default is false).</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if element is a comboRadioSelect (default is false).</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>ignoreForNull</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.IgnoreForNull@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>ignoreForNull</display-name>
+    <description>Specialized version of the ignore tag where the ignore rule is met when the element(s)
+      holds a null value. This is used for a checkbox, where an unchecked checkbox has value 'null'.
+      This tag may be specified more than once within a &lt;formGuide&gt;. All of
+      the ignore rules togther, in conjunction with the parent formGuide tags ignoreAndOr attribute, are
+      use to determine whether the entire formGuide tag should be ignored or not.</description>
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's for ignore rules.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names for ignore rules (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>negate</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag. If true, element(s) value must NOT match null for ignore rule to be met.
+        (default is false).</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>depends</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Depends@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>depends</display-name>
+    <description>Specifies any elements upon which the actions within the &lt;formGuide&gt; tag
+      depend, beyond those elements specified in &lt;observe&gt; and &lt;ignore&gt; tags. This
+      ensures that when any of the depends elements receive a change event, the event handler
+      for this &lt;formGuide&gt; tag is executed. 
+      </description>
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's to observe.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names to observe (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if element is a comboRadioSelect (default is false).</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>enable</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Enable@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>enable</display-name>
+    <description>Specifies the element(s) that get enabled when the observe rules are met. When the observe rules
+    			are NOT met, the element(s) are disabled.</description>
+
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's to enable.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names to enable (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if control is a comboRadioSelect (default is false), in which
+      			case both the radio buttons and select need to be enabled.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>disable</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Disable@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>disable</display-name>
+    <description>Specifies the element(s) that get disabled when the observed rule are met. When the observe rules
+    			are NOT met, the element(s) are enabled.</description>
+
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's to disable.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names to disable (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if control is a comboRadioSelect (default is false), in which
+      			case both the radio buttons and select need to be disabled.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>insert</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Insert@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>enable</display-name>
+    <description>Specifies the element(s) that get inserted when the observed rule are met.</description>
+
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's to insert.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names to insert (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>remove</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Remove@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>enable</display-name>
+    <description>Specifies the element(s) that get removed when the observed rule are met.</description>
+
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's to remove.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names to remove (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+  </tag>
+  
+  <tag>
+    <name>skip</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Skip@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>skip</display-name>
+    <description>Specifies the element(s) that get skipped when the observe rules
+      are met. The element(s) are disabled and set to the specified skipValue or
+      skipOptionText. 
+            
+      Conversely, if the observe rules are not met, the element(s) are unskipped,
+      meaning that they are enabled, and only if the current value is LOGICAL_SKIP 
+      ("-6" or "-6.0" or "Logical Skip") then the value is set to the specified unskipValue or 
+      unskipOptionText. 
+      
+      In other words, the skip tag is intended for elements that can have LOGICAL_SKIP as a 
+      value, i.e. the element has an associated list with the standard error codes. Otherwise, 
+      consider using a combination of disable and setValue tags instead of skip.
+      
+      If the element is not a selectbox, skipOptionText and unskipOptionText attributes are not used. 
+      
+      If an element is a selectbox, the skip/unskip value is set as follows:
+      The option matching its text field to the skip/unskipOptionText
+      attribute, or matching its value field to the skip/unskipValue attribute, or both, 
+      is selected. If there is no match, a new option is added to the select box using 
+      skip/unskipValue and/or skip/unskipOptionText, and is selected. For selectboxes, only 
+      one of skip/unskipValue or skip/unskipOptionText must be supplied, or both can be supplied.
+
+      If using this tag for instrument data enty and instrument data collection fields,
+      the tag supplies defaults for all the skip/unskipValue and skip/unskipOptionText attributes 
+      so they need not be supplied.  
+
+      Multiple elements can be skipped with a single tag by specifying a comma-separated list
+      of element id's or name's. Each will be skipped using the same unskip/skipValue and
+      unskip/skipOptionText and comboRadioSelect attributes. 
+
+      note for acs select boxes:
+       skip:
+       the element is disabled
+       the value is set to the option whose value matches skipValue and/or whose text matches skipOptionText.
+
+       unskip:
+       the element is enabled. 
+       if the current value of the element is LOGICAL_SKIP, its value is set to the option whose
+        value matches unskipValue and/or whose text matches unskipOptionText (which defaults to '' if 
+	not specified).
+       if the current value of the element is not LOGICAL_SKIP, its value is not changed, i.e. 
+        unskipOptionText and unskipValue are not used.
+    </description>
+
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's to skip.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names to skip (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>skipValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+     <description>Skipped element(s) are set to this value. select boxes (including acs element) can have their value set 
+	using this value or skipOptionText. Defaults to "-6"  If the field is a text field, may want to explicitly
+	set this attribute to "Logical Skip" which works better than "-6" in a text field.</description>
+    </attribute>
+    <attribute>
+      <name>skipOptionText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Skipped element(s) that are select boxes (including acs element) are set by matching their option
+       text to this text. Defaults to "Logical Skip"</description>
+    </attribute>
+    <attribute>
+      <name>unskipValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+     <description>In the case of undo action, unskipped element(s) whose current value is LOGICAL_SKIP ("-6" or "-6.0"
+      or "Logical Skip") are set to this value. select boxes (including acs elements) can have their value set using this 
+      value or unskipOptionText. Defaults to ""</description>
+    </attribute>
+    <attribute>
+      <name>unskipOptionText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>In the case of undo action, unskipped element(s) whose current value is LOGICAL_SKIP ("-6" or "-6.0" or
+       "Logical Skip") and which are select boxes (including acs elements) are set to an unskip value by matching their 
+       option text to this text. Defaults to ""</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if control is a comboRadioSelect (default is false).</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>unskip</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.Unskip@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>unskip</display-name>
+    <description>Specifies the element(s) that are unskipped when the observe rules are met. The 
+      element(s) are enabled and, ONLY if the current value is LOGICAL_SKIP ("-6" or "-6.0" or "Logical Skip")
+      then the element is set to the specified unskipValue/unskipOptionText. In other words, the unskip
+      tag is intended for elements that can have LOGICAL_SKIP as a value, i.e. the element has an
+      associated list with the standard error codes. Otherwise, consider using a combination
+      of enable and setValue tags instead of unskip.
+      
+      Conversely, if the observe rules are not met, the element(s) are skipped,
+      meaning that they are disabled and value is set to the skipValue/skipOptionText
+      
+      If the element is not a selectbox, unskipOptionText/skipOptionText attributes are not used. 
+      
+      If an element is a selectbox, the unskip/skip value is set as follows:
+      the option matching its value field to the unskip/skipValue attribute, or matching its 
+      text field to the unskip/skipOptionText attribute, or both, is selected. If there is no match, 
+      a new option is added to the select box using unskip/skipValue and/or unskip/skipOptionText, 
+      and is selected. For selectboxes, only one of unskip/skipValue or unskip/skipOptionText must 
+      be supplied, or both can be supplied.
+
+      If using this tag for instrument data enty and instrument data collection fields,
+      the tag supplies defaults for all the unskip/skipValue and unskip/skipOptionText attributes 
+      so they need not be supplied.  
+
+      Multiple elements can be unskipped with a single tag by specifying a comma-separated list
+      of element id's or name's. Each will be unskipped using the same unskip/skipValue and
+      unskip/skipOptionText and comboRadioSelect attributes. 
+
+      note for acs select boxes:
+       unskip:
+       the element is enabled. 
+       if the current value of the element is LOGICAL_SKIP, its value is set to the option whose
+        value matches unskipValue and/or whose text matches unskipOptionText (which defaults 
+	to '' if not specified)
+       if the current value of the element is not LOGICAL_SKIP, its value is not changed, i.e. 
+        unskipOptionText and unskipValue are not used.
+       
+       skip:
+       the element is disabled
+       the value is set to the option whose value matches skipValue and/or whose text matches skipOptionText.
+    </description>
+
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's to unskip.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names to unskip (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>unskipValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+     <description>If the current value of the unskipped element is LOGICAL_SKIP ("-6" or "-6.0" or "Logical Skip"), its value is set to this
+      value. select boxes (including acs elements) can have their value set using this value or unskipOptionText. Defaults 
+      to ""</description>
+    </attribute>
+    <attribute>
+      <name>unskipOptionText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>If the current value of the unskipped element is LOGICAL_SKIP ("-6" or "-6.0" or "Logical Skip"), and if the element is a select
+       box (including acs elements), its value is set by matching option text to this text. Defaults to ""</description>
+    </attribute>
+    <attribute>
+      <name>skipValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+     <description>In the case of undo action, set skipped element(s) to this value. select boxes (including acs elements) can have 
+	their value set using this value or skipOptionText. Defaults to "-6". If the field is a text field, may want to explicitly
+	set this attribute to "Logical Skip" which works better than "-6" in a text field.</description>
+    </attribute>
+    <attribute>
+      <name>skipOptionText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>In the case of undo action, if skipped element(s) is a select box (including acs elements), set its value by
+       matching option text to this text. Defaults to "Logical Skip"</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if control is a comboRadioSelect (default is false).</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>removeOption</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.RemoveOption@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>removeOption</display-name>
+    <description>Specifies a selectbox element whose option(s) get removed, where the removed
+      options are those currently selected by the observe selectbox element(s). Assumes that the 
+      specified removeOption selectbox element contains the same options that the observe 
+      selectbox element(s) contain (minus the option(s) currently selected in the observed 
+      widget(s) which are removed by this action).
+      e.g. the instrument quality issues select box widgets. 
+      note: the removeOption tag(s) must appear after all observe tags within the formGuide parent tag.
+      note: this tag works for autocomplete widgets if elementIds are used, not elementNames
+      note: this tag is only implemented for selectboxes, and only selectboxes that allow a single
+            value to be selected
+      note: if the currently selected option in the selectbox is the option that is removed, the
+            currently selected option is changed to the blank option ('') if one exists, otherwise,
+            the results are undefined</description>
+
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's whose option(s) should be removed.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names whose option(s) should be removed (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>submitForm</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.SubmitForm@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>submitForm</display-name>
+    <description>When the observe rules are met, this action submits the specified form,
+      where the specified event value is submitted as the hidden form event field. This 
+      action is execute via calling the LavaWeb common.js submitForm function.</description>
+
+    <attribute>
+      <name>form</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Form name for the form submission.</description>
+    </attribute>
+    <attribute>
+      <name>event</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Event for the form submission.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>setValue</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@formGuide.SetValue@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>setValue</display-name>
+    <description>Set the specified element(s) to the specified value attribute. The optionText
+       attribute only applies to selectbox elements.
+       If an element is a selectbox, the option matching its value field to the value attribute,
+       or matching its text field to the optionText attribute, or both, is selected. If there is
+       no match, a new option is added to the select box using value and optionText, and is
+       selected. For selectboxes, only one of value or optionText must be supplied, or both
+       can be supplied. 
+       If an element is an autocomplete, and value does not match any values in the autocomplete
+       select list, then the value will NOT be set. This could be a problem with instruments
+       when hiding codes and the value to set is a code.
+    </description>
+
+    <attribute>
+      <name>elementIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element id's whose value is set.</description>
+    </attribute>
+    <attribute>
+      <name>elementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Comma-separated string of element names whose value is set (alternative to elementIds).</description>
+    </attribute>
+    <attribute>
+      <name>component</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only used when elementIds used, not elementNames, and only useful for elementIds in the LavaWeb 
+                   component handler format. This is an optional attribute.
+                   If present, prepend component and '_' to elementId to construct a LavaWeb component handler element id. 
+                   Also, this attribute is required when elementIds represent radio button groups, in which case component
+                   is used to construct a LavaWeb component handler-style element name, which is needed to obtain the array
+                   of individual radio button elements.</description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+     <description>Value to set element(s) to. If element is a selectbox, this is used to select an option with a matching value field.
+     			  This is an optional attribute; however, if this is a comboRadioSelect control, value must be supplied
+     			  because it is used to distinguish whether the value should be set on the radio buttons (if non-negative and non-blank)
+     			  or on the select box (if negative or blank). in this case, optionText is ignored.
+     </description>
+    </attribute>
+    <attribute>
+      <name>optionText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Only for selectbox elements. This is used to select an option with a matching text field.
+      				If the widget is a comboRadioSelect, only value is used and optionText is ignored.</description>
+    </attribute>
+    <attribute>
+      <name>comboRadioSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>Optional flag indicating if control is a comboRadioSelect (default is false).</description>
+    </attribute>
+  </tag>
+
+
+  <!--
+    - ====================================
+    - ========== optionTransfer ==========
+    - ====================================
+    -->
+  <tag>
+    <name>optionTransfer</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.OptionTransfer@EL_CLS@Tag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>optionTransfer</display-name>
+    <description>
+      The outer-most tag in the option transfer facility, other related tags
+      are nested within it. This tag provides option transfer core
+      functionalities.</description>
+  </tag>
+
+  <tag>
+    <name>source</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.Source@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>source</display-name>
+    <description></description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the element to inject.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the element to inject.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>target</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.Target@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>target</display-name>
+    <description>Injects source select box's functionality.</description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the element to inject.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the element to inject.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>transfer</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.Transfer@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>transfer</display-name>
+    <description>Injects the functionality to transfer selected items in the source
+        box to the target box of the option transfer suite.</description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the element to inject.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the element to inject.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>transferAll</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.TransferAll@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>transfer</display-name>
+    <description>Injects the functionality to transfer all items in the source
+        box to the target box of the option transfer suite.</description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the element to inject.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the element to inject.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>return</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.Return@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>return</display-name>
+    <description>Injects the functionality to return selected items in the target
+        box to the source box of the option transfer suite.</description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the element to inject.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the element to inject.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>returnAll</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@optionTransfer.ReturnAll@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>return</display-name>
+    <description>Injects the functionality to return all items in the target
+        box to the source box of the option transfer suite.</description>
+
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the element to inject.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the element to inject.</description>
+    </attribute>
+  </tag>
+
+
+
+  <!--
+    - ============================
+    - ========== select ==========
+    - ============================
+    -->
+  <tag>
+    <name>select</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@select.Select@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>select</display-name>
+    <description>Renders a Javascript button which conveniently selects or unselects a
+      group of select options or checkboxes.</description>
+    <attribute>
+      <name>type</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Type of convenience button to render. Valid values are
+        'all', 'inverse', and 'range'. The 'all' button alternately selects
+        and unselects all select options or checkboxes. The 'inverse' button
+        selects unselected and unselects selected checkboxes. The 'range'
+        button selects options that are between pairs of selected ones.</description>
+    </attribute>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'id' attribute of the element.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'name' attribute of the element.</description>
+    </attribute>
+    <attribute>
+      <name>applyTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the select box to select/unselect.</description>
+    </attribute>
+    <attribute>
+      <name>applyToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the select box or checkboxes to select/unselect.
+        If checkboxes are used, all of them must have the same name.</description>
+    </attribute>
+  </tag>
+
+
+
+  <!--
+    - ==========================
+    - ========== sort ==========
+    - ==========================
+    -->
+  <tag>
+    <name>sort</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@sort.Sort@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>sort</display-name>
+    <description>Renders a Javascript button which sorts options in a select box.
+      The attributes 'value' and 'image' are mutually exclusive.</description>
+    <attribute>
+      <name>type</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Type of convenience button to render. Valid values are
+        'ascending' and 'descending'. The 'ascending' button sorts select
+        options ascendingly. The 'descending' button sorts options descendingly.
+        Never use a runtime or EL expression for this attribute.</description>
+    </attribute>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'id' attribute of the element.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'name' attribute of the element.</description>
+    </attribute>
+    <attribute>
+      <name>applyTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the select box to sort.</description>
+    </attribute>
+    <attribute>
+      <name>applyToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the select box to sort.</description>
+    </attribute>
+  </tag>
+
+
+
+  <!--
+    - ===========================
+    - ========== shift ==========
+    - ===========================
+    -->
+  <tag>
+    <name>shift</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@shift.Shift@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>shift</display-name>
+    <description>Renders a Javascript button which shifts (upwards or downwards)
+      a group options in a select box. The attributes 'value' and 'image' are
+      mutually exclusive.</description>
+    <attribute>
+      <name>type</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Valid values are 'up', 'down', 'first', and 'last'.
+        'up' and 'down' shift options upwards and downwards respectively.
+        'first' and 'last' shift options to the top and bottom of the list
+        respectively. Never use a runtime or EL expression for this attribute.</description>
+    </attribute>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'id' attribute of the element.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'name' attribute of the element.</description>
+    </attribute>
+    <attribute>
+      <name>applyTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the select box to shift.</description>
+    </attribute>
+    <attribute>
+      <name>applyToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the select box to shift.</description>
+    </attribute>
+  </tag>
+
+
+
+  <!--
+    - ===========================
+    - ========== panel ==========
+    - ===========================
+    -->
+  <tag>
+    <name>panel</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@panel.Panel@EL_CLS@Tag</tag-class>
+    <body-content>JSP</body-content>
+    <display-name>panel</display-name>
+    <description>Renders a panel.</description>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Sets the ID of the panel.</description>
+    </attribute>
+    <attribute>
+      <name>class</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>HTML 'class' attribute of this panel.</description>
+    </attribute>
+    <attribute>
+      <name>anchorTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of an element to attach to.</description>
+    </attribute>
+    <attribute>
+      <name>anchorToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of an element to attach to.</description>
+    </attribute>
+    <attribute>
+      <name>listener</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>The panel's life cycle listener.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>drag</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@panel.Drag@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>drag</display-name>
+    <description>Injects a panel drag functionality.</description>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the drag handle.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the drag handle.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>stick</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@panel.Stick@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>stick</display-name>
+    <description>Injects a panel stick functionality.</description>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the stick handle.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the stick handle.</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>show</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@panel.Show@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>show</display-name>
+    <description>Injects a panel show functionality.</description>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the show trigger.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the show trigger.</description>
+    </attribute>
+    <attribute>
+      <name>on</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Valid values are 'click', 'focus', and 'mouseout'.</description>
+    </attribute>
+    <attribute>
+      <name>delay</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>@INT@</type>
+      <description>Delay before responding to event in milliseconds.</description>
+    </attribute>
+    <attribute>
+      <name>position</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Panel positioning type. Valid values are "auto" and "mouse".
+        In "auto" mode, the panel will honour the parent &lt;anchor&gt;'s
+        anchorTo and anchorToName attribute.
+        "mouse" indicates that panel will attach to mouse cursor when
+        brought up.
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>hide</name>
+    <tag-class>net.sf.uitags.tag.@EL_PKG@panel.Hide@EL_CLS@Tag</tag-class>
+    <body-content>empty</body-content>
+    <display-name>hide</display-name>
+    <description>Injects a panel hide functionality.</description>
+    <attribute>
+      <name>injectTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>ID of the hide trigger.</description>
+    </attribute>
+    <attribute>
+      <name>injectToName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Name of the hide trigger.</description>
+    </attribute>
+    <attribute>
+      <name>on</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Valid values are 'click', 'blur', and 'mouseout'.</description>
+    </attribute>
+    <attribute>
+      <name>delay</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>@INT@</type>
+      <description>Delay before responding to event in milliseconds.</description>
+    </attribute>
+    <attribute>
+      <name>force</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>@BOOLEAN@</type>
+      <description>Hide panel no matter whether the panel sticks or not.</description>
+    </attribute>
+  </tag>
+</taglib>
