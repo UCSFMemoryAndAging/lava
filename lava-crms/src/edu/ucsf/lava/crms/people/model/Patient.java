@@ -55,6 +55,7 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	private String createdBy;
 	private Date created;
 	private String modifiedBy;
+	private String notes;
 	
 	private Set doctors;
 	private Set enrollmentStatus;
@@ -293,6 +294,15 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 		this.firstName = subjectId;
 	}
 	
+	public String getNotes() {
+		return notes;
+	}
+
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+
+
 	// the calculation for death date is done here and in a hibernate property formula
 	// it was done here because the PatientHandler needs a freshly calculated deathDate
 	//   to check if the new mo/dy/yr components match when saving (when assigned a leniency

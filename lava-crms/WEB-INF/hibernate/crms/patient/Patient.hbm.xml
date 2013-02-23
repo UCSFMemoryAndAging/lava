@@ -48,6 +48,7 @@
 		<property name="createdBy" column="createdBy" type="string" length="25"/>
 		<property name="created" column="created" type="timestamp"/>
 		<property name="modifiedBy" column="modifiedBy" type="string" length="25"/>
+		<property name="notes" column="notes" type="string" length="2000"/>
 		
 
 		
