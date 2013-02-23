@@ -55,6 +55,13 @@
 <tags:createField property="dupNameFlag" component="${component}"/>
 </page:applyDecorator>
 
+<page:applyDecorator name="component.entity.section">
+  <page:param name="sectionId">notes</page:param>
+  <page:param name="sectionNameKey">patient.notes.section</page:param>
+  <page:param name="quicklinkPosition">none</page:param>
+<tags:createField property="notes" component="${component}" labelAlignment="top"/>
+</page:applyDecorator>
+
 <c:set var="modeString" value="${component}_mode"/>
 <c:set var="componentMode" value="${requestScope[modeString]}"/>
 
