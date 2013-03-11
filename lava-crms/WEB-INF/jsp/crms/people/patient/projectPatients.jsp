@@ -23,7 +23,7 @@
 <content tag="listColumns">
 <tags:listRow>
 	<tags:componentListColumnHeader component="${component}" label="Action" width="10%"/>
-	<tags:componentListColumnHeader component="${component}" label="PIDN" width="10%"sort="id"/>
+	<tags:componentListColumnHeader component="${component}" label="PIDN" width="10%" sort="id"/>
 	<tags:componentListColumnHeader component="${component}" label="Name" width="40%" sort="fullNameRev"/>
 	<tags:componentListColumnHeader component="${component}" label="Date of Birth" width="15%" sort="birthDate"/>
 	<tags:componentListColumnHeader component="${component}" label="Age" width="10%" sort="birthDate"/>	

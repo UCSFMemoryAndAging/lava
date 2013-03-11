@@ -169,7 +169,7 @@
 <content tag="listColumns">
 <tags:listRow>
 	<tags:componentListColumnHeader component="${component}" label="Action" width="20px"/>
-	<tags:componentListColumnHeader component="${component}" label="PIDN" width="20px"sort="id"/>
+	<tags:componentListColumnHeader component="${component}" label="PIDN" width="20px" sort="id"/>
 	<tags:componentListColumnHeader component="${component}" label="Name" width="80px" sort="fullNameRevNoSuffix"/>
 	<tags:componentListColumnHeader component="${component}" label="Date of Birth" width="20px" sort="birthDate"/>
 	<tags:componentListColumnHeader component="${component}" label="Deceased" width="30px" sort="deathDate"/>
