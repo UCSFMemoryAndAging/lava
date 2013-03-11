@@ -1,4 +1,4 @@
--- until the lava-crms V3.3.0 release is ready, all developers creating schema changes that will be
+	-- until the lava-crms V3.3.0 release is ready, all developers creating schema changes that will be
 -- part of lava-crms V3.3.0 should update this script (i.e. the latest version of this script so
 -- that you do not overwrite other developers changes)
 
@@ -44,11 +44,11 @@ ALTER TABLE `caregiver`
   ADD COLUMN `Title` VARCHAR(15) NULL DEFAULT NULL AFTER `FName`;
 
 -- -----------------------------------------------------
--- View `patient_DOD`
+-- View `patient_dod`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `patient_DOD`;
+DROP TABLE IF EXISTS `patient_dod`;
 CREATE OR REPLACE VIEW
-`patient_DOD`
+`patient_dod`
 AS select `patient`.`PIDN` AS `PIDN`,
   -- empty date components are treated as "unknown"
   -- if unknown, assume a date component that would produce minimum death age
@@ -67,21 +67,21 @@ AS select `patient`.`PIDN` AS `PIDN`,
 DROP TABLE IF EXISTS `patient_age`;
 CREATE OR REPLACE VIEW `patient_age`
 AS select `patient`.`PIDN` AS `PIDN`,
-  ((if(isnull(date_format(`patient_DOD`.DOD,_utf8'%Y')),
+  ((if(isnull(date_format(`patient_dod`.DOD,_utf8'%Y')),
        date_format(now(),_utf8'%Y'),
-       date_format(`patient_DOD`.`DOD`,_utf8'%Y')
+       date_format(`patient_dod`.`DOD`,_utf8'%Y')
       ) - date_format(`patient`.`DOB`,_utf8'%Y')
-   ) - (if(isnull(date_format(`patient_DOD`.`DOD`,_utf8'00-%m-%d')),
+   ) - (if(isnull(date_format(`patient_dod`.`DOD`,_utf8'00-%m-%d')),
            date_format(now(),_utf8'00-%m-%d'),
-           date_format(`patient_DOD`.DOD,_utf8'00-%m-%d')
+           date_format(`patient_dod`.DOD,_utf8'00-%m-%d')
           ) < date_format(`patient`.`DOB`,_utf8'00-%m-%d')
        )
   ) AS `AGE`
-  from `patient` INNER JOIN `patient_DOD` ON `patient`.PIDN=`patient_DOD`.PIDN;
+  from `patient` INNER JOIN `patient_dod` ON `patient`.PIDN=`patient_dod`.PIDN;
   
   
 DROP VIEW IF EXISTS `lq_view_demographics`;
-CREATE VIEW `lq_view_demographics` AS select `patient`.`PIDN` AS `PIDN_demographics`,`patient`.`DOB` AS `DOB`,`patient_age`.`AGE` AS `AGE`,`patient`.`Gender` AS `Gender`,`patient`.`Hand` AS `Hand`,`patient`.`Deceased` AS `Deceased`,`patient_DOD`.`DOD` AS `DOD`,`patient`.`PrimaryLanguage` AS `PrimaryLanguage`,`patient`.`TestingLanguage` AS `TestingLanguage`,`patient`.`TransNeeded` AS `TransNeeded`,`patient`.`TransLanguage` AS `TransLanguage` from (`patient` join `patient_age` on((`patient`.`PIDN` = `patient_age`.`PIDN`)) join `patient_DOD` on (`patient`.`PIDN` = `patient_dod`.`PIDN`)) where (`patient`.`PIDN` > 0);
+CREATE VIEW `lq_view_demographics` AS select `patient`.`PIDN` AS `PIDN_demographics`,`patient`.`DOB` AS `DOB`,`patient_age`.`AGE` AS `AGE`,`patient`.`Gender` AS `Gender`,`patient`.`Hand` AS `Hand`,`patient`.`Deceased` AS `Deceased`,`patient_dod`.`DOD` AS `DOD`,`patient`.`PrimaryLanguage` AS `PrimaryLanguage`,`patient`.`TestingLanguage` AS `TestingLanguage`,`patient`.`TransNeeded` AS `TransNeeded`,`patient`.`TransLanguage` AS `TransLanguage` from (`patient` join `patient_age` on((`patient`.`PIDN` = `patient_age`.`PIDN`)) join `patient_dod` on (`patient`.`PIDN` = `patient_dod`.`PIDN`)) where (`patient`.`PIDN` > 0);
 
 -- ************************************************************
 -- EMORY: end patient/caregiver changes
