@@ -40,7 +40,7 @@ so going forward do not expect new apps to enable this, meaning nothing has to b
 <tags:listRow>
 	<tags:componentListColumnHeader component="${component}"  label="Action" width="11%"/>
 	<tags:componentListColumnHeader component="${component}"  label="Patient" width="19%" sort="patient.fullNameRevNoSuffix"/>
-	<tags:componentListColumnHeader component="${component}"  label="Measure"width="12%" sort="instrType"/>
+	<tags:componentListColumnHeader component="${component}"  label="Measure" width="12%" sort="instrType"/>
 	<tags:componentListColumnHeader component="${component}"  label="Collection" width="13%" sort="dcDate"/>
 	<tags:componentListColumnHeader component="${component}"  label="Data Entry" width="13%" sort="deDate"/>
 	<tags:componentListColumnHeader component="${component}"  label="Verify" width="13%" sort="dvDate"/>
