@@ -423,7 +423,7 @@ DROP PROCEDURE IF EXISTS `util_AddEntityToMetaData`;
 
 DELIMITER $$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `util_AddEntityToMetaData`(EntityIn varchar (50), ScopeIn varchar(25))
+CREATE PROCEDURE `util_AddEntityToMetaData`(EntityIn varchar (50), ScopeIn varchar(25))
 BEGIN
 
 INSERT INTO `viewproperty` (`messageCode`,`locale`,`instance`,`scope`,`entity`,`property`,`required`,`maxLength`,`propOrder`)
@@ -445,7 +445,7 @@ DROP PROCEDURE IF EXISTS `util_AddEntityToHibernateProperty`;
 
 DELIMITER $$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `util_AddEntityToHibernateProperty`(EntityIn varchar (50),ScopeIn varchar(25))
+CREATE PROCEDURE `util_AddEntityToHibernateProperty`(EntityIn varchar (50),ScopeIn varchar(25))
 BEGIN
 
 INSERT INTO `hibernateproperty` (`scope`,`entity`,`property`,`dbTable`,`dbColumn`,`dbType`,`dbLength`,
@@ -491,7 +491,7 @@ DROP PROCEDURE IF EXISTS `util_CreateTable`;
 
 DELIMITER $$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `util_CreateTable`(EntityIn varchar (50), ScopeIn varchar(25))
+CREATE PROCEDURE `util_CreateTable`(EntityIn varchar (50), ScopeIn varchar(25))
 BEGIN
 
 select CONCAT('DROP TABLE IF EXISTS `',db_table, '`;') from datadictionary where entity=EntityIn and scope=ScopeIn group by db_table order by db_table;
@@ -523,7 +523,7 @@ DROP PROCEDURE IF EXISTS `util_TableKeysAdd`;
 
 DELIMITER $$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `util_TableKeysAdd`(EntityIn varchar (50), ScopeIn varchar(25))
+CREATE PROCEDURE `util_TableKeysAdd`(EntityIn varchar (50), ScopeIn varchar(25))
 BEGIN
 
 select CONCAT('ALTER TABLE `', db_table, '` ADD CONSTRAINT `', db_table, '__instr_id`
@@ -545,7 +545,7 @@ DROP PROCEDURE IF EXISTS `util_TableKeysDrop`;
 
 DELIMITER $$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `util_TableKeysDrop`(EntityIn varchar (50), ScopeIn varchar(25))
+CREATE PROCEDURE `util_TableKeysDrop`(EntityIn varchar (50), ScopeIn varchar(25))
 BEGIN
 
 select CONCAT('ALTER TABLE `', db_table, '` DROP FOREIGN KEY `', db_table, '__instr_id`;
@@ -565,7 +565,7 @@ DROP PROCEDURE IF EXISTS `util_CreateLQProc`;
 
 DELIMITER $$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `util_CreateLQProc`(LQ_Scope varchar(50), LQ_Section varchar(50), LQ_Target varchar(50), Instrument varchar(50), DataSource varchar(50))
+CREATE PROCEDURE `util_CreateLQProc`(LQ_Scope varchar(50), LQ_Section varchar(50), LQ_Target varchar(50), Instrument varchar(50), DataSource varchar(50))
 BEGIN
 
 SELECT CONCAT('\n',
@@ -694,7 +694,7 @@ DROP PROCEDURE IF EXISTS `util_CreateLQView`;
 
 DELIMITER $$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `util_CreateLQView`(TableName varchar(50), Instrument varchar(50))
+CREATE PROCEDURE `util_CreateLQView`(TableName varchar(50), Instrument varchar(50))
 BEGIN
 
 DECLARE lqTargetName varchar(50);
