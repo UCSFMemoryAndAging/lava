@@ -57,3 +57,6 @@ UPDATE viewproperty
 
 
 UNLOCK TABLES;
+
+INSERT INTO versionhistory(module,version,versiondate,major,minor,fix,updaterequired)
+VALUES ('lava-crms-data','3.3.0','2012-11-02',3,3,0,0);

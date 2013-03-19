@@ -12,3 +12,5 @@ INSERT INTO `viewproperty` (`messageCode`, `locale`, `instance`, `scope`, `entit
 
 UNLOCK TABLES;
 
+INSERT INTO versionhistory(module,version,versiondate,major,minor,fix,updaterequired)
+VALUES ('lava-crms-data','3.3.1','2013-02-25',3,3,1,0);

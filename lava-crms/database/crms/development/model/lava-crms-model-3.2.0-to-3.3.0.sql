@@ -86,3 +86,7 @@ CREATE VIEW `lq_view_demographics` AS select `patient`.`PIDN` AS `PIDN_demograph
 -- ************************************************************
 -- EMORY: end patient/caregiver changes
 -- ************************************************************
+
+
+insert into versionhistory(module,version,versiondate,major,minor,fix,updaterequired)
+values ('lava-crms-model','3.3.0','2012-11-02',3,3,0,1);

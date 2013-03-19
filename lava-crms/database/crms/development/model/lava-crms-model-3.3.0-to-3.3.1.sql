@@ -7,3 +7,5 @@ DELIMITER ;
 ALTER TABLE `patient` 
   ADD COLUMN `notes` VARCHAR(2000) NULL DEFAULT NULL AFTER `FullNameNoSuffix`;
 
+INSERT versionhistory(module,version,versiondate,major,minor,fix,updaterequired)
+VALUES ('lava-crms-model','3.3.1','2013-02-25',3,3,1,1);
