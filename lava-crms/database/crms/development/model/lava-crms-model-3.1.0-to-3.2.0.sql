@@ -402,3 +402,8 @@ ALTER TABLE `projectunit`
   ADD UNIQUE INDEX `projectunit_ProjUnitDesc_unique` (`ProjUnitDesc` ASC) ;
 
 DELIMITER ;
+
+
+insert into versionhistory(module,version,versiondate,major,minor,fix,updaterequired)
+values ('lava-crms-model','3.2.0','2012-10-12',3,2,0,1);
+
