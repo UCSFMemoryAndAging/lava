@@ -16,3 +16,5 @@ INSERT INTO query_objects(instance,scope,module,section,target,short_desc,standa
   VALUES('lava','crms','query','assessment','instruments','Instrument Tracking',1,0,0);
   
   
+insert into versionhistory(module,version,versiondate,major,minor,fix,updaterequired)
+values ('LAVAQUERYAPP','3.0.0','2012-01-27',3,0,0,0);
