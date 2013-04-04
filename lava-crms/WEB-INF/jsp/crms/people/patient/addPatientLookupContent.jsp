@@ -18,7 +18,7 @@
 <content tag="listColumns">
 <tags:listRow>
 	<tags:componentListColumnHeader component="${component}" label="Action" width="20%"/>
-	<tags:componentListColumnHeader component="${component}" label="PIDN" width="15%"sort="id"/>
+	<tags:componentListColumnHeader component="${component}" label="PIDN" width="15%" sort="id"/>
 	<tags:componentListColumnHeader component="${component}" label="Name" width="40%" sort="fullNameRev"/>
 	<tags:componentListColumnHeader component="${component}" label="Date of Birth" width="20%" sort="birthDate"/>
 </tags:listRow>
