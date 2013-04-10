@@ -67,7 +67,7 @@
 
 
 <c:if test="${componentMode != 'vw'}">
-<ui:formGuide>
+<ui:formGuide simulateEvents="true">
     <ui:observe elementIds="deceased" component="${component}" forValue="[^1]|^$"/>
    	<ui:setValue elementIds="deathMonth" component="${component}" value=""/>
    	<ui:disable elementIds="deathMonth" component="${component}"/>
