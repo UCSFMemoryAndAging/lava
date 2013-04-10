@@ -69,11 +69,14 @@
 <c:if test="${componentMode != 'vw'}">
 <ui:formGuide>
     <ui:observe elementIds="deceased" component="${component}" forValue="[^1]|^$"/>
-   	<ui:skip elementIds="deathMonth" component="${component}"/>
-   	<ui:skip elementIds="deathDay" component="${component}"/>
-   	<ui:skip elementIds="deathYear" component="${component}"/>
+   	<ui:setValue elementIds="deathMonth" component="${component}" value=""/>
+   	<ui:disable elementIds="deathMonth" component="${component}"/>
+   	<ui:setValue elementIds="deathDay" component="${component}" value=""/>
+   	<ui:disable elementIds="deathDay" component="${component}"/>
+   	<ui:setValue elementIds="deathYear" component="${component}" value=""/>
+   	<ui:disable elementIds="deathYear" component="${component}"/>
 </ui:formGuide>
-s
+
 <ui:formGuide observeAndOr="or" ignoreDoOnLoad="true" simulateEvents="true">
     <ui:observe elementIds="${component}_deidentified" forValue="1"/>
     <ui:observeForNull elementIds="${component}_deidentified"/>
