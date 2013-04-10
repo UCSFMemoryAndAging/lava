@@ -13,8 +13,12 @@ INSERT INTO `viewproperty` (`messageCode`, `locale`, `instance`, `scope`, `entit
 INSERT INTO `viewproperty` (`messageCode`, `locale`, `instance`, `scope`, `entity`, `property`, `section`, `context`, `style`, `required`, `label`, `maxLength`, `size`, `indentLevel`, `attributes`, `list`, `propOrder`, `quickHelp`)
   VALUES ('*.patient.deathDay', 'en', 'lava', 'crms', 'Patient', 'deathDay', 'ID and Core Demographics', 'i', 'range', 'No', '', 2, 2, 0, '', 'generic.deathdateDay', 14, '');
 INSERT INTO `viewproperty` (`messageCode`, `locale`, `instance`, `scope`, `entity`, `property`, `section`, `context`, `style`, `required`, `label`, `maxLength`, `size`, `indentLevel`, `attributes`, `list`, `propOrder`, `quickHelp`)
-  VALUES ('*.patient.deathYear', 'en', 'lava', 'crms', 'Patient', 'deathYear', 'ID and Core Demographics', 'i', 'range', 'No', '', 2, 2, 0, '', 'generic.deathdateYear', 14, '');
+  VALUES ('*.patient.deathYear', 'en', 'lava', 'crms', 'Patient', 'deathYear', 'ID and Core Demographics', 'i', 'range', 'No', '', 4, 4, 0, '', 'generic.deathdateYear', 14, '');
 
+UPDATE viewproperty 
+  SET messageCode='*.patient.createdBy',property='createdBy',label='Created By',quickHelp='User who created patient record' 
+  WHERE messageCode='*.patient.enterBy'; 
+  
 UPDATE `viewproperty`
   SET `messageCode`='*.addPatient.patient_middleName', `property`='patient_middleName', `label`='Middle Name', `maxLength`=25
   WHERE scope='crms' AND entity='addPatient' AND property='patient_middleInitial';
