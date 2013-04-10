@@ -366,7 +366,7 @@ INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`Or
 
 
 -- modify this DELETE if there are any custom preference records that would be deleted
-DELETE from `preference`;;
+DELETE from `preference`;
 INSERT INTO `preference` VALUES ('1', null, 'calendar', 'displayRange', 'Default View (e.g. Month, Week)', 'Month', '0', '2010-01-26 14:10:06');
 INSERT INTO `preference` VALUES ('2', null, 'calendar', 'showDayLength', 'Sets day length in week or day views to display either full day or work day', 'Work Day', '0', '2010-01-26 17:13:23');
 INSERT INTO `preference` VALUES ('4', null, 'baseList', 'pageSize', 'The default page view size for lists.', '25', '1', '2012-01-20 16:37:29');
