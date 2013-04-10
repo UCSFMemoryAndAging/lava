@@ -1,7 +1,7 @@
---MULTUM DATA is based on a product subject to license restrictions.  See http://www.multum.com/ for details. 
+-- MULTUM DATA is based on a product subject to license restrictions.  See http://www.multum.com/ for details. 
 
-DELETE FROM ListValues where instance='lava' and scope='crms-multum' and ListID = (SELECT ListID from list where ListName = 'MultumDrugLookup');
-DELETE FROM List where instance='lava' and scope='crms-multum' and  ListName = 'MultumDrugLookup';
+DELETE FROM listvalues where instance='lava' and scope='crms-multum' and ListID = (SELECT ListID from list where ListName = 'MultumDrugLookup');
+DELETE FROM list where instance='lava' and scope='crms-multum' and  ListName = 'MultumDrugLookup';
 INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES('MultumDrugLookup','lava','crms-multum',0,'2009-01-24 20:57:59');
 
 INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'lava','crms-multum','9524','1 Plus 1 F|clioquinol/hydrocortisone/pramoxine topical|3553',1,'2009-01-24 20:57:59' FROM `list` where `ListName`='MultumDrugLookup';
