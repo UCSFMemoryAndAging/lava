@@ -4,6 +4,8 @@ DELETE from datadictionary where instance=@instance and scope=@scope and entity=
 
 --PUT INSERT STATEMENTS FROM datadictionary_template.xlsx HERE
 
+SELECT concat('use ', @db, ';');
+SELECT '';
 call util_createtable(@entity,@scope);
 SELECT '';
 call util_tablekeysadd(@entity,@scope);

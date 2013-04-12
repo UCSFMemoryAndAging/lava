@@ -1,7 +1,10 @@
+use MYSQL_DBNAME;
+set @db='mysql_dbname';
 set @instance='lava';
 set @scope='app-demo';
 set @entity='entityname';
 set @table='entity_name';
 set @instrname='Instrument Name';
+set @lqscope='crms';
 set @lqsection='demo';
 set @lqtarget='lavaquerytarget';
