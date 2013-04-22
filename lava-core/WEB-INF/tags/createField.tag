@@ -622,7 +622,7 @@
 	   					<tags:timeSuggest property="${bindProperty}"  fieldId="${fieldId}" attributesText="${widgetAttributes}" timeList="${widgetList}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}" textBoxSize="${textBoxSize}"/>
 					</c:when>
 					<c:when test="${dataElement == 'textarea'}">
-	   			    	<tags:textarea property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}${mode == 'vw'? ' readonly':''}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}" maxLength="${maxTextLength}"/>
+	   			    	<tags:textarea property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}${mode == 'vw' ? ' readonly':''}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}" maxLength="${maxTextLength}"/>
 					</c:when>
 					<c:when test="${dataElement == 'unlimitedTextarea'}">
 	   			    	<tags:unlimitedTextarea property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}${mode == 'vw'? ' readonly':''}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}"/>
@@ -649,7 +649,7 @@
 					</c:when>
 					<%-- used when there is a single checkbox representing a flag --%>
 					<c:when test="${dataElement == 'checkbox'}">
-						<tags:checkbox property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}${mode == 'vw'?' disabled':''}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}"/>
+						<tags:checkbox property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}${mode == 'vw' || mode == 'lv' ?' disabled':''}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}"/>
 					</c:when>
 					<c:when test="${dataElement == 'comboRadioSelect'}">
 						<tags:comboRadioSelect property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}" list="${widgetList}" optionsAlignment="${optionsAlignment}" styleClass="inputData ${not empty dataStyle ? dataStyle :''}"/>
