@@ -475,7 +475,7 @@ INSERT INTO `hibernateproperty` (`scope`,`entity`,`property`,`dbTable`,`dbColumn
 			ELSE 'UNMAPPED TYPE' END,
 		NULL, CASE WHEN `IS_NULLABLE`='No' THEN 'Yes' ELSE 'No' END
 	FROM `INFORMATION_SCHEMA`.`COLUMNS` c INNER JOIN DataDictionary d on c.TABLE_NAME=d.db_table and c.COLUMN_NAME=d.db_column
-  WHERE d.entity=EntityIn AND COLUMN_NAME<>'instr_id' AND TABLE_NAME<>'instrumenttracking'
+  WHERE c.TABLE_SCHEMA=schema() AND d.entity=EntityIn AND COLUMN_NAME<>'instr_id' AND TABLE_NAME<>'instrumenttracking'
   ORDER BY `ORDINAL_POSITION`;
 
 END
