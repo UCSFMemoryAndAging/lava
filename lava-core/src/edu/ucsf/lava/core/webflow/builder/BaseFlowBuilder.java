@@ -48,7 +48,6 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
 	protected Map<String,edu.ucsf.lava.core.action.model.Action> actions;
 	protected LavaComponentFormAction formAction;
 	protected List<String> subFlowActionIds;
-    protected ConfigurableFlowAttributeMapper flowScopeIdMapper;
     protected ConfigurableFlowAttributeMapper subflowInputOutputMapper;
     
 	//convenience constructor -- objectName is usually the action target
@@ -64,9 +63,6 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
         this.registry = registry;
         this.actions = registry.getActions();
         this.subFlowActionIds = actions.get(actionId).getSubFlows();
-        // this is the mapper for passing the flowScope "id" attribute to custom subflows
-        flowScopeIdMapper = new ConfigurableFlowAttributeMapper();
-        flowScopeIdMapper.addInputMapping(mapping().source("flowScope.id").target("id").value());
         
         // this is the mapper for passing attributes (parameters) to and from subflows, e.g. passing request parameters for list CRUD actions
         subflowInputOutputMapper = new ConfigurableFlowAttributeMapper();
@@ -320,7 +316,7 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
     		// add a subflow for each custom flow, which will either handle the flow and signal "finish"
     		// or not handle the flow and signal "unhandled". if the custom flow did handle the flow, 
     		// the default flow should transition directly to its "finish" end state to terminate itself.
-    		addSubflowState(currentSubFlow, flow(currentSubFlowId + "." + getFlowEvent()), flowScopeIdMapper,
+    		addSubflowState(currentSubFlow, flow(currentSubFlowId + "." + getFlowEvent()), subflowInputOutputMapper,
     				new Transition[] {nextEventTransition,
 				transition(on("finish"), to("finish")),
 				transition(on("finishCancel"), to("finishCancel"))});
