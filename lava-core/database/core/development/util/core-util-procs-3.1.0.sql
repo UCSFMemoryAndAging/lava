@@ -430,7 +430,7 @@ INSERT INTO `viewproperty` (`messageCode`,`locale`,`instance`,`scope`,`entity`,`
    SELECT CONCAT('*.',EntityIn, '.',LOWER(LEFT(`prop_name`,1)),RIGHT(`prop_name`,LENGTH(`prop_name`)-1)),
    'en','lava',ScopeIn, EntityIn, CONCAT(LOWER(LEFT(`prop_name`,1)),RIGHT(`prop_name`,LENGTH(`prop_name`)-1)),
         CASE WHEN `required`='1' THEN 'Yes' ELSE 'No' END,
-        CASE WHEN `db_datalength` < 10000 THEN `db_datalength` ELSE NULL END, `prop_order`
+        CASE WHEN `db_datalength`='' THEN NULL WHEN `db_datalength` < 10000 THEN `db_datalength` ELSE NULL END, `prop_order`
 	FROM `datadictionary` WHERE `entity`=EntityIn AND `scope`=ScopeIn AND prop_name<>'instr_id' order by `prop_order`;
 END
 
@@ -474,7 +474,7 @@ INSERT INTO `hibernateproperty` (`scope`,`entity`,`property`,`dbTable`,`dbColumn
 			WHEN 'smallint' THEN 'short'
 			ELSE 'UNMAPPED TYPE' END,
 		NULL, CASE WHEN `IS_NULLABLE`='No' THEN 'Yes' ELSE 'No' END
-	FROM `INFORMATION_SCHEMA`.`COLUMNS` c INNER JOIN DataDictionary d on c.TABLE_NAME=d.db_table and c.COLUMN_NAME=d.db_column
+	FROM `INFORMATION_SCHEMA`.`COLUMNS` c INNER JOIN datadictionary d on c.TABLE_NAME=d.db_table and c.COLUMN_NAME=d.db_column
   WHERE c.TABLE_SCHEMA=schema() AND d.entity=EntityIn AND COLUMN_NAME<>'instr_id' AND TABLE_NAME<>'instrumenttracking'
   ORDER BY `ORDINAL_POSITION`;
 
