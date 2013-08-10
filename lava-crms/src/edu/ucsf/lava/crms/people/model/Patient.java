@@ -52,6 +52,10 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	private String fullName; 
 	private String fullNameRevNoSuffix; 
 	private String fullNameNoSuffix; 
+	// set inactiveDate on back-end to "soft delete" all patient data, without having to permanently remove any patient,
+	//   keeping audit table references intact for better security policy
+	private Date inactiveDate;
+	
 	private String createdBy;
 	private Date created;
 	private String modifiedBy;
@@ -217,6 +221,9 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	public String getFullNameNoSuffix() {return fullNameNoSuffix;}
 	public void setFullNameNoSuffix(String fullNameNoSuffix) {this.fullNameNoSuffix = fullNameNoSuffix;}
 	
+	public Date getInactiveDate() {return inactiveDate;}
+	public void setInactiveDate(Date inactiveDate) {this.inactiveDate = inactiveDate;}
+	
 	public String getCreatedBy() {return createdBy;}
 	public void setCreatedBy(String createdBy) {this.createdBy = createdBy;}
 	
@@ -349,17 +356,17 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	public boolean afterUpdate(){
 		boolean resave = super.afterUpdate();
 		if(isDirty("birthDate") || isDirty("deathMonth") || isDirty("deathDay") || isDirty("deathYear") ){
-			List<Visit> visits = getVisits(newFilterInstance());
+			List<Visit> visits = getVisits(Visit.MANAGER.newFilterInstance());
 			for (Visit v:visits){
 				v.save();
 			}
-			List<InstrumentTracking> instruments = getInstruments(newFilterInstance());
+			List<InstrumentTracking> instruments = getInstruments(InstrumentTracking.MANAGER.newFilterInstance());
 			for (InstrumentTracking i:instruments){
 				i.save();
 			}
 		}
 		if(isDirty("fullNameRev")){
-			List<ContactInfo> contactInfo = getContactInfo(newFilterInstance());
+			List<ContactInfo> contactInfo = getContactInfo(ContactInfo.MANAGER.newFilterInstance());
 			for (ContactInfo ci : contactInfo){
 				ci.save(); //updates contact description
 			}

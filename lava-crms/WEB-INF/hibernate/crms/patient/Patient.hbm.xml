@@ -45,6 +45,7 @@
 		<property name="fullName" column="FullName" type="string" length="100" />
 		<property name="fullNameRevNoSuffix" column="FullNameRevNoSuffix" type="string" length="100"/>
 		<property name="fullNameNoSuffix" column="FullNameNoSuffix" type="string" length="100"/>
+		<property name="inactiveDate" column="InactiveDate" type="timestamp"/>
 		<property name="createdBy" column="createdBy" type="string" length="25"/>
 		<property name="created" column="created" type="timestamp"/>
 		<property name="modifiedBy" column="modifiedBy" type="string" length="25"/>
