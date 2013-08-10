@@ -49,6 +49,11 @@ public class AuthUserContextFilter implements Filter, ManagersAware {
 							metadataManager.getMessage("authUserNotAuthorizedException.message",
 									new Object[] {}, Locale.getDefault()));
 				}
+				if(user.getAccessAgreementDate() == null || user.getAccessAgreementDate().after(new Date())) {
+					throw new AuthUserNotAuthorizedException(
+							metadataManager.getMessage("authUserNotAuthorizedException.message",
+									new Object[] {}, Locale.getDefault()));
+				}
 				user.setAuthUserContextInit(true);
 				user.setEffectiveRoles(user.getUserRoles());
 				if(user.getEffectiveRoles()==null || user.getEffectiveRoles().size()==0){

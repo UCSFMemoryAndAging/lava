@@ -731,7 +731,6 @@ public class AuthUser extends EntityBase implements UserDetails {
 			LavaDaoFilter filter = newFilterInstance();
 			filter.addDaoParam(filter.daoEqualityParam("login", username));
 			filter.addDaoParam(AuthDaoUtils.getEffectiveDaoParam(filter));
-			filter.addDaoParam(filter.daoLessThanOrEqualParam("accessAgreementDate", new Date()));
 			return (AuthUser)getOne(AuthUser.class,filter);
 		}
 		
