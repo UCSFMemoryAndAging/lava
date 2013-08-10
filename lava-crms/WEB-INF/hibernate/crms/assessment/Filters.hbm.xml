@@ -18,10 +18,16 @@ may be needed using the authorizationService to ensure that the user has permiss
     PIDN in (select e.PIDN from enrollmentstatus e where e.PIDN=PIDN and e.ProjName in (:projectList))
 </filter-def>
 
-<!-- option here would be to verify that PIDN is in Patient table...but this would obscure orphin records and involve an extra join.. -->
+<!-- use this filter to ensure an entity that uses PIDN indeed has an entry in the patient table AND not inactive (not "soft deleted") -->
+<filter-def name="validPatient">
+    PIDN in (select p.PIDN from patient p where p.PIDN=PIDN and p.InactiveDate IS NULL)
+</filter-def>
+
+<!-- alternative: use this simpler filter to avoid the extra join (performance) or concern about obscuring orphan records (integrity)
 <filter-def name="validPatient">
     PIDN > 0
 </filter-def>
+-->
 
 <!-- user-defined context filters -->
 <filter-def name="projectContext">
