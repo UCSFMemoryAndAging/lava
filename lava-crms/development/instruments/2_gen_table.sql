@@ -10,4 +10,4 @@ call util_createtable(@entity,@scope);
 SELECT '';
 call util_tablekeysadd(@entity,@scope);
 SELECT '';
-SELECT concat('INSERT IGNORE into instrument(instrname, tablename, formname, hasversion) values(\'', @instrname, '\',\'Multiple\',\'LavaWebOnly\',0);');
+SELECT concat('INSERT IGNORE into instrument(instrname, tablename, formname, hasversion) values(\'', @instrname, '\',\'', @table, '\',\'LavaWebOnly\',0);');
