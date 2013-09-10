@@ -98,7 +98,7 @@ public class LabelValueBean implements Comparable<LabelValueBean>, Serializable 
 	 * Compares based on the "label" field (natural ordering).
 	 */
 	public int compareTo(LabelValueBean anotherLabelValue) throws ClassCastException {
-	    return label.compareTo(anotherLabelValue.getLabel());    
+	    return label.compareTo(anotherLabelValue.getLabel()==null ? "" : anotherLabelValue.getLabel());
 	}
 	
 	
