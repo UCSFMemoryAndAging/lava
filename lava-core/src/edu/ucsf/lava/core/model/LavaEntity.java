@@ -67,6 +67,7 @@ public interface LavaEntity extends Serializable {
 	public Object[] getAssociationsToInitialize(String method);
 	public boolean initializeAssocationsForObjectLists(String method);
 	public Object postCreate();
+	public void initialize();
 	
 	//Model level "triggers" 
 	public void beforeCreate();
