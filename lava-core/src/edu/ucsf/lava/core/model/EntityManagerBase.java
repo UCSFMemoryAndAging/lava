@@ -70,6 +70,14 @@ public class EntityManagerBase {
 			getDao().initialize(entity);
 		}
 		
+		/* 
+		 * Note: this was not added to LavaEntity / EntityBase / EntityManagerBase because it if is 
+		 * called on the model object where the model object is a HibernateProxy, the methods work 
+		 * but upon return the HibernateProxy model object that was materialized is still a 
+		 * HibernateProxy (has something to do with the fact that it is the caller). So instead, 
+		 * callers should instantiate an EntityManagerBase and call materializeProxy on the 
+		 * EntityManagerBase instance.
+		 */
 		public Object materializeProxy(Object entity) {
 			return getDao().materializeProxy(entity);
 		}
