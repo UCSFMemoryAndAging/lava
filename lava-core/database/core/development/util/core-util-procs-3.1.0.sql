@@ -210,29 +210,63 @@ DROP PROCEDURE IF EXISTS `util_GetCreateFieldTags`$$
 CREATE  PROCEDURE  `util_GetCreateFieldTags`(EntityIn varchar(50), ScopeIn VARCHAR(25))
 BEGIN
 
-
 SELECT CONCAT('<tags:createField property="',`property`,'" component="${component}"/>')
-FROM `viewproperty` WHERE `Entity` = EntityIn and `Scope`=ScopeIn Order By `propOrder`;
+FROM `viewproperty` WHERE `Entity`=EntityIn and `Scope`=ScopeIn Order By `propOrder`;
 
+SELECT '\n\n';
 
 SELECT CONCAT('<tags:createField property="',`property`,'" component="${component}" entity="',
   LOWER(LEFT(`Entity`,1)),RIGHT(`Entity`,LENGTH(`Entity`)-1),'"/>')
-FROM `viewproperty` WHERE `Entity` = EntityIn and `Scope`=ScopeIn Order By `propOrder`;
+FROM `viewproperty` WHERE `Entity`=EntityIn and `Scope`=ScopeIn Order By `propOrder`;
 
+SELECT '\n\n';
 
 SELECT CONCAT('<tags:createField property="',`property`,'" component="${component}" entity="${instrTypeEncoded}"/>')
-FROM `viewproperty` WHERE `Entity` = EntityIn and `Scope`=ScopeIn Order By `propOrder`;
+FROM `viewproperty` WHERE `Entity`=EntityIn and `Scope`=ScopeIn Order By `propOrder`;
 
+SELECT '\n\n';
 
 SELECT CONCAT('<tags:createField property="',`property`,'" component="',
   LOWER(LEFT(`Entity`,1)),RIGHT(`Entity`,LENGTH(`Entity`)-1),'"/>')
-FROM `viewproperty` WHERE `Entity` = EntityIn and `Scope`=ScopeIn Order By `propOrder`;
+FROM `viewproperty` WHERE `Entity`=EntityIn and `Scope`=ScopeIn Order By `propOrder`;
 
+SELECT '\n\n';
 
 SELECT CONCAT('<tags:listField property="',`property`,'" component="${component}" listIndex="${iterator.index}" entityType="',
   LOWER(LEFT(`Entity`,1)),RIGHT(`Entity`,LENGTH(`Entity`)-1),'"/>')
-FROM `viewproperty` WHERE `Entity` = EntityIn and `Scope`=ScopeIn Order By `propOrder`;
+FROM `viewproperty` WHERE `Entity`=EntityIn and `Scope`=ScopeIn Order By `propOrder`;
 
+SELECT '\n\n';
+
+SELECT CONCAT('<tags:tableForm>\n',
+'<tags:listRow>\n',
+'\t<tags:listColumnHeader labelKey="" width="10%"/>\n',
+'\t<tags:listColumnHeader labelKey="" width="70%"/>\n',
+'\t<tags:listColumnHeader labelKey="" width="20%"/>\n',
+'</tags:listRow>');
+SELECT CONCAT('<tags:listRow>\n',
+'\t<tags:listCell styleClass="noRight right"><tags:outputMetadata attribName="label2" property="',`property`,'" entity="${instrTypeEncoded}"/></tags:listCell>','\n',
+'\t<tags:listCell styleClass="noLeft"><tags:outputMetadata attribName="label" property="',`property`,'" entity="${instrTypeEncoded}"/></tags:listCell>\n',
+'\t<tags:listCell><tags:createField property="',`property`,'" component="${component}" entity="${instrTypeEncoded}" mode="${controlMode}"/></tags:listCell>','\n',
+'</tags:listRow>')
+FROM `viewproperty` WHERE `Entity`=EntityIn and `Scope`=ScopeIn Order By `propOrder`;
+SELECT '</tags:tableForm>';
+
+SELECT '\n\n';
+
+SELECT CONCAT('<tags:tableForm>\n',
+'<tags:listRow>\n',
+'\t<tags:listColumnHeader labelKey="" width="10%"/>\n',
+'\t<tags:listColumnHeader labelKey="" width="70%"/>\n',
+'\t<tags:listColumnHeader labelKey="" width="20%"/>\n',
+'</tags:listRow>');
+SELECT CONCAT('<tags:listRow>\n',
+'\t<tags:listCell styleClass="noRight right"><tags:outputMetadata attribName="label2" property="',`property`,'" entity="${instrTypeEncoded}"/></tags:listCell>','\n',
+'\t<tags:listCell styleClass="noLeft"><tags:createField property="',`property`,'" component="${component}" entity="${instrTypeEncoded}" mode="${controlMode}"/></tags:listCell>','\n',
+'\t<tags:listCell><tags:outputMetadata attribName="label" property="',`property`,'" entity="${instrTypeEncoded}"/></tags:listCell>\n',
+'</tags:listRow>')
+FROM `viewproperty` WHERE `Entity`=EntityIn and `Scope`=ScopeIn Order By `propOrder`;
+SELECT '</tags:tableForm>';
 
 END $$
 
