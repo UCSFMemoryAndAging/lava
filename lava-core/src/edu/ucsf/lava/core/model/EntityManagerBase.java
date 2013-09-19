@@ -70,6 +70,9 @@ public class EntityManagerBase {
 			getDao().initialize(entity);
 		}
 		
+		public Object materializeProxy(Object entity) {
+			return getDao().materializeProxy(entity);
+		}
 
 		public  LavaDaoFilter newFilterInstance() {
 			return newFilterInstance(null);
