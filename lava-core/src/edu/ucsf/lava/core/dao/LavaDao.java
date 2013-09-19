@@ -21,4 +21,5 @@ public interface LavaDao {
 	public void initialize(Object entity);
 	public List<Long> getEntityIds(Class entityClass,LavaDaoFilter filter);
 	public void executeSQLProcedure(String procedureName, Object[] paramValues, int[] paramTypes, char[] paramIOFlags);
+	public Object materializeProxy(Object object);
 }

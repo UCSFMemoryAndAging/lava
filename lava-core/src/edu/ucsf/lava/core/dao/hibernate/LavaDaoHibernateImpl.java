@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -233,6 +234,15 @@ public class LavaDaoHibernateImpl extends HibernateDaoSupport implements LavaDao
 	}
 
 
+	public Object materializeProxy(Object object) {
+		if (object instanceof HibernateProxy) {
+			return ((HibernateProxy)object).getHibernateLazyInitializer().getImplementation();
+		}
+		else {
+			return object;
+		}
+	}
+		
 	
 	
 
