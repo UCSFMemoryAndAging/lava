@@ -79,7 +79,8 @@ public interface LavaDaoFilter extends Serializable {
 	public void addDaoParam(LavaDaoParam param);
 	public void clearDaoParams();
 	public LavaDaoParam daoEqualityParam(String propertyName, Object param);
-	public LavaDaoParam daoLikeParam(String propertyName, String pattern);
+	public LavaDaoParam daoLikeParam(String propertyName, String pattern); // like => matching 'searchstring%'
+	public LavaDaoParam daoLikeAnywhereParam(String propertyName, String pattern); // like => matching '%searchstring%'
 	public LavaDaoParam daoBetweenParam(String propertyName, Object lo, Object high);
 	public LavaDaoParam daoNamedParam(String propertyName,Object param);
 	public LavaDaoParam daoPositionalParam(String propertyName);

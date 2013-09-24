@@ -444,6 +444,10 @@ public class LavaDaoFilterHibernateImpl implements LavaDaoFilter {
 		return new DaoHibernateCriterionParam(Restrictions.ilike(propertyName,pattern,MatchMode.START));
 	}
 
+	public LavaDaoParam daoLikeAnywhereParam(String propertyName, String pattern) {
+		return new DaoHibernateCriterionParam(Restrictions.ilike(propertyName,pattern,MatchMode.ANYWHERE));
+	}
+	
 	public LavaDaoParam daoGreaterThanParam(String propertyName, Object value) {
 		return new DaoHibernateCriterionParam(Restrictions.gt(propertyName, value));
 	}
