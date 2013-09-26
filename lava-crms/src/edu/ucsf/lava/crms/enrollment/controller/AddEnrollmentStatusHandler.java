@@ -18,6 +18,7 @@ import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 import edu.ucsf.lava.crms.people.model.AddPatientCommand;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
+import static edu.ucsf.lava.crms.enrollment.EnrollmentManager.ANY_PROJECT_KEY;
 
 public class AddEnrollmentStatusHandler extends CrmsEntityComponentHandler {
 
@@ -28,6 +29,26 @@ public class AddEnrollmentStatusHandler extends CrmsEntityComponentHandler {
 		this.setHandledEntity("addEnrollmentStatus", AddPatientCommand.class);
 		CrmsSessionUtils.setIsPatientContext(this);
 	}
+
+	//default patient based on current patient context and status date to current date. do not
+    // default project as project list subject to permission filtering and may not have permission
+	// to add the enrollment status in the current project
+	protected Object initializeNewCommandInstance(RequestContext context, Object command) {
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		
+		AddPatientCommand apc = (AddPatientCommand)command;
+		apc.setPatient(CrmsSessionUtils.getCurrentPatient(sessionManager,request));
+		apc.setStatusDate(new Date());
+		// passing ANY_PROJECT_KEY to the prototype will support instance specific customization, and 
+		// if there is none, will default to the base EnrollmentStatus class. if there is a dynamic
+		// customization the doReRender method will obtain the custom EnrollmentStatus subclass (there
+		// is no mechanism to support dynamic custom properties on Add Enrollment Status, so user has
+		// to add and then view/edit for custom properties)
+		apc.setEnrollmentStatus(enrollmentManager.getEnrollmentStatusPrototype(ANY_PROJECT_KEY));
+		apc.getEnrollmentStatus().setPatient(apc.getPatient());
+		return apc;
+	}
+
 
 	// override to check project list
 	public Event authorizationCheck(RequestContext context, Object command) throws Exception {
@@ -83,20 +104,6 @@ public class AddEnrollmentStatusHandler extends CrmsEntityComponentHandler {
 		return new String[0];
 	}
 	
-	//default patient based on current patient context and status date to current date. do not
-    // default project as project list subject to permission filtering and may not have permission
-	// to add the enrollment status in the current project
-	protected Object initializeNewCommandInstance(RequestContext context, Object command) {
-		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		
-		AddPatientCommand apc = (AddPatientCommand)command;
-		apc.setPatient(CrmsSessionUtils.getCurrentPatient(sessionManager,request));
-		apc.setStatusDate(new Date());
-		apc.setEnrollmentStatus(enrollmentManager.getEnrollmentStatusPrototype(null));
-		apc.getEnrollmentStatus().setPatient(apc.getPatient());
-		return apc;
-	}
-
 	protected Event doSaveAdd(RequestContext context, Object command, BindingResult errors) throws Exception{
 		Map components = ((ComponentCommand)command).getComponents();
 		AddPatientCommand apc = (AddPatientCommand) components.get("addEnrollmentStatus");
