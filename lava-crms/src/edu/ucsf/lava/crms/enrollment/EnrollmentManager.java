@@ -27,7 +27,7 @@ public class EnrollmentManager extends LavaManager  {
 	public EnrollmentStatus getEnrollmentStatusPrototype(String projName) {
 		EnrollmentStatus prototype = getDefaultEnrollmentStatusPrototype(); 
 		
-		if(projName == null || enrollmentStatusPrototypes==null){
+		if(projName == null || enrollmentStatusPrototypes==null || enrollmentStatusPrototypes.isEmpty()){
 			return (EnrollmentStatus)prototype.deepClone();
 		}
 		
