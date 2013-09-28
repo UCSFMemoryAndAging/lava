@@ -41,9 +41,10 @@ public class AddEnrollmentStatusHandler extends CrmsEntityComponentHandler {
 		apc.setStatusDate(new Date());
 		// passing ANY_PROJECT_KEY to the prototype will support instance specific customization, and 
 		// if there is none, will default to the base EnrollmentStatus class. if there is a dynamic
-		// customization the doReRender method will obtain the custom EnrollmentStatus subclass (there
-		// is no mechanism to support dynamic custom properties on Add Enrollment Status, so user has
-		// to add and then view/edit for custom properties)
+		// customization the doReRender method will obtain the custom EnrollmentStatus subclass, and 
+		// doReRender is guaranteed because projName is a required field
+		// note: when using dynamic customization, there is no mechanism to support the dynamic custom 
+		// properties on Add Enrollment Status, so user has to add and then view/edit for custom properties
 		apc.setEnrollmentStatus(enrollmentManager.getEnrollmentStatusPrototype(ANY_PROJECT_KEY));
 		apc.getEnrollmentStatus().setPatient(apc.getPatient());
 		return apc;
