@@ -24,6 +24,7 @@ import edu.ucsf.lava.crms.project.model.Project;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 import edu.ucsf.lava.crms.ui.controller.PatientContextFilter;
 import edu.ucsf.lava.crms.ui.controller.ProjectContextFilter;
+import static edu.ucsf.lava.crms.enrollment.EnrollmentManager.ANY_PROJECT_KEY;
 
 /**
  * @author jhesse
@@ -77,7 +78,11 @@ public class AddPatientHandler extends CrmsEntityComponentHandler {
 		apc.setPatient(new Patient());
 		Project project = CrmsSessionUtils.getCurrentProject(sessionManager,request);
 		String projUnitDesc = (project==null)? null : project.getProjUnitDesc();
-		apc.setEnrollmentStatus(enrollmentManager.getEnrollmentStatusPrototype(projUnitDesc));
+		// passing ANY_PROJECT_KEY to the prototype will support instance specific customization, and 
+		// if there is none, will default to the base EnrollmentStatus class. if there is a dynamic
+		// customization the doReRender method will obtain the custom EnrollmentStatus subclass, and 
+		// doReRender is guaranteed because projName is a required field
+		apc.setEnrollmentStatus(enrollmentManager.getEnrollmentStatusPrototype(ANY_PROJECT_KEY));
 		apc.getEnrollmentStatus().setProjName(projUnitDesc);
 		return apc;
 	}
