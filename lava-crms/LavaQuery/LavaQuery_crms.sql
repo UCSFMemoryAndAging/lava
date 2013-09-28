@@ -21,8 +21,24 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
 
+-- -----------------------------------------------------
+-- Populate `query_objects` with crms data elements
+-- -----------------------------------------------------
+DELETE from query_objects where instance='lava' and scope='crms' and module='query' and section in ('patient','enrollment','scheduling','assessment');
 
-DELIMITER ;;
+INSERT INTO query_objects(instance,scope,module,section,target,short_desc,standard,primary_link,secondary_link) 
+  VALUES('lava','crms','query','patient','demographics','Demographics',1,0,1);
+INSERT INTO query_objects(instance,scope,module,section,target,short_desc,standard,primary_link,secondary_link) 
+  VALUES('lava','crms','query','enrollment','status','Enrollment Status',1,0,0);
+INSERT INTO query_objects(instance,scope,module,section,target,short_desc,standard,primary_link,secondary_link) 
+  VALUES('lava','crms','query','scheduling','visits','Visits',1,0,0);
+INSERT INTO query_objects(instance,scope,module,section,target,short_desc,standard,primary_link,secondary_link) 
+  VALUES('lava','crms','query','assessment','instruments','Instrument Tracking',1,0,0);
+  
+
+DROP PROCEDURE IF EXISTS `lq_check_version`;
+DELIMITER $$
+
 -- -----------------------------------------------------
 -- procedure lq_check_version
 -- -----------------------------------------------------
@@ -67,12 +83,13 @@ END IF;
 
 select version_msg as 'version_msg';
 
-END ;;
+END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_check_user_auth`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_check_user_auth
 --
@@ -90,12 +107,12 @@ ELSE
   SELECT 0 as user_auth;
 END IF;
 
-END ;;
+END $$
 DELIMITER ;
 
 
-
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_authenticate_user`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_authenticate_user
 --
@@ -124,24 +141,26 @@ ELSE
  SELECT 0 as auth_user;
 END IF;
 
-END ;;
+END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_get_objects`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_get_objects
 -- -----------------------------------------------------
 CREATE PROCEDURE `lq_get_objects`(user_name varchar(50), host_name varchar(25))
 BEGIN
 SELECT concat(`instance`,'_',`scope`,'_',`module`) as query_source,concat(`section`,'_',`target`) as query_object_name , `short_desc`, `standard`,`primary_link`,`secondary_link` from `query_objects`;
-END ;;
+END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_clear_pidns`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_clear_pidns
 -- -----------------------------------------------------
@@ -151,23 +170,25 @@ BEGIN
 DROP TABLE IF EXISTS temp_pidn;
 DROP TABLE IF EXISTS temp_pidn1;
 
-END ;;
+END $$
 DELIMITER ;
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_get_all_pidns`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_get_all_pidns
 -- -----------------------------------------------------
 CREATE PROCEDURE `lq_get_all_pidns`(user_name varchar(50), host_name varchar(25))
 BEGIN
 SELECT pidn from patient order by pidn;
-END ;;
+END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_set_pidns`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_set_pidns
 -- -----------------------------------------------------
@@ -179,12 +200,13 @@ DROP TABLE IF EXISTS temp_pidn;
 
 CREATE TEMPORARY TABLE temp_pidn1(
     pidn INTEGER NOT NULL);
-END ;;
+END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_set_pidns_row`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_set_pidns_row
 -- -----------------------------------------------------
@@ -192,23 +214,25 @@ CREATE PROCEDURE `lq_set_pidns_row`(user_name varchar(50), host_name varchar(25)
 BEGIN
 
 INSERT INTO `temp_pidn1` (`pidn`) values (pidn);
-END ;;
+END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_after_set_pidns`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_after_set_pidns
 -- -----------------------------------------------------
 CREATE PROCEDURE `lq_after_set_pidns`(user_name varchar(50), host_name varchar(25))
 BEGIN
 CREATE TEMPORARY TABLE temp_pidn AS SELECT pidn FROM temp_pidn1 GROUP BY pidn;
-END ;;
+END $$
 DELIMITER ;
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_clear_linkdata`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_clear_linkdata
 -- -----------------------------------------------------
@@ -217,12 +241,13 @@ BEGIN
 
 DROP TABLE IF EXISTS temp_linkdata;
 DROP TABLE IF EXISTS temp_linkdata1;
-END ;;
+END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_get_linkdata`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_get_linkdata
 -- -----------------------------------------------------
@@ -241,32 +266,35 @@ ELSE
 	ORDER BY l.pidn, l.link_date,l.link_id;
 END IF;
 
-END ;;
+END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_set_linkdata`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_set_linkdata
 -- -----------------------------------------------------
 CREATE PROCEDURE `lq_set_linkdata`(user_name varchar(50), host_name varchar(25))
-BEGINDROP TABLE IF EXISTS temp_linkdata1;DROP TABLE IF EXISTS temp_linkdata;CREATE TEMPORARY TABLE temp_linkdata1(    pidn INTEGER NOT NULL,    link_date DATE NOT NULL,    link_id INTEGER NOT NULL,    link_type varchar(25) DEFAULT NULL);END ;;
+BEGINDROP TABLE IF EXISTS temp_linkdata1;DROP TABLE IF EXISTS temp_linkdata;CREATE TEMPORARY TABLE temp_linkdata1(    pidn INTEGER NOT NULL,    link_date DATE NOT NULL,    link_id INTEGER NOT NULL,    link_type varchar(25) DEFAULT NULL);END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_set_linkdata_row`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_set_linkdata_row
 -- -----------------------------------------------------
 CREATE PROCEDURE `lq_set_linkdata_row`(user_name varchar(50), host_name varchar(25),pidn integer,link_date date, link_id integer)
-BEGININSERT INTO `temp_linkdata1` (`pidn`,`link_date`,`link_id`) VALUES(pidn,link_date,link_id);END ;;
+BEGININSERT INTO `temp_linkdata1` (`pidn`,`link_date`,`link_id`) VALUES(pidn,link_date,link_id);END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_after_set_linkdata`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_after_set_linkdata
 -- -----------------------------------------------------
@@ -305,12 +333,13 @@ END IF;
 ALTER TABLE temp_linkdata ADD INDEX(pidn,link_date,link_id);
 
 
-END ;;
+END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_audit_event`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_audit_event
 -- -----------------------------------------------------
@@ -325,7 +354,7 @@ INSERT INTO audit_event_work (`audit_user`,`audit_host`,`audit_timestamp`,`actio
 
 
   
-END ;;
+END $$
 DELIMITER ;
 
 
@@ -353,7 +382,8 @@ CREATE TABLE IF NOT EXISTS `lq_view_visit` (`VID` INT, `PIDN_Visit` INT, `ProjNa
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_get_patient_demographics`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_get_patient_demographics
 -- -----------------------------------------------------
@@ -374,12 +404,13 @@ ELSEIF query_type IN ('SecondaryAll','SecondaryClosest') THEN
  	 SELECT l.pidn, l.link_date,l.link_id,d.*  
 	 FROM temp_linkdata l INNER JOIN lq_view_demographics d ON (d.PIDN_Demographics=l.PIDN);
 END IF;
-END ;;
+END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_get_enrollment_status`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_get_enrollment_status
 -- -----------------------------------------------------
@@ -398,12 +429,13 @@ ELSEIF query_type = 'SimpleAllPatients' THEN
       ORDER BY p.pidn, e.latestDate;
 
 END IF;
-END ;;
+END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_get_scheduling_visits`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_get_scheduling_visits
 -- -----------------------------------------------------
@@ -423,12 +455,13 @@ ELSEIF query_type = 'SimpleAllPatients' THEN
       ORDER BY p.pidn,v.vdate, v.vtype;
 
 END IF;
-END ;;
+END $$
 DELIMITER ;
 
 
 
-DELIMITER ;;
+DROP PROCEDURE IF EXISTS `lq_get_assessment_instruments`;
+DELIMITER $$
 -- -----------------------------------------------------
 -- procedure lq_get_assessment_instruments
 -- -----------------------------------------------------
@@ -448,7 +481,7 @@ ELSEIF query_type = 'SimpleAllPatients' THEN
       ORDER BY p.pidn, i.DCDate,i.InstrType;
 
 END IF;
-END ;;
+END $$
 DELIMITER ;
 
 
@@ -460,7 +493,6 @@ DELIMITER ;
 DROP VIEW IF EXISTS `lq_view_demographics` ;
 DROP TABLE IF EXISTS `lq_view_demographics`;
 
-DROP VIEW IF EXISTS `lq_view_demographics`;
 CREATE VIEW `lq_view_demographics` AS select `patient`.`PIDN` AS `PIDN_demographics`,`patient`.`DOB` AS `DOB`,`patient_age`.`AGE` AS `AGE`,`patient`.`Gender` AS `Gender`,`patient`.`Hand` AS `Hand`,`patient`.`Deceased` AS `Deceased`,`patient_dod`.`DOD` AS `DOD`,`patient`.`PrimaryLanguage` AS `PrimaryLanguage`,`patient`.`TestingLanguage` AS `TestingLanguage`,`patient`.`TransNeeded` AS `TransNeeded`,`patient`.`TransLanguage` AS `TransLanguage` from (`patient` join `patient_age` on((`patient`.`PIDN` = `patient_age`.`PIDN`)) join `patient_dod` on (`patient`.`PIDN` = `patient_dod`.`PIDN`)) where (`patient`.`PIDN` > 0);
 
 
