@@ -6,6 +6,7 @@
 
 	<bean id="list.enrollmentStatus.projectStatus" parent="list.dynamicSortValue">
 		<property name="query" value="list.enrollmentStatus.projectStatus"/>
+		<property name="defaultSort" value="orderIndex"/>
 	</bean>
 	
 	<bean id="list.enrollmentStatus.referralSource" parent="list.dynamicSortValue">
