@@ -126,7 +126,21 @@ public class LabelValueBean implements Comparable<LabelValueBean>, Serializable 
 	 */
 	public static Comparator<LabelValueBean> valueComparator = new Comparator<LabelValueBean>() {
 	    public int compare(LabelValueBean labelValueBean1, LabelValueBean labelValueBean2) {
-			return labelValueBean1.getValue().compareTo(labelValueBean2.getValue());   
+	    	String value1 = labelValueBean1.getValue();
+	    	String value2 = labelValueBean2.getValue();
+	    	
+	    	// if only one is null
+	    	if (value1 == null ^ value2 == null) {
+	    		return (value1 == null) ? -1 : 1;
+	    	}
+	    	
+	    	// if both are null
+	    	if (value1 == null && value2 == null) {
+	    		return 0;
+	    	}
+	    	
+	    	// otherwise none are null
+			return value1.compareTo(value2);   
 		}
 	};
 
