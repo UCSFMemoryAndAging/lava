@@ -5,13 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+// common calculation methods to use in an instrument's calculate() function, such as adding and dividing numbers
+// within the context of negative numbers usually representing missing values that can't be calculated
+
 public class CalcUtils {
-	
-	// common calculation methods to use in an instrument's calculate() function, such as adding and dividing numbers
-	// within the context of negative numbers usually representing missing values that can't be calculated
-	
+		
 	public static final int ERROR_CODE_CANNOT_CALCULATE = -5;
 	
+	// if any number is null or negative, return ERROR_CODE_CANNOT_CALCULATE
 	public static Double add(Number[] nums) {
 		Double sum = new Double(0);
 		for (int i=0; i<nums.length; i++) {
@@ -21,6 +22,7 @@ public class CalcUtils {
 		return sum;
 	}
 	
+	// excludes any negative values in the sum
 	public static Double add(Number[] nums, Boolean ignoreNegatives) {
 		Double sum = new Double(0);
 		for (int i=0; i<nums.length; i++) {
@@ -29,6 +31,35 @@ public class CalcUtils {
 		}
 		return sum;
 	}
+	
+	// uncalculable are numbers that if encountered should return ERROR_CODE_CANNOT_CALCULATE
+	public static Double add(Number[] nums, Number[] uncalculable) {
+		for (int i=0; i<nums.length; i++) {
+			for (int j=0; j<uncalculable.length; j++) {
+				if (nums[i]==null || nums[i].doubleValue()==uncalculable[j].doubleValue()) return new Double(ERROR_CODE_CANNOT_CALCULATE);
+			}
+		}
+		return add(nums);
+	}
+	
+	// ignores specified numbers in calculating a sum. useful for values that should obviously ignored like "-6" (logical skip) values or "9" (n/a) values
+	public static Double addWithIgnore(Number[] nums, Number[] ignore) {
+		Double sum = new Double(0);
+		for (int i=0; i<nums.length; i++) {
+			boolean ignoreNum = false;
+			for (int j=0; j<ignore.length; j++) {
+				if (nums[i]==null || ignore[j]==null) continue;
+				if (nums[i].doubleValue()==ignore[j].doubleValue()){
+					ignoreNum=true;
+				}
+			}
+			if(!ignoreNum){
+				if (nums[i]==null || nums[i].doubleValue()<0) return new Double(ERROR_CODE_CANNOT_CALCULATE);
+				sum += nums[i].doubleValue();
+			}
+		}
+		return sum;
+	}	
 	
 	public static Double mean(Number[] nums) {
 		Double sum = new Double(0);
@@ -55,34 +86,6 @@ public class CalcUtils {
 	public static Short reverseScore(Short num, int reverse) {
 		if (num==null || num.shortValue()<0) return null;
 		return (short) (reverse-num.intValue());
-	}
-	
-	// uncalculable are numbers that if encountered should return a "-5" cannot calculate error code
-	public static Double add(Number[] nums, Number[] uncalculable) {
-		for (int i=0; i<nums.length; i++) {
-			for (int j=0; j<uncalculable.length; j++) {
-				if (nums[i]==null || nums[i].doubleValue()==uncalculable[j].doubleValue()) return new Double(ERROR_CODE_CANNOT_CALCULATE);
-			}
-		}
-		return add(nums);
-	}	
-	
-	public static Double addWithIgnore(Number[] nums, Number[] ignore) {
-		Double sum = new Double(0);
-		for (int i=0; i<nums.length; i++) {
-			boolean ignoreNum = false;
-			for (int j=0; j<ignore.length; j++) {
-				if (nums[i]==null || ignore[j]==null) continue;
-				if (nums[i].doubleValue()==ignore[j].doubleValue()){
-					ignoreNum=true;
-				}
-			}
-			if(!ignoreNum){
-				if (nums[i]==null || nums[i].doubleValue()<0) return new Double(ERROR_CODE_CANNOT_CALCULATE);
-				sum += nums[i].doubleValue();
-			}
-		}
-		return sum;
 	}
 	
 	public static Double multiply(Number[] nums) {
