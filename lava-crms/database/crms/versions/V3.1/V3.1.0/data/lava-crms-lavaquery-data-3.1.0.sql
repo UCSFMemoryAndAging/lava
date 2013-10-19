@@ -4,7 +4,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
 
 
-DELETE from query_objects where instance='lava' and scope='crms' and module='query' and section<>'nacc';
+DELETE from query_objects where instance='lava' and scope='crms' and module='query' and section in ('patient','enrollment','scheduling','assessment');
 
 INSERT INTO query_objects(instance,scope,module,section,target,short_desc,standard,primary_link,secondary_link) 
   VALUES('lava','crms','query','patient','demographics','Demographics',1,0,1);
