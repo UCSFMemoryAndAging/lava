@@ -6,7 +6,7 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-collections-3.2.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/hibernate3.jar"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/spring.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/spring.jar" sourcepath="/home/ctoohey/download/spring/spring-framework-2.0.4/src"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/spring-binding-1.0.4.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/spring-webflow-1.0.4.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/acegi-security-1.0.7.jar"/>
