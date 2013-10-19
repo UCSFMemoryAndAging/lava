@@ -16,8 +16,10 @@ public class InstrumentManager extends LavaManager {
 	public static String INSTRUMENT_MANAGER_NAME = "instrumentManager";
 	public static final String ANY_PROJECT_KEY="ANY";
 	public static final String ANY_VISIT_KEY="ANY";
+	public static final String ANY_INSTRUMENT_KEY="ANY";	
 	protected Map<String,List<Instrument>> instrumentPrototypes;
 	protected InstrumentDefinitions instrumentDefinitions;
+	protected Map<String,Short> projectInstrumentVerifyRates;
 	protected ActionManager actionManager;
 	
 
@@ -149,6 +151,83 @@ public class InstrumentManager extends LavaManager {
 	}
 
 
+	
+	
+	public Short getProjectInstrumentVerifyRate(String projName, String instrTypeEncoded) {
+		/* 
+		 * gets the verify rate for a given project and instrument
+		 * Use the following order (most specific to least specific):
+		 * 	projName~instrTypeEncoded
+		 * 	projName(without unit)~instrTypeEncoded
+		 * 	ANY~instrTypeEncoded
+		 * 	projName-ANY
+		 * 	projName(without Unit)-ANY
+		 *  ANY~ANY
+		 */
+		Short rate = (short) 0;
+		Boolean found = false;
+		String lookupKey = null;
+		String projectNoUnit = null;
+		
+		if(projectInstrumentVerifyRates==null || projectInstrumentVerifyRates.size()==0 ||
+			(projName == null && instrTypeEncoded == null)){
+			return (short) 0;
+		}
+		//set projName and instrTypeEncoded to default keys if not provided
+		if(projName==null){ projName=ANY_PROJECT_KEY;}
+		if(instrTypeEncoded==null){ instrTypeEncoded=ANY_INSTRUMENT_KEY;}
+		
+		//try projName~instrTypeEncoded
+		lookupKey = new StringBuffer(projName).append("~").append(instrTypeEncoded).toString();
+		if(projectInstrumentVerifyRates.containsKey(lookupKey)){
+			rate = projectInstrumentVerifyRates.get(lookupKey);
+			found = true;
+		}
+			
+		//try projName(without Unit)~instrTypeEncoded
+		if(!found && projName.contains("[")){
+			projectNoUnit = projName.substring(0, projName.indexOf("[")).trim();
+			lookupKey = new StringBuffer(projectNoUnit).append("~").append(instrTypeEncoded).toString();
+			if(projectInstrumentVerifyRates.containsKey(lookupKey)){
+				rate = projectInstrumentVerifyRates.get(lookupKey);
+				found = true;
+			}
+		}
+		//try ANY~instrTypeEncoded
+		lookupKey = new StringBuffer(ANY_PROJECT_KEY).append("~").append(instrTypeEncoded).toString();
+		if(!found && projectInstrumentVerifyRates.containsKey(lookupKey)){
+			rate = projectInstrumentVerifyRates.get(lookupKey);
+			found = true;
+		}
+		//try projName~ANY
+		lookupKey = new StringBuffer(projName).append("~").append(ANY_INSTRUMENT_KEY).toString();
+		if(!found && projectInstrumentVerifyRates.containsKey(lookupKey)){
+			rate = projectInstrumentVerifyRates.get(lookupKey);
+			found = true;
+		}
+		//try (projname without unit)~ANY
+		if(!found && projName.contains("[")){
+			lookupKey = new StringBuffer(projectNoUnit).append("~").append(ANY_INSTRUMENT_KEY).toString();
+			if(projectInstrumentVerifyRates.containsKey(lookupKey)){
+				rate = projectInstrumentVerifyRates.get(lookupKey);
+				found = true;
+			}
+		}
+		//try ANY~ANY
+		lookupKey = new StringBuffer(ANY_PROJECT_KEY).append("~").append(ANY_INSTRUMENT_KEY).toString();
+		if(!found && projectInstrumentVerifyRates.containsKey(lookupKey)){
+			rate = projectInstrumentVerifyRates.get(lookupKey);
+			found = true;
+		}
+		
+		return rate;
+	}
+	
+	public void setProjectInstrumentVerifyRates(Map<String, Short> projectInstrumentVerifyRates) {
+		this.projectInstrumentVerifyRates = projectInstrumentVerifyRates;
+	}
+	
+	
 	public void updateManagers(Managers managers) {
 		super.updateManagers(managers);
 		actionManager = CoreManagerUtils.getActionManager(managers);

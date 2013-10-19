@@ -63,9 +63,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
     protected static final String MISSING_DATA_CODE = "-9";     
     public static final String INSTRUMENT_DETAILS = "instrumentDetails";
 	
-	public static final String ANY_PROJECT_KEY="ANY";
-	public static final String ANY_INSTRUMENT_KEY="ANY";
-	protected Map<String,Short> projectInstrumentVerifyRates;
+	
 
 	// accomodate subclasses that have no-args constructure, like DiagnosisHandler
 	public InstrumentHandler() {
@@ -1064,7 +1062,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			else {
 				// examine the project/instrument configuration data to determine  whether verify should 
 				// be mandatory as the next step in the flow, based on the verify rate 
-				Short rate = this.getProjectInstrumentVerifyRate(instrument.getProjName(), instrument.getInstrTypeEncoded());
+				Short rate = instrumentManager.getProjectInstrumentVerifyRate(instrument.getProjName(), instrument.getInstrTypeEncoded());
 	
 				if (rate > 0) {
 	
@@ -1375,7 +1373,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			else {
 				// examine the project/instrument configuration data to determine  whether verify should 
 				// be mandatory as the next step in the flow, based on the verify rate 
-				Short rate = this.getProjectInstrumentVerifyRate(instrument.getProjName(), instrument.getInstrTypeEncoded());
+				Short rate = instrumentManager.getProjectInstrumentVerifyRate(instrument.getProjName(), instrument.getInstrTypeEncoded());
 	
 				if (rate > 0) {
 					
@@ -1681,82 +1679,6 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		plh.setPageHolder(plh.getPage());
 		
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
-	}
-
-	
-	
-	public Short getProjectInstrumentVerifyRate(String projName, String instrTypeEncoded) {
-		/* 
-		 * gets the verify rate for a given project and instrument
-		 * Use the following order (most specific to least specific):
-		 * 	projName~instrTypeEncoded
-		 * 	projName(without unit)~instrTypeEncoded
-		 * 	ANY~instrTypeEncoded
-		 * 	projName-ANY
-		 * 	projName(without Unit)-ANY
-		 *  ANY~ANY
-		 */
-		Short rate = (short) 0;
-		Boolean found = false;
-		String lookupKey = null;
-		String projectNoUnit = null;
-		
-		if(projectInstrumentVerifyRates==null || projectInstrumentVerifyRates.size()==0 ||
-			(projName == null && instrTypeEncoded == null)){
-			return (short) 0;
-		}
-		//set projName and instrTypeEncoded to default keys if not provided
-		if(projName==null){ projName=ANY_PROJECT_KEY;}
-		if(instrTypeEncoded==null){ instrTypeEncoded=ANY_INSTRUMENT_KEY;}
-		
-		//try projName~instrTypeEncoded
-		lookupKey = new StringBuffer(projName).append("~").append(instrTypeEncoded).toString();
-		if(projectInstrumentVerifyRates.containsKey(lookupKey)){
-			rate = projectInstrumentVerifyRates.get(lookupKey);
-			found = true;
-		}
-			
-		//try projName(without Unit)~instrTypeEncoded
-		if(!found && projName.contains("[")){
-			projectNoUnit = projName.substring(0, projName.indexOf("[")).trim();
-			lookupKey = new StringBuffer(projectNoUnit).append("~").append(instrTypeEncoded).toString();
-			if(projectInstrumentVerifyRates.containsKey(lookupKey)){
-				rate = projectInstrumentVerifyRates.get(lookupKey);
-				found = true;
-			}
-		}
-		//try ANY~instrTypeEncoded
-		lookupKey = new StringBuffer(ANY_PROJECT_KEY).append("~").append(instrTypeEncoded).toString();
-		if(!found && projectInstrumentVerifyRates.containsKey(lookupKey)){
-			rate = projectInstrumentVerifyRates.get(lookupKey);
-			found = true;
-		}
-		//try projName~ANY
-		lookupKey = new StringBuffer(projName).append("~").append(ANY_INSTRUMENT_KEY).toString();
-		if(!found && projectInstrumentVerifyRates.containsKey(lookupKey)){
-			rate = projectInstrumentVerifyRates.get(lookupKey);
-			found = true;
-		}
-		//try (projname without unit)~ANY
-		if(!found && projName.contains("[")){
-			lookupKey = new StringBuffer(projectNoUnit).append("~").append(ANY_INSTRUMENT_KEY).toString();
-			if(projectInstrumentVerifyRates.containsKey(lookupKey)){
-				rate = projectInstrumentVerifyRates.get(lookupKey);
-				found = true;
-			}
-		}
-		//try ANY~ANY
-		lookupKey = new StringBuffer(ANY_PROJECT_KEY).append("~").append(ANY_INSTRUMENT_KEY).toString();
-		if(!found && projectInstrumentVerifyRates.containsKey(lookupKey)){
-			rate = projectInstrumentVerifyRates.get(lookupKey);
-			found = true;
-		}
-		
-		return rate;
-	}
-	
-	public void setProjectInstrumentVerifyRates(Map<String, Short> projectInstrumentVerifyRates) {
-		this.projectInstrumentVerifyRates = projectInstrumentVerifyRates;
 	}
 
 }
