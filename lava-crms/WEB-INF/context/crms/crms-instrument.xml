@@ -16,6 +16,16 @@
 			     	</map></constructor-arg>
 					</bean>
 		</property>  			
+		<!-- refactor into a self-registering bean collection -->
+		<property name="projectInstrumentVerifyRates">
+			<bean class="edu.ucsf.lava.core.spring.MapMerger">
+   				<constructor-arg><map>
+   					<!-- a Project-Instrument:Verify Rate map injected into the instrumentHandler -->
+					<entry key="crmsProjectInstrumentVerifyRates"><ref bean="crmsProjectInstrumentVerifyRates"/></entry>
+    				<entry key="localProjectInstrumentVerifyRates"><ref bean="localProjectInstrumentVerifyRates"/></entry>
+		     	</map></constructor-arg>
+			</bean>
+		</property>     		
 	</bean>
 	
 	
@@ -112,17 +122,6 @@
     	<constructor-arg><map>
       			<!-- key is instrTypeEncoded, i.e. lowercase, with "FileLoader" appended -->
 		</map></constructor-arg>
-		
-		<!-- refactor into a self-registering bean collection -->
-		<property name="projectInstrumentVerifyRates">
-			<bean class="edu.ucsf.lava.core.spring.MapMerger">
-   				<constructor-arg><map>
-   					<!-- a Project-Instrument:Verify Rate map injected into the instrumentHandler -->
-					<entry key="crmsProjectInstrumentVerifyRates"><ref bean="crmsProjectInstrumentVerifyRates"/></entry>
-    				<entry key="localProjectInstrumentVerifyRates"><ref bean="localProjectInstrumentVerifyRates"/></entry>
-		     	</map></constructor-arg>
-			</bean>
-		</property>     		
 	</bean>		
 	
    	<bean id="crmsProjectInstrumentVerifyRates" class="java.util.LinkedHashMap">
