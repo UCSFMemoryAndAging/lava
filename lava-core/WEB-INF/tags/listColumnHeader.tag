@@ -18,6 +18,8 @@
               description="the column label. if not specified, labelKey should be specified" %>
 <%@ attribute name="width" required="false"  
               description="the width of the column--anything that can be evaluted in a TD width attribute"  %>
+<%@ attribute name="styleClass" required="false"  
+              description="the style class to be applied to the row" %>              
 <%@ attribute name="colspan" required="false" type="java.lang.Integer"
               description="the HTML colspan attribute for spanning multiple columns" %>
 
@@ -27,7 +29,7 @@
 	</c:set>
 </c:if>			
 	
-<th <c:if test="${not empty colspan}">colspan="${colspan}"</c:if> <c:if test="${not empty width}">width="${width}"</c:if>>
+<th <c:if test="${not empty colspan}">colspan="${colspan}"</c:if> <c:if test="${not empty width}">width="${width}"</c:if> <c:if test="${not empty styleClass}">class="${styleClass}"</c:if>>
 ${label}
 </th>
 
