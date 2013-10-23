@@ -6,6 +6,9 @@
 --%>
 <%@ attribute name="styleClass" required="false"  
               description="the style class to be applied to the row" %>
-<tr <c:if test="${not empty styleClass}">class="${styleClass}"</c:if>>
+<%@ attribute name="height" required="false"  
+              description="the height of the row--anything that can be evaluted in a TR row attribute"  %>              
+              
+<tr <c:if test="${not empty styleClass}">class="${styleClass}"</c:if> <c:if test="${not empty height}">height="${height}"</c:if>>
   <jsp:doBody/>
 </tr>
