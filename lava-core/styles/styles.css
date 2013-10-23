@@ -2205,66 +2205,71 @@ A.cpTodayText {
 }
 
 /*  */
-table.listing td.noBorders {
+
+table.listing .hidden {
+	visibility:hidden;	
+}
+
+table.listing .noBorders {
 	border-top: none;
 	border-right: none;
 	border-bottom: none;
 	border-left: none;
 }
 
-table.listing td.noTop {
+table.listing .noTop {
 	border-top: none;
 }
 
-table.listing td.noBottom {
+table.listing .noBottom {
 	border-bottom: none;
 }
 
-table.listing td.noLeft {
+table.listing .noLeft {
 	border-left: none;
 }
 
-table.listing td.noRight {
+table.listing .noRight {
 	border-right: none;
 }
 
-table.listing td.noLeftRight {
+table.listing .noLeftRight {
 	border-left: none;
 	border-right: none;
 }
 
-table.listing td.noBottomTop {
+table.listing .noBottomTop {
 	border-top: none;
 	border-bottom: none;
 }
 
-table.listing td.noRightTop {
+table.listing .noRightTop {
 	border-top: none;
 	border-right: none;
 }
 
-table.listing td.noBottomRightTop {
+table.listing .noBottomRightTop {
 	border-top: none;
 	border-right: none;
 	border-bottom: none;
 }
 
-table.listing td.indent1 {
+table.listing .indent1 {
 	padding-left: 30px;
 }
 
-table.listing td.indent2 {
+table.listing .indent2 {
 	padding-left: 60px;
 }
 
-table.listing td.indent3 {
+table.listing .indent3 {
 	padding-left: 90px;
 }
 
-table.listing td.center {
+table.listing .center {
 	text-align: center;
 }
 
-table.listing td.right {
+table.listing .right {
 	text-align: right;
 }
