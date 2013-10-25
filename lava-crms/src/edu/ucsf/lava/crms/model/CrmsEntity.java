@@ -3,9 +3,14 @@ package edu.ucsf.lava.crms.model;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
+import edu.ucsf.lava.core.logiccheck.model.LogicCheckSummary;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.crms.auth.model.CrmsAuthEntity;
+import edu.ucsf.lava.crms.logiccheck.model.CrmsLogicCheck;
+import edu.ucsf.lava.crms.logiccheck.model.CrmsLogicCheckIssue;
+import edu.ucsf.lava.crms.logiccheck.model.CrmsLogicCheckSummary;
 import edu.ucsf.lava.crms.people.model.Patient;
 
 public class CrmsEntity extends EntityBase implements CrmsAuthEntity{
@@ -131,5 +136,20 @@ public class CrmsEntity extends EntityBase implements CrmsAuthEntity{
 	 */
 	protected Integer calcAge(Date birthDate){
 		return calcAge(birthDate,new Date());
+	}
+
+	@Override
+	public List getLogicCheckIssues() {
+		return CrmsLogicCheckIssue.MANAGER.get(this);
+	}
+	
+	@Override
+	public List getLogicChecks() {
+		return CrmsLogicCheck.MANAGER.get(this);
+	}
+
+	@Override
+	public LogicCheckSummary.Manager getLogicCheckSummaryManager() {
+		return CrmsLogicCheckSummary.MANAGER;
 	}
 }

@@ -13,13 +13,13 @@ import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.webflow.execution.Event;
 
-import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
 
+import edu.ucsf.lava.crms.logiccheck.model.InstrumentLogicCheck;
+import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
 import edu.ucsf.lava.crms.model.CrmsEntity;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
@@ -168,6 +168,7 @@ public class Instrument extends CrmsEntity {
 		this.instrType = instrType;
 		this.setEntityName(instrType);
 	}
+	public String getInstrTypeExt() {return instrType;};
 	
 	public String getInstrVer() {return instrVer;}
 	
@@ -615,6 +616,16 @@ public class Instrument extends CrmsEntity {
 			} catch (Exception ex) {}
 		}		
 		return false;
+	}
+	
+	@Override
+	public List getLogicChecks() {
+		return InstrumentLogicCheck.MANAGER.get(this);
+	}
+	
+	@Override
+	public List getLogicChecks_Dependents() {
+		return InstrumentLogicCheck.MANAGER.getDependentChecks(this);
 	}
 	
 }

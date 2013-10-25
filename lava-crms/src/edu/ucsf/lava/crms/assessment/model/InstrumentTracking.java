@@ -36,5 +36,12 @@ public class InstrumentTracking extends Instrument {
 		super(p, v, projName, instrType, dcDate, dcStatus);
 	}
 	
+	public boolean ignoreLogicCheckUponUpdate() {
+		// ignore this instrument when represented as InstrumentTracking; when the case, we would
+		// not want a saving of this entity to affect the logic checks from subclasses of Instrument
+		// (i.e. the real data)
+		return true;
+	}
+	
 }
 
