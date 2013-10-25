@@ -462,17 +462,19 @@ DELIMITER $$
 CREATE PROCEDURE `util_AddEntityToMetaData`(EntityIn varchar (50), ScopeIn varchar(25))
 BEGIN
 
-INSERT INTO `viewproperty` (`messageCode`,`locale`,`instance`,`scope`,`entity`,`property`,`required`,`maxLength`,`propOrder`)
+INSERT INTO `viewproperty` (`messageCode`,`locale`,`instance`,`scope`,`entity`,`property`,`required`,`maxLength`,`propOrder`,`list`)
    SELECT CONCAT('*.',EntityIn, '.',LOWER(LEFT(`prop_name`,1)),RIGHT(`prop_name`,LENGTH(`prop_name`)-1)),
    'en','lava',ScopeIn, EntityIn, CONCAT(LOWER(LEFT(`prop_name`,1)),RIGHT(`prop_name`,LENGTH(`prop_name`)-1)),
         CASE WHEN `required`='1' THEN 'Yes' ELSE 'No' END,
-        CASE WHEN `db_datalength`='' THEN NULL WHEN `db_datalength` < 10000 THEN `db_datalength` ELSE NULL END, `prop_order`
+        CASE WHEN `db_datalength`='' THEN NULL WHEN `db_datalength` < 10000 THEN `db_datalength` ELSE NULL END, `prop_order`,
+		LEFT(data_values,50)        
 	FROM `datadictionary` WHERE `entity`=EntityIn AND `scope`=ScopeIn AND prop_name<>'instr_id' order by `prop_order`;
 END
 
 $$
 
 DELIMITER ;
+
 
 -- --------------------------------------------------------------------------------
 -- util_AddEntityToHibernateProperty
