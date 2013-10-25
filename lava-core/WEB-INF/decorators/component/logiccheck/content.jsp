@@ -17,8 +17,6 @@
 <c:set var="componentConfirmLogic" value="confirmLogic"/>
 <c:set var="componentLogicChecksExist" value="logicchecksExist"/>
 
-LOGIC CHECKS HERE...
-
 <!-- LOGICCHECK MESSAGE BOX -->
 <%-- first iterate thru existing logiccheck issues to display the messages --%>
 <%-- command info messages (i.e. non-error) message codes must start with "info.", so they will not be styled like error codes --%>
