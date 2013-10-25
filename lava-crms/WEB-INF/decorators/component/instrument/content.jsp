@@ -21,6 +21,10 @@
 	<c:set var="pageName" value="${instrTypeEncoded}"/>
 </c:if>
 
+<%-- add logic check issues, connecting it to the top navigation buttons --%>
+<page:applyDecorator name="component.logiccheck.content">
+  <page:param name="component">${component}</page:param>
+
 <%-- prep for page level action/navigation buttons --%>
 <c:choose>
 	<%-- the 'enter' componentView is used in both the 'enter' and 'enterReview' flows, but
@@ -370,6 +374,8 @@
 <div id="pageLevelActionNavButtonTopBox">
 	${actionNavButtons}
 </div>
+
+</page:applyDecorator> <%-- component.logiccheck.content --%>
 
 <!-- CONTEXTUAL INFO -->
 <%-- output instrument contextual data fields. 

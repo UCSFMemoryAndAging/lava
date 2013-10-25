@@ -1,5 +1,7 @@
 package edu.ucsf.lava.crms.webflow.builder;
 
+import static edu.ucsf.lava.core.controller.BaseEntityComponentHandler.CONFIRM_LOGIC;
+
 import java.util.ArrayList;
 
 import org.springframework.binding.mapping.AttributeMapper;
@@ -46,6 +48,12 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
 
     	// set the flow input mapper
 	   	getFlow().setInputMapper(((DefaultAttributeMapper)inputMapper).addMapping(idMapping).addMapping(targetMapping));
+    
+	   	// LOGICCHECKS
+    	// receive CONFIRM_LOGIC from parent flow
+	   	Mapping confirmLogicMapping = mapping().source(CONFIRM_LOGIC).target("flowScope."+CONFIRM_LOGIC).value();
+	   	getFlow().setInputMapper(((DefaultAttributeMapper)inputMapper).addMapping(confirmLogicMapping));
+    
     }
     
     public void buildEventStates() throws FlowBuilderException {
@@ -248,6 +256,12 @@ public class InstrumentEnterFlowBuilder extends BaseFlowBuilder {
 		Mapping idMapping = mapping().source("flowScope.id").target("id").value();
 		Mapping switchEventMapping = mapping().source("flowScope.switchEvent").target("switchEvent").value();
 		getFlow().setOutputMapper(new DefaultAttributeMapper().addMapping(idMapping).addMapping(switchEventMapping));
+		
+		// LOGICCHECKS
+		// in case this flow altered the confirmLogic value
+		AttributeMapper outputMapper = getFlow().getOutputMapper();
+		Mapping confirmLogicMapping = mapping().source("flowScope."+CONFIRM_LOGIC).target(CONFIRM_LOGIC).value();
+		getFlow().setOutputMapper(((DefaultAttributeMapper)outputMapper).addMapping(confirmLogicMapping));
 	}
 }
 

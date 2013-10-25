@@ -1,5 +1,7 @@
 package edu.ucsf.lava.crms.assessment.controller;
 
+import static edu.ucsf.lava.core.controller.BaseEntityComponentHandler.CONFIRM_LOGIC;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,7 +20,6 @@ import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder.ListItem;
-import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.LavaEntity;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
@@ -196,6 +197,10 @@ public class InstrumentGroupHandler extends CrmsGroupComponentHandler {
 		}
 		
 		context.getFlowScope().put(GROUP_MAPPING, instrumentGroup);
+		
+		// LOGICCHECKS
+		context.getFlowScope().put(CONFIRM_LOGIC, new Byte((byte)1));
+		
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
 
