@@ -18,6 +18,7 @@
   <decorator name="component.entity.section" page="component/entity/section.jsp"/>
   <decorator name="component.group.content" page="component/group/content.jsp"/>  
   <decorator name="component.calendar.content" page="component/calendar/content.jsp"/>
+  <decorator name="component.logiccheck.content" page="component/logiccheck/content.jsp"/>
 
   <!-- note that instruments use the same section decorator as entities -->
   <decorator name="component.report.content" page="component/report/content.jsp"/>

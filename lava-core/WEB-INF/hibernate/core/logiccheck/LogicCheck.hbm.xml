@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.logiccheck.model.LogicCheck" table="logiccheck" select-before-update="true">
+		<id name="id" type="long">
+			<column name="CheckDefId" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+		<timestamp name="modified" column="modified"/>
+		
+		<property name="codeID" column="codeID" type="string" length="25"/>
+		<property name="enabled" column="enabled" type="byte"/>
+		<property name="isalert" column="isalert" type="byte"/>
+		<property name="primaryLogic" column="primaryLogic" type="string" length="45"/>
+	    <property name="checkDesc" column="checkDesc" type="string" length="300"/>
+	    
+	    <property name="cond1operator" column="cond1operator" type="string" length="45"/>
+	    <property name="cond1negate" column="cond1negate" type="byte"/>
+	    <property name="entity1classname" column="entity1classname" type="string" length="25"/>
+	    <property name="field1name" column="field1name" type="string" length="100"/>
+	    <property name="field1itemNum" column="field1itemNum" type="string" length="45"/>
+	    <property name="field1values" column="field1values" type="string" length="45"/>
+	    <property name="field1values_alt" column="field1values_alt" type="string" length="45"/>
+		
+		<property name="cond2operator" column="cond2operator" type="string" length="45"/>
+		<property name="cond2negate" column="cond2negate" type="byte"/>
+	    <property name="entity2classname" column="entity2classname" type="string" length="25"/>
+	    <property name="field2name" column="field2name" type="string" length="100"/>
+	  	<property name="field2itemNum" column="field2itemNum" type="string" length="45"/>
+	    <property name="field2values" column="field2values" type="string" length="45"/>
+		<property name="field2values_alt" column="field2values_alt" type="string" length="45"/>
+	   	   
+	    <property name="activeDate" column="activeDate" type="timestamp"/>
+	    <property name="notes" column="notes" type="string" length="500"/>
+	    
+	</class>
+	
+</hibernate-mapping>
+
+

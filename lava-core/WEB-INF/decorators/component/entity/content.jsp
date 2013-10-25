@@ -24,6 +24,11 @@
   <decorator:getProperty property="locked"/>
 </c:set>
 
+<%-- add logic check issues, connecting it to the top navigation buttons --%>
+<page:applyDecorator name="component.logiccheck.content">
+  <page:param name="component">${component}</page:param>
+
+
 <c:set var="numStdEventButtons" value="2"/>
 <c:choose>
 	<c:when test="${componentView=='view'}">
@@ -111,6 +116,7 @@ that submits the form (eventButton, eventLink) --%>
 	${customActions}
 </div>
 
+</page:applyDecorator> <%-- component.logiccheck.content --%>
 
 
 <!-- CONTEXTUAL INFO -->

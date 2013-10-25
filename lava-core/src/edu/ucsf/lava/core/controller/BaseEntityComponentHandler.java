@@ -26,7 +26,8 @@ import org.springframework.webflow.execution.RequestContext;
 import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.action.model.Action;
 import edu.ucsf.lava.core.auth.model.AuthUser;
-
+import edu.ucsf.lava.core.logiccheck.controller.LogicCheckUtils;
+import edu.ucsf.lava.core.logiccheck.model.LogicCheckIssue;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.LavaEntity;
 import edu.ucsf.lava.core.model.ValidationException;
@@ -45,7 +46,13 @@ import edu.ucsf.lava.core.file.model.LavaFile;
  */
 public class BaseEntityComponentHandler extends LavaComponentHandler  {
 	
-	
+    // LOGICCHECKS
+	// To include confirmLogic status in a flowScope variable in the core GroupFlowBuilder.  It can be passed between
+	// flows that track it so that user needs to confirm it only once.
+    public static final String CONFIRM_LOGIC = "confirmLogic";
+    public static final String LOGIC_CHECK_ISSUES = "logiccheckissues";
+    public static final String LOGIC_CHECKS_EXIST = "logicchecksExist";
+    
 	public BaseEntityComponentHandler() {
 		super();
 		// if modify this list, may need to modify InstrumentHandler as well until find time to implement better approach
@@ -205,9 +212,42 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 			}else{
 				throw new RuntimeException(getMessage("idMissing.command", new Object[]{getDefaultObjectName()}));
 			}
+			// LOGICCHECKS
+			addBackingObjectsLogicChecks(context, backingObjects);
 		}
 		//TODO: need to check for an empty backing objects and redirect to an object not found message. 
 		return backingObjects;
+	}
+	
+	// LOGICCHECKS
+	public void addBackingObjectsLogicChecks(RequestContext context, Map backingObjects) {
+		String flowMode = ActionUtils.getFlowMode(context.getActiveFlow().getId()); 
+		EntityBase entity = (EntityBase)backingObjects.get(getDefaultObjectName());
+		// if the entity data is on the screen, then consider logic checks
+		if (flowMode.equals("view") || flowMode.equals("edit") || flowMode.equals("enter") || flowMode.equals("review") || flowMode.equals("enterReview")) {
+			// find out if any logic check definitions even exist for this entity
+			// if not, there is no use showing the confirmLogic confirmation to the user
+			// add a backing object to inform the view whether to display it or not
+			List logicchecks = entity.getLogicChecks();
+			if (logicchecks != null && logicchecks.size()>0) {
+				backingObjects.put(LOGIC_CHECKS_EXIST, "1");
+			} else {
+				backingObjects.put(LOGIC_CHECKS_EXIST, "0");
+			}			
+			
+			// add to the backing objects any logic check issues already existing for this entity 
+			if (entity != null) {
+				backingObjects.put(LOGIC_CHECK_ISSUES,entity.getLogicCheckIssues());
+			}
+
+			// ensure the confirmLogic value is a backing object.
+			// the default should be true (safest), forcing user to uncheck the first time.
+			if (context.getFlowScope().get(CONFIRM_LOGIC) == null) {
+				context.getFlowScope().put(CONFIRM_LOGIC, new Byte((byte)1));
+			}
+			backingObjects.put(CONFIRM_LOGIC, context.getFlowScope().get(CONFIRM_LOGIC));
+			
+		}
 	}
 	
 	//	override in subclasses to provide additional initialization of the new instance.	
@@ -487,6 +527,20 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 	//The default save action handler 
 	protected Event doSave(RequestContext context, Object command, BindingResult errors) throws Exception{
 		Map components = ((ComponentCommand)command).getComponents();
+		
+		// LOGICCHECKS
+		// save the logiccheck issues before the entity saves (which updates logiccheckissues) in case any alerts
+		// were checked/unchecked as verified, so that we don't lose that user interaction
+		Map backingObjects = ((ComponentCommand)command).getComponents();
+		List<LogicCheckIssue> lcissues = (List<LogicCheckIssue>)backingObjects.get(LOGIC_CHECK_ISSUES);
+		if (lcissues != null) {
+			for (LogicCheckIssue lcissue : lcissues) {
+				if (lcissue.getIsalert()) {
+					lcissue.flushVerificationChange(context, this.sessionManager);
+				}
+			}
+		}
+		
 		Event returnEvent = saveHandledObjects(context, components, errors);
 		if (returnEvent.getId().equals(SUCCESS_FLOW_EVENT_ID)) {
 			// do refresh in case any db triggers populated fields on save. this is just for
@@ -498,7 +552,45 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 			// mechanism. that mechanism is the subFlowReturnHook method, which allows a handler
 			// to refresh all components of its flow when it resumes after a subFlow completes
 			returnEvent = refreshHandledObjects(context, components, errors);
-		}		
+		}
+		
+		// LOGICCHECKS
+		// at this point, logiccheckissues would have been recalculated for this entity in saveHandledObjects()
+		
+		// only do logic check calculations if entity data had been successfuly persisted
+		if (returnEvent.getId() != SUCCESS_FLOW_EVENT_ID) return returnEvent;
+
+		EntityBase entity = (EntityBase)backingObjects.get(getDefaultObjectName());
+		if (entity == null) return returnEvent; // this shouldn't happen
+		
+		// if any logiccheck errors or unverified alerts, stay on this page if the user has elected to "confirm logic"
+		// any logiccheck issues currently in backing objects are now out-of-date, so grab the list again
+		lcissues = (List<LogicCheckIssue>)entity.getLogicCheckIssues();
+		boolean logiccheck_problem = LogicCheckUtils.isLogicCheckProblem(lcissues);
+		
+		// the confirmLogic backing object may be a Byte or String (depending on who put it there)
+		Byte confirmLogic;
+		Object confirmLogicObj = backingObjects.get(CONFIRM_LOGIC);
+		if (confirmLogicObj == null)
+			confirmLogic = (byte)0;
+		else
+			confirmLogic = Byte.valueOf(confirmLogicObj.toString());
+		// an unchecked box may get translated as a null value, so ensure it is set to 0 before saving to our flow
+		// this way we can distinguish between an unchecked value and a value that is not in the flow at all
+		
+		// save the confirmLogic value in flowScope
+		context.getFlowScope().put(CONFIRM_LOGIC, confirmLogic);
+
+		if (logiccheck_problem) {
+			// return error if the "confirmLogic" field is true
+			if (confirmLogic != null && confirmLogic.equals(new Byte((byte)1))) {
+				// before returning error and doing this event over again, refresh the logiccheck issues in the backingobjects
+				backingObjects.put(LOGIC_CHECK_ISSUES, lcissues);
+				return new Event(this,ERROR_FLOW_EVENT_ID);
+			}
+			// else continue as planned
+		}
+		
 		return returnEvent;
 	}
 

@@ -13,6 +13,7 @@ import org.springframework.webflow.execution.Action;
 import org.springframework.webflow.execution.ScopeType;
 
 import static edu.ucsf.lava.core.controller.BaseGroupComponentHandler.GROUP_MAPPING;
+import static edu.ucsf.lava.core.controller.BaseEntityComponentHandler.CONFIRM_LOGIC;
 import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
 
 public class GroupFlowBuilder extends BaseFlowBuilder {
@@ -32,6 +33,11 @@ public class GroupFlowBuilder extends BaseFlowBuilder {
     	// performed is not mapped in because it can be derived by the flow id for the group flow)
     	Mapping groupMapping = mapping().source(GROUP_MAPPING).target("flowScope." + GROUP_MAPPING).value();
     	getFlow().setInputMapper(((DefaultAttributeMapper)inputMapper).addMapping(groupMapping));
+    
+    	// LOGICCHECKS - see note for BaseEntityComponentHandler.CONFIRM_LOGIC
+    	// parent flows map the CONFIRM_LOGIC variable into input mapper CONFIRM_LOGIC
+    	Mapping confirmLogicMapping = mapping().source(CONFIRM_LOGIC).target("flowScope." + CONFIRM_LOGIC).value();
+    	getFlow().setInputMapper(((DefaultAttributeMapper)inputMapper).addMapping(confirmLogicMapping));
     }
     
     public void buildEventStates() throws FlowBuilderException {
@@ -107,6 +113,12 @@ public class GroupFlowBuilder extends BaseFlowBuilder {
     protected void buildSubFlowStates(){
     	// pass group to subflows in case they need it
 		subflowInputOutputMapper.addInputMapping(mapping().source("flowScope."+GROUP_MAPPING).target(GROUP_MAPPING).value());
+
+		// LOGICCHECKS - see note for BaseEntityComponentHandler.CONFIRM_LOGIC
+		// to be able to pass CONFIRM_LOGIC between two instrument subflows
+		subflowInputOutputMapper.addInputMapping(mapping().source("flowScope."+CONFIRM_LOGIC).target(CONFIRM_LOGIC).value());
+		subflowInputOutputMapper.addOutputMapping(mapping().source(CONFIRM_LOGIC).target("flowScope."+CONFIRM_LOGIC).value());
+
 		super.buildSubFlowStates();
     }
 
@@ -136,6 +148,12 @@ public class GroupFlowBuilder extends BaseFlowBuilder {
 	public void buildOutputMapper() throws FlowBuilderException {
 		Mapping groupMapping = mapping().source("flowScope." + GROUP_MAPPING).target(GROUP_MAPPING).value();
 		getFlow().setOutputMapper(new DefaultAttributeMapper().addMapping(groupMapping));
+		
+		// LOGICCHECKS - see note for BaseEntityComponentHandler.CONFIRM_LOGIC
+		// return the CONFIRM_LOGIC to the parent flow so that it can pass CONFIRM_LOGIC to the next instrument flow
+		AttributeMapper outputMapper = getFlow().getOutputMapper();
+		Mapping confirmLogicMapping = mapping().source("flowScope." + CONFIRM_LOGIC).target(CONFIRM_LOGIC).value();
+		getFlow().setOutputMapper(((DefaultAttributeMapper)outputMapper).addMapping(confirmLogicMapping));
 	}
     
 }

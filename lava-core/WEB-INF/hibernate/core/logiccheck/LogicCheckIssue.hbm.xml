@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<!-- Instrument is never instantiated, but must be mapped so that other mappings can have an 
+association to instruments, i.e. any type of instrument, and Instrument is the superclass of all instruments.
+ -->
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.logiccheck.model.LogicCheckIssue" table="logiccheckissue" select-before-update="true">
+		<id name="id" type="long">
+			<column name="id" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+		<timestamp name="modified" column="modified"/>
+		
+		<many-to-one name="definition" column="checkDefId" class="edu.ucsf.lava.core.logiccheck.model.LogicCheck" not-null="true" lazy="false"/>
+
+		<property name="checkDescDataAppend" column="checkDescDataAppend" type="string"/>
+		
+	    <property name="verified" column="verified" type="byte"/>
+		<many-to-one name="verified_modifier" column="verified_modifier_uid" class="edu.ucsf.lava.core.auth.model.AuthUser" lazy="false"/>
+	    <property name="verified_modifieddate" column="verified_modifieddate" type="timestamp"/>
+	    <property name="invalidDef" column="invalidDef" type="byte"/>
+	    
+	    
+	</class>		
+		
+</hibernate-mapping>
+
+

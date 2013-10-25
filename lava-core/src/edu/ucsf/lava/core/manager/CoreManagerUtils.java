@@ -7,6 +7,7 @@ import edu.ucsf.lava.core.environment.EnvironmentManager;
 import edu.ucsf.lava.core.file.FileManager;
 import edu.ucsf.lava.core.id.IdManager;
 import edu.ucsf.lava.core.list.ListManager;
+import edu.ucsf.lava.core.logiccheck.LogicCheckManager;
 import edu.ucsf.lava.core.metadata.MetadataManager;
 import edu.ucsf.lava.core.scope.ScopeManager;
 import edu.ucsf.lava.core.session.SessionManager;
@@ -73,6 +74,14 @@ public class CoreManagerUtils extends LavaBeanUtils {
 		return getIdManager(getManagers());
 	}
 	
+	
+	public static LogicCheckManager getLogicCheckManager(Managers managers){
+		return (LogicCheckManager) managers.get(LogicCheckManager.LOGICCHECK_MANAGER_NAME);
+	}
+
+	public static LogicCheckManager getLogicCheckManager(){
+		return getLogicCheckManager(getManagers());
+	}	
 	
 	public static ScopeManager getScopeManager(Managers managers){
 		return (ScopeManager) managers.get(ScopeManager.SCOPE_MANAGER_NAME);

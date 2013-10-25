@@ -21,5 +21,13 @@
 <spring:message code="action.lava.core.admin.auth.authPermissions.list"/></a><br/>
 <a href="<tags:actionURL actionId="lava.core.admin.auth.authPermission"  startMode="add"/>">
 <spring:message code="action.lava.core.admin.auth.authPermission.add"/></a><br/>
+<br/>
+<a href="admin/reload/auth.lava">
+<spring:message code="action.lava.core.admin.reload.auth"/></a><br>
+<br/>
+<a href="admin/recalculate/logicchecks.lava">
+<spring:message code="action.lava.core.admin.recalculate.logicchecks"/></a><br/>
+<br/>
+
 </body>
 </html>

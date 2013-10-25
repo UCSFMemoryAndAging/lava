@@ -24,13 +24,17 @@ import org.hibernate.type.Type;
 
 import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
+import edu.ucsf.lava.core.logiccheck.controller.LogicCheckUtils;
+import edu.ucsf.lava.core.logiccheck.model.LogicCheckEntity;
+import edu.ucsf.lava.core.logiccheck.model.LogicCheckSummary;
 import edu.ucsf.lava.core.metadata.MetadataManager;
+
 
 /**
  * @author jhesse
  *
  */
-public abstract class EntityBase implements LavaEntity, Cloneable {
+public abstract class EntityBase implements LavaEntity, Cloneable, LogicCheckEntity {
     protected final Log logger = LogFactory.getLog(getClass());
 	
 	//Business Manager / Data Access Object Proxy
@@ -613,7 +617,7 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 	}
 	
 	/**
-	 * Called by the persistence layer just after saving the entity when the entity 
+	 * Called by the persistence layer just before saving the entity when the entity 
 	 * has already been persisted.
 	 * 
 	 */
@@ -629,6 +633,17 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 	 * that need to be persisted).
 	 */
 	public boolean afterUpdate(){
+		// LOGICCHECKS
+		if (!ignoreLogicCheckUponUpdate()) {
+			// do logic checks in afterUpdate(), not beforehand, because we want to make sure the business
+			//   flow allowed the save at all
+			LogicCheckUtils.doLogicChecks(this);
+		
+			// because the entity changed, there may be other entities whose logic checks needs 
+			// updating, who were depending on this entity.
+			LogicCheckUtils.doLogicChecksOnDependentEntities(this);
+		}
+		
 		return false;
 	}
 	
@@ -656,8 +671,54 @@ public abstract class EntityBase implements LavaEntity, Cloneable {
 	}
 	
 	public boolean getLocked() {
-		/* EMORY change: default to false; innocent until proven "to be locked up"
-		 *   subclasses will determine when entity is to be locked */
+		// default status defined by default
+		return false;
+	}
+
+	// LOGICCHECKS
+	// get all issues currently assigned to this entity
+	public List getLogicCheckIssues() {
+		// override to support logic checks for sub-classes
+		return null;
+	}
+	
+	// LOGICCHECKS
+	// get all logic check definitions to be done on this entity
+	public List getLogicChecks() {
+		// override to support logic checks for sub-classes
+		return null;
+	}
+	
+	// LOGICCHECKS
+	// get all logic check definitions to be done on this entity because it is a secondary field
+	public List getLogicChecks_Dependents() {
+		// override to support logic checks for sub-classes
+		return null;
+	}
+	
+	// LOGICCHECKS
+	public LogicCheckSummary.Manager getLogicCheckSummaryManager() {
+		// override to support logic checks for sub-classes
+		return null;
+	}
+	
+	// LOGICCHECKS
+	public LogicCheckSummary getLogicCheckSummary() {
+		if (getLogicCheckSummaryManager() == null) return null;
+		return getLogicCheckSummaryManager().get(this);
+	}
+		
+	// LOGICCHECKS
+	// override to define *CUSTOM* logic checks, supporting dependent entities (i.e. when the logic checks multiple entities)
+	public List getDependentEntities() {
+		// before handling, be sure to first do the correct condition checks, like in doLogicCheckPrimaryLogic(LogicCheck)
+		return null;
+	}
+
+	// LOGICCHECKS
+	// override to ignore logic checks when saving this particular entity,to avoid conflicts with
+	//   entities (i.e. with *one* entityID) having two subclasses (e.g. UdsInstrumentTracking and UdsSubjectDemo)
+	public boolean ignoreLogicCheckUponUpdate() {
 		return false;
 	}
 		

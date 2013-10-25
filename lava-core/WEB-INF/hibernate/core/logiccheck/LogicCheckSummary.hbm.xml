@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.logiccheck.model.LogicCheckSummary" table="logicchecksummary" select-before-update="true">
+		<id name="id" type="long">
+			<column name="id" not-null="true"/> 
+			<generator class="identity"/>
+		</id>
+		<timestamp name="modified" column="modified"/>
+		
+		<property name="lcDate" column="LCDate" type="timestamp"/>
+		<property name="lcBy" column="LCBy" type="string" length="25"/>
+		<property name="lcStatus" column="LCStatus" type="string" length="25"/>
+		<property name="lcReason" column="LCReason" type="string" length="25"/>
+		<property name="lcNotes" column="LCNotes" type="string" length="100"/>	   
+	    
+	</class>		
+		
+</hibernate-mapping>
+
+

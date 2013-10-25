@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+     
+    <!-- The logiccheck manager.  Primarily responsible for serving as an organizing entity for
+    	logiccheck mappings linked with the lava instance. -->
+	<bean id="logiccheckManager" class="edu.ucsf.lava.core.logiccheck.LogicCheckManager" >
+		<property name="logiccheckMappings"><ref bean="logiccheckMappings"/></property>
+		<property name="entityConfigs"><ref bean="logicCheckEntityConfigs"/></property> 
+	</bean>
+    
+    <!-- A collection bean that needs to be injected into each LogicCheckMapping bean -->
+    <bean id="logiccheckMappings" class="edu.ucsf.lava.core.logiccheck.LogicCheckMappings"/>
+    
+	<!-- Abstract parent beans for the logiccheck mapping beans to inherit from -->
+	<bean id="baseLogiccheckMapping" abstract="true" class="edu.ucsf.lava.core.logiccheck.AbstractLogicCheckMapping">
+		<property name="id" value="lava_default"/>
+		<property name="logiccheckMappings"><ref bean="logiccheckMappings"/></property>
+	</bean>	
+	
+	<bean id="defaultLavaLogiccheckMapping" parent="baseLogiccheckMapping" class="edu.ucsf.lava.core.logiccheck.BaseLogicCheckMapping"/>
+
+	<!-- any entity to use logic checks needs to be configured using the logicCheckEntityConfig bean -->
+	<bean id="logicCheckEntityConfig" abstract="true" class="edu.ucsf.lava.core.logiccheck.model.LogicCheckEntityConfig">
+		<property name="entityConfigs"><ref bean="logicCheckEntityConfigs"/></property>
+	</bean>
+	<bean id="logicCheckEntityConfigBeanPostProcessor" class="edu.ucsf.lava.core.logiccheck.LogicCheckEntityConfigBeanPostProcessor"/>
+	
+	<bean id="logicCheckEntityConfigs" class="edu.ucsf.lava.core.logiccheck.LogicCheckEntityConfigs"/>
+</beans>
+	
