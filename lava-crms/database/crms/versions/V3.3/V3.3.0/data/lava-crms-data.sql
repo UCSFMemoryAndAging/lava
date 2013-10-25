@@ -1,7 +1,12 @@
 DELETE from `viewproperty` where `instance`='lava' and `scope`='crms';
 DELETE from `hibernateproperty` where `instance`='lava' and `scope`='crms';
 DELETE from `listvalues` where `instance`='lava' and `scope`='crms';
-DELETE from `list` where `instance`='lava' and `scope`='crms';
+-- need to delete 'crms-app-demo' listvalues which use 'crms' scope lists because otherwise
+-- will have FK constraint violations when delete from list where scope is 'crms' 
+DELETE from `listvalues` where `instance`='lava' and `scope`='crms-app-demo'; -- 'crms-app-demo' data can restored by running lava-app-demo demo-ucsf-config-data-3.1.0.sql and demo-uds-config-data-3.1.0.sql
+-- 'InstrumentVersions' is unique in that it is a 'crms' scope list that has 'crms-nacc' scope listvalues (for apps that use
+-- 'crms-nacc') so cannot delete the list because there will be FK constraint violation.  
+DELETE from `list` where `instance`='lava' and `scope`='crms' and listname != 'InstrumentVersions'; 
 INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) VALUES('*.addEnrollmentStatus.patient_fullName','en','lava','crms',NULL,'addEnrollmentStatus','patient_fullName','','c','string','No','Patient',NULL,NULL,NULL,0,'','',NULL,1,'','2009-01-24 21:28:51');
 INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) VALUES('*.addEnrollmentStatus.enrollmentStatus_projName','en','lava','crms',NULL,'addEnrollmentStatus','enrollmentStatus_projName',NULL,'i','range','Yes','Project',NULL,NULL,NULL,0,NULL,'enrollmentStatus.patientUnassignedProjects',NULL,10,NULL,'2009-01-24 21:28:51');
 INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) VALUES('*.addEnrollmentStatus.projName','en','lava','crms',NULL,'addEnrollmentStatus','projName','','i','range','Yes','Project',NULL,NULL,NULL,0,'','enrollmentStatus.patientUnassignedProjects',NULL,10,'','2009-01-24 21:28:51');
@@ -798,7 +803,7 @@ INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUE
 INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES('Handedness','lava','crms',0,'2009-01-24 20:57:59');
 INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES('InstrumentQualityIssue','lava','crms',0,'2009-01-24 20:57:59');
 INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES('InstrumentResearchStatus','lava','crms',0,'2009-01-24 20:57:59');
-INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES('InstrumentVersions','lava','crms',0,'2009-01-24 20:57:59');
+-- INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES('InstrumentVersions','lava','crms',0,'2009-01-24 20:57:59');
 INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES('MaritalStatus','lava','crms',1,'2009-01-24 20:57:59');
 INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES('NameTitle','lava','crms',0,'2013-04-10 01:16:04');
 INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES('NormalAbnormal','lava','crms',1,'2009-05-11 17:22:28');
