@@ -223,6 +223,8 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 	public void addBackingObjectsLogicChecks(RequestContext context, Map backingObjects) {
 		String flowMode = ActionUtils.getFlowMode(context.getActiveFlow().getId()); 
 		EntityBase entity = (EntityBase)backingObjects.get(getDefaultObjectName());
+		if (entity == null) return;  // e.g. could occur because of lack of authorizations
+		
 		// if the entity data is on the screen, then consider logic checks
 		if (flowMode.equals("view") || flowMode.equals("edit") || flowMode.equals("enter") || flowMode.equals("review") || flowMode.equals("enterReview")) {
 			// find out if any logic check definitions even exist for this entity
@@ -319,7 +321,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 				// visitType ==> components['visit'].visitType
 				String[] componentRequiredFields = new String[requiredFields.length];
 				for (int i=0; i<requiredFields.length;i++) {
-					componentRequiredFields[i] = new StringBuffer("components['").append(getDefaultObjectName()).append("'].").append(requiredFields[i]).toString();
+					componentRequiredFields[i] = new StringBuffer("components['").append(getBindingComponentString()).append("'].").append(requiredFields[i]).toString();
 				}
 				if (existingFields!=null){
 					List existing = Arrays.asList(existingFields);

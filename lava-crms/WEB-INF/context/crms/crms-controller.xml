@@ -41,6 +41,8 @@
 	<bean id="crmsHandler" abstract="true" parent="lavaHandler"/>
 
 	<bean id="reloadProjectsController" class="edu.ucsf.lava.crms.project.controller.ReloadProjectsController"/>
+	<!-- LOGICCHECKS -->
+	<bean id="recalculateLogicchecksController" class="edu.ucsf.lava.crms.logiccheck.controller.RecalculateLogicchecksController"/>
 
 
 	<!-- Patient/Project context handlers -->

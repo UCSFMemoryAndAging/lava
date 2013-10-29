@@ -221,8 +221,8 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			// InstrumentTracking class)
 			backingObjects.put(getDefaultObjectName(), initializeNewCommandInstance(context,InstrumentTracking.MANAGER.create()));
 		}else{
-			Action currentAction = CoreSessionUtils.getCurrentAction(sessionManager,request);
-			String instrTypeEncoded = currentAction.getTarget();
+			String instrTypeEncoded = ActionUtils.getTarget(context.getActiveFlow().getId());
+			
 			//get backing object based on id
 			// the "id" parameter is stored in flow scope by the flow definition
 			String id = context.getFlowScope().getString("id");
@@ -272,6 +272,9 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 				// the backingObjects here it is ignored and does no harm
 				fileLoader.setDetailComponents(context, backingObjects);
 			}
+			
+			// LOGICCHECKS
+			addBackingObjectsLogicChecks(context, backingObjects);			
 		}
 
 		return backingObjects;

@@ -11,6 +11,8 @@
      	<constructor-arg><map>
              <entry key="**/assessment/instrument/calc.lava"><ref bean="instrCalcController"/></entry>
      	     <entry key="**/admin/reload/projects.lava"><ref bean="reloadProjectsController"/></entry>
+			 <!-- LOGICCHECKS -->
+     	     <entry key="**/admin/recalculate/logicchecks.lava"><ref bean="recalculateLogicchecksController"/></entry>
         </map></constructor-arg>
      </bean>
     

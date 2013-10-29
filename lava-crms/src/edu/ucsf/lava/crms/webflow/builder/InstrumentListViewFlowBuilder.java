@@ -1,5 +1,8 @@
 package edu.ucsf.lava.crms.webflow.builder;
 
+import static edu.ucsf.lava.core.controller.BaseGroupComponentHandler.GROUP_MAPPING;
+import static edu.ucsf.lava.core.controller.BaseEntityComponentHandler.CONFIRM_LOGIC;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -206,9 +209,14 @@ public class InstrumentListViewFlowBuilder extends BaseFlowBuilder {
 			        // return the group in an output mapper so that the selected items can be re-selected, since
 			        // they are lost when subFlowReturnState does a refresh (which must be done in case the group
 			        // flow added a missing instrument)
-			        paramMapper.addInputMapping(mapping().source("flowScope.group").target("group").value());
-			        paramMapper.addOutputMapping(mapping().source("group").target("flowScope.group").value());
-		    		transitions = new Transition[]{subFlowReturnFinishTransition, subFlowReturnFinishCancelTransition};
+			        paramMapper.addInputMapping(mapping().source("flowScope."+GROUP_MAPPING).target(GROUP_MAPPING).value());
+			        paramMapper.addOutputMapping(mapping().source(GROUP_MAPPING).target("flowScope."+GROUP_MAPPING).value());
+			        
+			        // LOGICCHECKS
+			        paramMapper.addInputMapping(mapping().source("flowScope."+CONFIRM_LOGIC).target(CONFIRM_LOGIC).value());
+			        paramMapper.addOutputMapping(mapping().source(CONFIRM_LOGIC).target("flowScope."+CONFIRM_LOGIC).value());
+			        
+			        transitions = new Transition[]{subFlowReturnFinishTransition, subFlowReturnFinishCancelTransition};
 		    	}
 		    	
 		    	// for now, only implementing the "switchEvent" transition for the subflows which use it. to 
