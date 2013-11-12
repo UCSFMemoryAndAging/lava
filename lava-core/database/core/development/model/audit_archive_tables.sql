@@ -3,9 +3,16 @@
 
 -- NOTE: these tables are currently part of the model and complete scripts. if they
 -- are going to be created in a separate database just for audit archiving, as 
--- recommended, then this script should be run on the separate database. the copies
--- of these history tables on the production database will not be used and can be 
--- dropped.  
+-- recommended, then this script should be run on the separate database. 
+
+-- the copies of these history tables on the production database will not be used. however,
+-- they are currently used in the audit views which union the each audit working and history
+-- table, e.g. audit_event is the union of audit_event_work and audit_event_history.
+-- if the history tables are in a separate audit database then the audit_*_history tables
+-- could be dropped and the move_audit_logs.sql script could be modified to work
+-- with the audit_*_work tables instead of the audit_* views
+
+
 
 -- also see the move_audit_logs.sql script in the util folder 
 
