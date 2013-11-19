@@ -1,8 +1,6 @@
 package edu.ucsf.lava.crms.controller;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,13 +10,12 @@ import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.crms.assessment.InstrumentManager;
-import edu.ucsf.lava.crms.auth.CrmsAuthorizationContext;
+import edu.ucsf.lava.crms.auth.CrmsAuthUtils;
 import edu.ucsf.lava.crms.enrollment.EnrollmentManager;
 import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.project.ProjectManager;
 import edu.ucsf.lava.crms.scheduling.VisitManager;
-import edu.ucsf.lava.crms.scheduling.model.Visit;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 
 
@@ -37,46 +34,10 @@ public class CrmsEntityComponentHandler extends BaseEntityComponentHandler {
 		this.projectManager = CrmsManagerUtils.getProjectManager(managers);
 		this.visitManager = CrmsManagerUtils.getVisitManager(managers);
 	}
-
-
-
 	
-	/**
-	 * filterVisitListByPermission
-	 * 
-	 * Views which contain lists of visits need to make sure that the list does not
-	 * contain a visit for a project for which the user does not have permission. The
-	 * lists are filtered for project access authorization in the dynamic list creation
-	 * process, but have not been filtered for permission authorization.
-	 * 
-	 * Also optionally filter based on locked status.
-	 * 
-	 * e.g. the add instrument view should not list visits for projects for which the user
-	 *      does not have permission to add instruments, nor locked
-	 *      
-	 */
-	public Map<String,String> filterVisitListByPermission(AuthUser user, Action action, Map<String,String> visitList, boolean filterByLockedStatus) {
-		
-		Map<String,String> filteredList = new LinkedHashMap<String,String>();
-		
-		for (Entry<String,String> entry : visitList.entrySet()) {
-			// include the blank entry in the new list
-			if (entry.getKey().length() == 0) {
-				filteredList.put(entry.getKey(), entry.getValue());
-			}
-			else {
-				// visit list has already been filtered for auth access, so no need to pass user when creating new filter
-				Visit v = (Visit)Visit.MANAGER.getById(Long.valueOf(entry.getKey()),Visit.newFilterInstance(user));
-				
-				if (entry.getKey().length() == 0 || 
-						(authManager.isAuthorized(user, action, new CrmsAuthorizationContext(v.getProjName())) &&
-						 (!filterByLockedStatus ||!v.getLocked()))) {
-					filteredList.put(entry.getKey(), entry.getValue());
-				}
-			}
-		}
-		
-		return filteredList;
+	public  Map<String,String> filterVisitListByPermission(AuthUser user, Action action, 
+			Map<String,String> visitList, boolean removeLockedVisits) {
+		return CrmsAuthUtils.filterVisitListByPermission(user, action, visitList, removeLockedVisits);
 	}
 	
 	public Map<String,String> filterVisitListByPermission(AuthUser user, Action action, Map<String,String> visitList) {

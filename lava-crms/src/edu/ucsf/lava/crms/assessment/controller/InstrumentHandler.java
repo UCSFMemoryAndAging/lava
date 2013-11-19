@@ -36,6 +36,7 @@ import edu.ucsf.lava.crms.assessment.controller.cbt.FileLoader;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentConfig;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
+import edu.ucsf.lava.crms.auth.CrmsAuthUtils;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
@@ -185,7 +186,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 						"visit.patientVisits", "patientId",
 						((Instrument)((ComponentCommand)command).getComponents().get(INSTRUMENT)).getPatient().getId(),
 						Long.class);
-				visitList = filterVisitListByPermission(getCurrentUser(request),
+				visitList = CrmsAuthUtils.filterVisitListByPermission(getCurrentUser(request),
 						CoreSessionUtils.getCurrentAction(sessionManager,request), visitList, true);
 				if (visitList.size() == 1) { // there will always be the blank entry, so list size 1 means empty list
 					CoreSessionUtils.addFormError(sessionManager,request, new String[]{"authorization.noInstrumentVisits.command"}, null);
@@ -302,7 +303,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 				"visit.patientVisits", "patientId",  
 				((Instrument)command).getPatient().getId(), 
 				Long.class);
-		visitList = filterVisitListByPermission(getCurrentUser(request),
+		visitList = CrmsAuthUtils.filterVisitListByPermission(getCurrentUser(request),
 				CoreSessionUtils.getCurrentAction(sessionManager,request), visitList, true);
 		// save visit list for reference data so do not have to query and filter each time 
 		// an add is done (since the visit list is static for the life of the page)
