@@ -28,9 +28,9 @@ import edu.ucsf.lava.core.session.model.LavaSession;
 public class AuthUserContextFilter implements Filter, ManagersAware {
     protected final Log logger = LogFactory.getLog(getClass());
 	
-
-     protected SessionManager sessionManager;
-    protected MetadataManager metadataManager; 
+    protected SessionManager sessionManager;
+    protected MetadataManager metadataManager;
+    
     public void init(FilterConfig filterConfig) throws ServletException {
             // TODO Auto-generated method stub
     }
@@ -65,12 +65,16 @@ public class AuthUserContextFilter implements Filter, ManagersAware {
 				
 				LavaSession session = sessionManager.getLavaSession(request);
 				if (session != null){
+					sessionManager.initializeSessionEventHandlerAuditing("login", user, request.getRemoteAddr());
+					
 					session.setCurrentStatus(LavaSession.LAVASESSION_STATUS_ACTIVE);
 					session.setUserId(user.getId());
 					session.setUsername(user.getShortUserNameRev());
 					session.setHostname(request.getRemoteAddr());
 					session.setAccessTimestamp(new Timestamp(new Date().getTime()));
 					sessionManager.saveLavaSession(session);
+					
+					sessionManager.finalizeSessionEventHandlerAuditing();
 				}
 				
 				
@@ -94,18 +98,9 @@ public class AuthUserContextFilter implements Filter, ManagersAware {
 
     }
 
-	
-
-    
-
-	
-
 	public void updateManagers(Managers managers) {
 		this.sessionManager = CoreManagerUtils.getSessionManager(managers);
 		this.metadataManager = CoreManagerUtils.getMetadataManager(managers);
 	}
-
-	
-
 
 }
