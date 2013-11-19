@@ -7,6 +7,13 @@
 --%>
 <%@ attribute name="roles" required="true" 
        description="comma separated list of roles" %>
+<%@ attribute name="criteria" 
+       description="[optional] criteria to meet to do body; default of 'true'
+          does body if role found; 'false' does body if role not found" %>
+
+<c:if test="${empty criteria}">
+<c:set var="criteria" value="true"/>
+</c:if>
 
 <c:set var="hasRole" value="false"/>
 
@@ -18,6 +25,6 @@
 	</c:forTokens>
  
 </c:forEach>
-<c:if test="${hasRole == true}">
+<c:if test="${(criteria && hasRole) || (!criteria && !hasRole)}">
  	<jsp:doBody/>
-</c:if>  
+</c:if>
