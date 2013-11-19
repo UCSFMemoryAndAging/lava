@@ -15,6 +15,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.ucsf.lava.core.audit.AuditManager;
+import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.environment.EnvironmentManager;
 import edu.ucsf.lava.core.manager.CoreManagerUtils;
 import edu.ucsf.lava.core.manager.LavaManager;
@@ -35,6 +37,7 @@ public class SessionManager extends LavaManager{
 		protected MetadataManager metadataManager;
 		protected ScopeManager scopeManager;
 		protected EnvironmentManager environmentManager;
+		protected AuditManager auditManager;
 		protected Map<String,LavaSession> lavaSessions = new HashMap<String,LavaSession>();
 		
 		
@@ -49,6 +52,7 @@ public class SessionManager extends LavaManager{
 			metadataManager = CoreManagerUtils.getMetadataManager(managers);
 			scopeManager = CoreManagerUtils.getScopeManager(managers);
 			environmentManager = CoreManagerUtils.getEnvironmentManager(managers);
+			auditManager = CoreManagerUtils.getAuditManager(managers);
 		}
 
 		
@@ -190,13 +194,18 @@ public class SessionManager extends LavaManager{
 			
 		}
 		
-		public void doSessionLogoff(LavaSession session,HttpSession httpSession){
+		public void doSessionLogoff(LavaSession session,HttpSession httpSession) {
+				AuthUser user = (AuthUser)AuthUser.MANAGER.getById(session.getUserId());
+				initializeSessionEventHandlerAuditing("logoff", user, session.getHostname());
+
 				if(session.getCurrentStatus().equals(LavaSession.LAVASESSION_STATUS_ACTIVE)){
 					session.setDisconnectDateTime(new Date());
 					session.setCurrentStatus(LavaSession.LAVASESSION_STATUS_LOGOFF);
 					saveSession(session);
 				}
 				invalidateHttpSession(httpSession);
+				
+				finalizeSessionEventHandlerAuditing();
 			}
 
 		
@@ -329,6 +338,21 @@ public class SessionManager extends LavaManager{
 
 		public LavaSession getLavaSession(String sessionId) {
 			return lavaSessions.get(sessionId);
+		}
+		
+		public void initializeSessionEventHandlerAuditing(String sessionEventName, AuthUser user, String host) {
+	    	
+	    	if (auditManager.isCurrentEventAudited()){return;} //do not reinitialize
+			
+			// session events (e.g. when session gets connected with user, or user logout) does not have its own "lava action/event", 
+	    	//   but instead piggy-backs on top of normal lava actions.
+	    	// TODO: better strategy in naming this audited "event"?
+			auditManager.initializeAuditing(sessionEventName, sessionEventName, user.getId().toString(), user.getLogin(), host);
+			
+		}
+		
+	    public void finalizeSessionEventHandlerAuditing() {
+			auditManager.finalizeAuditing();
 		}
 
 }
