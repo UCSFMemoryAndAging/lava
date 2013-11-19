@@ -56,12 +56,14 @@ public class AuditManager extends LavaManager{
 			clearCurrentAuditEvent();
 	}
 
-	//record the excpetion on the audit event when there is a handled exception...
+	//record the exception on the audit event when there is a handled exception...
 	static public void handledException(Exception e){
 		AuditEvent ae = getCurrentAuditEvent();
 		if(ae!=null){
-			ae.setException(ae.getClass().getName().substring(0,255));
-			ae.setException(ae.toString().substring(0,255));
+			String exception_classname = e.getClass().getName();
+			String exception_message = e.toString();
+			ae.setException((exception_classname.length()>255) ? exception_classname.substring(0,255) : exception_classname);
+			ae.setExceptionMessage((exception_message.length()>255) ? exception_message.substring(0,255) : exception_message);
 		}
 	}
 
