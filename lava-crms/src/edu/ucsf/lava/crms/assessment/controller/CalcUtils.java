@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Date;
+import org.joda.time.DateTime;
+import org.joda.time.Months;
 
 // common calculation methods to use in an instrument's calculate() function, such as adding and dividing numbers
 // within the context of negative numbers usually representing missing values that can't be calculated
@@ -145,5 +148,12 @@ public class CalcUtils {
 		else if (num>=70 && num <=80) return "Very Superior";
 		return null;
 	}
-
+	
+	public static Integer getMonthsBetween(Date beginDate, Date endDate) {
+		if (beginDate==null || endDate==null) return null;
+		DateTime begin = new DateTime(beginDate);
+		DateTime end = new DateTime(endDate);
+		int months = Months.monthsBetween(begin, end).getMonths();
+		return months;
+	}
 }
