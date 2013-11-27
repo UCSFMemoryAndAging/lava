@@ -278,7 +278,7 @@ DROP PROCEDURE IF EXISTS `util_GetJavaModelProperties`$$
 CREATE  PROCEDURE  `util_GetJavaModelProperties`(EntityIn varchar(50), ScopeIn VARCHAR(25))
 BEGIN
 
-SELECT CONCAT('protected ',CASE WHEN `HibernateType` IN('many-to-one','one-to-many','one-to-one') THEN `HibernateClass`
+SELECT CONCAT('private ',CASE WHEN `HibernateType` IN('many-to-one','one-to-many','one-to-one') THEN `HibernateClass`
      WHEN `HibernateType` = 'Timestamp' THEN 'Date'
      ELSE CONCAT(UPPER(LEFT(`HibernateType`,1)),RIGHT(`HibernateType`,LENGTH(`HibernateType`)-1)) END,
 	  ' ',`HibernateProperty`,';')
