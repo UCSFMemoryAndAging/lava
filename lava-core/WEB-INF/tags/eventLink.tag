@@ -1,6 +1,8 @@
 <%@ include file="/WEB-INF/tags/tags-include.jsp" %>
 <%-- eventLink
-	create a standard event action link
+	create a standard event action link, i.e. event meaning this is a POST form submission,
+	and link meaning that the submit is presented as a hyperlink (as opposed to eventButton.tag
+	which submits the form via a button click)
 --%>
 <%@ attribute name="linkText" required="true" 
        description="the text of the link" %>
@@ -23,7 +25,7 @@
 
 <%-- TODO: the following code assumes there is already a query string parameter, such that the connector
 is always '&' and never the '?' which precedes the initial request query string parameter. since eventLink
-is used to submit, it is generally on pages that are subflows, and so the _flowExecutionKey will be 
+is used to submit, it is generally on pages that are subflows, and so the execution request param will be 
 defined. but if eventLink is ever needed on a root flow page and the URL does not have any query string
 parameters to begin with, then this will break --%>
 <c:forTokens items="${parameters}" delims="," var="current" varStatus="status">
@@ -35,6 +37,7 @@ parameters to begin with, then this will break --%>
    </c:if>
 </c:forTokens>
        
+<%-- onClick return false means do not go to the href destination. rather, the javascript submitForm function is doing an HTTP Post --%>
 <a href="javascript:void" onClick="javascript:document.${pageName}.action='${requestUrl}#${component}';submitForm(document.${pageName}, '${component}__${action}', '${target}');return false" class="${empty className ? '':className}" style="${empty styleDef ? '':styleDef}">${linkText}</a>      
        
 
