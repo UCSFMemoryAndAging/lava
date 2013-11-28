@@ -40,7 +40,11 @@ public class UserPreferencesHandler extends BaseListComponentHandler {
 	public LavaDaoFilter extractFilterFromRequest(RequestContext context,
 			Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		LavaDaoFilter filter = EntityBase.newFilterInstance(getCurrentUser(request));
+		LavaDaoFilter filter = Preference.newFilterInstance(getCurrentUser(request));
+		// EMORY note: this was moved from onPostFilterParamConversion() where it was not working; but I also do not understand function of onPostFilterParamConversion()!
+		filter.setAlias("user", "user");
+		filter.addDaoParam(filter.daoOr(filter.daoEqualityParam("user.id", filter.getAuthUser().getId()), filter.daoNull("user")));
+		filter.addDaoParam(filter.daoEqualityParam("visible", Short.valueOf("1")));
 		return filter;
 	}
 	
@@ -48,9 +52,6 @@ public class UserPreferencesHandler extends BaseListComponentHandler {
 	@Override
 	public LavaDaoFilter onPostFilterParamConversion(LavaDaoFilter daoFilter) {
 		LavaDaoFilter filter  = super.onPostFilterParamConversion(daoFilter);
-		filter.setAlias("user", "user");
-		filter.addDaoParam(filter.daoOr(filter.daoEqualityParam("user.id", filter.getAuthUser().getId()), filter.daoNull("user")));
-		filter.addDaoParam(filter.daoEqualityParam("visible", Short.valueOf("1")));
 		return filter;
 	}
 
