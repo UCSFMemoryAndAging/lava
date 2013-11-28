@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="switchInstrumentGroupFlowTypeBuilder"
+		class="edu.ucsf.lava.crms.webflow.builder.SwitchInstrumentGroupFlowTypeBuilder"/>
+
+	<bean id="switchableInstrumentFlowTypeBuilder"
+	    class="edu.ucsf.lava.crms.webflow.builder.SwitchableInstrumentFlowTypeBuilder"/>
+	    
+	<bean id="switchableInstrumentListFlowTypeBuilder" 
+		class="edu.ucsf.lava.crms.webflow.builder.SwitchableInstrumentListFlowTypeBuilder"/>
+	
+	<!--  replace all lava-crms instrument and instrument group flow types with switchable ones -->
+	<bean id="crmsInstrumentFlowTypeBuilder" parent="switchableInstrumentFlowTypeBuilder"/>
+	<bean id="crmsInstrumentGroupFlowTypeBuilder" parent="switchInstrumentGroupFlowTypeBuilder"/>
+	<bean id="crmsInstrumentListFlowTypeBuilder" parent="switchableInstrumentListFlowTypeBuilder"/>
+
+</beans>

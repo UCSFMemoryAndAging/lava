@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+<!-- actions -->
+
+	
+	<bean id="switchableInstrumentFlowAction" abstract="true" parent="baseInstrumentFlowAction">
+		<property name="flowTypeBuilder"><ref bean="switchableInstrumentFlowTypeBuilder"/></property>
+	</bean>
+	<bean id="switchInstrumentGroupFlowAction" abstract="true" parent="crmsAction">
+		<property name="flowTypeBuilder"><ref bean="switchInstrumentGroupFlowTypeBuilder"/></property>
+	</bean>
+	<bean id="switchableInstrumentListFlowAction" abstract="true" parent="baseInstrumentListFlowAction">
+		<property name="flowTypeBuilder"><ref bean="switchableInstrumentListFlowTypeBuilder"/></property>
+	</bean>
+	
+	<!--  replace all lava-crms instrument and instrument group flow actions with switchable ones -->
+	<bean id="crmsInstrumentFlowAction" abstract="true" parent="switchableInstrumentFlowAction"/>
+	<bean id="instrumentGroupHandler" parent="switchInstrumentGroupHandler"/>
+	<bean id="crmsInstrumentListFlowAction" abstract="true" parent="switchableInstrumentListFlowAction"/>
+	
+	
+<!-- form actions -->	
+	
+	<bean id="switchInstrumentGroupHandler"
+		class="edu.ucsf.lava.crms.assessment.controller.SwitchInstrumentGroupHandler"
+		parent="baseInstrumentGroupHandler"/>
+		
+	<bean id="switchableInstrumentFormAction" parent="crmsInstrumentComponentFormAction">
+    	<constructor-arg>
+    		<list>
+    			<bean parent="baseEntityInstrumentHandler"/>
+	      		<bean class="edu.ucsf.lava.crms.assessment.controller.VisitInstrumentsHandler" parent="crmsHandler"/>
+				<!-- SWITCHABLE: handle the events in navigation list -->
+      			<ref bean="switchInstrumentGroupHandler"/>
+      		</list>
+      	</constructor-arg>
+    </bean>
+	
+	<!--  replace all lava-crms instrument form action with switchable one -->
+	<bean id="instrumentFormAction" parent="switchableInstrumentFormAction"/>
+
+   	
+<!-- Instrument Configurations -->
+
+	
+</beans>

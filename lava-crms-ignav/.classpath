@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.svn/" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/lava-core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/lava-crms"/>
+	<classpathentry kind="lib" path="/lava-core/WEB-INF/lib/spring.jar"/>
+	<classpathentry kind="lib" path="/lava-core/tomcatlibs/servlet-api.jar"/>
+	<classpathentry kind="lib" path="/lava-core/WEB-INF/lib/spring-webflow-1.0.4.jar"/>
+	<classpathentry kind="lib" path="/lava-core/WEB-INF/lib/spring-binding-1.0.4.jar"/>
+	<classpathentry kind="lib" path="/lava-core/WEB-INF/lib/commons-lang-2.6.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

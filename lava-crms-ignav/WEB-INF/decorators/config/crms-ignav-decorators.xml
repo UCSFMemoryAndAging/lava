@@ -1,0 +1,6 @@
+  <!-- replace lava-core's main decorator -->
+  <decorator name="main" page="main-ignav.jsp">
+  	<pattern>/*</pattern>
+  </decorator>
+  
+  
