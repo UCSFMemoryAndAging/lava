@@ -628,4 +628,42 @@ public class Instrument extends CrmsEntity {
 		return InstrumentLogicCheck.MANAGER.getDependentChecks(this);
 	}
 	
+	// EMORY change: calculate whether an instrument is considered complete without considering logic checks.
+	//	 Without this, the view (JSP) could only check on limited info when managing InstrumentTracking
+	//   lists.  It could only check deStatus == 'Complete', which allowed incomplete/missing data fields.
+	public boolean getDataCompleteStatus() {
+		
+		// TODO: recent changes that set a "Complete - Partially" status may have made this obsolete, but the statuses would need to be flushed out first
+
+		// Criteria status to consider instruments as "complete" (& ready for submission).  All must be true.
+		//   1) Instrument deStatus of 'Complete', denoting all data is filled in.
+		//   2) Instrument dcStatus of 'Complete' (UCSF does a missing data check, which is a redundant check with the one below)
+		//   3) No "required" field has a 'Incomplete' or 'Missing' value (Emory's way)
+		
+		if ((this.getDeStatus() == null) || !this.getDeStatus().equals("Complete")) return false;
+		if ((this.getDcStatus() == null) || !this.getDcStatus().equals("Complete")) return false;
+		
+		// note: we must have actual instrument, because this may be InstrumentTracking, which
+		// would never define any required fields.  Yet we still want to know if the underlying instrument
+		// has been completed (say while traversing a list of instrumenttracking entities)
+		
+		Instrument instrument;
+		Class instrClass = null;
+		if (this.getInstrTypeEncoded().equals("instrument")) {
+			// do not use Instrument.class because Hibernate would do a polymorphic query, which is
+			// not necessary (which is why InstrumentTracking exists and why Instrument is not mapped)
+			instrClass = InstrumentTracking.class;
+		} else {
+			instrClass = CrmsManagerUtils.getInstrumentManager().getInstrumentClass(this.getInstrTypeEncoded());
+		}
+		
+		// Ensure that our instrument object is current; another client may have updated the instrument
+		LavaDaoFilter filter = Instrument.MANAGER.newFilterInstance();
+		filter.addDaoParam(filter.daoEqualityParam("id",this.getId()));
+		instrument = (Instrument) Instrument.MANAGER.getOne(instrClass, filter);
+		
+		return !instrument.hasMissingOrIncompleteFields();
+
+	}
+	
 }
