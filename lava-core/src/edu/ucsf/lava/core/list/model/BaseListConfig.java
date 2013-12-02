@@ -55,6 +55,7 @@ public class BaseListConfig {
     public static String SORT_ORDER_INDEX_VALUE_DECIMAL = "orderIndexValueDecimal";
     public static String SORT_NONE = "none";
     
+    public static String DEFAULT_BLANKLABEL = "";
     
 	
 	protected String name; //The name of the list -- as referenced in the metadata (this is distinct from dblistName defined above--the name of the list in the List database table)
@@ -73,17 +74,18 @@ public class BaseListConfig {
 	
 	protected Date staticListRefreshed;
 	
-	protected String defaultFormat; //default presenation format
+	protected String defaultFormat; //default presentation format
 	protected String defaultSort; //default sort to use
 	protected BaseListConfig defaultCodes;  //default missing data codes to use if not specified 
 	protected List<LavaDaoParam> defaultParams; //default params to use for the query
-	
+	protected String defaultBlankLabel; //default label for the empty/NULL value; guides users with semantics of leaving blank
 	
 	
 	public BaseListConfig() {
 		super();
 		this.dynamic = false;
-		}
+		this.defaultBlankLabel = DEFAULT_BLANKLABEL;
+	}
 	
 	
 	/**
@@ -174,7 +176,7 @@ public class BaseListConfig {
 	 * 
 	 */
 	protected Map<String,String> getCachedList (String cacheKey){
-		if(!cached(cacheKey)){return getEmptyList();}
+		if(!cached(cacheKey)){return getEmptyList(defaultBlankLabel);}
 		return cache.get(cacheKey);
 	}
 	
@@ -227,16 +229,19 @@ public class BaseListConfig {
 	 * @param size
 	 * @return
 	 */
-	public static Map<String,String>getEmptyList(int size){
-		return addBlankListEntry(new LinkedHashMap<String,String>(size+1));
+	public static Map<String,String>getEmptyList(int size, String blankLabel){
+		return addBlankListEntry(new LinkedHashMap<String,String>(size+1), blankLabel);
 		}
 	
 	public static Map<String,String>getEmptyList(){
-		return getEmptyList(0);
+		return getEmptyList(0, DEFAULT_BLANKLABEL);
 		}
 	
+	public static Map<String,String>getEmptyList(String blankLabel){
+		return getEmptyList(0, blankLabel);
+		}
 	
-	public static Map<String,String>addBlankListEntry(Map<String,String>list){
+	public static Map<String,String>addBlankListEntry(Map<String,String>list, String blankLabel){
 		//	  every list should have a blank element that is the first element of the list. 
 		//  this processing is done after the list is created to ensure that the blank is the first element
 		//  the blank element is a user interface feature, representing that nothing in the list has been selected
@@ -247,7 +252,7 @@ public class BaseListConfig {
     	// note: custom editors cause any field submitted with the empty string as the value to 
     	//       result in a null being assigned to the property associated with the field
 		
-		list.put("","");
+		list.put("",blankLabel==null ? DEFAULT_BLANKLABEL : blankLabel);
 		return list;
 	}
 	
@@ -449,7 +454,7 @@ public class BaseListConfig {
 		workList = formatList(workList,format);
 		workList = sortList(workList,sort);
 		
-		Map<String,String> extList = getEmptyList(workList.size());
+		Map<String,String> extList = getEmptyList(workList.size(),this.getDefaultBlankLabel());
 		
 		for(LabelValueBean lvb: workList){
     		extList.put(lvb.getValue(), lvb.getLabel());
@@ -581,8 +586,13 @@ public class BaseListConfig {
 		this.defaultSort = defaultSort;
 	}
 
+	public String getDefaultBlankLabel() {
+		return defaultBlankLabel;
+	}
 
-
+	public void setDefaultBlankLabel(String defaultBlankLabel) {
+		this.defaultBlankLabel = defaultBlankLabel;
+	}
 
 
 	public List<LabelValueBean> getInternalList() {
