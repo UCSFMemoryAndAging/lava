@@ -859,7 +859,7 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 	// EMORY change:
 	// Override to attach error message to correct component used in view, not always defaultObjectName 
 	//   E.g. allow binding of UdsMedications' DTO object, instead of the generic case of 'instrument'
-	public String getBindingComponentString() {
+	public String getBindingComponentString(RequestContext context) {
 		return this.getDefaultObjectName();
 	}
 }

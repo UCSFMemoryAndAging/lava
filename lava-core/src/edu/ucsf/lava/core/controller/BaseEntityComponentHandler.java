@@ -321,7 +321,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 				// visitType ==> components['visit'].visitType
 				String[] componentRequiredFields = new String[requiredFields.length];
 				for (int i=0; i<requiredFields.length;i++) {
-					componentRequiredFields[i] = new StringBuffer("components['").append(getBindingComponentString()).append("'].").append(requiredFields[i]).toString();
+					componentRequiredFields[i] = new StringBuffer("components['").append(getBindingComponentString(context)).append("'].").append(requiredFields[i]).toString();
 				}
 				if (existingFields!=null){
 					List existing = Arrays.asList(existingFields);
