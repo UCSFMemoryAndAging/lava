@@ -148,7 +148,7 @@ public class InstrumentComponentFormAction extends CrmsComponentFormAction {
 		else {
 			// EMORY change:
 			// allow binding of alternate objects (like DTO), not just the default "instrument"
-			component = getBindingComponentString();
+			component = getBindingComponentString(context);
 		}
 		instrument = (Instrument)((ComponentCommand)componentCommand).getComponents().get(component);
 		
@@ -255,10 +255,10 @@ public class InstrumentComponentFormAction extends CrmsComponentFormAction {
 	}
 
 	// EMORY change:
-	protected String getBindingComponentString() {
+	protected String getBindingComponentString(RequestContext context) {
 		// Allow binding of alternate objects (like DTO), not just the default 'instrument'
 		// Use the primary handler's value of this. First handler is primary handler.
-		return componentHandlers.iterator().next().getBindingComponentString();
+		return componentHandlers.iterator().next().getBindingComponentString(context);
 	}
 }
 	

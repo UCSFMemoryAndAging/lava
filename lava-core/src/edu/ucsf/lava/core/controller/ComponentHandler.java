@@ -46,5 +46,5 @@ public interface ComponentHandler {
 	public String getMessage(String key);	
 	public String getMessage(String key, Object[] args);	
 	public String getMessage(String key, Object[] args, Boolean reportPdfStyling);	
-	public String getBindingComponentString(); 
+	public String getBindingComponentString(RequestContext context); 
 }
