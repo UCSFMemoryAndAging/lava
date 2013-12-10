@@ -36,6 +36,6 @@
 	<classpathentry kind="lib" path="/lava-core/WEB-INF/lib/xml-apis.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/lava-core"/>
 	<classpathentry kind="lib" path="/lava-core/tomcatlibs/servlet-api.jar"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/joda-time-2.3.jar"/>		
+	<classpathentry kind="lib" path="/lava-core/WEB-INF/lib/joda-time-2.3.jar"/>		
 	<classpathentry kind="output" path="bin"/>
 </classpath>
