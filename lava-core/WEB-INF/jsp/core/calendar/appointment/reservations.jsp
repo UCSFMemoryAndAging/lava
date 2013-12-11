@@ -19,7 +19,7 @@
 	<page:param name="dayLength">${dayLength}</page:param>
 	<page:param name="calendarDateStart">${calendarDateStart}</page:param>
 	<page:param name="calendarDateEnd">${calendarDateEnd}</page:param>
-	<c:import url="/WEB-INF/jsp/local/cfrcal/core/calendar/appointment/reservationsContent.jsp">
+	<c:import url="/WEB-INF/jsp/core/calendar/appointment/reservationsContent.jsp">
 		<c:param name="component">${component}</c:param>
 	</c:import>
 
