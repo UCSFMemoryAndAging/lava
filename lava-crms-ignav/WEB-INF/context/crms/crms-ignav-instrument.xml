@@ -18,7 +18,6 @@
 	
 	<!--  replace all lava-crms instrument and instrument group flow actions with switchable ones -->
 	<bean id="crmsInstrumentFlowAction" abstract="true" parent="switchableInstrumentFlowAction"/>
-	<bean id="instrumentGroupHandler" parent="switchInstrumentGroupHandler"/>
 	<bean id="crmsInstrumentListFlowAction" abstract="true" parent="switchableInstrumentListFlowAction"/>
 	
 	
