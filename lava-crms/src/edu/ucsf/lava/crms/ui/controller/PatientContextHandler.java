@@ -27,6 +27,7 @@ import edu.ucsf.lava.crms.project.model.Project;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 
 public class PatientContextHandler extends CrmsContextChangeComponentHandler {
+	public static String PATIENT_CONTEXT = "patientContext";
 	
 	public PatientContextHandler(){
 		super();
