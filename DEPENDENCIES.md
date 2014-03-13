@@ -28,7 +28,7 @@ The "versionhistory" table tracks which database update scripts have been run ag
 
 To obtain database model and data updates there are SQL scripts under the "database" directory of each project. Within the "database" folder, the scripts for production databases are under the "versions" folder. Within the "versions" folder all scripts under the "update" folders are candidates to be run.
 
-Given the information in the "versionhistory" table about what database update scripts have been run against the database, to update the database to the latest version run all database update scripts that have a later version than indicated by "versionhistory". The scripts themselves will update "versionhistory" upon successful completion.
+Given the information in the "versionhistory" table about what database update scripts have been run against the database, run all database update scripts that have a later version than indicated by "versionhistory" to update the database to the latest version. The scripts themselves will update "versionhistory" upon successful completion.
 
-note: it is not guaranteed that database update scripts are idempotent although developers should be striving to create such scripts
+note: it is not guaranteed that database update scripts are idempotent although developers are encouraged to create such scripts
 
