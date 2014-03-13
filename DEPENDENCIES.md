@@ -8,21 +8,21 @@ Note that other repositories that depend on the "lava" repository, such as "lava
 The CHANGES.md file tracks releases with change notes.
 
 
-
+    
 ###Environment Dependencies
 - Java JDK 1.6 or later
 - Apache Tomcat 5 or later
 - MySQL 5.5 or later
 
 
-
+   
 ###Source Dependencies
 The "lava" repository does not have any dependencies on other repositories. Rather, it contains core infrastructure code that application level repositories, or shared application modules, depend on.
 
 For example, the "lava-uds" repository has dependencies on the "lava" repository, as it contains both the "lava-app-demo" project, which is an application, and the "lava-crms-nacc" and "lava-crms-ignav-nacc" projects, which are shared application modules that can be used by a number of applications. These projects would be used together with projects from the "lava" repository and would have dependencies on those projects.
 
 
-
+    
 ###Database Schema
 The "versionhistory" table tracks which database update scripts have been run against a database. Database update scripts can be "data" scripts for metadata and other static application data, and "model" scripts for database schema changes, including views and stored procedures.
 
