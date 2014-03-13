@@ -58,7 +58,7 @@ The following Eclipse projects are contained in the "lava" repository:
 
 
 ###Query Tool
-An automated Excel workbook called "LAVA Query" is available to extract data sets from a LAVA application database. The tool features a unique approach to iteratively refining a patient cohort and features a proximity query to retrieve data from various assessments that are all within a given time window. Custom data objects can be created as database views and made available to the tool.
+An automated Excel workbook called "LAVA Query" is available to extract data sets from a LAVA application database. The tool provides a unique approach to iteratively refining the desired patient cohort and features proximity queries to retrieve data from various assessments that are all within a given time window. Custom data objects can be created as database views and made available to the tool.
 
 
 ###Documentation
