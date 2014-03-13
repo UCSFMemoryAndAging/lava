@@ -1,4 +1,4 @@
-->###lava<-
+##lava
 
 The "lava" repository contains the core infrastructural projects used to build LAVA web applications. 
 
@@ -16,44 +16,45 @@ NOTE: LAVA does not meet FDA requirement 21 CFR Part 11 so it should not be used
 
 
 
-##Projects
+#Projects
 
 The following Eclipse projects are contained in "lava":
--lava-core
+
+- lava-core
 > Provides the core web application infrastructure, supporting:
-    -Entity CRUD
-    -Entity field validation (domain list creation)
-    -Entity lists with filters and sorting
-    -JSPs with page decoration, LAVA tag library, skip logic tag library
-    -Stylesheet conforming to the Oracle BLAF recommendations
-    -Integration with Spring Framework (Spring MVC, Spring WebFlow)
-    -DAO Abstraction Layer
-    -Hibernate O/R Mapping DAO implementation
-    -MySQL Database
-    -Calendar functionality
-    -Jasper Reports
-    -Auditing
-    -Authentication and Authorization
-    -Session Management
+    - Entity CRUD
+    - Entity field validation (domain list creation)
+    - Entity lists with filters and sorting
+    - JSPs with page decoration, LAVA tag library, skip logic tag library
+    - Stylesheet conforming to the Oracle BLAF recommendations
+    - Integration with Spring Framework (Spring MVC, Spring WebFlow)
+    - DAO Abstraction Layer
+    - Hibernate O/R Mapping DAO implementation
+    - MySQL Database
+    - Calendar functionality
+    - Jasper Reports
+    - Auditing
+    - Authentication and Authorization
+    - Session Management
     
--lava-crms
+- lava-crms
 > Builds upon lava-core with support for:
-    -Patient, Caregiver, Contact Info, Contact Log, Doctors
-    -Project (research study)
-    -Enrollment Status for each Patient in a Project
-    -Research Consents
-    -Scheduling Visits
-    -Patient Assessments (Instruments)
-    -Setting Patient and/or Project Context
+    - Patient, Caregiver, Contact Info, Contact Log, Doctors
+    - Project (research study)
+    - Enrollment Status for each Patient in a Project
+    - Research Consents
+    - Scheduling Visits
+    - Patient Assessments (Instruments)
+    - Setting Patient and/or Project Context
     
--lava-crms-ignav
+- lava-crms-ignav
 > Enhancement to lava-crms with instrument group navigation feature.
 
--ui-tags
+- ui-tags
 > JSP tag library that outputs Javascript to provide client-side skip logic
 
 
-##Documentation
+#Documentation
 The "LAVA Development Guide" and other documentation are in the "Documentation" folder of this repository.
 
 
