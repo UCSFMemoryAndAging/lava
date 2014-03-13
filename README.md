@@ -62,7 +62,7 @@ An automated Excel workbook called "LAVA Query" is available to extract data set
 
 
 ###Documentation
-The "LAVA Development Guide" and other documentation are in the "Documentation" folder of this repository.
+The "LAVA Development Guide" and other documentation are in this repository in the "lava-core" project "docs" folder.
 
 
 
