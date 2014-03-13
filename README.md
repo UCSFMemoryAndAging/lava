@@ -16,7 +16,7 @@ NOTE: LAVA does not meet FDA requirement 21 CFR Part 11 so it should not be used
 
 
 
-#Projects
+###Projects
 
 The following Eclipse projects are contained in "lava":
 
@@ -26,7 +26,8 @@ The following Eclipse projects are contained in "lava":
     - Entity field validation (domain list creation)
     - Entity lists with filters and sorting
     - JSPs with page decoration, LAVA tag library, skip logic tag library
-    - Stylesheet conforming to the Oracle BLAF recommendations
+    - Stylesheet supporting web page layout conforming to the Oracle BLAF recommendations
+    - Tabs (modules) and Sub-tabs (sections) and sidebars
     - Integration with Spring Framework (Spring MVC, Spring WebFlow)
     - DAO Abstraction Layer
     - Hibernate O/R Mapping DAO implementation
@@ -45,6 +46,8 @@ The following Eclipse projects are contained in "lava":
     - Research Consents
     - Scheduling Visits
     - Patient Assessments (Instruments)
+    - Instrument Double Data Entry 
+    - Instrument Status
     - Setting Patient and/or Project Context
     
 - lava-crms-ignav
@@ -54,7 +57,11 @@ The following Eclipse projects are contained in "lava":
 > JSP tag library that outputs Javascript to provide client-side skip logic
 
 
-#Documentation
+###Query Tool
+An automated Excel workbook called "LAVA Query" is available to extract data sets from a LAVA application database. The tool features a unique approach to iteratively refining a patient cohort and features a proximity query to retrieve data from various assessments that are all within a given time window. Custom data objects can be created as database views and made available to the tool.
+
+
+###Documentation
 The "LAVA Development Guide" and other documentation are in the "Documentation" folder of this repository.
 
 
