@@ -1,4 +1,4 @@
-##lava
+##"lava" Repository
 
 The "lava" repository contains the core infrastructural projects used to build LAVA web applications. 
 
