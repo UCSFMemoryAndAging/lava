@@ -5,7 +5,7 @@ Tag version numbers are formatted as MAJOR.MINOR.PATCH where a letter ('a', 'b',
 
 Note that other repositories that depend on the "lava" repository, such as "lava-uds", do not keep version numbers in sync with the "lava" repository. However, the major version number is kept in sync, so it should be clear that a version of "lava-uds" will not work with a version of "lava" where the major version number is different.
 
-The CHANGES file tracks releases with change notes.
+The CHANGES.md file tracks releases with change notes.
 
 
 
