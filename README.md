@@ -18,7 +18,7 @@ NOTE: LAVA does not meet FDA requirement 21 CFR Part 11 so it should not be used
 
 ###Projects
 
-The following Eclipse projects are contained in "lava":
+The following Eclipse projects are contained in the "lava" repository:
 
 - lava-core
 > Provides the core web application infrastructure, supporting:
