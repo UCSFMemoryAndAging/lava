@@ -18,6 +18,7 @@ NOTE: LAVA does not meet FDA requirement 21 CFR Part 11 so it should not be used
 
 ###Projects
 
+LAVA applications are built from a combination of projects which are brought together in the build process. The notion of project also translates directly to an Eclipse project; the Eclipse IDE is recommended for LAVA development.  
 The following Eclipse projects are contained in the "lava" repository:
 
 - lava-core
