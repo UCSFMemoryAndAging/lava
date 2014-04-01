@@ -1,5 +1,54 @@
 DELIMITER $$
 
+
+DROP PROCEDURE IF EXISTS `util_AddPropertyToDataDictionary`$$
+CREATE PROCEDURE `util_AddPropertyToDataDictionary`(ScopeIn varchar (25), EntityIn varchar (50), PropIn varchar (50), AfterPropIn varchar(50))
+main:BEGIN
+
+SET @afterPropOrder = NULL;
+
+IF AfterPropIn = '' THEN
+	SELECT prop_order-1, db_order-1, db_table INTO @afterPropOrder, @afterPropDbOrder, @afterPropTable
+	FROM datadictionary WHERE scope = ScopeIn AND entity = EntityIn ORDER BY prop_order ASC LIMIT 1;
+ELSE
+	SELECT prop_order, db_order, db_table INTO @afterPropOrder, @afterPropDbOrder, @afterPropTable
+	FROM datadictionary WHERE scope = ScopeIn AND entity = EntityIn AND prop_name = AfterPropIn;
+END IF;
+
+IF @afterPropOrder IS NULL THEN LEAVE main; END IF;
+
+UPDATE datadictionary SET prop_order = prop_order+1, db_order = db_order+1 WHERE scope = ScopeIn AND entity = EntityIn AND prop_order > @afterPropOrder;
+
+INSERT INTO datadictionary(`instance`, `scope`, `entity`, `prop_order`, `prop_name`, `db_table`, `db_column`, `db_order`, `db_nullable`, `db_default`)
+VALUES ('lava', ScopeIn, EntityIn, @afterPropOrder+1, PropIn, @afterPropTable, PropIn, @afterPropDbOrder+1, 1, 'null');
+
+END $$
+
+
+DROP PROCEDURE IF EXISTS `util_AddPropertyToViewProperty`$$
+CREATE PROCEDURE `util_AddPropertyToViewProperty`(ScopeIn varchar (25), EntityIn varchar (50), PropIn varchar (50), AfterPropIn varchar(50))
+main:BEGIN
+
+SET @afterPropOrder = NULL;
+
+IF AfterPropIn = '' THEN
+	SELECT propOrder-1 INTO @afterPropOrder
+	FROM viewproperty WHERE scope = ScopeIn AND entity = EntityIn ORDER BY propOrder ASC LIMIT 1;
+ELSE
+	SELECT propOrder INTO @afterPropOrder
+	FROM viewproperty WHERE scope = ScopeIn AND entity = EntityIn AND property = AfterPropIn;
+END IF;
+
+IF @afterPropOrder IS NULL THEN LEAVE main; END IF;
+
+UPDATE viewproperty SET propOrder = propOrder+1 WHERE scope = ScopeIn AND entity = EntityIn AND propOrder > @afterPropOrder;
+
+INSERT INTO viewproperty(`messageCode`, `locale`, `instance`, `scope`, `entity`, `property`, `propOrder`)
+VALUES ( CONCAT('*.', EntityIn, '.', PropIn), 'en', 'lava', ScopeIn, EntityIn, PropIn, @afterPropOrder+1 );
+
+END $$
+
+
 DROP PROCEDURE IF EXISTS `util_FixMetadataPropertyNames`$$
 CREATE PROCEDURE `util_FixMetadataPropertyNames` (EntityIn varchar(50))
 BEGIN
