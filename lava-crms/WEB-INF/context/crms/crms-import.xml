@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+ 	<bean id="lava.crms.importer.import.import" parent="crmsAction">
+  		<property name="flowTypeBuilder"><ref bean="coreImportFlowTypeBuilder"/></property>
+ 	  	<property name="moduleDefault" value="true"/>
+  		<property name="sectionDefault" value="true"/>
+ 	</bean>
+
+	<bean id="lava.crms.importer.log.allImportLogs" parent="crmsSectionListAction"/>
+				
+	<!-- user can view import log which will have details (info, warning alert msgs), but there
+		is no add/edit/delete (log entries are added in by the importing action)  -->
+	<bean id="lava.crms.importer.log.importLog" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.importer.log.allImportLogs</value>
+		</list></property>
+	</bean>	
+
+	<bean id="lava.crms.importer.template.allImportTemplates" parent="crmsSectionListAction"/>
+				
+ 	<bean id="lava.crms.importer.template.importTemplate" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.importer.template.allImportTemplates</value>
+		</list></property>
+	</bean>
+
+	<!-- form action definitions -->
+	
+	<bean id="importFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsImportHandler" parent="crmsHandler"/>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsAllImportLogsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+   
+	<bean id="allImportLogsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsAllImportLogsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	   
+
+	<bean id="importLogFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsImportLogHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+   
+	<bean id="allImportTemplatesFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsAllImportTemplatesHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	   
+ 
+ 	<bean id="importTemplateFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsImportTemplateHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+ 
+</beans>

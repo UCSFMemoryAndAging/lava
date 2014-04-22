@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.importer.model.ImportTemplate" table="import_template" select-before-update="true">
+		<id name="id" type="long">
+			<column name="template_id" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+		<timestamp name="modified" column="modified"/>
+		<property name="name" column="name" type="string" length="30" not-null="true"/>
+		<property name="mappingFilePath" column="mapping_filepath]" type="string" length="500"/>
+		<property name="notes" column="notes" type="string" length="255"/>
+	</class>
+	
+</hibernate-mapping>

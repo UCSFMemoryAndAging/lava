@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+ 	<bean id="lava.core.importer.import.import" parent="coreAction">
+ 		<property name="flowTypeBuilder"><ref bean="coreImportFlowTypeBuilder"/></property>
+ 	</bean>		
+
+	<bean id="lava.core.importer.log.allImportLogs" parent="coreListFlowAction"/>
+ 				
+	<!-- user can view import log which will have details (info, warning alert msgs), but there
+		is no add/edit/delete (log entries are added in by the importing action)  -->
+	<bean id="lava.core.importer.log.importLog" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.importer.log.allImportLogs</value>
+		</list></property>
+	</bean>	
+
+	<bean id="lava.core.importer.template.allImportTemplates" parent="coreListFlowAction"/>
+				
+ 	<bean id="lava.core.importer.template.importTemplate" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.importer.template.allImportTemplates</value>
+		</list></property>
+	</bean>
+
+	<!-- form action definitions -->
+	
+	<bean id="importFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.importer.controller.ImportHandler" parent="coreHandler"/>
+		<bean class="edu.ucsf.lava.core.importer.controller.AllImportLogsHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+   
+	<bean id="allImportLogsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.importer.controller.AllImportLogsHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>  	   
+
+	<bean id="importLogFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.importer.controller.ImportLogHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+   
+	<bean id="allImportTemplatesFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.importer.controller.AllImportTemplatesHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>  	   
+ 
+ 	<bean id="importTemplateFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.importer.controller.ImportTemplateHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+ 
+</beans>
