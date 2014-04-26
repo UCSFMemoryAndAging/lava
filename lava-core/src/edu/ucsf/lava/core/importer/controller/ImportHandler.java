@@ -1,7 +1,5 @@
 package edu.ucsf.lava.core.importer.controller;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,13 +17,10 @@ import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.action.model.Action;
 import edu.ucsf.lava.core.auth.CoreAuthorizationContext;
 import edu.ucsf.lava.core.auth.model.AuthUser;
-import edu.ucsf.lava.core.calendar.CalendarDaoUtils;
-import edu.ucsf.lava.core.calendar.controller.CalendarHandlerUtils;
 import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.importer.model.ImportLog;
 import edu.ucsf.lava.core.importer.model.ImportSetup;
-import edu.ucsf.lava.core.reporting.model.ReportSetup;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 
 // subclass BaseEntityComponentHandler even though there is not entity CRUD involved with importing, because
@@ -154,25 +149,45 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		// iterate thru the data file
 		
 		// should have a helper method here which Crms can subclass to do the Crms specific parts of the 
-		// upload concening Patient, Project, Visit
+		// upload concerning Patient, Project, Visit
 		
 		// for each row read there will be an array of the data values
 		// using the prepared array of the entity.property names, use reflection to set each data value on the
-		// entity
+		// entity, i.e. array indices of entity.property names and data file values match up
 		
 		// record successful and failed records in the importLog
 		// record any warnings/alerts/info msgs in the importLog
 		
 		//TODO: validation
 		
-		// upon successful completion persist the data file to the repository
+		// upon successful completion write the data file to the repository
 		// upon success or failure, persist the importLog
 		
 		// upon returning SUCCESS Event the flow will transition to "importLog" state which will
 		// be the same jsp (crms/importer/import/import.jsp) but will display completely different
 		// fields (could either display the importLog properties requiring metadata or could output
-		// data string 
+		// data string)
 		// note: the CrmsImportLog will have Crms specific log fields so the Crms jsp will be used
+		
+//OTHER:		
+		// choose a template
+		// choose a data file
+		// on import:
+			// read the template mapping file into a Map (data file column keys to entity.property values)
+			// read the data file column headers, iterating thru the template Mapping file to find each
+			//  column in the mapping file and store the CSV index (instead of current technique of having
+			//  a var for each column index, could have Map fpr each entity mapping propety to the CSV index
+			//  and since the # entity's and enitty types will be variable across all templates could 
+			//  dynamically create a Map of these entity Maps
+		
+			// upon reading a row of data, process Patient Map first then Caregiver, Contact Info and other
+			// Patient module entities, then Visit, then assessments
+			// read row of data into CSV array and then use the indexes from the Entity map to get the
+			// value for a given property and use reflection to set the value on the property
+		
+			// TODO will be a validation step to query the metadata for an entity.property to validate
+		 	// against a range/dropdown, etc.
+		
 		
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}

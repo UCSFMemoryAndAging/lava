@@ -1,36 +1,54 @@
 package edu.ucsf.lava.core.importer.model;
 
 import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
-
-import edu.ucsf.lava.core.auth.AuthDaoUtils;
-import edu.ucsf.lava.core.auth.AuthUserPermissionCache;
-import edu.ucsf.lava.core.auth.model.AuthUser;
-import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 
 public class ImportLog extends EntityBase {
+	private String filename;
 	private String templateName;
-	private AuthUser user;
 	private Timestamp importTimestamp;
-	private String dataFilePath;
-	private Long recordsImported;
-	private Long recordsNotImported;
-	private List<String> msgs; // warnings, errors
+	private String importedBy;
+//TODO:	decide if want to persist the individual record warning/failure messages. seems unnecessary for long-term
+//use but could be very useful in debugging issues
+// if so implement collection for individual record-level messages
+//	private List<String> msgs; // warnings, errors
 	
 	public ImportLog(){
 		super();
 	}
-	
+
+	public String getFilename() {
+		return filename;
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
+
+	public String getTemplateName() {
+		return templateName;
+	}
+
+	public void setTemplateName(String templateName) {
+		this.templateName = templateName;
+	}
+
+	public Timestamp getImportTimestamp() {
+		return importTimestamp;
+	}
+
+	public void setImportTimestamp(Timestamp importTimestamp) {
+		this.importTimestamp = importTimestamp;
+	}
+
+	public String getImportedBy() {
+		return importedBy;
+	}
+
+	public void setImportedBy(String importedBy) {
+		this.importedBy = importedBy;
+	}
+
 	
 }

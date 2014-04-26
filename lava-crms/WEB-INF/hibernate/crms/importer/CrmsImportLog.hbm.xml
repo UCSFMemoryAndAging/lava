@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+	<joined-subclass name="edu.ucsf.lava.crms.importer.model.CrmsImportLog" table="crms_import_log" extends="edu.ucsf.lava.core.importer.model.ImportLog" select-before-update="true">
+		<key column="log_id"/>		
+		<property name="projName" type="string" length="75" column="ProjName" not-null="true"/>
+	   
+<!--  will be mapping these and more, but all these are in flux right now
+	private Short dupPatients; // existing Patients
+	private Short newPatients;
+	private Short dupCaregivers;
+	private Short newCaregivers;
+	private Short dupContactInfo;
+	private Short newContactInfo;
+	private Short dupEnrollments;
+	private Short newEnrollments;
+	private Short dupVisits;
+	private Short newVisits;
+	private Short dupInstruments;
+	private Short newInstruments;
+ -->	
+	
+	</joined-subclass>
+</hibernate-mapping>

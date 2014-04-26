@@ -2,9 +2,7 @@ package edu.ucsf.lava.core.importer.model;
 
 import java.io.Serializable;
 
-import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.webflow.execution.RequestContext;
 
 public class ImportSetup implements Serializable {
 	private String templateName;
@@ -34,10 +32,8 @@ this is what fileUpload tag does:
 	
 // surely Spring can bind a MultipartFile so look at creating a property here of type MultipartFile and any
 // PropertyEditor that may be required
-
-			
 	
-	//private MultipartFile importFile; 
+	private MultipartFile dataFile; 
 
 	public ImportSetup() {}
 	
@@ -49,14 +45,12 @@ this is what fileUpload tag does:
 		this.templateName = templateName;
 	}
 
-	/**
-	public MultipartFile getImportFile() {
-		return importFile;
+	public MultipartFile getDataFile() {
+		return dataFile;
 	}
 
-	public void setImportFile(MultipartFile importFile) {
-		this.importFile = importFile;
+	public void setDataFile(MultipartFile dataFile) {
+		this.dataFile = dataFile;
 	}
-	**/
 	
 }

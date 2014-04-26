@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"
+    [<!ENTITY fileInclude SYSTEM "classpath://../hibernate/core/file/fileInclude.xml" >]>
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.importer.model.ImportLog" table="import_log" select-before-update="true">
+		<id name="id" type="long">
+			<column name="log_id" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+		<timestamp name="modified" column="modified"/>
+		<property name="filename" column="filename" type="string" length="100" not-null="true"/>
+		<property name="templateName" column="template_name" type="string" length="30"/>
+		<property name="importTimestamp" column="import_timestamp" type="timestamp" not-null="true"/>
+		<property name="importedBy" column="imported_by" type="string" length="25" not-null="true"/>
+	</class>
+	
+</hibernate-mapping>

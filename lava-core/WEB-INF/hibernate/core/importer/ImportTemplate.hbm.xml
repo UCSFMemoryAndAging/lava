@@ -13,7 +13,8 @@
 		</id>
 		<timestamp name="modified" column="modified"/>
 		<property name="name" column="name" type="string" length="30" not-null="true"/>
-		<property name="mappingFilePath" column="mapping_filepath]" type="string" length="500"/>
+		<property name="category" column="category" type="string" length="30" not-null="true"/>
+		<many-to-one name="mappingFile" column="mapping_file_id" unique="true" class="edu.ucsf.lava.core.file.model.LavaFile"/>
 		<property name="notes" column="notes" type="string" length="255"/>
 	</class>
 	
