@@ -3,50 +3,59 @@
 
 <beans>
 
- 	<bean id="lava.crms.importer.import.import" parent="crmsAction">
-  		<property name="flowTypeBuilder"><ref bean="coreImportFlowTypeBuilder"/></property>
- 	  	<property name="moduleDefault" value="true"/>
-  		<property name="sectionDefault" value="true"/>
+	<!--  note that the way to do scope overrides of core scope actions is to use customizedFlow, in which
+		case the action inherits the configuration of the core action it is customizing, i.e. flowTypeBuilder,
+		parentFlows -->
+ 	<bean id="lava.crms.importer.import.crmsImport" parent="crmsAction">
+     	<property name="customizedFlow" value="lava.core.importer.import.import"/>
  	</bean>
 
-	<bean id="lava.crms.importer.log.allImportLogs" parent="crmsSectionListAction"/>
+	<bean id="lava.crms.importer.log.allCrmsImportLogs" parent="crmsSectionListAction">
+     	<property name="customizedFlow" value="lava.core.importer.log.allImportLogs"/>
+ 	</bean>
 				
 	<!-- user can view import log which will have details (info, warning alert msgs), but there
 		is no add/edit/delete (log entries are added in by the importing action)  -->
-	<bean id="lava.crms.importer.log.importLog" parent="crmsEntityFlowAction">
-		<property name="parentFlows"><list>
-			<value>lava.crms.importer.log.allImportLogs</value>
-		</list></property>
+<!-- TODO: confirm that customizing flows work in terms of inheriting parentFlows as the parent flow of the core flow is:
+lava.core.importer.log.allImportLogs
+but the parent flow of this customizing flow would be:
+lava.crms.importer.log.allCrmsImportLogs
+should work because this basically builds the flows with CRUD transitions to lava.core.importer.log.ImportLog which is
+in turn customized by lava.crms.importer.log.CrmsImportLog below
+ -->
+	<bean id="lava.crms.importer.log.crmsImportLog" parent="crmsEntityFlowAction">
+     	<property name="customizedFlow" value="lava.core.importer.log.importLog"/>
 	</bean>	
 
-	<bean id="lava.crms.importer.template.allImportTemplates" parent="crmsSectionListAction"/>
+	<bean id="lava.crms.importer.template.allCrmsImportTemplates" parent="crmsSectionListAction">
+     	<property name="customizedFlow" value="lava.core.importer.template.allImportTemplates"/>
+ 	</bean>
 				
- 	<bean id="lava.crms.importer.template.importTemplate" parent="crmsEntityFlowAction">
-		<property name="parentFlows"><list>
-			<value>lava.crms.importer.template.allImportTemplates</value>
-		</list></property>
+<!-- see above TOOD: same applies here -->
+ 	<bean id="lava.crms.importer.template.crmsImportTemplate" parent="crmsEntityFlowAction">
+     	<property name="customizedFlow" value="lava.core.importer.template.importTemplate"/>
 	</bean>
 
 	<!-- form action definitions -->
 	
-	<bean id="importFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+	<bean id="crmsImportFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsImportHandler" parent="crmsHandler"/>
 		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsAllImportLogsHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>
    
-	<bean id="allImportLogsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+	<bean id="allCrmsImportLogsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsAllImportLogsHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	   
 
-	<bean id="importLogFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+	<bean id="crmsImportLogFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsImportLogHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>
    
-	<bean id="allImportTemplatesFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+	<bean id="allCrmsImportTemplatesFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsAllImportTemplatesHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	   
  
- 	<bean id="importTemplateFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+ 	<bean id="crmsImportTemplateFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsImportTemplateHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>
  

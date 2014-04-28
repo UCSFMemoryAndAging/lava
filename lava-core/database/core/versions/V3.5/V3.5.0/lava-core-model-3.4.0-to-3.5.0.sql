@@ -5,7 +5,7 @@ CREATE TABLE `import_template` (
   `name` varchar(30) NOT NULL,
   `category` varchar(30) NOT NULL,
   `mapping_file_id` int DEFAULT NULL,
-  `notes` varchar(255) DEFAULT NULL,
+  `notes` varchar(500) DEFAULT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1$$
@@ -16,6 +16,7 @@ CREATE TABLE `import_log` (
   `template_name` varchar(30) NULL,
   `import_timestamp` timestamp NOT NULL;
   `imported_by` varchar(25)) NOT NULL,
+  `notes` varchar(500) DEFAULT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1$$

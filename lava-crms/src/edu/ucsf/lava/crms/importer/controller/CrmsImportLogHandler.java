@@ -1,5 +1,8 @@
 package edu.ucsf.lava.crms.importer.controller;
 
+import org.springframework.webflow.execution.Event;
+import org.springframework.webflow.execution.RequestContext;
+
 import edu.ucsf.lava.core.importer.controller.ImportLogHandler;
 import edu.ucsf.lava.crms.importer.model.CrmsImportLog;
 
@@ -18,5 +21,18 @@ public class CrmsImportLogHandler extends ImportLogHandler {
 		super();
 		setHandledEntity("crmsImportLog", CrmsImportLog.class);
 	}
+	
+	/**
+	 * The idea here is that if this is a crms application, then we always want
+	 * to use the CrmsImportLogHandler instead of the core ImportLogHandler.  If scopes
+	 * need to extend ImportLog further, then they should subclass and customize this
+	 * handler/action. 
+	 */
+	@Override
+	public Event preSetupFlowDirector(RequestContext context) throws Exception {
+		return new Event(this,CONTINUE_FLOW_EVENT_ID);
+	}
+
+	
 
 }

@@ -475,6 +475,9 @@
 				<c:when test="${style == 'toggle'}">
 				   	<c:set var="dataElement" value="checkbox"/>
 				</c:when>
+				<c:when test="${style == 'upload'}">
+				   	<c:set var="dataElement" value="fileUpload"/>
+				</c:when>
 			</c:choose>		
 			
 			
@@ -656,6 +659,9 @@
 					</c:when>
 					<c:when test="${dataElement == 'hidden'}">
 			   			<tags:hiddenInput property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}"/>
+					</c:when>
+					<c:when test="${dataElement == 'fileUpload'}">
+						<tags:fileUpload property="${bindProperty}" fieldId="${fieldId}" attributesText="${widgetAttributes}${mode == 'vw' || mode == 'lv' ?' disabled':''}" styleClass="${not empty dataStyle ? dataStyle :''}"/>
 					</c:when>
 				</c:choose>		
 			</c:if>

@@ -5,10 +5,11 @@ import java.sql.Timestamp;
 import edu.ucsf.lava.core.model.EntityBase;
 
 public class ImportLog extends EntityBase {
-	private String filename;
-	private String templateName;
 	private Timestamp importTimestamp;
 	private String importedBy;
+	private String filename;
+	private String templateName;
+	private String notes; // entered by user when doing the import
 //TODO:	decide if want to persist the individual record warning/failure messages. seems unnecessary for long-term
 //use but could be very useful in debugging issues
 // if so implement collection for individual record-level messages
@@ -50,5 +51,13 @@ public class ImportLog extends EntityBase {
 		this.importedBy = importedBy;
 	}
 
-	
+	public String getNotes() {
+		return notes;
+	}
+
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+
+
 }

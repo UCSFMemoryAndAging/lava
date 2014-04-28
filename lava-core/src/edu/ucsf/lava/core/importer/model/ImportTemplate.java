@@ -34,8 +34,11 @@ public class ImportTemplate extends EntityBase {
 	private MultipartFile mappingFileInput; 
 	private LavaFile mappingFile;
 	
+	//TODO: may need a format variable for TAB or CSV but first can try to see if can determine it automatically
+	//by reading first line of data file and search for tabs or commas (but then, could have commas within the
+	//data which causes problems, so probably yes on a format property
 	
-// create the core-import.xml version of crms-import.xml (but no module, section defaults)	
+	
 // create the CrmsImportTemplate (should this be the CoreImportTemplate? not per Auth naming
 	// optional Project property which would be useful for filtering lists of both ImportLog and ImportTemplate
 	// would then have to figure out whether could authorize via Project if present and not if not present

@@ -3,11 +3,15 @@
 
 <beans>
 
+	<!--  parent is coreAction instead of coreEntityFlowAction because the action uses the import flow,
+		not the entity flow -->
  	<bean id="lava.core.importer.import.import" parent="coreAction">
  		<property name="flowTypeBuilder"><ref bean="coreImportFlowTypeBuilder"/></property>
+ 	  	<property name="moduleDefault" value="true"/>
+  		<property name="sectionDefault" value="true"/>
  	</bean>		
 
-	<bean id="lava.core.importer.log.allImportLogs" parent="coreListFlowAction"/>
+	<bean id="lava.core.importer.log.allImportLogs" parent="coreSectionListAction"/>
  				
 	<!-- user can view import log which will have details (info, warning alert msgs), but there
 		is no add/edit/delete (log entries are added in by the importing action)  -->
@@ -17,7 +21,7 @@
 		</list></property>
 	</bean>	
 
-	<bean id="lava.core.importer.template.allImportTemplates" parent="coreListFlowAction"/>
+	<bean id="lava.core.importer.template.allImportTemplates" parent="coreSectionListAction"/>
 				
  	<bean id="lava.core.importer.template.importTemplate" parent="coreEntityFlowAction">
 		<property name="parentFlows"><list>
