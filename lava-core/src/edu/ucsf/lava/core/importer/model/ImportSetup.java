@@ -33,7 +33,7 @@ this is what fileUpload tag does:
 // surely Spring can bind a MultipartFile so look at creating a property here of type MultipartFile and any
 // PropertyEditor that may be required
 	
-	private MultipartFile dataFile;
+	private MultipartFile dataFileInput;
 	private String notes; // for importLog
 
 	public ImportSetup() {}
@@ -46,12 +46,12 @@ this is what fileUpload tag does:
 		this.templateName = templateName;
 	}
 
-	public MultipartFile getDataFile() {
-		return dataFile;
+	public MultipartFile getDataFileInput() {
+		return dataFileInput;
 	}
 
-	public void setDataFile(MultipartFile dataFile) {
-		this.dataFile = dataFile;
+	public void setDataFileInput(MultipartFile dataFileInput) {
+		this.dataFileInput = dataFileInput;
 	}
 
 	public String getNotes() {

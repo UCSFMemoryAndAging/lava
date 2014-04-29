@@ -8,7 +8,7 @@ public class CrmsImportSetup extends ImportSetup {
 	// creating Instruments
 	
 	// decided to put projName in setup rather than in template because a given template could be
-	// used with differnt projects over time
+	// used with different projects over time
 
 	// this is not a required field as the projName could be supplied in the imported data file itself
 	private String projName;

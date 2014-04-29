@@ -23,13 +23,13 @@ DROP TABLE IF EXISTS `crms_import_log`$$
 CREATE TABLE `crms_import_log` (
   `log_id` int NOT NULL,
   `ProjName` varchar(75) NOT NULL,
-  PRIMARY KEY (`log_id`)
+  PRIMARY KEY (`log_id`),
   CONSTRAINT `crms_import_log__log_id` FOREIGN KEY (`log_id`) REFERENCES `import_log` (`log_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1$$
 
-
-insert into versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-	VALUES ('lava-crms-model','3.5.0',NOW(),3,5,0,0);
+-- WAIT ON THIS UNTIL READY FOR RELEASE
+-- insert into versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
+-- 	VALUES ('lava-crms-model','3.5.0',NOW(),3,5,0,0)$$
 
 delimiter $$
 
