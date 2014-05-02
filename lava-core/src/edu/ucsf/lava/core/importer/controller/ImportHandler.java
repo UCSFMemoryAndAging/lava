@@ -21,6 +21,7 @@ import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.importer.model.ImportLog;
 import edu.ucsf.lava.core.importer.model.ImportSetup;
+import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 
 // subclass BaseEntityComponentHandler even though there is not entity CRUD involved with importing, because
@@ -43,6 +44,9 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		// be acted on by the persistence methods; while "importSetup" is not a persistent object, there
 		// are no persistence events handled by this handler so no issues having it in objectMap
 		setHandledEntity("importSetup", ImportSetup.class);
+		this.setRequiredFields(new String[]{
+				"templateName",
+				"dataFileInput"});
 	}
 	
 	public Event authorizationCheck(RequestContext context) throws Exception {
@@ -66,7 +70,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	public Map getBackingObjects(RequestContext context, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		Map backingObjects = new HashMap<String,Object>();
-		ImportSetup importSetup = new ImportSetup();
+		ImportSetup importSetup = (ImportSetup) initializeNewCommandInstance(context,EntityBase.MANAGER.create(getDefaultObjectClass()));
 		backingObjects.put(this.getDefaultObjectName(), importSetup);
 		
 		// put in the importLog which will be populated on import with import log / result and
