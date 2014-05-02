@@ -7,6 +7,7 @@
 		case the action inherits the configuration of the core action it is customizing, i.e. flowTypeBuilder,
 		parentFlows -->
  	<bean id="lava.crms.importer.import.crmsImport" parent="crmsAction">
+ 		<property name="flowTypeBuilder"><ref bean="coreImportFlowTypeBuilder"/></property>
      	<property name="customizedFlow" value="lava.core.importer.import.import"/>
  	</bean>
 
