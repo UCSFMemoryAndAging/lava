@@ -7,16 +7,15 @@
 <hibernate-mapping>
 	<joined-subclass name="edu.ucsf.lava.crms.importer.model.CrmsImportTemplate" table="crms_import_template" extends="edu.ucsf.lava.core.importer.model.ImportTemplate" select-before-update="true">
 		<key column="template_id"/>		
-		<property name="patientMustExist" type="biolean" column="patient_must_exist"/>
-		<property name="visitMustExist" type="biolean" column="visit_must_exist"/>
-		<property name="visitTypeSupplied" type="biolean" column="visit_type_supplied"/>
-		<property name="visitTypeSupplied" type="biolean" column="visit_type_supplied"/>
+		<property name="patientMustExist" type="boolean" column="patient_must_exist"/>
+		<property name="visitMustExist" type="boolean" column="visit_must_exist"/>
+		<property name="visitTypeSupplied" type="boolean" column="visit_type_supplied"/>
 		<property name="visitType" type="string" length="25" column="visit_type"/>
-		<property name="visitLocSupplied" type="biolean" column="visit_loc_supplied"/>
+		<property name="visitLocSupplied" type="boolean" column="visit_loc_supplied"/>
 		<property name="visitLoc" type="string" length="25" column="visit_loc"/>
-		<property name="visitWithSupplied" type="biolean" column="visit_with_supplied"/>
+		<property name="visitWithSupplied" type="boolean" column="visit_with_supplied"/>
 		<property name="visitWith" type="string" length="25" column="visit_with"/>
-		<property name="visitStatusSupplied" type="biolean" column="visit_status_supplied"/>
+		<property name="visitStatusSupplied" type="boolean" column="visit_status_supplied"/>
 		<property name="visitStatus" type="string" length="25" column="visit_status"/>
 	</joined-subclass>
 </hibernate-mapping>
