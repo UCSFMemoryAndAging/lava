@@ -1,13 +1,18 @@
 package edu.ucsf.lava.crms.importer.controller;
 
+import java.util.Map;
+
 import org.springframework.validation.BindingResult;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
+import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.importer.controller.ImportHandler;
+import edu.ucsf.lava.core.importer.model.ImportSetup;
+import edu.ucsf.lava.crms.importer.model.CrmsImportSetup;
 
 /**
- * CrmsImportLogHandler
+ * CrmsImportHandler
  * 
  * Handles the crms specific part of importing a data file.
  * 
@@ -18,6 +23,12 @@ public class CrmsImportHandler extends ImportHandler {
 
 	public CrmsImportHandler() {
 		super();
+		setHandledEntity("importSetup", CrmsImportSetup.class);
+		setDefaultObjectBaseClass(ImportSetup.class);
+		this.setRequiredFields(new String[]{
+				"templateName",
+				"dataFileInput",
+				"projName"});
 	}
 
 	/**
@@ -52,6 +63,15 @@ public class CrmsImportHandler extends ImportHandler {
 		
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 
+	}
+
+	@Override
+	public Map addReferenceData(RequestContext context, Object command,
+			BindingResult errors, Map model) {
+
+		CrmsImportSetup crmsImportSetup = (CrmsImportSetup) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
+
+		return super.addReferenceData(context, command, errors, model);
 	}
 
 	
