@@ -11,12 +11,14 @@
 
 <%@ attribute name="property" required="true"
               description="the name of the property to bind to" %>
+<%@ attribute name="fieldId" required="true" 
+              description="id for the field" %>
 <%@ attribute name="attributesText" 
               description="[optional] attributes for the HTML element" %>
 <%@ attribute name="styleClass"
               description="[optional] the style class for HTML element (optional, space separated))" %>              
               
-<spring:bind path="${proprty}">          
-	<input type="file" name="${status.expression} class="${styleClass}" ${attributesText}">
+<spring:bind path="${property}">          
+	<input type="file" id="${fieldId}" name="${status.expression} class="${styleClass}" ${attributesText}>
 </spring:bind>
 
