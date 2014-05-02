@@ -7,16 +7,7 @@
 <c:set var="componentView" value="${requestScope[viewString]}"/>
 
 <page:applyDecorator name="component.entity.section">
-  <page:param name="sectionId">setup</page:param>
-  <page:param name="sectionNameKey">importLog.log.section</page:param>
-	<tags:createField property="templateName" component="${component}"/>
-	<tags:createField property="dataFile" component="${component}"/>  <%-- MultipartFile upload control --%>
-	<tags:createField property="notes" component="${component}"/>
-</page:applyDecorator>
-
-<page:applyDecorator name="component.entity.section">
   <page:param name="sectionId">result</page:param>
-  <page:param name="sectionNameKey">importLog.result.section</page:param>
+  <page:param name="sectionNameKey">import.result.section</page:param>
 </page:applyDecorator>
 
-<%-- TODO: list of allImportLogs as secondary list, ala visits on Add Visit --%>

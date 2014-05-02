@@ -11,15 +11,9 @@ or import results (with a Close button) --%>
 
 <page:applyDecorator name="component.entity.section">
   <page:param name="sectionId">setup</page:param>
-  <page:param name="sectionNameKey">importLog.log.section</page:param>
+  <page:param name="sectionNameKey">import.setup.section</page:param>
 	<tags:createField property="templateName" component="${component}"/>
-	<tags:createField property="dataFile" component="${component}"/>  <%-- MultipartFile upload control --%>
+	<tags:createField property="dataFileInput" component="${component}"/>  <%-- MultipartFile upload control --%>
 	<tags:createField property="notes" component="${component}"/>
 </page:applyDecorator>
 
-<page:applyDecorator name="component.entity.section">
-  <page:param name="sectionId">result</page:param>
-  <page:param name="sectionNameKey">importLog.result.section</page:param>
-</page:applyDecorator>
-
-<%-- TODO: list of allImportLogs as secondary list, ala visits on Add Visit --%>

@@ -20,12 +20,12 @@ or import results (with a Close button)
 or import results (with a Close button) 
 --%>
 
- 		<c:import url="/WEB-INF/jsp/core/importer/log/importSetupContent.jsp">
+ 		<c:import url="/WEB-INF/jsp/core/importer/import/importSetupContent.jsp">
 			<c:param name="component">${component}</c:param>
 		</c:import>
 
 <%--		
-		<c:import url="/WEB-INF/jsp/core/importer/log/importResultContent.jsp">
+		<c:import url="/WEB-INF/jsp/core/importer/import/importResultContent.jsp">
 			<c:param name="component">${component}</c:param>
 		</c:import>
  --%>		
@@ -33,3 +33,4 @@ or import results (with a Close button)
 	</page:applyDecorator>    
 </page:applyDecorator>	    
 
+<%-- TODO: list of allImportLogs as secondary list, ala visits on Add Visit --%>

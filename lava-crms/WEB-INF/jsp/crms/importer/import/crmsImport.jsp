@@ -1,10 +1,10 @@
 <%@ include file="/WEB-INF/jsp/includes/include.jsp" %>
 
  <%-- TODO: use the flow state to determine whether to display import setup (with an Import button)
-or import results (with a Close button) 
+or import results (with a Close button) --%> 
 <c:set var="component" value="importSetup"/>
 <%--
-<c:set var="component" value="importSetup"/>
+<c:set var="component" value="importReview"/>
 --%>
 <c:set var="viewString" value="${component}_view"/>
 <c:set var="componentView" value="${requestScope[viewString]}"/>
@@ -19,8 +19,9 @@ or import results (with a Close button)
  <%-- TODO: use the flow state to determine whether to display import setup (with an Import button)
 or import results (with a Close button) 
 --%>
+I am in a customizing flow action
 
- 		<c:import url="/WEB-INF/jsp/core/importer/log/importSetupContent.jsp">
+ 		<c:import url="/WEB-INF/jsp/core/importer/import/importSetupContent.jsp">
 			<c:param name="component">${component}</c:param>
 		</c:import>
 		
@@ -31,7 +32,7 @@ or import results (with a Close button)
 		</page:applyDecorator>
 
 <%--		
-		<c:import url="/WEB-INF/jsp/core/importer/log/importResultContent.jsp">
+		<c:import url="/WEB-INF/jsp/core/importer/import/importResultContent.jsp">
 			<c:param name="component">${component}</c:param>
 		</c:import>
 		
