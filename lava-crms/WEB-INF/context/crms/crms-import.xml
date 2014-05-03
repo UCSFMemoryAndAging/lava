@@ -28,13 +28,13 @@ in turn customized by lava.crms.importer.log.CrmsImportLog below
      	<property name="customizedFlow" value="lava.core.importer.log.importLog"/>
 	</bean>	
 
-	<bean id="lava.crms.importer.template.allCrmsImportTemplates" parent="crmsSectionListAction">
-     	<property name="customizedFlow" value="lava.core.importer.template.allImportTemplates"/>
+	<bean id="lava.crms.importer.definition.allCrmsImportDefinitions" parent="crmsSectionListAction">
+     	<property name="customizedFlow" value="lava.core.importer.definition.allImportDefinitions"/>
  	</bean>
 				
 <!-- see above TOOD: same applies here -->
- 	<bean id="lava.crms.importer.template.crmsImportTemplate" parent="crmsEntityFlowAction">
-     	<property name="customizedFlow" value="lava.core.importer.template.importTemplate"/>
+ 	<bean id="lava.crms.importer.definition.crmsImportDefinition" parent="crmsEntityFlowAction">
+     	<property name="customizedFlow" value="lava.core.importer.definition.importDefinition"/>
 	</bean>
 
 	<!-- form action definitions -->
@@ -52,12 +52,12 @@ in turn customized by lava.crms.importer.log.CrmsImportLog below
 		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsImportLogHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>
    
-	<bean id="allCrmsImportTemplatesFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsAllImportTemplatesHandler" parent="crmsHandler"/>
+	<bean id="allCrmsImportDefinitionsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsAllImportDefinitionsHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	   
  
- 	<bean id="crmsImportTemplateFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsImportTemplateHandler" parent="crmsHandler"/>
+ 	<bean id="crmsImportDefinitionFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsImportDefinitionHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>
  
 </beans>
