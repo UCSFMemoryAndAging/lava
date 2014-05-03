@@ -17,7 +17,7 @@
 	<tags:componentListColumnHeader component="${component}" label="Timestamp" width="12%" sort="importTimestamp" />
 	<tags:componentListColumnHeader component="${component}" label="ImportedBy" width="20%" sort="importedBy"/>
 	<tags:componentListColumnHeader component="${component}" label="Data File" width="30%"/>
-	<tags:componentListColumnHeader component="${component}" label="Template" width="30%"/>
+	<tags:componentListColumnHeader component="${component}" label="Definition" width="30%"/>
 </tags:listRow>
 </content>
 
@@ -35,8 +35,9 @@
 		<tags:listCell>
 			<tags:listField property="filename" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
 		</tags:listCell>
+<%-- TODO: prob replace definitionName with import results summary --%>		
 		<tags:listCell>
-			<tags:listField property="templateName" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
+			<tags:listField property="definitionName" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
 		</tags:listCell>
 	</tags:listRow>
 </tags:list>

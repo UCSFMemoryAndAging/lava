@@ -8,5 +8,5 @@
 	<tags:createField property="importTimestamp" component="${component}"/>
 	<tags:createField property="importedBy" component="${component}"/>
 	<tags:createField property="filename" component="${component}"/>
-	<tags:createField property="templateName" component="${component}"/>
+	<tags:createField property="definitionName" component="${component}"/>
 </page:applyDecorator>
