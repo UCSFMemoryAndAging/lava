@@ -12,7 +12,7 @@ or import results (with a Close button) --%>
 <page:applyDecorator name="component.entity.section">
   <page:param name="sectionId">setup</page:param>
   <page:param name="sectionNameKey">import.setup.section</page:param>
-	<tags:createField property="templateName" component="${component}"/>
+	<tags:createField property="definitionName" component="${component}"/>
 	<tags:createField property="dataFileInput" component="${component}"/>  <%-- MultipartFile upload control --%>
 	<tags:createField property="notes" component="${component}"/>
 </page:applyDecorator>
