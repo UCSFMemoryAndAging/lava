@@ -18,7 +18,8 @@
 	<tags:componentListColumnHeader component="${component}" label="Timestamp" width="12%" sort="importTimestamp" />
 	<tags:componentListColumnHeader component="${component}" label="ImportedBy" width="15%" sort="importedBy"/>
 	<tags:componentListColumnHeader component="${component}" label="Data File" width="25%"/>
-	<tags:componentListColumnHeader component="${component}" label="Template" width="25%"/>
+<%-- TODO: probably change this col from definition to a results summary --%>	
+	<tags:componentListColumnHeader component="${component}" label="Definition" width="25%"/>
 </tags:listRow>
 </content>
 
@@ -28,7 +29,7 @@
 			<tags:listActionURLButton buttonImage="view" actionId="lava.crms.importer.log.importLog" eventId="importLog__view" idParam="${item.id}"/>	    
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="crmsImportLog"/>
+			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="importTimestamp" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
@@ -40,7 +41,7 @@
 			<tags:listField property="filename" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="templateName" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
+			<tags:listField property="definitionName" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
 		</tags:listCell>
 	</tags:listRow>
 </tags:list>
