@@ -18,12 +18,14 @@ public class ImportFlowBuilder extends BaseFlowBuilder {
 		
 		// this is essentially the name of the initial view state, used by many of
 		// the core transitions in the BaseFlowBuilder
-		setFlowEvent("importSetup");
+		// note: to support customizing flows the flowEvent must be the same name as the flow mode, i.e. 
+		// the last part of the flowId
+		setFlowEvent("edit");
 	}	 
     
     public void buildEventStates() throws FlowBuilderException {
        
-    	addViewState("importSetup", 
+    	addViewState("edit", 
     			null, 
     			formAction.getCustomViewSelector(),
     			// setupForm called in flowSetupState so no need to call here
@@ -35,31 +37,31 @@ public class ImportFlowBuilder extends BaseFlowBuilder {
     				// secondary list of import logs for the selected template
         			// note: required field validation does not take place on refreshRefData so no required
         			// field errors will be shown
-                    transition(on(objectName + "__reRender"), to("importSetup"), 
+                    transition(on(objectName + "__reRender"), to("edit"), 
                        	ifReturnedSuccess(new Action[]{
                        		invoke("customBind", formAction),
                        		invoke("handleFlowEvent", formAction)})),
                        		
-                    transition(on(objectName + "__import"), to("importLog"), 
+                    transition(on(objectName + "__import"), to("result"), 
                        	ifReturnedSuccess(new Action[]{
                        		invoke("customBind", formAction),
                        		invoke("handleFlowEvent", formAction)})),
                     transition(on(objectName + "__close"), to("finish"), 
                         	ifReturnedSuccess(invoke("handleFlowEvent", formAction))),
                     // support a list secondary component for nav events only, since just a reference list
-                    buildListNavigationTransitions("importSetup")},
+                    buildListNavigationTransitions("edit")},
           		null,null,null);
     	
-    	addViewState("importLog", 
+    	addViewState("result", 
     			null, formAction.getCustomViewSelector(), 
     			new Action[]{invoke("prepareToRender",formAction)},
     			new Transition[] { 
 // on close event prob. either need to clear out the importSetup properties or redirect to this flow to 
 // restart it as a root flow which will start with a fresh command object
-                    transition(on(objectName + "__close"), to("importSetup"), 
+                    transition(on(objectName + "__close"), to("edit"), 
                        	ifReturnedSuccess(invoke("handleFlowEvent", formAction))),
                     // support a list secondary component for nav events only, since just a reference list
-                    buildListNavigationTransitions("importLog")},
+                    buildListNavigationTransitions("result")},
     			null,null,null); 
     
     	buildDefaultActionEndState();
