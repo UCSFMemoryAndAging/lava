@@ -765,10 +765,11 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 			return this.doUploadFile(context, command, errors);
 		}
 	public Event doUploadFile(RequestContext context, Object command, BindingResult errors) throws Exception {
+		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
 		LavaFile lavaFile = this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
 		if(lavaFile==null){return new Event(this,ERROR_FLOW_EVENT_ID);}
 		try {
-			this.doSave(context, command, errors);
+			returnEvent = this.doSave(context, command, errors);
 		} catch (AlreadyExistsFileAccessException e){
 			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.fileExistsException"}, null, ""));
 			return new Event(this,ERROR_FLOW_EVENT_ID);	
@@ -783,7 +784,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
 		
-		return new Event(this,SUCCESS_FLOW_EVENT_ID);
+		return returnEvent;
 	}
 
 
@@ -807,6 +808,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		lavaFile.setFileStatus(LavaFile.DEFAULT_UPLOADED_STATUS);
 		return lavaFile; 
 	}
+	
 	
 	public Event handleFinishUploadFileEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
 		return this.doFinishUploadFile(context, command, errors);
