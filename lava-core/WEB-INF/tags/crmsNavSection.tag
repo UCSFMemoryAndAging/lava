@@ -16,6 +16,8 @@
               description="the default target identifier to use for the default module action" %>
 <%@ attribute name="idParam" required="false"  
               description="optional id param for the action" %>
+<%@ attribute name="startMode" required="false"
+       description="flow Mode, defaults to 'view'"%>
 <%@ attribute name="disabled" required="false"  
               description="indicates that the section link should be disabled (e.g. modal state)" %>
 <%@ attribute name="lastSection" required="false" 
@@ -32,4 +34,4 @@
 </c:if>
 
 <tags:coreNavSection text="${text}" textCode="${textCode}" module="${module}" section="${section}" 
-	defaultTargetIdentifier="${defaultTargetIdentifier}" idParam="${idParam}" disabled="${disabled}" lastSection="${lastSection}"/>
+	defaultTargetIdentifier="${defaultTargetIdentifier}" startMode="${startMode}" idParam="${idParam}" disabled="${disabled}" lastSection="${lastSection}"/>
