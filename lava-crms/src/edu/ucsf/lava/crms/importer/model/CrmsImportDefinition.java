@@ -1,9 +1,9 @@
 package edu.ucsf.lava.crms.importer.model;
 
-import edu.ucsf.lava.core.importer.model.ImportTemplate;
+import edu.ucsf.lava.core.importer.model.ImportDefinition;
 
-public class CrmsImportTemplate extends ImportTemplate {
-	//TODO: decide if need separate CrmsInsertImportTemplate and CrmsUpdateImportTemplate, e.g.
+public class CrmsImportDefinition extends ImportDefinition {
+	//TODO: decide if need separate CrmsInsertImportDefinition and CrmsUpdateImportDefinition, e.g.
 	//with Insert Patient Exists could be true or false depending upon whether inserting Patient records,
 	//whereas with Update Patient Exists should be a constant = true
 	//really depends on how separate Insert and Update will be so will not really know until Update is
@@ -12,9 +12,9 @@ public class CrmsImportTemplate extends ImportTemplate {
 	//refactor names
 	
 	//more:
-	// CrmsInsertImportTemplate
+	// CrmsInsertImportDefinition
 	
-	// if Patients template will need to indicate which field or fields to use to look for already existing Patient
+	// if Patients def will need to indicate which field or fields to use to look for already existing Patient
 	//   also for Patient need initial Project for EnrollmentStatus
 	// radio buttons / dropdown
 	//   if Patient does not exist, add Patient (for new patients, e.g. new patient history form)
@@ -23,26 +23,27 @@ public class CrmsImportTemplate extends ImportTemplate {
 	//   if Patient exists, log warning (new patients but patient might exist for some reason. Patient is
 	//      obviously not added since they exist, but other records in row are imported)
 	// UPDATE: import code will hard-code which fields will be used to match Patient, e.g.
-	// first look for PIDN in the template def, if no PIDN use first name,last name and DOB if present
+	// first look for PIDN in the definition mapping, if no PIDN use first name,last name and DOB if present
 	
-	// if Visits template will need to know name of date field to use for VisitDate and Project / Visit Type / Visit With
+	// if Visits, def will need to know name of date field to use for VisitDate and Project / Visit Type / Visit With
 	//   and VisiDate and optionally Visit Type to looking for already existing Visit
 	// need to check if Patient is Enrolled in the Visit's Project
-	// UPDATE: see above update, i.e. template mapping file will identify visitDate, visitType, visitWith properties
+	// UPDATE: see above update, i.e. def mapping file will identify visitDate, visitType, visitWith properties
 	
 	// if Assessment need instrument name and dcDate and check for already existing instrument (and what if instrument
 	// exists but has no data entered --- that would be considered a 1.0 insert rather than a 2.0 update)
-	// UPDATE: see above update, i.e. template mapping file will identify instrType, dcDate
+	// UPDATE: see above update, i.e. def mapping file will identify instrType, dcDate
 	
-	// CrmsUpdateImportTemplate
-	// not sure if there will be a template mapping file, in which case maybe template file should not exist at core
-	// level and put into CrmsInsertImportTemplate, but feeling is that it should be left in core and just
-	// not used here (for this envisioning an export which uses reflection to essentially export the template,
-	// but with data, and then import is using that same export file so there is no template mapping file
-	// needed, i.e. the data file is also the template mapping file
+	// CrmsUpdateImportDefinition
+	// not sure if there will be a definition mapping file, in which case maybe definition file should 
+	// not exist at core level and put into CrmsInsertImportDefinition, but feeling is that it 
+	// should be left in core and just not used here (for this envisioning an export which uses 
+	// reflection to essentially export the definition mapping, but with data, and then import it
+	// using that same export file so there is no definition mapping file needed, i.e. the data 
+	// file is also the definition mapping file
 	
-	//UPDATE: can also consider CoreInsertImportTemplate with template mapping file and CoreUpdateImportTemplate
-	//without
+	//UPDATE: can also consider CoreInsertImportDefinition with def mapping file and 
+	//CoreUpdateImportDefinition without def mapping file
 	
 
 	
@@ -64,7 +65,7 @@ public class CrmsImportTemplate extends ImportTemplate {
 	// if import will create new Visits, account for all Visit required fields
 	// visitDate (and optionally visitTime) must be present in the data file (mapped to either visitDate or
 	// dcDate). the rest of the required fields may not be in the data file so need to be supplied as part of
-	// the template
+	// the definition
 // INSERT specific fields	
 	private Boolean visitTypeSupplied;
 	private String visitType;
@@ -75,7 +76,7 @@ public class CrmsImportTemplate extends ImportTemplate {
 	private Boolean visitStatusSupplied;
 	private String visitStatus;
 	
-	public CrmsImportTemplate(){
+	public CrmsImportDefinition(){
 		super();
 	}
 

@@ -21,11 +21,11 @@
 		</list></property>
 	</bean>	
 
-	<bean id="lava.core.importer.template.allImportTemplates" parent="coreSectionListAction"/>
+	<bean id="lava.core.importer.definition.allImportDefinitions" parent="coreSectionListAction"/>
 				
- 	<bean id="lava.core.importer.template.importTemplate" parent="coreEntityFlowAction">
+ 	<bean id="lava.core.importer.definition.importDefinition" parent="coreEntityFlowAction">
 		<property name="parentFlows"><list>
-			<value>lava.core.importer.template.allImportTemplates</value>
+			<value>lava.core.importer.definition.allImportDefinitions</value>
 		</list></property>
 	</bean>
 
@@ -44,12 +44,12 @@
 		<bean class="edu.ucsf.lava.core.importer.controller.ImportLogHandler" parent="coreHandler"/>
 	</list></constructor-arg></bean>
    
-	<bean id="allImportTemplatesFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.core.importer.controller.AllImportTemplatesHandler" parent="coreHandler"/>
+	<bean id="allImportDefinitionsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.importer.controller.AllImportDefinitionsHandler" parent="coreHandler"/>
 	</list></constructor-arg></bean>  	   
  
- 	<bean id="importTemplateFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.core.importer.controller.ImportTemplateHandler" parent="coreHandler"/>
+ 	<bean id="importDefinitionFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.importer.controller.ImportDefinitionHandler" parent="coreHandler"/>
 	</list></constructor-arg></bean>
  
 </beans>

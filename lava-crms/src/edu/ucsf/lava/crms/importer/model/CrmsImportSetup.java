@@ -7,7 +7,7 @@ public class CrmsImportSetup extends ImportSetup {
 	// projName is required for creating Patients (initial EnrollmentStatus), creating Visits and
 	// creating Instruments
 	
-	// decided to put projName in setup rather than in template because a given template could be
+	// decided to put projName in setup rather than in definition because a given def could be
 	// used with different projects over time
 
 	// this is not a required field as the projName could be supplied in the imported data file itself

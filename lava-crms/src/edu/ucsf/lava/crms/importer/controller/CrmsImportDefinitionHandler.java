@@ -3,26 +3,28 @@ package edu.ucsf.lava.crms.importer.controller;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
-import edu.ucsf.lava.core.importer.controller.ImportTemplateHandler;
+import edu.ucsf.lava.core.importer.controller.ImportDefinitionHandler;
+import edu.ucsf.lava.crms.importer.model.CrmsImportDefinition;
 
 /**
- * CrmsImportTemplateHandler
+ * CrmsImportDefinitionHandler
  * 
- * Handles the CRUD for CrmsImportTemplate. 
+ * Handles the CRUD for CrmsImportDefinition 
  * 
  * @author ctoohey
  *
  */
-public class CrmsImportTemplateHandler extends ImportTemplateHandler {
+public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 
-	public CrmsImportTemplateHandler() {
+	public CrmsImportDefinitionHandler() {
 		super();
+		setHandledEntity("importDefinition", CrmsImportDefinition.class);
 	}
 	
 	/**
 	 * The idea here is that if this is a crms application, then we always want
-	 * to use the CrmsImportTemplateHandler instead of the core ImportTemplateHandler.  If scopes
-	 * need to extend ImportTemplate further, then they should subclass and customize this
+	 * to use the CrmsImportDefinitionHandler instead of the core ImportDefinitionHandler. If scopes
+	 * need to extend ImportDefinition further, then they should subclass and customize this
 	 * handler/action. 
 	 */
 	@Override

@@ -5,12 +5,12 @@ import edu.ucsf.lava.core.file.model.LavaFile;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
 
-public class ImportTemplate extends EntityBase {
+public class ImportDefinition extends EntityBase {
 	
-	public static EntityManager MANAGER = new EntityBase.Manager(ImportTemplate.class);
+	public static EntityManager MANAGER = new EntityBase.Manager(ImportDefinition.class);
 
 	private String name;
-//?? could add: private String category; in case get so many import templates could add a sort/filter
+//?? could add: private String category; in case get so many import defs could add a sort/filter
 // by category to make it easy to find. but what would categories be? if left this freeform then 
 // doubtful there would be orgznied categories so not much help. so maybe put the field in but
 // don't use it for now
@@ -31,29 +31,23 @@ public class ImportTemplate extends EntityBase {
 	// see where CBT derives this in CalculateController but also need to look to see where CBT derives this
 	// when storing the file in the repository
 	
-	private MultipartFile mappingFileInput; 
 	private LavaFile mappingFile;
 	
-	//TODO: may need a format variable for TAB or CSV but first can try to see if can determine it automatically
-	//by reading first line of data file and search for tabs or commas (but then, could have commas within the
-	//data which causes problems, so probably yes on a format property
+	//TODO: may need a format variable for TAB or CSV but first can try to see if can determine 
+	//it automatically by reading first line of data file and search for tabs or commas (but 
+	//then, could have commas within the data which causes problems, so probably yes on a 
+	//format property
 	
 	
-// create the CrmsImportTemplate (should this be the CoreImportTemplate? not per Auth naming
-	// optional Project property which would be useful for filtering lists of both ImportLog and ImportTemplate
-	// would then have to figure out whether could authorize via Project if present and not if not present
-// create CrmsImportLog 
-// create all the handlers specified in core-import.xml (base class handlers) and crms-import.xml (subclassed)
-// GitHub PUSH of feature-import_tool branch to remote	
-// get Add Template working
-//   get Upload Template Mapping CSV file working, i.e storing: file repo Strategy and Repo subclasses
-// get Importing working:
-	
-	
+// create the CrmsImportDefinition (should this be the CoreImportDefinition? not per Auth naming
+	// optional Project property which would be useful for filtering lists of both ImportLog and 
+	// ImportDefinition 
+	// would then have to figure out whether could authorize via Project if present and not if 
+	// not present
 	
 	private String notes;
 
-	public ImportTemplate(){
+	public ImportDefinition(){
 		super();
 	}
 
@@ -73,14 +67,6 @@ public class ImportTemplate extends EntityBase {
 		this.category = category;
 	}
 	
-	public MultipartFile getMappingFileInput() {
-		return mappingFileInput;
-	}
-
-	public void setMappingFileInput(MultipartFile mappingFileInput) {
-		this.mappingFileInput = mappingFileInput;
-	}
-
 	public LavaFile getMappingFile() {
 		return mappingFile;
 	}

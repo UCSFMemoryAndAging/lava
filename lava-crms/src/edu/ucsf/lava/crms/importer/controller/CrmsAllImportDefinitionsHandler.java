@@ -9,24 +9,24 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
-import edu.ucsf.lava.core.importer.controller.AllImportTemplatesHandler;
-import edu.ucsf.lava.crms.importer.model.CrmsImportTemplate;
+import edu.ucsf.lava.core.importer.controller.AllImportDefinitionsHandler;
+import edu.ucsf.lava.crms.importer.model.CrmsImportDefinition;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 
-public class CrmsAllImportTemplatesHandler extends AllImportTemplatesHandler {
+public class CrmsAllImportDefinitionsHandler extends AllImportDefinitionsHandler {
 	
-	public CrmsAllImportTemplatesHandler() {
+	public CrmsAllImportDefinitionsHandler() {
 		super();
 //PROB DO NOT NEED THIS SINCE SAME AS SUPERCLASS		
-		this.setHandledList("allImportTemplates","importTemplate");
-		this.setEntityForStandardSourceProvider(CrmsImportTemplate.class);
+		this.setHandledList("allImportDefinitions","importDefinition");
+		this.setEntityForStandardSourceProvider(CrmsImportDefinition.class);
 	}
 	
 	/**
 	 * The idea here is that if this is a crms application, then we always want
-	 * to use the CrmsAllImportTemplatesHandler instead of the core AllImportTemplatesHandler.  If scopes
-	 * need to extend ImportTemplate further, then they should subclass and customize this
-	 * handler/action. 
+	 * to use the CrmsAllImportDefinitionsHandler instead of the core 
+	 * AllImportDefinitionsHandler.  If scopes need to extend ImportDefinition further, 
+	 * then they should subclass and customize this handler/action. 
 	 */
 	@Override
 	public Event preSetupFlowDirector(RequestContext context) throws Exception {
@@ -37,7 +37,7 @@ public class CrmsAllImportTemplatesHandler extends AllImportTemplatesHandler {
 //MAY NOT NEED AS SAME AS SUPERCLASS NOW BUT MAY ADD crms SPECIFIC THINGS	
 	public LavaDaoFilter extractFilterFromRequest(RequestContext context, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		LavaDaoFilter filter =  CrmsSessionUtils.setFilterProjectContext(sessionManager,request,CrmsImportTemplate.newFilterInstance(getCurrentUser(request)));
+		LavaDaoFilter filter =  CrmsSessionUtils.setFilterProjectContext(sessionManager,request,CrmsImportDefinition.newFilterInstance(getCurrentUser(request)));
 		filter.addDefaultSort("name",true);
 		return filter;
 	}

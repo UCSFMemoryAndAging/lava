@@ -14,7 +14,7 @@
 		</id>
 		<timestamp name="modified" column="modified"/>
 		<property name="filename" column="filename" type="string" length="100" not-null="true"/>
-		<property name="templateName" column="template_name" type="string" length="30"/>
+		<property name="definitionName" column="definition_name" type="string" length="30"/>
 		<property name="importTimestamp" column="import_timestamp" type="timestamp" not-null="true"/>
 		<property name="importedBy" column="imported_by" type="string" length="25" not-null="true"/>
 		<property name="notes" column="notes" type="string" length="500"/>

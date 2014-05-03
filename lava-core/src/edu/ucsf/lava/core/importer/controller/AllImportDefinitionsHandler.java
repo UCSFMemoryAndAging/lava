@@ -10,21 +10,21 @@ import org.springframework.webflow.execution.RequestContext;
 import edu.ucsf.lava.core.auth.model.AuthRole;
 import edu.ucsf.lava.core.controller.BaseListComponentHandler;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
-import edu.ucsf.lava.core.importer.model.ImportTemplate;
+import edu.ucsf.lava.core.importer.model.ImportDefinition;
 
-public class AllImportTemplatesHandler extends BaseListComponentHandler { 
+public class AllImportDefinitionsHandler extends BaseListComponentHandler { 
 
-	public AllImportTemplatesHandler() {
+	public AllImportDefinitionsHandler() {
 		super();
-		this.setHandledList("allImportTemplates","importTemplate");
-		this.setEntityForStandardSourceProvider(ImportTemplate.class);
+		this.setHandledList("allImportDefinitions","importDefinition");
+		this.setEntityForStandardSourceProvider(ImportDefinition.class);
 		this.pageSize = 25;
 		
 	}
 
 	public LavaDaoFilter extractFilterFromRequest(RequestContext context, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		LavaDaoFilter filter = ImportTemplate.newFilterInstance(getCurrentUser(request));
+		LavaDaoFilter filter = ImportDefinition.newFilterInstance(getCurrentUser(request));
 		filter.addDefaultSort("name",true);
 		return filter;
 	}

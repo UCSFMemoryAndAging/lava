@@ -8,7 +8,7 @@ public class ImportLog extends EntityBase {
 	private Timestamp importTimestamp;
 	private String importedBy;
 	private String filename;
-	private String templateName;
+	private String definitionName;
 	private String notes; // entered by user when doing the import
 //TODO:	decide if want to persist the individual record warning/failure messages. seems unnecessary for long-term
 //use but could be very useful in debugging issues
@@ -27,12 +27,12 @@ public class ImportLog extends EntityBase {
 		this.filename = filename;
 	}
 
-	public String getTemplateName() {
-		return templateName;
+	public String getDefinitionName() {
+		return definitionName;
 	}
 
-	public void setTemplateName(String templateName) {
-		this.templateName = templateName;
+	public void setDefinitionName(String definitionName) {
+		this.definitionName = definitionName;
 	}
 
 	public Timestamp getImportTimestamp() {

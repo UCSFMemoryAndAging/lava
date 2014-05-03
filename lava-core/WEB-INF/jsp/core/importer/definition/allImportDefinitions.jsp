@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/includes/include.jsp" %>
 
 
-<c:set var="component" value="allImportTemplates"/>
+<c:set var="component" value="allImportDefinitions"/>
 
 <page:applyDecorator name="component.content">
 	<page:param name="component">${component}</page:param>
@@ -10,6 +10,9 @@
 <page:applyDecorator name="component.list.content">
 	<page:param name="component">${component}</page:param>
 
+<content tag="customActions">
+	<tags:actionURLButton buttonText="Add"  actionId="lava.core.importer.definition.importDefinition" eventId="importDefinition__add" component="${component}"/>	    
+</content>
 
 <content tag="listColumns">
 <tags:listRow>
@@ -23,17 +26,17 @@
 <tags:list component="${component}" >
 	<tags:listRow>
 		<tags:listCell styleClass="actionButton">
-			<tags:listActionURLStandardButtons actionId="lava.core.importer.template.importTemplate" component="importTemplate" idParam="${item.id}"/>	    
+			<tags:listActionURLStandardButtons actionId="lava.core.importer.definition.importDefinition" component="importDefinition" idParam="${item.id}"/>	    
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="name" component="${component}" listIndex="${iterator.index}" entityType="importTemplate"/>
+			<tags:listField property="name" component="${component}" listIndex="${iterator.index}" entityType="importDefinition"/>
 		</tags:listCell>
 		<tags:listCell>
 <!-- may need: metadataName="lavaFile.name" -->		
-			<tags:listField property="mappingFile.name" component="${component}" listIndex="${iterator.index}" entityType="importTemplate"/>
+			<tags:listField property="mappingFile.name" component="${component}" listIndex="${iterator.index}" entityType="importDefinition"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="notes" component="${component}" listIndex="${iterator.index}" entityType="importTemplate"/>
+			<tags:listField property="notes" component="${component}" listIndex="${iterator.index}" entityType="importDefinition"/>
 		</tags:listCell>
 	</tags:listRow>
 </tags:list>

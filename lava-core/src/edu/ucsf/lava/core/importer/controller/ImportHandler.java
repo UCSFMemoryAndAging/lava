@@ -31,6 +31,19 @@ public class ImportHandler extends BaseEntityComponentHandler {
 
 	public ImportHandler() {
 		super();
+
+		// the following will set up "importSetup" as the defaultObjectName which is used for setting
+		// the view component mode and view. the objectMap is also used to determine which objects should
+		// be acted on by the persistence methods; while "import" is not a persistent object, there
+		// are no persistence events handled by this handler so no issues having it in objectMap
+		
+		// the defaultObjectName should ideally be the same as the target part of the action which
+		// uses this handler, i.e. lava.core.importer.import.import so target='import', because
+		// the flow constructs event transitions using the target part of the action (at least for
+		// customizing actions) while the decorator uses the defaultObjectName on eventButton that
+		// will construct the event to be submitted which should match the transition
+		setHandledEntity("import", ImportSetup.class);
+		
 		defaultEvents = new ArrayList(Arrays.asList(new String[]{"import", "close"}));
 		
 //TODO: figure out authEvents
@@ -38,14 +51,8 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		
 //NEED TO SET "import" as requiredFieldEvent so required field validation will be done
 		
-	
-		// the following will set up "importSetup" as the defaultObjectName which is used for setting
-		// the view component mode and view. the objectMap is also used to determine which objects should
-		// be acted on by the persistence methods; while "importSetup" is not a persistent object, there
-		// are no persistence events handled by this handler so no issues having it in objectMap
-		setHandledEntity("importSetup", ImportSetup.class);
 		this.setRequiredFields(new String[]{
-				"templateName",
+				"definitionName",
 				"dataFileInput"});
 	}
 	
@@ -83,7 +90,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 
 	protected String[] defineRequiredFields(RequestContext context, Object command) {
 // if get the MultipartFile binding working such that importFile is a property, not sure if could put it here
-	    setRequiredFields(new String[]{"templateName"});
+	    setRequiredFields(new String[]{"definitionName"});
 	    return getRequiredFields();
 	}
 	
@@ -97,13 +104,15 @@ public class ImportHandler extends BaseEntityComponentHandler {
 
 	 	model = super.addReferenceData(context, command, errors, model);
 
-	 	if (state.getId().equals("importSetup")) {
-	 		// load in static lists for importSetup, e.g. list of all import templates
-			this.addListsToModel(model, listManager.getStaticListsForEntity("importSetup"));
+	 	model.put("flowState", state.getId());
+	 	
+	 	if (state.getId().equals("edit")) {
+	 		// load in static lists for importSetup, e.g. list of all import definitions
+			this.addListsToModel(model, listManager.getStaticListsForEntity("import"));
 		}
 
-	 	// get the list of all importLogs for the selected import template, to be displayed as a 
-	 	// secondary list component in both "importSetup" and "importLog" flow states
+	 	// get the list of all importLogs for the selected import definition, to be displayed as a 
+	 	// secondary list component in both "edit" and "result" flow states
 	 	//TODO: setup LavaDaoFilter to query for this and put resulting list in a ScrollablePagedListHolder
 	 	// via setSourceFromEntityList and put in model as "importLogs"
 	 	
@@ -140,11 +149,11 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		
 		// check that MultipartFile was supplied
 		
-		// for the specified templateName, read the template mapping file into a Map (or two Maps; one with column names
+		// for the specified definitionName, read the definition mapping file into a Map (or two Maps; one with column names
 		// as keys, one with property names as keys)
 		
 		// read the data file column headers
-		// validate against template mapping file
+		// validate against definition mapping file
 		
 		// create an array of entity.property to set for each CSV index
 		
@@ -174,14 +183,14 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		// note: the CrmsImportLog will have Crms specific log fields so the Crms jsp will be used
 		
 //OTHER:		
-		// choose a template
+		// choose a definition
 		// choose a data file
 		// on import:
-			// read the template mapping file into a Map (data file column keys to entity.property values)
-			// read the data file column headers, iterating thru the template Mapping file to find each
+			// read the definition mapping file into a Map (data file column keys to entity.property values)
+			// read the data file column headers, iterating thru the definition Mapping file to find each
 			//  column in the mapping file and store the CSV index (instead of current technique of having
 			//  a var for each column index, could have Map fpr each entity mapping propety to the CSV index
-			//  and since the # entity's and enitty types will be variable across all templates could 
+			//  and since the # entity's and enitty types will be variable across all definitions could 
 			//  dynamically create a Map of these entity Maps
 		
 			// upon reading a row of data, process Patient Map first then Caregiver, Contact Info and other

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import org.springframework.web.multipart.MultipartFile;
 
 public class ImportSetup implements Serializable {
-	private String templateName;
+	private String definitionName;
 /**	
 	<c:if test="${componentView == 'enter'}">
 	<tags:fileUpload paramName="rnflFile" component="${component}"/>
@@ -38,12 +38,12 @@ this is what fileUpload tag does:
 
 	public ImportSetup() {}
 	
-	public String getTemplateName() {
-		return templateName;
+	public String getDefinitionName() {
+		return definitionName;
 	}
 	
-	public void setTemplateName(String templateName) {
-		this.templateName = templateName;
+	public void setDefinitionName(String definitionName) {
+		this.definitionName = definitionName;
 	}
 
 	public MultipartFile getDataFileInput() {
