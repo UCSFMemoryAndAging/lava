@@ -1,9 +1,11 @@
 package edu.ucsf.lava.core.importer.controller;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -19,6 +21,8 @@ import edu.ucsf.lava.core.auth.CoreAuthorizationContext;
 import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
 import edu.ucsf.lava.core.controller.ComponentCommand;
+import edu.ucsf.lava.core.file.model.LavaFile;
+import edu.ucsf.lava.core.importer.model.ImportDefinition;
 import edu.ucsf.lava.core.importer.model.ImportLog;
 import edu.ucsf.lava.core.importer.model.ImportSetup;
 import edu.ucsf.lava.core.model.EntityBase;
@@ -98,9 +102,11 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	public Map addReferenceData(RequestContext context, Object command, BindingResult errors, Map model)
 	{
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
 	 	String flowMode = ActionUtils.getFlowMode(context.getActiveFlow().getId()); 
 	 	StateDefinition state = context.getCurrentState();
-		ImportSetup importSetup = (ImportSetup) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
+
+	 	ImportSetup importSetup = (ImportSetup) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
 
 	 	model = super.addReferenceData(context, command, errors, model);
 
@@ -109,6 +115,10 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	 	if (state.getId().equals("edit")) {
 	 		// load in static lists for importSetup, e.g. list of all import definitions
 			this.addListsToModel(model, listManager.getStaticListsForEntity("import"));
+			
+			//	load up dynamic lists
+			Map<String,String> definitionList = listManager.getDynamicList("import.definitions"); 
+			dynamicLists.put("import.definitions", definitionList);
 		}
 
 	 	// get the list of all importLogs for the selected import definition, to be displayed as a 
@@ -116,8 +126,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	 	//TODO: setup LavaDaoFilter to query for this and put resulting list in a ScrollablePagedListHolder
 	 	// via setSourceFromEntityList and put in model as "importLogs"
 	 	
-	 	
- 
+		model.put("dynamicLists", dynamicLists);			
 		return model;
 	}
 		
@@ -146,14 +155,45 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	}
 		
 	protected Event doImport(RequestContext context, Object command, BindingResult errors) throws Exception {
+		ImportSetup importSetup = (ImportSetup) ((ComponentCommand)command).getComponents().get(getDefaultObjectName());
+		Long definitionId = importSetup.getDefinitionId();
+		ImportDefinition importDefinition = ImportDefinition.findOneById(definitionId);
+		LavaFile mappingFile = importDefinition.getMappingFile();
+		Scanner fileScanner = new Scanner(new ByteArrayInputStream(mappingFile.getContent()), "UTF-8");
+		
+		// line 1 is properties, line 2 is column names
+		int lineIndex = 0;
+		while (fileScanner.hasNextLine()) {
+
+			String currentLine = fileScanner.nextLine().trim();
+			lineIndex++;
+//TODO: need file format separator(comma or tab) in ImportDefinition			
+//			Scanner lineScanner = new Scanner(currentLine).useDelimiter("\t");
+			Scanner lineScanner = new Scanner(currentLine).useDelimiter(",");
+
+			while (lineScanner.hasNext()) {
+				String nextField = lineScanner.next();
+				if (lineIndex == 1) {
+					// set property in property array
+					
+				}
+				else if (lineIndex == 2) {
+					// set column in column array
+					
+				}
+			}
+		}
+		
 		
 		// check that MultipartFile was supplied
 		
 		// for the specified definitionName, read the definition mapping file into a Map (or two Maps; one with column names
 		// as keys, one with property names as keys)
+		// UPDATE: may not need a Map
 		
 		// read the data file column headers
-		// validate against definition mapping file
+		// validate against definition mapping file, i.e. column headers match and in same order
+		
 		
 		// create an array of entity.property to set for each CSV index
 		
