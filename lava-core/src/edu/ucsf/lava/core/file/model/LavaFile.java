@@ -226,6 +226,13 @@ public class LavaFile extends EntityBase {
 		return false;
 	}
 	
+	public LavaFile saveFile() {
+		return MANAGER.saveFile(this);
+	}
+	
+	public void deleteFile() {
+		MANAGER.deleteFile(this);
+	}
 	
 	/**
 	 * Save or delete the file contents if needed, and then resave the 
