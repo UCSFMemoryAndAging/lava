@@ -14,8 +14,14 @@
 		<timestamp name="modified" column="modified"/>
 		<property name="name" column="name" type="string" length="30" not-null="true"/>
 		<property name="category" column="category" type="string" length="30"/>
-		<many-to-one name="mappingFile" column="mapping_file_id" unique="true" class="edu.ucsf.lava.core.file.model.LavaFile" cascade="true"/>
+		<many-to-one name="mappingFile" column="mapping_file_id" unique="true" class="edu.ucsf.lava.core.file.model.LavaFile" cascade="all" outer-join="true"/>
 		<property name="notes" column="notes" type="string" length="500"/>
 	</class>
+
+	<query name="list.importDefinition.definitions"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(d.name, d.id)
+		from ImportDefinition d
+		order by d.name
+	]]></query>
 	
 </hibernate-mapping>
