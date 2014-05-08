@@ -1,14 +1,18 @@
 package edu.ucsf.lava.core.importer.controller;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
+import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentFormAction;
@@ -16,8 +20,9 @@ import edu.ucsf.lava.core.file.exception.AlreadyExistsFileAccessException;
 import edu.ucsf.lava.core.file.exception.FileAccessException;
 import edu.ucsf.lava.core.file.model.LavaFile;
 import edu.ucsf.lava.core.importer.model.ImportDefinition;
+import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.core.type.LavaDateUtils;
-import edu.ucsf.lava.crms.session.CrmsSessionUtils;
+import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.*;
 
 
 public class ImportDefinitionHandler extends BaseEntityComponentHandler {
@@ -29,13 +34,15 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	}
 	
 	protected Object initializeNewCommandInstance(RequestContext context, Object command) {
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		ImportDefinition definition = (ImportDefinition) command;
-		definition.setMappingFile(new LavaFile());
-//TODO: initialize file status or set them later when selected in handleSaveAddEvent
-// e.g.
-//		crmsFile.setFileStatusBy(CrmsSessionUtils.getCrmsCurrentUser(sessionManager, request).getShortUserNameRev());
-//		crmsFile.setFileStatusDate(LavaDateUtils.getDatePart(new Date()));
-
+		LavaFile mappingFile = new LavaFile();
+		mappingFile.setContentType(IMPORT_DEF_MAPPING_FILE_TYPE);
+		mappingFile.setRepositoryId(IMPORT_REPOSITORY_ID);
+		AuthUser user = CoreSessionUtils.getCurrentUser(sessionManager, request);
+		mappingFile.setFileStatusBy(user.getShortUserNameRev());
+		mappingFile.setFileStatusDate(LavaDateUtils.getDatePart(new Date()));
+		definition.setMappingFile(mappingFile);
 		return definition;
 	} 
 	
@@ -51,36 +58,32 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	
 
 	public Event handleSaveAddEvent(RequestContext context, Object command,BindingResult errors) throws Exception {
-		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
-		ImportDefinition definition = (ImportDefinition) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
-		
-		if(null != context.getRequestParameters().getMultipartFile(getDefaultObjectName() + "_uploadFile")){
+		MultipartFile uploadFile = context.getRequestParameters().getMultipartFile(getDefaultObjectName() + "_uploadFile");
+		if(uploadFile != null && uploadFile.getSize() != 0){
 			// getUploadFile will populate the mappingFile property due to getLavaBackingFileObject override
 			LavaFile mappingFile = this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
-			returnEvent = this.doSaveAdd(context, command, errors);
-			if (returnEvent.equals(SUCCESS_FLOW_EVENT_ID)) {
-				// doSave will save the importDefinition and mappingFile LavaFile properties. however, because the 
-				// command object is not a LavaFile, but rather an importDefinition that has a LavaFile property, 
-				// the afterCreate and afterUpdate triggers are not called on the LavaFile property so the file is 
-				// not written to the repository. so that must be done explicitly
-				try {
-					mappingFile.afterCreate();
-				} catch (AlreadyExistsFileAccessException e){
-					errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.fileExistsException"}, null, ""));
-					return new Event(this,ERROR_FLOW_EVENT_ID);	
-				} catch (FileAccessException e){
-					errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.genericException"}, null, ""));
-					return new Event(this,ERROR_FLOW_EVENT_ID);			
+			// doSaveAdd will save the importDefinition and mappingFile LavaFile properties. however, because the 
+			// command object is not a LavaFile, but rather an importDefinition that has a LavaFile property, 
+			// the afterCreate and afterUpdate triggers are not called on the LavaFile property so the file is 
+			// not written to the repository. so that must be done explicitly, and should be done before doSaveAdd
+			// because it populates the fileId and location properties of LavaFile
+			try {
+				mappingFile.saveFile();
+			} catch (AlreadyExistsFileAccessException e){
+				errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.fileExistsException"}, null, ""));
+				return new Event(this,ERROR_FLOW_EVENT_ID);	
+			} catch (FileAccessException e){
+				errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.genericException"}, null, ""));
+				return new Event(this,ERROR_FLOW_EVENT_ID);			
 //				} catch (IOException e){
 //					errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.noFileException"}, null, ""));
 //					return new Event(this,ERROR_FLOW_EVENT_ID);	
-				} catch (Exception e){
-					errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.genericException"}, null, ""));
-					return new Event(this,ERROR_FLOW_EVENT_ID);
-				}
-			}				
+			} catch (Exception e){
+				errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.genericException"}, null, ""));
+				return new Event(this,ERROR_FLOW_EVENT_ID);
+			}
 
-			return returnEvent;
+			return this.doSaveAdd(context, command, errors);
 		}
 		else {
 			LavaComponentFormAction.createCommandError(errors, "importDefinition.noMappingFile", null);
@@ -91,23 +94,23 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	
 	public Event handleSaveEvent(RequestContext context, Object command,BindingResult errors) throws Exception {
 		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
-		LavaFile mappingFile = null;
+		LavaFile mappingFile = getLavaFileBackingObject(context, ((ComponentCommand)command).getComponents(), errors);
 		
 		// only change lavaFile if MultipartFile is specified, i.e. it is not required here since it has already
 		// been uploaded and written to the repository by handleSaveAdd
-		if(null != context.getRequestParameters().getMultipartFile(getDefaultObjectName() + "_uploadFile")){
+		// in other words, the existing mapping file can not be removed, only replaced by a new mapping file
+//see about combingin logic with handleSaveAdd. diff is that mappingFile will already exist and needs to
+//be deleted		
+		MultipartFile uploadFile = context.getRequestParameters().getMultipartFile(getDefaultObjectName() + "_uploadFile");
+		if(uploadFile != null && uploadFile.getSize() != 0){
 			// getUploadFile will populate the mappingFile property due to getLavaBackingFileObject override
+			mappingFile.deleteFile();
 			mappingFile = this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
-		}
-
-		returnEvent = this.doSave(context, command, errors);
-
-		if(null != context.getRequestParameters().getMultipartFile(getDefaultObjectName() + "_uploadFile")){
 //TODO: write helper at level of BaseEntityComponentHandler to do this try / catch error checking, used here, above
 // and by doUploadFile
 //hopefully that will resolve IOException weirdness below		
 			try {
-				mappingFile.afterUpdate();
+				mappingFile.saveFile();
 			}
 			catch (AlreadyExistsFileAccessException e){
 				errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.fileExistsException"}, null, ""));
@@ -123,9 +126,9 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 				return new Event(this,ERROR_FLOW_EVENT_ID);
 			}
 		}
-		
-		// trigger the writing of the file to the repository (update will first delete the existing file if one exists)
-		return returnEvent;
+
+		// do this after saving the LavaFile to the repository because that populates some LavaFile properties
+		return this.doSave(context, command, errors);
 	}
 	
 	
