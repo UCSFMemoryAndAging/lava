@@ -14,21 +14,21 @@
     <!-- A collection bean that needs to be injected into each File Repository bean -->
     <bean id="fileRepositories" class="edu.ucsf.lava.core.file.FileRepositories"/>
     
-	<!-- Abstract parent beans for the file repository beans to inherit from -->
-	<bean id="baseFileRepository" abstract="true" class="edu.ucsf.lava.core.file.AbstractFileRepository">
-		<property name="repositories"><ref bean="fileRepositories"/></property>
+    <!-- note default is primarily a test configuration and is not used in the demo app which
+     	uses CrmsFileRepository. applications should configure their own repository and
+     	strategy to define the organizational structure of the repository, i.e. directory
+     	structure and file naming. see CrmsFileRepository, ImportFileRepository -->
+	<bean id="defaultLavaFileRepository" class="edu.ucsf.lava.core.file.BaseFileRepository">
+		<!-- id must be set before repositories because setRepositories uses id -->
 		<property name="id" value="lava_default"/>
-	</bean>
-	
-	
-	<bean id="defaultLavaFileRepository" parent="baseFileRepository" class="edu.ucsf.lava.core.file.BaseFileRepository">
+		<property name="order" value="0"/>
+		<property name="repositories"><ref bean="fileRepositories"/></property>
 		<property name="strategy"><ref bean="defaultLavaFileRepositoryStrategy"/></property>
 	</bean>
 	
 	<bean id="defaultLavaFileRepositoryStrategy" class="edu.ucsf.lava.core.file.ArchivingLocalFileSystemRepositoryStrategy">
 		<property name="rootPath" value="/var/lava/repository"/>
 		<property name="archiveRoot" value="/var/lava/repository/archive"/>
-			
 	</bean>
 	
 </beans>
