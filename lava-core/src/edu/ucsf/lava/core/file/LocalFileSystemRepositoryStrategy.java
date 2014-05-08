@@ -19,6 +19,8 @@ import edu.ucsf.lava.core.file.exception.FileNotFoundException;
 import edu.ucsf.lava.core.file.model.LavaFile;
 
 public class LocalFileSystemRepositoryStrategy extends AbstractFileRepositoryStrategy {
+	public static String DEFAULT_REPOSITORY_ID = "lava_default";
+
 	protected String rootPath = "";
 	public static String MISSING_ID_FOLDER = "NO_ID";
 	
@@ -47,14 +49,20 @@ public class LocalFileSystemRepositoryStrategy extends AbstractFileRepositoryStr
 
 	
 	/**
-	 * Default behavior is to handle all files.  This should be overridden in 
-	 * subclasses to provide multiple repositories to handle different classes
-	 * of FileEntity.
+	 * Default behavior is to handle files for the default repository so 
+	 * subclasses should override to handle files belonging to a specific 
+     * repository or content type etc.
 	 */
-	
 	public boolean handlesFile(LavaFile file) {
-		return true;
+		// alternatively could handle files based on contentType or something else
+		if (file.getRepositoryId().equals(DEFAULT_REPOSITORY_ID)) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
+	
 	/**
 	 * Default implementation is to use the record id of the FileEntity.  If for
 	 * some reason this is called prior to persistence of the FileEntity, then
@@ -145,6 +153,8 @@ public class LocalFileSystemRepositoryStrategy extends AbstractFileRepositoryStr
 			File fsFile = getFileSystemObject(lavaFile,false);
 			if (fsFile.exists() && fsFile.isFile()) {
 				fsFile.delete();
+				lavaFile.setFileId(null);
+				lavaFile.setLocation(null);
 			}else{
 				this.logRepositoryError("Warning: attempt to delete non-existent file", lavaFile);
 				return; 
