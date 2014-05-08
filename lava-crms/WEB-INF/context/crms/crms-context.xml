@@ -9,6 +9,7 @@
 <import resource="crms-auth.xml"/>
 <import resource="crms-controller.xml"/>
 <import resource="crms-enrollment.xml"/>
+<import resource="crms-file.xml"/>
 <import resource="crms-import.xml"/>
 <import resource="crms-instrument.xml"/>
 <import resource="crms-list.xml"/>
