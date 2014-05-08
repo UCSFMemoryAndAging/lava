@@ -73,17 +73,17 @@ public class CrmsImportHandler extends ImportHandler {
 		//?? would need to distinguish INSERT from UPDATE because if UPDATE would not necessarily need projName
 		
 		
-		return new Event(this,SUCCESS_FLOW_EVENT_ID);
+		return super.doImport(context, command, errors);
+	}	
 
-	}
-
+	
 	@Override
 	public Map addReferenceData(RequestContext context, Object command,	BindingResult errors, Map model) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		//	load up dynamic lists
-		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
 	 	StateDefinition state = context.getCurrentState();
 		model = super.addReferenceData(context, command, errors, model); 
+		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
 		CrmsImportSetup crmsImportSetup = (CrmsImportSetup) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
 	 	if (state.getId().equals("edit")) {
 			// note that this list is filtered via projectAuth filter. CrmsAuthUser getAuthDaoFilters determines the projects to
