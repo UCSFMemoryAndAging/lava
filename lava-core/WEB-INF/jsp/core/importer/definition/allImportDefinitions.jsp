@@ -32,8 +32,7 @@
 			<tags:listField property="name" component="${component}" listIndex="${iterator.index}" entityType="importDefinition"/>
 		</tags:listCell>
 		<tags:listCell>
-<!-- may need: metadataName="lavaFile.name" -->		
-			<tags:listField property="mappingFile.name" component="${component}" listIndex="${iterator.index}" entityType="importDefinition"/>
+			<tags:listField property="mappingFile.name" component="${component}" listIndex="${iterator.index}" metadataName="lavaFile.name"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="notes" component="${component}" listIndex="${iterator.index}" entityType="importDefinition"/>
