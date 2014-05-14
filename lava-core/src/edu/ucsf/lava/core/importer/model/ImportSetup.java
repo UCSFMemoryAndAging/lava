@@ -2,12 +2,27 @@ package edu.ucsf.lava.core.importer.model;
 
 import java.io.Serializable;
 
-import org.springframework.web.multipart.MultipartFile;
+import edu.ucsf.lava.core.file.model.LavaFile;
 
 public class ImportSetup implements Serializable {
 	private Long definitionId;
-	private MultipartFile dataFileInput;
+	private LavaFile dataFile;
 	private String notes; // for importLog
+
+	// these are made class properties to facilitate sharing with subclasses
+	private ImportDefinition importDefinition;
+	public ImportDefinition getImportDefinition() {
+		return importDefinition;
+	}
+
+	public void setImportDefinition(ImportDefinition importDefinition) {
+		this.importDefinition = importDefinition;
+	}
+
+	private String mappingCols[];
+	private String mappingProps[];
+	private String dataCols[];
+	private String dataValues[];
 
 	public ImportSetup() {}
 	
@@ -19,12 +34,12 @@ public class ImportSetup implements Serializable {
 		this.definitionId = definitionId;
 	}
 
-	public MultipartFile getDataFileInput() {
-		return dataFileInput;
+	public LavaFile getDataFile() {
+		return dataFile;
 	}
 
-	public void setDataFileInput(MultipartFile dataFileInput) {
-		this.dataFileInput = dataFileInput;
+	public void setDataFile(LavaFile dataFile) {
+		this.dataFile = dataFile;
 	}
 
 	public String getNotes() {
@@ -34,5 +49,38 @@ public class ImportSetup implements Serializable {
 	public void setNotes(String notes) {
 		this.notes = notes;
 	}
+
+	public String[] getMappingCols() {
+		return mappingCols;
+	}
+
+	public void setMappingCols(String[] mappingCols) {
+		this.mappingCols = mappingCols;
+	}
+
+	public String[] getMappingProps() {
+		return mappingProps;
+	}
+
+	public void setMappingProps(String[] mappingProps) {
+		this.mappingProps = mappingProps;
+	}
+
+	public String[] getDataCols() {
+		return dataCols;
+	}
+
+	public void setDataCols(String[] dataCols) {
+		this.dataCols = dataCols;
+	}
+
+	public String[] getDataValues() {
+		return dataValues;
+	}
+
+	public void setDataValues(String[] dataValues) {
+		this.dataValues = dataValues;
+	}
+	
 	
 }
