@@ -230,6 +230,10 @@ public class LavaFile extends EntityBase {
 		return MANAGER.saveFile(this);
 	}
 	
+	public LavaFile saveOrUpdateFile() {
+		return MANAGER.saveOrUpdateFile(this);
+	}
+	
 	public void deleteFile() {
 		MANAGER.deleteFile(this);
 	}
@@ -330,5 +334,9 @@ public class LavaFile extends EntityBase {
 			return fileManager.saveFile(file);
 		}
 
+		
+		public LavaFile saveOrUpdateFile(LavaFile file) throws FileAccessException {
+			return fileManager.saveOrUpdateFile(file);
+		}
 	}
 }
