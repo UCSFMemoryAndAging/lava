@@ -13,7 +13,9 @@ or import results (with a Close button) --%>
   <page:param name="sectionId">setup</page:param>
   <page:param name="sectionNameKey">import.setup.section</page:param>
 	<tags:createField property="definitionId" component="${component}"/>
-	<tags:fileUpload paramName="uploadFile"  component="${component}"/>
+	<c:if test="${componentMode != 'vw'}">
+		<tags:fileUpload paramName="uploadFile"  component="${component}"/>
+	</c:if>	
 	<div class="verticalSpace10">&nbsp;</div>
 	<tags:createField property="notes" component="${component}"/>
 </page:applyDecorator>
