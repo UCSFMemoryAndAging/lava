@@ -7,6 +7,7 @@ CREATE TABLE `import_definition` (
   `mapping_file_id` int DEFAULT NULL,
   `notes` varchar(500) DEFAULT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY `import_definition_name_unique` (`name`),
   PRIMARY KEY (`definition_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
