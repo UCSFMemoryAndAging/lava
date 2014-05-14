@@ -12,6 +12,8 @@ CREATE TABLE `crms_import_definition` (
   `visit_with` varchar(25) NULL,
   `visit_status_supplied` boolean NULL,
   `visit_status` varchar(25) NULL,
+  `instr_must_exist` boolean NULL,
+  `instr_type` varchar(25) NULL,
   PRIMARY KEY (`definition_id`),
   CONSTRAINT `crms_import_definition__definition_id` FOREIGN KEY (`definition_id`) REFERENCES `import_definition` (`definition_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
