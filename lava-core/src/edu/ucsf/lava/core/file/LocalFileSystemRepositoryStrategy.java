@@ -123,12 +123,13 @@ public class LocalFileSystemRepositoryStrategy extends AbstractFileRepositoryStr
 	 */
 	@Override
 	public boolean fileExists(LavaFile lavaFile) throws FileAccessException {
+		File fsFile;
 		try{
-			File fsFile = getFileSystemObject(lavaFile,true);
-			return true;
-		}catch (FileNotFoundException e){
+			fsFile = getFileSystemObject(lavaFile,false);
+		}catch (Exception e){
 			return false;
 		}
+		return fsFile != null && fsFile.exists() && fsFile.isFile();
 	}
 	
 	@Override
