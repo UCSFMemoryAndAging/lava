@@ -56,6 +56,9 @@ public class CrmsImportDefinition extends ImportDefinition {
 	// createInstrument (if not exists)
 	
 	private Boolean patientMustExist;
+	
+//?? need flags for Caregiver, Contact Info, etc.. or just handle that with property names in mapping file?
+// note that pediLAVA new patient history could have multiple caregivers, also caregivers may have contact info	
 
 	// this is not a persistent property. it is available for user to specify a project if they need to
 	// choose other property values that are dependent on projName (visitType, visitWith, visitLocation)
@@ -75,6 +78,23 @@ public class CrmsImportDefinition extends ImportDefinition {
 	private String visitLoc;
 	private Boolean visitStatusSupplied;
 	private String visitStatus;
+	
+// need to figure out which variables needed for;
+// instrument must not exist in which case it will be created
+// instrument must exist in which case it will be updated
+// instrument must not exist and it it does error log record
+// instrument must exist and it it does not error log record
+	
+// if instrument does not exist or instrument exists but not data entered proceed, but error log record
+// if instrument exists and is already data entered
+// alternatively, an update mode would allow update even if instrment was data entered
+// easy way out would be to always create new instrument without regard for whether instrument
+// already exists, in which case could have duplicate instruments
+	
+// goal of re-runnable scripts should be a consideration 
+// initially just tink about typical use case	
+	private Boolean instrMustExist; 
+	private String instrType;
 	
 	public CrmsImportDefinition(){
 		super();
@@ -166,6 +186,22 @@ public class CrmsImportDefinition extends ImportDefinition {
 
 	public void setVisitStatus(String visitStatus) {
 		this.visitStatus = visitStatus;
+	}
+
+	public Boolean getInstrMustExist() {
+		return instrMustExist;
+	}
+
+	public void setInstrMustExist(Boolean instrMustExist) {
+		this.instrMustExist = instrMustExist;
+	}
+
+	public String getInstrType() {
+		return instrType;
+	}
+
+	public void setInstrType(String instrType) {
+		this.instrType = instrType;
 	}
 
 }

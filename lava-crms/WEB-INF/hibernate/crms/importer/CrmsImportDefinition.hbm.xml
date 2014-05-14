@@ -17,5 +17,7 @@
 		<property name="visitWith" type="string" length="25" column="visit_with"/>
 		<property name="visitStatusSupplied" type="boolean" column="visit_status_supplied"/>
 		<property name="visitStatus" type="string" length="25" column="visit_status"/>
+		<property name="instrMustExist" type="boolean" column="instr_must_exist"/>
+		<property name="instrType" type="string" length="25" column="instr_type"/>
 	</joined-subclass>
 </hibernate-mapping>

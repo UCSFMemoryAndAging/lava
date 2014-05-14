@@ -30,7 +30,9 @@
   			<tags:createField property="visitLoc" component="${component}"/>
   			<tags:createField property="visitStatusSupplied" component="${component}"/>
   			<tags:createField property="visitStatus" component="${component}"/>
-		</page:applyDecorator>
+  			<tags:createField property="instrMustExist" component="${component}"/>
+  			<tags:createField property="instrType" component="${component}"/>
+ 		</page:applyDecorator>
 	
 	</page:applyDecorator>    
 </page:applyDecorator>	    
