@@ -3,6 +3,10 @@ package edu.ucsf.lava.crms.importer.model;
 import edu.ucsf.lava.core.importer.model.ImportDefinition;
 
 public class CrmsImportDefinition extends ImportDefinition {
+// for visit and time format fields (birthDateFormat, visitDateFormat, visitTimeFormat) have dropdown list with
+// common formats but make it a suggest field. Info text regarding default values
+// same with dcStatus but not sure about the suggest bc do not have suggest on regular dcStatus ??
+	
 	//TODO: decide if need separate CrmsInsertImportDefinition and CrmsUpdateImportDefinition, e.g.
 	//with Insert Patient Exists could be true or false depending upon whether inserting Patient records,
 	//whereas with Update Patient Exists should be a constant = true
@@ -56,6 +60,7 @@ public class CrmsImportDefinition extends ImportDefinition {
 	// createInstrument (if not exists)
 	
 	private Boolean patientMustExist;
+	private String birthDateFormat; // default: MM/dd/yyyy
 	
 //?? need flags for Caregiver, Contact Info, etc.. or just handle that with property names in mapping file?
 // note that pediLAVA new patient history could have multiple caregivers, also caregivers may have contact info	
@@ -65,11 +70,12 @@ public class CrmsImportDefinition extends ImportDefinition {
 	private String projNameForContext;
 
 	private Boolean visitMustExist;
+	String visitDateFormat; // default MM/dd/yyyy
+	String visitTimeFormat; // default hh:mm
 	// if import will create new Visits, account for all Visit required fields
 	// visitDate (and optionally visitTime) must be present in the data file (mapped to either visitDate or
 	// dcDate). the rest of the required fields may not be in the data file so need to be supplied as part of
 	// the definition
-// INSERT specific fields	
 	private Boolean visitTypeSupplied;
 	private String visitType;
 	private Boolean visitWithSupplied;
@@ -95,6 +101,9 @@ public class CrmsImportDefinition extends ImportDefinition {
 // initially just tink about typical use case	
 	private Boolean instrMustExist; 
 	private String instrType;
+	private String instrDcDateFormat;
+	private Boolean instrDcStatusSupplied;
+	private String instrDcStatus;
 	
 	public CrmsImportDefinition(){
 		super();
@@ -106,6 +115,30 @@ public class CrmsImportDefinition extends ImportDefinition {
 
 	public void setPatientMustExist(Boolean patientMustExist) {
 		this.patientMustExist = patientMustExist;
+	}
+	
+	public String getBirthDateFormat() {
+		return birthDateFormat;
+	}
+
+	public void setBirthDateFormat(String birthDateFormat) {
+		this.birthDateFormat = birthDateFormat;
+	}
+
+	public String getVisitDateFormat() {
+		return visitDateFormat;
+	}
+
+	public void setVisitDateFormat(String visitDateFormat) {
+		this.visitDateFormat = visitDateFormat;
+	}
+
+	public String getVisitTimeFormat() {
+		return visitTimeFormat;
+	}
+
+	public void setVisitTimeFormat(String visitTimeFormat) {
+		this.visitTimeFormat = visitTimeFormat;
 	}
 
 	public String getProjNameForContext() {
@@ -202,6 +235,30 @@ public class CrmsImportDefinition extends ImportDefinition {
 
 	public void setInstrType(String instrType) {
 		this.instrType = instrType;
+	}
+
+	public String getInstrDcDateFormat() {
+		return instrDcDateFormat;
+	}
+
+	public void setInstrDcDateFormat(String instrDcDateFormat) {
+		this.instrDcDateFormat = instrDcDateFormat;
+	}
+
+	public Boolean getInstrDcStatusSupplied() {
+		return instrDcStatusSupplied;
+	}
+
+	public void setInstrDcStatusSupplied(Boolean instrDcStatusSupplied) {
+		this.instrDcStatusSupplied = instrDcStatusSupplied;
+	}
+
+	public String getInstrDcStatus() {
+		return instrDcStatus;
+	}
+
+	public void setInstrDcStatus(String instrDcStatus) {
+		this.instrDcStatus = instrDcStatus;
 	}
 
 }

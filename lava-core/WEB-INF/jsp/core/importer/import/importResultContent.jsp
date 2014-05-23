@@ -6,7 +6,7 @@
 <c:set var="viewString" value="${component}_view"/>
 <c:set var="componentView" value="${requestScope[viewString]}"/>
 
-<%-- note that the 'importSetup' component is the primary component but the result
+<%-- note that the 'import' component is the primary component but the result
 data is in the 'importResult' component--%>
 
 <page:applyDecorator name="component.entity.section">

@@ -1,8 +1,5 @@
 package edu.ucsf.lava.core.importer.controller;
 
-import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_DATA_FILE_TYPE;
-import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_REPOSITORY_ID;
-
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +9,9 @@ import java.util.Map;
 import java.util.Scanner;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.converters.DateConverter;
 
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +34,11 @@ import edu.ucsf.lava.core.importer.model.ImportSetup;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.core.type.LavaDateUtils;
+import static edu.ucsf.lava.core.importer.model.ImportDefinition.DEFAULT_DATE_FORMAT;
+import static edu.ucsf.lava.core.importer.model.ImportDefinition.DEFAULT_TIME_FORMAT;
+import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_DATA_FILE_TYPE;
+import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_REPOSITORY_ID;
+
 
 // subclass BaseEntityComponentHandler even though there is not entity CRUD involved with importing, because
 // there are still a number of methods that are useful and applicable, such as initBinder, which therefore do
@@ -62,6 +67,10 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		
 		this.requiredFieldEvents.addAll(Arrays.asList("import"));
 		this.setRequiredFields(new String[]{"definitionId"});
+		
+		DateConverter dateConverter = new DateConverter(null);
+		dateConverter.setPatterns(new String[]{DEFAULT_DATE_FORMAT});
+		ConvertUtils.register(dateConverter, java.util.Date.class);
 	}
 	
 	public Event authorizationCheck(RequestContext context) throws Exception {
