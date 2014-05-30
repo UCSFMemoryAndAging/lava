@@ -13,17 +13,13 @@ public class ImportDefinition extends EntityBase {
 	//TODO: figure out 12 hour vs, 24 hour time and which should be default
 	public static String DEFAULT_TIME_FORMAT = "hh:mm a";
 	
-	
 	private String name;
 	private String category; // not currently used. available for future use.
-	private String dataFileFormat;
 	private LavaFile mappingFile;
-	
-	//TODO: may need a format variable for TAB or CSV but first can try to see if can determine 
-	//it automatically by reading first line of data file and search for tabs or commas (but 
-	//then, could have commas within the data which causes problems, so probably yes on a 
-	//format property
-	
+	private String dataFileFormat; // "CSV", "TAB", etc.
+	// assuming all date fields in an import data file would have same format, e.g. birthDate, visitDate, dcDate
+	private String dateFormat; // default: MM/dd/yyyy
+	private String timeFormat; // default hh:mm
 	private String notes;
 
 	public ImportDefinition(){
@@ -42,14 +38,6 @@ public class ImportDefinition extends EntityBase {
 		return category;
 	}
 
-	public String getDataFileFormat() {
-		return dataFileFormat;
-	}
-
-	public void setDataFileFormat(String dataFileFormat) {
-		this.dataFileFormat = dataFileFormat;
-	}
-
 	public void setCategory(String category) {
 		this.category = category;
 	}
@@ -60,6 +48,30 @@ public class ImportDefinition extends EntityBase {
 
 	public void setMappingFile(LavaFile mappingFile) {
 		this.mappingFile = mappingFile;
+	}
+
+	public String getDataFileFormat() {
+		return dataFileFormat;
+	}
+
+	public void setDataFileFormat(String dataFileFormat) {
+		this.dataFileFormat = dataFileFormat;
+	}
+
+	public String getDateFormat() {
+		return dateFormat;
+	}
+
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
+	}
+
+	public String getTimeFormat() {
+		return timeFormat;
+	}
+
+	public void setTimeFormat(String timeFormat) {
+		this.timeFormat = timeFormat;
 	}
 
 	public String getNotes() {
