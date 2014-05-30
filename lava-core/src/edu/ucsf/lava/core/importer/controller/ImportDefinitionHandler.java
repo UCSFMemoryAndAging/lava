@@ -19,7 +19,7 @@ import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentFormAction;
-import edu.ucsf.lava.core.file.model.LavaFile;
+import edu.ucsf.lava.core.file.model.ImportDefinitionMappingFile;
 import edu.ucsf.lava.core.importer.model.ImportDefinition;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.core.type.LavaDateUtils;
@@ -36,7 +36,7 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	protected Object initializeNewCommandInstance(RequestContext context, Object command) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		ImportDefinition definition = (ImportDefinition) command;
-		LavaFile mappingFile = new LavaFile();
+		ImportDefinitionMappingFile mappingFile = new ImportDefinitionMappingFile();
 		mappingFile.setContentType(IMPORT_DEF_MAPPING_FILE_TYPE);
 		mappingFile.setRepositoryId(IMPORT_REPOSITORY_ID);
 		AuthUser user = CoreSessionUtils.getCurrentUser(sessionManager, request);
@@ -48,10 +48,10 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	
 	
 	// this is called in getUploadFile which uploads the specified file and populates the mappingFile LavaFile properties
-	protected LavaFile getLavaFileBackingObject(RequestContext context, Map components, BindingResult errors) throws Exception{
+	protected ImportDefinitionMappingFile getLavaFileBackingObject(RequestContext context, Map components, BindingResult errors) throws Exception{
 		ImportDefinition definition = (ImportDefinition) components.get(getDefaultObjectName());
-		if(LavaFile.class.isAssignableFrom(definition.getMappingFile().getClass())){
-			return (LavaFile)definition.getMappingFile();
+		if(ImportDefinitionMappingFile.class.isAssignableFrom(definition.getMappingFile().getClass())){
+			return (ImportDefinitionMappingFile)definition.getMappingFile();
 		}
 		return null;
 	}
@@ -90,12 +90,14 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	}
 
 	protected Event saveAddFileCallback(RequestContext context, Object command, BindingResult errors) throws Exception {
-		LavaFile mappingFile = getLavaFileBackingObject(context, ((ComponentCommand)command).getComponents(), errors);
+		ImportDefinition importDefinition = (ImportDefinition) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
+		ImportDefinitionMappingFile mappingFile = getLavaFileBackingObject(context, ((ComponentCommand)command).getComponents(), errors);
 
 		// adding a definition where user is specifying a mapping file for the first time
 
 		// getUploadFile will populate the mappingFile property due to getLavaBackingFileObject override
-		mappingFile = this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
+		mappingFile = (ImportDefinitionMappingFile) this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
+		mappingFile.setDefinitionName(importDefinition.getName());
 		
 		// since mapping files will be stored in a definition specific repository folder there is no 
 		// chance of overwriting an existing file when adding a new definition, so do not need to use 
@@ -138,9 +140,12 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 		}
 	}
 
-	
+	/**
+	 * Callback method to write the mappingFile to the import file repository.
+	 */
 	protected Event saveFileCallback(RequestContext context, Object command, BindingResult errors) throws Exception {
-		LavaFile mappingFile = getLavaFileBackingObject(context, ((ComponentCommand)command).getComponents(), errors);
+		ImportDefinition importDefinition = (ImportDefinition) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
+		ImportDefinitionMappingFile mappingFile = getLavaFileBackingObject(context, ((ComponentCommand)command).getComponents(), errors);
 
 		// editing a definition where user is changing the mapping file
 
@@ -148,7 +153,8 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 		mappingFile.deleteFile();
 
 		// getUploadFile will populate the mappingFile property due to getLavaBackingFileObject override
-		mappingFile = this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
+		mappingFile = (ImportDefinitionMappingFile) this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
+		mappingFile.setDefinitionName(importDefinition.getName());
 		
 		// because existing file has already been deleted just call saveFile instead of saveOrUpdateFile
 		// note: if did not delete file above, saveOrUpdateFile here would work if filename is the same, but
@@ -161,6 +167,7 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	
 
 //TODO: handle delete event to delete the mappingFile from the repository (also in ImportDefinitionHandler,
+//UPDATE: how does user delete the mapping file?? seems like they can just replace the one that is there	
 	
 	
 }
