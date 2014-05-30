@@ -11,6 +11,11 @@
   		<property name="sectionDefault" value="true"/>
  	</bean>		
 
+ 	<bean id="lava.core.importer.launcher.importLaunch" parent="coreAction">
+ 		<property name="flowTypeBuilder"><ref bean="coreStaticPageFlowTypeBuilder"/></property>
+  		<property name="sectionDefault" value="true"/>
+	</bean> 	
+
 	<bean id="lava.core.importer.log.allImportLogs" parent="coreSectionListAction"/>
  				
 	<!-- user can view import log which will have details (info, warning alert msgs), but there
@@ -34,6 +39,10 @@
 	<bean id="importFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.core.importer.controller.ImportHandler" parent="coreHandler"/>
 		<bean class="edu.ucsf.lava.core.importer.controller.AllImportLogsHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+	
+	<bean id="importLaunchFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.controller.StaticPageHandler" parent="coreHandler"/>
 	</list></constructor-arg></bean>
    
 	<bean id="allImportLogsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
