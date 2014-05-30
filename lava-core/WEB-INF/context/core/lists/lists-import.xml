@@ -5,4 +5,19 @@
 	<bean id="list.importDefinition.definitions" parent="list.dynamic">
 		<property name="query" value="list.importDefinition.definitions"/>
 	</bean>
+
+	<!-- this is a suggest list --> 	
+	<bean id="list.importDefinition.dateFormats" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="MM/dd/yyyy"/><constructor-arg value="MM/dd/yyyy"/></bean>
+		</list></property>	
+	</bean>
+
+	<!-- this is a suggest list --> 	
+	<bean id="list.importDefinition.timeFormats" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="hh:mm a"/><constructor-arg value="hh:mm a"/></bean>
+		</list></property>	
+	</bean>
+			
 </beans>
