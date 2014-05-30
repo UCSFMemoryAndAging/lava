@@ -66,7 +66,8 @@
     <bean id="coreListFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.ListFlowTypeBuilder"/>
   	<bean id="coreReportFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.ReportFlowTypeBuilder"/>
  	<bean id="coreReportLauncherFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.ReportLauncherFlowTypeBuilder"/>	 	
-    <bean id="corePasswordFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.PasswordFlowTypeBuilder"/>	 	
+    <bean id="corePasswordFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.PasswordFlowTypeBuilder"/>
+    <bean id="coreStaticPageFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.StaticPageFlowTypeBuilder"/>	 	
     <bean id="coreImportFlowTypeBuilder" class="edu.ucsf.lava.core.webflow.builder.ImportFlowTypeBuilder"/>
 </beans>
 
