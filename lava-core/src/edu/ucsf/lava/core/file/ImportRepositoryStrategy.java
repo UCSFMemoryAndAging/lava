@@ -4,6 +4,7 @@ import java.io.File;
 
 import edu.ucsf.lava.core.file.ArchivingLocalFileSystemRepositoryStrategy;
 import edu.ucsf.lava.core.file.exception.FileAccessException;
+import edu.ucsf.lava.core.file.model.ImportDefinitionMappingFile;
 import edu.ucsf.lava.core.file.model.LavaFile;
 
 public class ImportRepositoryStrategy extends ArchivingLocalFileSystemRepositoryStrategy {
@@ -45,7 +46,8 @@ public class ImportRepositoryStrategy extends ArchivingLocalFileSystemRepository
 			location.append("data");
 		}
 		else if (lavaFile.getContentType().equals(IMPORT_DEF_MAPPING_FILE_TYPE)) {
-			location.append("mapping");
+			String definitionNameEncoded = ((ImportDefinitionMappingFile)lavaFile).getDefinitionName().replaceAll("[^a-zA-Z0-9]","").toLowerCase();
+			location.append("mapping").append(File.separatorChar).append(definitionNameEncoded);
 		}
 		location.append(File.separatorChar);
 		return location.toString();
