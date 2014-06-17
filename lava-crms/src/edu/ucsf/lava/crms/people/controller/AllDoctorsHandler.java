@@ -23,7 +23,7 @@ public class AllDoctorsHandler extends CrmsListComponentHandler {
 
 	public LavaDaoFilter extractFilterFromRequest(RequestContext context, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		LavaDaoFilter filter =  CrmsSessionUtils.setFilterProjectContext(sessionManager,request,Doctor.newFilterInstance(getCurrentUser(request)));
+		LavaDaoFilter filter =  Doctor.newFilterInstance(getCurrentUser(request));
 		filter.addDefaultSort("fullNameRev",true);
 		return filter;
 	}
