@@ -39,14 +39,14 @@ DELETE FROM `viewproperty` WHERE `messageCode` = '*.patient.projSiteId';
 INSERT INTO `viewproperty` (`messageCode`, `locale`, `instance`, `scope`, `entity`, `property`, `section`, `context`, `style`, `required`, `label`, `maxLength`, `size`, `indentLevel`, `list`, `quickHelp`)
   VALUES ('*.patient.projSiteId', 'en', 'lava', 'crms', 'Patient', 'projSiteId', '', 'i', 'string', 'No', 'Project Site ID', 25, 20, 0, NULL, 'Project Site ID');
 
-DELETE FROM `listvalues` WHERE `ListID` IN (SELECT `ListID` FROM `List` WHERE `ListName` = 'patientFamilyStatus');
+DELETE FROM `listvalues` WHERE `ListID` IN (SELECT `ListID` FROM `list` WHERE `ListName` = 'patientFamilyStatus');
 DELETE FROM `list` WHERE `ListName` = 'patientFamilyStatus';
 INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES('patientFamilyStatus','lava','crms',1,NOW());
 INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'lava','crms','Individual',NULL,1,NOW() FROM `list` where `ListName`='patientFamilyStatus';
 INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'lava','crms','Family',NULL,2,NOW() FROM `list` where `ListName`='patientFamilyStatus';
 INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'lava','crms','Family Study',NULL,3,NOW() FROM `list` where `ListName`='patientFamilyStatus';
 
-DELETE FROM `listvalues` WHERE `ListID` IN (SELECT `ListID` FROM `List` WHERE `ListName` = 'patientRelationToProband');
+DELETE FROM `listvalues` WHERE `ListID` IN (SELECT `ListID` FROM `list` WHERE `ListName` = 'patientRelationToProband');
 DELETE FROM `list` WHERE `ListName` = 'patientRelationToProband';
 INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES('patientRelationToProband','lava','crms',1,NOW());
 INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'lava','crms','Proband',NULL,1,NOW() FROM `list` where `ListName`='patientRelationToProband';
@@ -61,7 +61,7 @@ INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`Or
 INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'lava','crms','Cousin 2',NULL,10,NOW() FROM `list` where `ListName`='patientRelationToProband';
 INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'lava','crms','Cousin 3',NULL,11,NOW() FROM `list` where `ListName`='patientRelationToProband';
 
-DELETE FROM `listvalues` WHERE `ListID` IN (SELECT `ListID` FROM `List` WHERE `ListName` = 'patientTwinZygosity');
+DELETE FROM `listvalues` WHERE `ListID` IN (SELECT `ListID` FROM `list` WHERE `ListName` = 'patientTwinZygosity');
 DELETE FROM `list` WHERE `ListName` = 'patientTwinZygosity';
 INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES('patientTwinZygosity','lava','crms',1,NOW());
 INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'lava','crms','1','MZ',1,NOW() FROM `list` where `ListName`='patientTwinZygosity';
