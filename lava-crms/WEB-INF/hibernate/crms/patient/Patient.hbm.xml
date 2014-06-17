@@ -51,7 +51,15 @@
 		<property name="modifiedBy" column="modifiedBy" type="string" length="25"/>
 		<property name="notes" column="notes" type="string" length="2000"/>
 		
-
+		<property name="familyId" column="FamilyID" type="long"/>
+		<property name="familyStatus" column="FamilyStatus" type="string" length="25"/>
+		<property name="familyStudy" column="FamilyStudy" type="string" length="50"/>
+		<property name="relationToProband" column="RelationToProband" type="string" length="25"/>
+		<property name="probandCandidate" column="ProbandCandidate" type="short"/>
+		<property name="twinZygosity" column="twinZygosity" type="short"/>
+		<property name="twinId" column="TwinID" type="string" length="2"/>
+		<property name="projSiteId" column="ProjSiteID" type="string" length="25"/>
+		<property name="relationNotes" column="RelationNotes" type="string" length="100"/>
 		
 		<!-- these associations are solely to support the cascade delete of related objects on a patient delete. 
 			any relationship that should be cascade deleted should be associated here.
@@ -127,6 +135,14 @@
 			 (LName=:lastName and DOB=:birthDate and :lastName <> 'DE-IDENTIFIED')
 		order by fullNameRev
 	]]></query>
+	<query name="patient.familyIds"><![CDATA[
+	    select new edu.ucsf.lava.core.list.model.LabelValueBean(cast(p.familyId as string) || ' - ' || p.lastName || ',' || substring(p.firstName,1,1), p.familyId)
+		from Patient p 
+		where p.familyStatus like 'Family%' and p.relationToProband = 'Proband'
+		order by p.familyId
+	]]></query>
+	
+	
 </hibernate-mapping>
 
 
