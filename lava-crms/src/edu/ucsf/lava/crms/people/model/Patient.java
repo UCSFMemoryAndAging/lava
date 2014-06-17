@@ -7,8 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-
-
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
@@ -26,6 +24,10 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	public static Short DODMO_UNKNOWN = 99;
 	public static Short DODDY_UNKNOWN = 99;
 	public static Short DODYR_UNKNOWN = 9999;
+	public static final String FAMILY_STATUS_INDIVIDUAL = "Individual";
+	public static final String FAMILY_STATUS_FAMILY = "Family";
+	public static final String FAMILY_STATUS_FAMILYSTUDY = "Family Study";
+	public static final String FAMILY_RELATION_PROBAND = "Proband";
 	
 	private String lastName;  //set to DE-IDENTIFIED when subject record is de-identified
 	private String middleName;
@@ -56,6 +58,17 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	//   keeping audit table references intact for better security policy
 	private Date inactiveDate;
 	
+	private Long familyId;
+	private String familyStatus;
+	private String familyStudy;
+	private String relationToProband;
+	private Short probandCandidate;
+	private Short twinZygosity;
+	private String twinId;
+	// the following property is temporary until move it down to EnrollmentStatus
+	private String projSiteId;
+	private String relationNotes;
+	
 	private String createdBy;
 	private Date created;
 	private String modifiedBy;
@@ -85,6 +98,8 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 		
 		// FOR NOW: until this is input by the user, give it a value since underlying col null
 		deceased = Boolean.FALSE;
+		
+		this.familyStatus = FAMILY_STATUS_INDIVIDUAL;
 		
 		this.addPropertyToAuditIgnoreList("doctors");
 		this.addPropertyToAuditIgnoreList("enrollmentStatus");
@@ -224,6 +239,90 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	public Date getInactiveDate() {return inactiveDate;}
 	public void setInactiveDate(Date inactiveDate) {this.inactiveDate = inactiveDate;}
 	
+	public Boolean getFirstTime() {
+		return firstTime;
+	}
+
+	public void setFirstTime(Boolean firstTime) {
+		this.firstTime = firstTime;
+	}
+
+	public Long getFamilyId() {
+		return familyId;
+	}
+
+	public void setFamilyId(Long familyId) {
+		this.familyId = familyId;
+	}
+
+	public String getFamilyStatus() {
+		return familyStatus;
+	}
+
+	public void setFamilyStatus(String familyStatus) {
+		this.familyStatus = familyStatus;
+	}
+
+	public String getFamilyStudy() {
+		return familyStudy;
+	}
+
+	public void setFamilyStudy(String familyStudy) {
+		this.familyStudy = familyStudy;
+	}
+
+	public String getRelationToProband() {
+		return relationToProband;
+	}
+
+	public void setRelationToProband(String relationToProband) {
+		//family id is always the PIDN when the patient record is the PROBAND
+		this.relationToProband = relationToProband;
+		if(relationToProband!=null && relationToProband.equalsIgnoreCase(FAMILY_RELATION_PROBAND)){
+			this.setFamilyId(this.getId());
+		}
+	}
+	
+	public Short getProbandCandidate() {
+		return probandCandidate;
+	}
+
+	public void setProbandCandidate(Short probandCandidate) {
+		this.probandCandidate = probandCandidate;
+	}
+
+	public Short getTwinZygosity() {
+		return twinZygosity;
+	}
+
+	public void setTwinZygosity(Short twinZygosity) {
+		this.twinZygosity = twinZygosity;
+	}
+
+	public String getTwinId() {
+		return twinId;
+	}
+
+	public void setTwinId(String twinId) {
+		this.twinId = twinId;
+	}
+
+	public String getProjSiteId() {
+		return projSiteId;
+	}
+
+	public void setProjSiteId(String projSiteId) {
+		this.projSiteId = projSiteId;
+	}
+
+	public String getRelationNotes() {
+		return relationNotes;
+	}
+
+	public void setRelationNotes(String relationNotes) {
+		this.relationNotes = relationNotes;
+	}
+
 	public String getCreatedBy() {return createdBy;}
 	public void setCreatedBy(String createdBy) {this.createdBy = createdBy;}
 	
@@ -615,6 +714,26 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 		filter.setAlias("patient", "patient");
 		filter.addDaoParam(filter.daoEqualityParam("patient.id", this.getId()));
 		return EnrollmentStatus.MANAGER.get(filter);
+	}
+
+	
+	/**
+	 * Find out if this patient has other family members, i.e. find patients whose FamilyID
+	 * is the same as this patient's PIDN (not including this patient).
+	 * 
+	 * @param patient
+	 * @return
+	 */
+	public boolean patientIsProbandWithFamilyMembers(){
+		LavaDaoFilter filter = newFilterInstance();
+		//look for other patient records where familyId = this patients ID
+		filter.addDaoParam(filter.daoEqualityParam("familyId", this.getId()));
+		filter.addDaoParam(filter.daoNot(filter.daoEqualityParam("id", this.getId())));
+		List familyMembers = Patient.MANAGER.get(filter);
+		if(familyMembers!=null && familyMembers.size()>0){
+			return true;
+		}
+		return false;
 	}
 
 	
