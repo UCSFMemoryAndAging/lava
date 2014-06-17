@@ -60,9 +60,32 @@
 	<bean id="list.patient.maritalStatus" parent="list.standardNumericValue">
 		<property name="dbListName" value="MaritalStatus"/>
 	</bean>
+	
+	
+	<!-- Family lists -->
+	<bean id="list.patient.familyStatus" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="patientFamilyStatus"/>
+		<property name="defaultSort" value="orderIndex"/>
+	</bean>
+
+	<!-- defaultSort="value" -->
+ 	<bean id="list.patient.relationToProband" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="patientRelationToProband"/>
+		<property name="defaultSort" value="orderIndex"/>
+	</bean>
+	
+	<bean id="list.patient.twinZygosity" parent="list.standardNumericValue">
+		<property name="dbListName" value="patientTwinZygosity"/>
+		<property name="defaultSort" value="orderIndex"/>
+	</bean>
+	
+	<bean id="list.patient.familyIds" parent="list.dynamic">
+		<property name="query" value="patient.familyIds"/>
+	</bean>
+	
+ 
 				
 	<!-- Caregiver Lists -->
-		
 		
 	<bean id="list.caregiver.contactRelations" parent="list.standardValueNoLabel">
 		<property name="dbListName" value="ContactRelations"/>
