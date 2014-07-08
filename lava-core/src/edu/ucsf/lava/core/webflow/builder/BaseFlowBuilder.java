@@ -226,7 +226,6 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
 			return getBaseActionId(actions.get(actionId).getCustomizedFlow());
 		}
 		return actionId;
-		
 	}
 	
     protected void buildStartStates(){
@@ -316,6 +315,16 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
     		// add a subflow for each custom flow, which will either handle the flow and signal "finish"
     		// or not handle the flow and signal "unhandled". if the custom flow did handle the flow, 
     		// the default flow should transition directly to its "finish" end state to terminate itself.
+    		
+    		// if the customizing action itself has an instance customization, use the instance action
+    		edu.ucsf.lava.core.action.model.Action currentSubFlowAction = registry.getActionManager().getAction(currentSubFlowId);
+    		if(currentSubFlowAction.getInstance().equals(ActionUtils.LAVA_INSTANCE_IDENTIFIER)){
+	    		String subFlowInstanceActionId = ActionUtils.getActionIdWithInstance(currentSubFlowAction.getId(), registry.getActionManager().getWebAppInstanceName());
+	            if (registry.getActionManager().getAction(subFlowInstanceActionId) != null) {
+	            	currentSubFlowId = subFlowInstanceActionId;
+	            }
+    		}
+    		
     		addSubflowState(currentSubFlow, flow(currentSubFlowId + "." + getFlowEvent()), subflowInputOutputMapper,
     				new Transition[] {nextEventTransition,
 				transition(on("finish"), to("finish")),
