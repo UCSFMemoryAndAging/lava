@@ -11,6 +11,7 @@ component object name so it used to set up the component mode and component view
 
 <page:applyDecorator name="component.content">
   <page:param name="component">${component}</page:param>
+  <page:param name="forceMain">true</page:param>
   <page:param name="hasFileUpload">true</page:param>
   <page:param name="pageHeadingArgs"></page:param>
  
