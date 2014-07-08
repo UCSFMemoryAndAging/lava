@@ -6,15 +6,22 @@
 		<property name="query" value="list.importDefinition.definitions"/>
 	</bean>
 
+	<bean id="list.importDefinition.dataFileFormat" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="CSV"/><constructor-arg value="CSV"/></bean>
+			<bean parent="list.data"><constructor-arg value="TAB"/><constructor-arg value="TAB"/></bean>
+		</list></property>	
+	</bean>
+	
 	<!-- this is a suggest list --> 	
-	<bean id="list.importDefinition.dateFormats" parent="list.dataOnly">
+	<bean id="list.importDefinition.dateFormat" parent="list.dataOnly">
 		<property name="data"><list>
 			<bean parent="list.data"><constructor-arg value="MM/dd/yyyy"/><constructor-arg value="MM/dd/yyyy"/></bean>
 		</list></property>	
 	</bean>
 
 	<!-- this is a suggest list --> 	
-	<bean id="list.importDefinition.timeFormats" parent="list.dataOnly">
+	<bean id="list.importDefinition.timeFormat" parent="list.dataOnly">
 		<property name="data"><list>
 			<bean parent="list.data"><constructor-arg value="hh:mm a"/><constructor-arg value="hh:mm a"/></bean>
 		</list></property>	
