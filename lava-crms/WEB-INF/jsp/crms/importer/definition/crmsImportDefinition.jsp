@@ -19,20 +19,42 @@
 		<page:applyDecorator name="component.entity.section">
   			<page:param name="sectionId">crmsConfig</page:param>
   			<page:param name="sectionNameKey">importDefinition.crmsConfig.section</page:param>
-  			<tags:createField property="patientMustExist" component="${component}"/>
+  			<tags:createField property="patientExistRule" component="${component}"/>
+  			<%-- currently not allow existing Patient properties to be overwritten as that is not the
+  				mission of the import functionality
+  			<tags:createField property="allowPatientUpdate" component="${component}"/>
+  			  --%>
   			<tags:createField property="projNameForContext" component="${component}"/>
-  			<tags:createField property="visitMustExist" component="${component}"/>
-  			<tags:createField property="visitTypeSupplied" component="${component}"/>
+  			<tags:createField property="esExistRule" component="${component}"/>
+  			<%-- currently not allow existing EnrollmentStatus properties to be overwritten as that 
+  				is not the 	mission of the import functionality
+  			<tags:createField property="allowEsUpdate" component="${component}"/>
+  			  --%>
+  			<tags:createField property="esStatus" component="${component}"/>
+  			<tags:createField property="visitExistRule" component="${component}"/>
+  			<%-- currently not allow existing Visit properties to be overwritten as that is not the
+  				mission of the import functionality
+  			<tags:createField property="allowVisitUpdate" component="${component}"/>
+  			  --%>
   			<tags:createField property="visitType" component="${component}"/>
-  			<tags:createField property="visitWithSupplied" component="${component}"/>
   			<tags:createField property="visitWith" component="${component}"/>
-  			<tags:createField property="visitLocSupplied" component="${component}"/>
   			<tags:createField property="visitLoc" component="${component}"/>
-  			<tags:createField property="visitStatusSupplied" component="${component}"/>
   			<tags:createField property="visitStatus" component="${component}"/>
-  			<tags:createField property="instrMustExist" component="${component}"/>
+  			<tags:createField property="instrExistRule" component="${component}"/>
+  			<tags:createField property="allowInstrUpdate" component="${component}"/>
   			<tags:createField property="instrType" component="${component}"/>
+  			<tags:createField property="instrVer" component="${component}"/>
+  			<tags:createField property="instrDcStatus" component="${component}"/>
  		</page:applyDecorator>
+	
+		<ui:formGuide observeAndOr="or" ignoreDoOnLoad="true" simulateEvents="true">
+	    	<ui:observe elementIds="importDefinition_projNameForContext" forValue=".+"/>
+	    	<ui:setValue elementIds="importDefinition_esStatus" value=""/>
+	    	<ui:setValue elementIds="importDefinition_visitType" value=""/>
+	    	<ui:setValue elementIds="importDefinition_visitWith" value=""/>
+	    	<ui:setValue elementIds="importDefinition_visitLoc" value=""/>
+	    	<ui:submitForm form="importDefinition" event="importDefinition__reRender"/>
+		</ui:formGuide>
 	
 	</page:applyDecorator>    
 </page:applyDecorator>	    
