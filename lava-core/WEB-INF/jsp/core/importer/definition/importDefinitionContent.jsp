@@ -15,8 +15,10 @@
 	<div class="verticalSpace10">&nbsp;</div>
 <%-- TODO: button to download the mapping file 
    and prob some info text about uploading / downloading mapping file --%>
-   
-   <%-- TODO: createField for dataFileFormat dropdown --%>
-   	
+	<tags:createField property="dataFileFormat" component="${component}"/>
+	default is MM/dd/yyyy
+	<tags:createField property="dateFormat" component="${component}"/>
+	default is hh:mm a
+	<tags:createField property="timeFormat" component="${component}"/>
 	<tags:createField property="notes" component="${component}"/>
 </page:applyDecorator>
