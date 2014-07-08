@@ -9,26 +9,31 @@ public class CrmsImportRepositoryStrategy extends ImportRepositoryStrategy {
 	}
 
 	/*
-	TODO: re-implement generateLocation to do the following
-	mapping file: add definition name as dir name
-	data file: add instrtype as dir name (w no spaces?)
-	To do this will need create a CrmsImportFile class with non-persistent fields
-	 to store definitionName and instrType so they are available here
+	TODO: override or augment generateLocation to do the following
+	data file: add instrtype||instrVer as dir name (w no spaces?)
+	To do this will need create a CrmsImportDefinitionFile class with non-persistent fields
+	 to store instrType,instrVer just as ImportDefinitionFile stores the definitionName
+	 
+	 CrmsImportDefinitionHandler will have to override initializeNewCommandInstance to
+	 instantiate CrmsImportDefinitionFile
+	 CrmsImportDefinitionHandler will have to override saveAddFileCallback AND saveFileCallback to save instrType
+	 and instrVer in the CrmsImportDefinitionFile
 	 
 	 Plan right now is a single repo for both mapping and data files so will prepend
 	 the above with "mapping" and "data" for mapping file and data file respectively
+	 NOTE: ImportRepositoryStrategy generateLocation is doing this
 	 
 	 also need to configure to use CrmsImportRepositoryStrategy at crms import level
 	 rather than ImportRepositoryStrategy
 	 String generateLocation(LavaFile lavaFile) throws FileAccessException {
-		StringBuffer location = new StringBuffer();
+		StringBuffer location = new StringBuffer(super.generateLocation());
 		if (lavaFile.getContentType().equals(IMPORT_DATA_FILE_TYPE)) {
-			location.append("data").append(SEPARATOR).append(crmsImportFile.getDefinitionName());
+			String instrTypeEncoded = Instrument.getInstrTypeEncoded(
+			 ((CrmsImportDefinitionFile)lavaFile).getInstrType(), 
+			 ((CrmsImportDefinitionFile)lavaFile).getInstrVer()); 
+			location.append(instrTypeEncoded);
+			location.append(File.separatorChar);
 		}
-		else if (lavaFile.getContentType().equals(IMPORT_DEF_MAPPING_FILE_TYPE)) {
-			location.append("mapping").append(SEPARATOR).append(crmsImportFile.getInstrType());
-		}
-		location.append(File.separatorChar);
 		return location.toString();
 	}
 	*/
