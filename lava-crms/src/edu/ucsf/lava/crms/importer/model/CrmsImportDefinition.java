@@ -3,40 +3,27 @@ package edu.ucsf.lava.crms.importer.model;
 import edu.ucsf.lava.core.importer.model.ImportDefinition;
 
 public class CrmsImportDefinition extends ImportDefinition {
+	// if does not exist, will be created. support re-runnable imports. note that for instruments,
+	// additional requirement is that if it does exist it must not have data entered, as do not 
+	// want to overwrite data
+	public static Short MAY_OR_MAY_NOT_EXIST = 1;  
+	// ensure that a duplicate record is not created. supports import updates.
+	public static Short MUST_EXIST = 2;
+	// entity will be created. does not support re-runnable in that entity will exist for all
+	// subsequent imports so just create a warning instead of an error for this (in other words,
+	// this flag means entity must not exist prior to the first import which creates the entity)
+	public static Short MUST_NOT_EXIST = 3; 
+
+	//TODO:	
 // for visit and time format fields (birthDateFormat, visitDateFormat, visitTimeFormat) have dropdown list with
 // common formats but make it a suggest field. Info text regarding default values
 // same with dcStatus but not sure about the suggest bc do not have suggest on regular dcStatus ??
 	
-	//TODO: decide if need separate CrmsInsertImportDefinition and CrmsUpdateImportDefinition, e.g.
-	//with Insert Patient Exists could be true or false depending upon whether inserting Patient records,
-	//whereas with Update Patient Exists should be a constant = true
-	//really depends on how separate Insert and Update will be so will not really know until Update is
-	//implemented (jhesse re: security of exporting PHI CSV files for update --- is REDCap update done
-	//within the context of REDCap?? pretty sure Songster does updates in Excel) at which time can
-	//refactor names
+//TODO: jhesse re: security of exporting PHI CSV files for update --- is REDCap update done
+// within the context of REDCap?? pretty sure Songster does updates in Excel
 	
 	//more:
 	// CrmsInsertImportDefinition
-	
-	// if Patients def will need to indicate which field or fields to use to look for already existing Patient
-	//   also for Patient need initial Project for EnrollmentStatus
-	// radio buttons / dropdown
-	//   if Patient does not exist, add Patient (for new patients, e.g. new patient history form)
-	//   if Patient does not exist, skip import for this record (for assessment imports)
-	// also  
-	//   if Patient exists, log warning (new patients but patient might exist for some reason. Patient is
-	//      obviously not added since they exist, but other records in row are imported)
-	// UPDATE: import code will hard-code which fields will be used to match Patient, e.g.
-	// first look for PIDN in the definition mapping, if no PIDN use first name,last name and DOB if present
-	
-	// if Visits, def will need to know name of date field to use for VisitDate and Project / Visit Type / Visit With
-	//   and VisiDate and optionally Visit Type to looking for already existing Visit
-	// need to check if Patient is Enrolled in the Visit's Project
-	// UPDATE: see above update, i.e. def mapping file will identify visitDate, visitType, visitWith properties
-	
-	// if Assessment need instrument name and dcDate and check for already existing instrument (and what if instrument
-	// exists but has no data entered --- that would be considered a 1.0 insert rather than a 2.0 update)
-	// UPDATE: see above update, i.e. def mapping file will identify instrType, dcDate
 	
 	// CrmsUpdateImportDefinition
 	// not sure if there will be a definition mapping file, in which case maybe definition file should 
@@ -59,8 +46,10 @@ public class CrmsImportDefinition extends ImportDefinition {
 	// createVisit (if not exists)
 	// createInstrument (if not exists)
 	
-	private Boolean patientMustExist;
-	private String birthDateFormat; // default: MM/dd/yyyy
+	private Short patientExistRule;
+	// currently this flag is not used unless it is determined that import files should be able to overwrite
+	// existing Patient data
+	private Boolean allowPatientUpdate; 
 	
 //?? need flags for Caregiver, Contact Info, etc.. or just handle that with property names in mapping file?
 // note that pediLAVA new patient history could have multiple caregivers, also caregivers may have contact info	
@@ -69,20 +58,25 @@ public class CrmsImportDefinition extends ImportDefinition {
 	// choose other property values that are dependent on projName (visitType, visitWith, visitLocation)
 	private String projNameForContext;
 
-	private Boolean visitMustExist;
-	String visitDateFormat; // default MM/dd/yyyy
-	String visitTimeFormat; // default hh:mm
+	// Enrollment Status
+	private Short esExistRule;
+	// currently this flag is not used unless it is determined that import files should be able to overwrite
+	// existing EnrollmentStatus data
+	private Boolean allowEsUpdate; 
+	private String esStatus;
+
+	// VIsit
+	private Short visitExistRule;
+	// currently this flag is not used unless it is determined that import files should be able to overwrite
+	// existing Visit data
+	private Boolean allowVisitUpdate; 
 	// if import will create new Visits, account for all Visit required fields
 	// visitDate (and optionally visitTime) must be present in the data file (mapped to either visitDate or
 	// dcDate). the rest of the required fields may not be in the data file so need to be supplied as part of
 	// the definition
-	private Boolean visitTypeSupplied;
 	private String visitType;
-	private Boolean visitWithSupplied;
 	private String visitWith;
-	private Boolean visitLocSupplied;
 	private String visitLoc;
-	private Boolean visitStatusSupplied;
 	private String visitStatus;
 	
 // need to figure out which variables needed for;
@@ -98,47 +92,35 @@ public class CrmsImportDefinition extends ImportDefinition {
 // already exists, in which case could have duplicate instruments
 	
 // goal of re-runnable scripts should be a consideration 
-// initially just tink about typical use case	
-	private Boolean instrMustExist; 
+// initially just tink about typical use case
+	
+	// Instrument
+	private Short instrExistRule; 
+	// note that this flag applies to instruments that have already been data entered. if an instrument exists
+	// but has not been data entered then this flag need not be considered as no data will be overwritten by import
+	private Boolean allowInstrUpdate; 
 	private String instrType;
-	private String instrDcDateFormat;
-	private Boolean instrDcStatusSupplied;
+	private String instrVer;
 	private String instrDcStatus;
 	
 	public CrmsImportDefinition(){
 		super();
 	}
 
-	public Boolean getPatientMustExist() {
-		return patientMustExist;
+	public Short getPatientExistRule() {
+		return patientExistRule;
 	}
 
-	public void setPatientMustExist(Boolean patientMustExist) {
-		this.patientMustExist = patientMustExist;
-	}
-	
-	public String getBirthDateFormat() {
-		return birthDateFormat;
+	public void setPatientExistRule(Short patientExistRule) {
+		this.patientExistRule = patientExistRule;
 	}
 
-	public void setBirthDateFormat(String birthDateFormat) {
-		this.birthDateFormat = birthDateFormat;
+	public Boolean getAllowPatientUpdate() {
+		return allowPatientUpdate;
 	}
 
-	public String getVisitDateFormat() {
-		return visitDateFormat;
-	}
-
-	public void setVisitDateFormat(String visitDateFormat) {
-		this.visitDateFormat = visitDateFormat;
-	}
-
-	public String getVisitTimeFormat() {
-		return visitTimeFormat;
-	}
-
-	public void setVisitTimeFormat(String visitTimeFormat) {
-		this.visitTimeFormat = visitTimeFormat;
+	public void setAllowPatientUpdate(Boolean allowPatientUpdate) {
+		this.allowPatientUpdate = allowPatientUpdate;
 	}
 
 	public String getProjNameForContext() {
@@ -149,20 +131,44 @@ public class CrmsImportDefinition extends ImportDefinition {
 		this.projNameForContext = projNameForContext;
 	}
 
-	public Boolean getVisitMustExist() {
-		return visitMustExist;
+	public Short getEsExistRule() {
+		return esExistRule;
 	}
 
-	public void setVisitMustExist(Boolean visitMustExist) {
-		this.visitMustExist = visitMustExist;
+	public void setEsExistRule(Short esExistRule) {
+		this.esExistRule = esExistRule;
 	}
 
-	public Boolean getVisitTypeSupplied() {
-		return visitTypeSupplied;
+	public Boolean getAllowEsUpdate() {
+		return allowEsUpdate;
 	}
 
-	public void setVisitTypeSupplied(Boolean visitTypeSupplied) {
-		this.visitTypeSupplied = visitTypeSupplied;
+	public void setAllowEsUpdate(Boolean allowEsUpdate) {
+		this.allowEsUpdate = allowEsUpdate;
+	}
+
+	public String getEsStatus() {
+		return esStatus;
+	}
+
+	public void setEsStatus(String esStatus) {
+		this.esStatus = esStatus;
+	}
+
+	public Short getVisitExistRule() {
+		return visitExistRule;
+	}
+
+	public void setVisitExistRule(Short visitExistRule) {
+		this.visitExistRule = visitExistRule;
+	}
+
+	public Boolean getAllowVisitUpdate() {
+		return allowVisitUpdate;
+	}
+
+	public void setAllowVisitUpdate(Boolean allowVisitUpdate) {
+		this.allowVisitUpdate = allowVisitUpdate;
 	}
 
 	public String getVisitType() {
@@ -173,28 +179,12 @@ public class CrmsImportDefinition extends ImportDefinition {
 		this.visitType = visitType;
 	}
 
-	public Boolean getVisitWithSupplied() {
-		return visitWithSupplied;
-	}
-
-	public void setVisitWithSupplied(Boolean visitWithSupplied) {
-		this.visitWithSupplied = visitWithSupplied;
-	}
-
 	public String getVisitWith() {
 		return visitWith;
 	}
 
 	public void setVisitWith(String visitWith) {
 		this.visitWith = visitWith;
-	}
-
-	public Boolean getVisitLocSupplied() {
-		return visitLocSupplied;
-	}
-
-	public void setVisitLocSupplied(Boolean visitLocSupplied) {
-		this.visitLocSupplied = visitLocSupplied;
 	}
 
 	public String getVisitLoc() {
@@ -205,14 +195,6 @@ public class CrmsImportDefinition extends ImportDefinition {
 		this.visitLoc = visitLoc;
 	}
 
-	public Boolean getVisitStatusSupplied() {
-		return visitStatusSupplied;
-	}
-
-	public void setVisitStatusSupplied(Boolean visitStatusSupplied) {
-		this.visitStatusSupplied = visitStatusSupplied;
-	}
-
 	public String getVisitStatus() {
 		return visitStatus;
 	}
@@ -221,12 +203,20 @@ public class CrmsImportDefinition extends ImportDefinition {
 		this.visitStatus = visitStatus;
 	}
 
-	public Boolean getInstrMustExist() {
-		return instrMustExist;
+	public Short getInstrExistRule() {
+		return instrExistRule;
 	}
 
-	public void setInstrMustExist(Boolean instrMustExist) {
-		this.instrMustExist = instrMustExist;
+	public void setInstrExistRule(Short instrExistRule) {
+		this.instrExistRule = instrExistRule;
+	}
+
+	public Boolean getAllowInstrUpdate() {
+		return allowInstrUpdate;
+	}
+
+	public void setAllowInstrUpdate(Boolean allowInstrUpdate) {
+		this.allowInstrUpdate = allowInstrUpdate;
 	}
 
 	public String getInstrType() {
@@ -237,20 +227,12 @@ public class CrmsImportDefinition extends ImportDefinition {
 		this.instrType = instrType;
 	}
 
-	public String getInstrDcDateFormat() {
-		return instrDcDateFormat;
+	public String getInstrVer() {
+		return instrVer;
 	}
 
-	public void setInstrDcDateFormat(String instrDcDateFormat) {
-		this.instrDcDateFormat = instrDcDateFormat;
-	}
-
-	public Boolean getInstrDcStatusSupplied() {
-		return instrDcStatusSupplied;
-	}
-
-	public void setInstrDcStatusSupplied(Boolean instrDcStatusSupplied) {
-		this.instrDcStatusSupplied = instrDcStatusSupplied;
+	public void setInstrVer(String instrVer) {
+		this.instrVer = instrVer;
 	}
 
 	public String getInstrDcStatus() {
