@@ -30,22 +30,36 @@
    "instrument_view" not ${instrType}${instrVer}_view --%>
 <c:if test="${isInstrument}">
 	<c:set var="componentView" value="${instrument_view}"/>
-</c:if>	
-
+</c:if>
+	
 <%-- decorators-xml is configured so that main.jsp is the default decorator for every page, unless
 otherwise specified. here, we specify the model.jsp decorator in case of instruments since all
 instrument CRUD is modal. The meta tag for the "decorator" attribute is used to specify the decorator --%>
-<c:if test="${isInstrument || (componentView == 'edit' && component != 'reportSetup' && component != 'import') 
-	|| componentView == 'add' || componentView == 'delete'}">
-	<meta name="decorator" content="modal">
-	<%-- some modal componentView's do not have editable data (e.g. 'view','status') so do not want user 
-	prompted to confirm exit via the javascript popup window because user does not modify any data.
-	i.e. even though they use the modal decorator (for screen real estate purposes or to conform in a flow
-	conversation) such views do not require enforcement of modal-ness. therefore pass the componentView value
-	to the modal decorator via a meta tag (can not just set the "componentView" javascript var directly
-	here because it gets initialized by the modal decorator which is applied after this decorator). --%>
-	<meta name="componentView" content="${componentView}"/>
-</c:if>
+<%-- a view an explicitly specify modal decorator --%>
+
+
+<c:set var="forceMain">
+  <decorator:getProperty property="forceMain"/>
+</c:set>
+<c:set var="forceModal">
+  <decorator:getProperty property="forceModal"/>
+</c:set>
+<c:choose>
+	<c:when test="${forceMain}">
+		<%-- do nothing as main is the default decorator --%>
+	</c:when>
+	<c:when test="${forceModal || isInstrument || (componentView == 'edit' && component != 'reportSetup') 
+		|| componentView == 'add' || componentView == 'delete'}">
+		<meta name="decorator" content="modal">
+		<%-- some modal componentView's do not have editable data (e.g. 'view','status') so do not want user 
+		prompted to confirm exit via the javascript popup window because user does not modify any data.
+		i.e. even though they use the modal decorator (for screen real estate purposes or to conform in a flow
+		conversation) such views do not require enforcement of modal-ness. therefore pass the componentView value
+		to the modal decorator via a meta tag (can not just set the "componentView" javascript var directly
+		here because it gets initialized by the modal decorator which is applied after this decorator). --%>
+		<meta name="componentView" content="${componentView}"/>
+	</c:when>
+</c:choose>	
 <c:set var="pageHeadingArgs">
 	<decorator:getProperty property="pageHeadingArgs"/>
 </c:set>
