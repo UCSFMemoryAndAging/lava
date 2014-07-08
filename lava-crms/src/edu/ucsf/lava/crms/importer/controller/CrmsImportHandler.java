@@ -1,13 +1,19 @@
 package edu.ucsf.lava.crms.importer.controller;
 
+import static edu.ucsf.lava.core.importer.model.ImportDefinition.CSV_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.DEFAULT_DATE_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.DEFAULT_TIME_FORMAT;
+import static edu.ucsf.lava.core.importer.model.ImportDefinition.TAB_FORMAT;
+import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MUST_EXIST;
+import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MUST_NOT_EXIST;
 
 import java.io.ByteArrayInputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -15,9 +21,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
+import org.springframework.webflow.core.collection.AttributeMap;
+import org.springframework.webflow.core.collection.LocalAttributeMap;
 import org.springframework.webflow.definition.StateDefinition;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
@@ -27,16 +36,20 @@ import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.file.model.LavaFile;
 import edu.ucsf.lava.core.importer.controller.ImportHandler;
+import edu.ucsf.lava.core.importer.model.ImportDefinition;
 import edu.ucsf.lava.core.importer.model.ImportSetup;
 import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.core.model.EntityBase;
+import edu.ucsf.lava.core.model.LavaEntity;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.core.type.LavaDateUtils;
 import edu.ucsf.lava.crms.assessment.InstrumentManager;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.auth.CrmsAuthUtils;
 import edu.ucsf.lava.crms.enrollment.EnrollmentManager;
+import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 import edu.ucsf.lava.crms.importer.model.CrmsImportDefinition;
+import edu.ucsf.lava.crms.importer.model.CrmsImportLog;
 import edu.ucsf.lava.crms.importer.model.CrmsImportSetup;
 import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
 import edu.ucsf.lava.crms.people.model.Patient;
@@ -69,7 +82,11 @@ public class CrmsImportHandler extends ImportHandler {
 		// will construct the event to be submitted which should match the transition
 		setHandledEntity("import", CrmsImportSetup.class);
 		setDefaultObjectBaseClass(ImportSetup.class);
-		this.setRequiredFields(StringUtils.addStringToArray(this.getRequiredFields(), "projName"));
+		// projName is required if the import is inserting new Patients, EnrollmentStatuses, Visit and Instruments,
+		// if dealing with pre-existing entities may not need projName, but for the most part will be creating the
+		// instrument at a minimum so make it required
+		this.setRequiredFields(StringUtils.mergeStringArrays(this.getRequiredFields(), 
+			new String[]{"projName"}));
 	}
 	
 	public void updateManagers(Managers managers){
@@ -91,111 +108,56 @@ public class CrmsImportHandler extends ImportHandler {
 		return new Event(this,CONTINUE_FLOW_EVENT_ID);
 	}
 	
-		
+
 	
-	//TODO: implement isAuthorized for project authorization (make sure proj auth flag is 
+	
+	
+//TODO: *** implement isAuthorized for project authorization (make sure proj auth flag is 
 	// set on importSetup. assume it is ok that importSetup is not a persistent object
 	
 	
 	
+	public Map getBackingObjects(RequestContext context, Map components) {
+		Map backingObjects = super.getBackingObjects(context, components);
+		
+		// replace the importLog for crms
+		CrmsImportLog importLog = new CrmsImportLog();
+		backingObjects.put("importLog", importLog);
+		
+		return backingObjects;
+	}
 	
 	
-//NOTE: more than likely this will be a helper method override rather than doImport because the crms functionality
-//is in the  middle of basic import setup and import finish stuff
+//TODO: default projName to "GND Registry"(sp?)	
+	
+	
 	protected Event doImport(RequestContext context, Object command, BindingResult errors) throws Exception {
 //TODO: should ImportSetup eagerly load ImportDefinition because right now explicitly loading it in core ImportHandler		
 		CrmsImportSetup importSetup = (CrmsImportSetup) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
+		CrmsImportLog importLog = (CrmsImportLog) ((ComponentCommand)command).getComponents().get("importLog");
 		Event returnEvent = new Event(this,this.SUCCESS_FLOW_EVENT_ID);
+		Event handlingEvent = null;
 		
-		// projName is required if the import is inserting new Patients, Visits and Instruments, so check to make
-		// sure it has been specified in the definition mappingFile or in CrmsImportSetup
-		// for now projName is a required field
-		//?? would need to distinguish INSERT from UPDATE because if UPDATE would not necessarily need projName
-		
-		// marker indices
-		int iPatientPIDN, iPatientFirstName, iPatientLastName, iPatientBirthDate;
-		// needed? int iProjName;
-		int iVisitDate, iVisitTime, iVisitType, iVisitWith, iVisitLocation, iVisitStatus;
-		int iDcDate, iDcStatus;
-		
-		// lava-core ImportHandler reads the definition mapping file into a columns array (mappingCols) and 
-		// properties array (mappingProps)
+		// the CrmsImportSetup command object is used as a parameter object to pass parameters to methods which would
+		// otherwise require many arguments
+		// additionally, its ImportSetup superclass stores properties which facilitate using  properties in this 
+		// handler that are set in its superclass handler, ImportHandler
+		// these include the columns array (mappingCols) and properties array (mappingProps) that ImportHandler creates
+		// when reading the definition mapping file
 		if ((returnEvent = super.doImport(context, command, errors)).getId().equals(SUCCESS_FLOW_EVENT_ID)) {
 			CrmsImportDefinition importDefinition = (CrmsImportDefinition) importSetup.getImportDefinition();
-			String[] mappingCols = importSetup.getMappingCols();
-			String[] mappingProps = importSetup.getMappingProps();
-		
-			/** redundant with below which will assign -1 if not found
-			iPatientPIDN = iPatientFirstName = iPatientLastName = iPatientBirthDate = iProjName = iVisitDate = iVisitTime = 
-					iVisitType = iVisitWith = iVisitLocation = iVisitStatus = -1;
-					*/
-			iPatientPIDN = ArrayUtils.indexOf(importSetup.getMappingProps(), "patient.PIDN"); // only for matching existing Patient; will never set this property b/c new Patient ids are generated by db
-			iPatientFirstName = ArrayUtils.indexOf(importSetup.getMappingProps(), "patient.firstName");
-			iPatientLastName = ArrayUtils.indexOf(importSetup.getMappingProps(), "patient.lastName");
-			iPatientBirthDate = ArrayUtils.indexOf(importSetup.getMappingProps(), "patient.birthDate");
-			// needed? iProjName = ArrayUtils.indexOf(importSetup.getMappingProps(), "project.projName");
-//TODO: check supplied flag for each of these			
-			iVisitDate = ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitDate");
-			iVisitTime = ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitTime");
-			iVisitType = ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitType");
-			iVisitWith = ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitWith");
-			iVisitLocation = ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitLocation");
-			iVisitStatus = ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitStatus");
-			iDcDate = ArrayUtils.indexOf(importSetup.getMappingProps(), "instrument.dcDate");
-			if (iDcDate == -1) {
-				iDcDate = ArrayUtils.indexOf(importSetup.getMappingProps(), importDefinition.getInstrType() + ".dcDate");
-			}
-			iDcStatus = ArrayUtils.indexOf(importSetup.getMappingProps(), "instrument.dcStatus");
-			if (iDcStatus == -1) {
-				iDcStatus = ArrayUtils.indexOf(importSetup.getMappingProps(), importDefinition.getInstrType() + ".dcStatus");
-			}
-		
-			// for the specified definition, read the definition mapping file into a Map (or two Maps; one with column names
-			// as keys, one with property names as keys)
-			// UPDATE: may not need a Map
-			// read in array of column names (presumably copy/pasted directly from a sample data file into the mapping file)
-			// read in array of property names. store indices of special columns, i.e. patient.PIDN, patient.firstName, patient.lastName, patient.birthDate,
-	//		     project.projName, visit.visitDate, etc.  
-			// note: indices of column array match indices of property array
-			// will get an array of column names from first row of data file - validate that is matches exactly the column array of the mapping file
-			// read a line of data into data array	
-					
-// NOTE: remmeber to review jfesenko data load script		
-					
-			// iterate thru the data array and property array in lockstep
-			// use the special indices to query: Patient exists? get PIDN    Enrollment exists?     Visit exists? get VID
-			// log errors, e.g. Patient Does Not Exist (Could be that record does not match a Patient but should), 
-	//				Patient Already Exist, 
-	//		 	    Record Matches Multiple Patients		
-			// if everything checks out:
-					// instantiate the instrument TODO: specify instrument type in CrmsImportDefinition and figure out how to get class to instantiate here
-					// continue iterating (or start from beginning in case patient, visit data is after some data fields)
-					// for each instrument property (property where blank or there is no '.' use reflection to set the property value
-					// if blank then use the column name as the property name
-				
+
+			// read data file
+			
+// NOTE: remember to review jfesenko data load script		
 			LavaFile dataFile = this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
 			Scanner fileScanner = new Scanner(new ByteArrayInputStream(dataFile.getContent()), "UTF-8");
 			String currentLine;
-		
-			if (fileScanner.hasNextLine()) {
-				currentLine = fileScanner.nextLine().trim();
-	//TODO: need file format separator(comma or tab) in ImportDefinition			
-				importSetup.setDataCols(currentLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
-					
-				// ****
-				//TODO: validate mappingColumns and dataColumn arrays
-					
-				
-				
-				LavaDaoFilter filter = EntityBase.newFilterInstance();
-				int lineNum = 1;
-				String[] dataValues;
-				SimpleDateFormat formatter;
-				String dateOrTimeAsString;
-				Integer skipRecordCount = 0;
+			int lineNum = 0;
+			
 //TODO: figure out errors / skipped records
 //what to put in import log?
-//  each record that was skipped? if rerun a script could but entire data file in import log, so maybe not
+//  each record that was skipped? if rerun a script could put entire data file in import log, so maybe not
 //  records that were skipped because already exist, but records that were skipped because of problems
 //  for records skipped because already exist, can just have a skip count for that (skippedAlreadyExistsCount)
 
@@ -203,319 +165,1214 @@ public class CrmsImportHandler extends ImportHandler {
 // but if does not exist and cannot be created for whatever reason then an error
 // errors should be things that the user can try to correct either in the mapping definition or
 // the data file 
+
+// Patient Does Not Exist (Could be that record does not match a Patient but should), 
+//				Patient Already Exist, 
+//		 	    Record Matches Multiple Patients		
+
+// UPDATE:				
+// totalRecordsInFile
+// newPatients
+// newVisits
+// newInstruments
+// recordsSkippedForErrors
+// recordsSkippedAlreadyExists (i.e. imports are rerunnable)
+//				
+// importLog details:
+// individual record errors: line, patient name, visit date, error msg
+				
 		
 // how to handle skipping records when Patient and Enrollment and Visit and Instrument records have been
-// added? Hibernate will persist what is dirty but it Hibernote does not know about object, i.e. have not
+// added? Hibernate will persist what is dirty but if Hibernote does not know about object, i.e. have not
 // called Hibernate add, right? for update just set objects null?
-				while (fileScanner.hasNextLine()) {
-					// number of lines < MAX_LINES
-					//if (++lineNum > MAX_LINES) {
-					//	break;
-					//}
-						
-					currentLine = fileScanner.nextLine().trim();
-//TODO: prob do not need a dataValues as a property to share with superclass ala mappingProps and mappingCols 				
-					dataValues = currentLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+				
+// UPDATE: so not calling save on the entity should solve that but what if existing entities are modified
+// and then record is to be skipped --- Hibernate would implicitly save changes so would have to explicitly
+// rollback. however, use cases don't support modifying existing Patient/ES/Visit, only an existing Instrument
+// so based on how CRUD editing cancel is done try calling refresh on the modified object (could fool around
+// with CRUD editing and take out refresh on cancel just to see if changes are persisted without explicit
+// call to save)				
+			while (fileScanner.hasNextLine()) {
+				lineNum++;
 					
+				// number of lines < MAX_LINES
+				//if (++lineNum > MAX_LINES) {
+				//	break;
+				//}
+						
+				currentLine = fileScanner.nextLine().trim();
 
+				// skip over the data file column headers line (it has already been read into the importSetup
+				// dataCols by the superclass)
+				if (lineNum == 1) {
+					continue;
+				}
+				
+				initEntityFlags(importSetup);
+				
+				importLog.incTotalRecords(); // includes records that cannot be exported due to some error
 					
-					// find matching Patient
-					Patient p = null;
-					filter.clearDaoParams();
-					if (iPatientPIDN != -1) {
-						String pidnAsString = dataValues[iPatientPIDN];
-						Long pidn = null;
-						try {
-							pidn = Long.valueOf(pidnAsString);
-						} catch (NumberFormatException ex) {
-							logger.error("PIDN Is not a number="+ pidnAsString);
-						}
-						filter.addIdDaoEqualityParam(pidn);
-						p = (Patient) Patient.MANAGER.getById(pidn);
-					}
-					else if (iPatientLastName != -1 && iPatientFirstName != -1) {
-						filter.addDaoParam(filter.daoEqualityParam("firstName", dataValues[iPatientFirstName]));
-						filter.addDaoParam(filter.daoEqualityParam("lastName", dataValues[iPatientLastName]));
-						if (iPatientBirthDate != -1) {
-							Date birthDate = null;
-							dateOrTimeAsString = dataValues[iPatientBirthDate];
-							formatter = new SimpleDateFormat(importDefinition.getBirthDateFormat() != null ? importDefinition.getBirthDateFormat() : DEFAULT_DATE_FORMAT);
-							formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
-							try {
-								birthDate = formatter.parse(dateOrTimeAsString);
-							} catch (ParseException e) {
-								// likely will not be called with leniency applied
-								skipRecordCount++;
-								logger.error("Patient.birthDate is an invalid Date format in row=" + lineNum);
-								continue;
-							}
-							filter.addDaoParam(filter.daoEqualityParam("birthDate", birthDate));
-						}
-						p = (Patient) Patient.MANAGER.getOne(filter);
-						
-						if (p == null) {
-							// examine flags to determine course of action:
-							// radio buttons:
-							// Patient Must Exist
-							// Patient Must Not Exist (create Patient record)
-							// If Patient Does Not Exist Create Patient Record
-							
-							// UPDATE: thinking there are 4 courses of action, 2 if Patient exists, 2 if Patient does not exist
-							// If Patient Exists:
-							//   Skip import record (log)
-							//   Import record into existing Patient
-							// If Patient does not exist:
-							//   Skip import record (log)
-							//   Add Patient and import record into new Patient
-							// so two variables:
-							// patientExistsAction
-							// patientNotExistsAction
-							
-							// UPDATE: Taking the 4 permutations between the 2 variables, one of them is 
-							// meaningless, i.e. Skip / Skip, so there are only 3 realistic possibilities
-							// after all. 
-							// so just have the one variable, but change from Boolean patientMustExist to patientExistsAction
-							// (or something like that) if type Short to code label
-						}
-						
-					}
-					else {
-						// this is not the same as Patient does not exist because do not have fields to check that the
-						// Patient does or does not exist
-						skipRecordCount++;
-						logger.error("Insufficient Patient fields to determine if Patient exists or not");
-					}
-						
-					// determine if Patient is Enrolled in Project
-					// importSetup.getProjName();
-//TODO: query for Patient Enrollment (if just added Patient above obviously no reason to query)
-// query EnrollmentStatus on PIDN and Project. Then check current enrollment status, because if 
-// not enrolled that is the same as no enrollment (but different error msg)
-					
-					// flags (radio buttons)
-					// 1. Patient Must be Enrolled
-					// 2. Patient Must Not be Enrolled Yet 
-					// 3. If Patient is Not Enrolled Enroll Patient
-					// UPDATE:
-					// If Patient Enrolled in Project:
-					//    Skip import record (log)
-					//    Import record into Patient / Project
-					// If Patient NOT Enrolled in Project
-					//    Skip import record (log)
-					//    Enroll Patient in Project and import record
-					// 2 variables:
-					// patientEnrolledAction
-					// patientNotEnrolledAction
-					// UPDATE: per Patient flags just need a patientEnrolledAction with the 3 possible courses of action
-					
-						
-					// find matching Visit
-					Visit v = null;
-					// do not have a flag for whether both date and time both match. just assume that whichever is provided should
-					// match. if only date can just do a full date comparison, i.e. should not need datepart because the date in
-					// the Visit is just the datepart and the date in the data file will just be a date
-//UPDATE: actually a TODO: for future improvement would be to handle existing columns that have date and time in same column. not sure
-//if will encounter such a thing or not					
-					filter.clearDaoParams();
-					if (iVisitDate != -1) {
-						Date visitDate = null;
-						dateOrTimeAsString = dataValues[iVisitDate];
-						formatter = new SimpleDateFormat(importDefinition.getVisitDateFormat() != null ? importDefinition.getVisitDateFormat() : DEFAULT_DATE_FORMAT);
-						formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
-						try {
-							visitDate = formatter.parse(dateOrTimeAsString);
-						} catch (ParseException e) {
-							// likely will not occur with leniency applied
-							skipRecordCount++;
-							logger.error("Visit.visitDate is an invalid Date format in row=" + lineNum);
-							continue;
-						}
-						filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate));
-						if (iVisitTime != -1) {
-							Date visitTimeAsDate = null;
-							Time visitTime = null;
-							dateOrTimeAsString = dataValues[iVisitTime];
-							formatter = new SimpleDateFormat(importDefinition.getVisitTimeFormat() != null ? importDefinition.getVisitTimeFormat() : DEFAULT_TIME_FORMAT);
-// ?? setLenient for time value conversion ?? 			
-							try{
-								visitTimeAsDate = formatter.parse(dateOrTimeAsString);
-								visitTime = LavaDateUtils.getTimePart(visitTimeAsDate);
-							}catch (ParseException e){
-								skipRecordCount++;
-								logger.error("Visit.visitTime is an invalid Time format in row=" + lineNum);
-								continue;
-							}
-							filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime));
-						}
-						// note: could also use daoDateAndTimeEqualityParam
-//TODO: set the Patient !!!! and Project and VisitType(?? yes if in data file or supplied in CrmsImportDefinition)						
-						v = (Visit) Visit.MANAGER.getOne(filter);
-					}
-					
-					if (v == null) {
-						// examine import definition settings to determine course of action
-						
-						// If Visit Exists:
-						//   Skip import record (log)
-						//   Import record into Visit
-						// If Visit does not exist:
-						//   Skip import record (log)
-						//   Add Visit and import record into new Visit
-						// 2 variables:
-						// visitExistsAction
-						// visitNotExistsAction
-						// UPDATE: per Patient just need VisitExistsAction to code 3 courses of action:
-						// 		Visit Must Exist
-						// 		Visit Must NOT Exist
-						//		If Visit does NOT Exist, Add Visit
-		
-					
+				// indices of data array items in data file match up with indices of column and property array
+				// items in import definition mapping file
+				if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
+//TODO: use opencsv					
+					importSetup.setDataValues(currentLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
+				}
+				else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
+					importSetup.setDataValues(currentLine.split("\t(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
+				}				
 
-					}
+				// allow subclasses to custom generate revisedProjName (e.g. append unit/site to projName), which
+				// is used everywhere a projName is needed in the import
+				generateRevisedProjName(importDefinition, importSetup);
+	
+				// find existing Patient. possibly create new Patient
+				if ((handlingEvent = patientExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					importLog.incErrors();
+					continue;
+				}
 
-						
-					// instantiate instrument
-//TODO: figure out import definition flags, prob:
-//  Instrument Must Exist (but do not import over a data entered Instrument) 
-//  Instrument Must Not Exist
-//  If Instrument does Not Exist Add Instrument					
+				// if no errors, continue processing import record. importSetup patientCreated indicates whether a
+				// new Patient record was created or an existing Patient record was found (and given no errors, this 
+				// means that all import definition flags were successfully met such that the record can be imported
+				// with either a new or existing Patient)
+				// (this goes for EnrollmentStatus, Visit and instrument as well)
 
-					Instrument instrument = new Instrument();
-					instrument.setInstrType(importDefinition.getInstrType());
-					Class instrClazz =instrumentManager.getInstrumentClass(instrument.getInstrTypeEncoded());
-					
-					// convert DCDate
-					Date dcDate = null;
-					// if not supplied in data file then it defaults to visit date when adding new instrument
-					if (iDcDate != -1) {
-						dateOrTimeAsString = dataValues[iDcDate];
-						formatter = new SimpleDateFormat(importDefinition.getInstrDcDateFormat() != null ? importDefinition.getInstrDcDateFormat() : DEFAULT_DATE_FORMAT);
-						formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
-						try {
-							dcDate = formatter.parse(dateOrTimeAsString);
-						} catch (ParseException e) {
-							// likely will not occur with leniency applied
-							skipRecordCount++;
-							logger.error("Instrumet.dcDate is an invalid Date format in row=" + lineNum);
-							continue;
-						}
-					}
-					
-					String dcStatus = null;
-					if (importDefinition.getInstrDcStatusSupplied() != null && importDefinition.getInstrDcStatusSupplied()) {
-						dcStatus = importDefinition.getInstrDcStatus();
-					}
-					else {
-dcStatus = "Complete";
-/*
-						if (iDcStatus != -1) {
-							dcStatus = dataValues[iDcStatus];
-						}
-						else {
-							skipRecordCount++;
-//TOOD: put in messages.properties, put definition name in message
-							logger.error("DC Status not supplied in data file per Import Definition");
-							continue;
-						}
-*/						
-					}
-					
-					instrument = Instrument.create(instrClazz, p, v, importSetup.getProjName(), importDefinition.getInstrType(),
-							dcDate != null ? dcDate : v.getVisitDate(), dcStatus);
+				//TODO: implement caregiverExistsHandling, contactInfoExistsHandling and caregiverContactInfoExistsHandler
+				//as needed
 
-					int arrayIndex = 0;
-					for (int i = 0; i < dataValues.length; i++) {
-						// set each instrument property on the newly instantiated instrument
+				// determine if Patient is Enrolled in Project. possibly create new EnrollmentStatus
+				if ((handlingEvent = enrollmentStatusExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					importLog.incErrors();
+					continue;
+				}
 						
-						// instrument properties -- as opposed to other entities in the import record -- are designated by:
-						// blank/empty string in the import definition mapping file property row, meaning that the property
-						// name is the same as the import column name in the column now (row 1)
-						// or
-						// import definition mapping file property has a property name without an entity name, i.e. does not have
-						// an entity and '.' character prefixing the property name (if the data import file contains data for 
-						// multiple instruments this refers to the "primary" instrument)
-						// or
-						// import definition mapping file property contains the instrument name (type) followed by the '.'
-						// character and the property name
-// use StringUtils isEmpty						
-						if ((importSetup.getMappingProps()[i] == null || importSetup.getMappingProps()[i].length() == 0) ||
-							importSetup.getMappingProps()[i].indexOf(".") == -1 ||
-							importSetup.getMappingProps()[i].startsWith(instrument.getInstrTypeEncoded())) 
-						{
-							String propName = null;
-							if (importSetup.getMappingProps()[i] == null || importSetup.getMappingProps()[i].length() == 0) {
-								propName = importSetup.getMappingCols()[i].substring(importSetup.getMappingCols()[i].indexOf("."));
-							}
-							else if (importSetup.getMappingProps()[i].indexOf(".") == -1) {
-								propName = importSetup.getMappingProps()[i];
-							}
-							else if (importSetup.getMappingProps()[i].startsWith(instrument.getInstrTypeEncoded())) {
-								propName = importSetup.getMappingProps()[i].substring(importSetup.getMappingProps()[i].indexOf("."));
-							}
-//TODO: make sure empty string values are set as null. could either use BeanUtils in that case of register
-// converter default values as shown in big comment following this method
-							// use Apache Commons BeanUtils rather than PropertyUtils as BeanUtils will convert the data value
-							// from String to its correct type
-							if (propName != null) {
-								BeanUtils.setProperty(instrument, propName, dataValues[i]);
-							}
-						}
-						
-						instrument.save();
-					}
 					
-					lineNum++;
-				}	
-			}
-			else {
-				//TODO: error msg: data file does not contain the first row of column names
-				LavaComponentFormAction.createCommandError(errors, "Data file does not contain any rows");
-				returnEvent = new Event(this,this.ERROR_FLOW_EVENT_ID);
+				// find matching Visit. possibly create new Visit
+				if ((handlingEvent = visitExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					importLog.incErrors();
+					continue;
+				}
+
+
+				// find matching instrument. possibly create new instrument. type of instrument specified in the 
+				// importDefinition
+				if ((handlingEvent = instrumentExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					importLog.incErrors();
+					continue;
+				}
+
+//RIGHT HERE 
+// ready to test import log but first have to add all the new count fields from CrmsImportLog to Hibernate mapping and schema
+// also, moved a bunch of properties from Spdc..ImportSetup to CrmsImportSetup but do not believe these are persistent fields
+// get log persisting				
+				
+// other majors:
+//   new patient history import (full, not cut off)				
+//     pertinent TODOs in here				
+//   add creation of entities as importLog info messages				
+//   output log info on import execution and as a list	
+//   call calculate on save (or is it done automatically?)				
+// do pedi attachments (consents) when working in the following with LavaFile stuff				
+//   download definition mapping file
+//   persist data file
+// 	 download data file				
+//   import and definition UI cleanup				
+//   open csv				
+//   BASC import
+//   Visit window feature for Rankin
+//     see other Rankin meeting notes				
+//   migrate to MAC LAVA				
+				
+				if ((handlingEvent = otherExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					importLog.incErrors();
+					continue;
+				}
+					
+				// iterate thru the values of the current import record, setting each value on the property of an entity, as 
+				// determined by the importDefinition mapping file
+				if ((handlingEvent = setPropertyHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					importLog.incErrors();
+					continue;
+				}
+
+				// at this point all values of the import record have been successfully set on entity properties
+				saveImportRecord(importDefinition, importSetup);
+				
+				// update counts
+				
+				// applies to entire import record
+				importLog.incImported();
+				
+				// these counts apply to specific entities within an import record
+				updateEntityCounts(importSetup, importLog);
 			}
 		}
 
 		return returnEvent;
 	}	
 	
-/**	
-	> If you don't want "conversion" then you can use
-	> org.apache.commons.beanutils.PropertyUtils.setProperty() method - but 
-	> the "value" object has to be the correct type (or null).
-	>
-	> For PropertyUtils see: http://tinyurl.com/yf9f6wk
-	>
-	> BeanUtils adds conversion to PropertyUtils  - it tries to convert the 
-	> value you specified to the correct type of the the bean's property.
-	> These converters have behaviour defined on how to handle "null" values 
-	> and operate in two modes:
-	>  - throw an exception
-	>  - use a default value
-	>
-	> The default set of converters which are "registered" with BeanUtils 
-	> have a default value specified - so for example the converter 
-	> registered for Integer types has a default value of zero. This is why 
-	> you can't set a "null" value at the moment. If you want null values to 
-	> be set then you need to register converter implementations for those 
-	> types with a default value of null. So for example you would do something
-	like...
-	>
-	>  ConvertUtils.register(new IntegerConverter(null), Integer.class);
-	>  ConvertUtils.register(new DoubleConverter(null), Double.class);
-	>
-	> (Note: the "null" value in the constructors is the default value)
-	>
-	> For ConvertUtils see: http://tinyurl.com/ydhq85s For converters see:
-	> http://tinyurl.com/yl2pl2q
-	>
-	
-	
-	ConvertUtilsBean convertUtilsBean = BeanUtilsBean.getInstance().getConvertUtils();
-	convertUtilsBean.register(false, true, -1);
-	false do not throw conversion exception (for any conversions)
-	true if exception use null as default value
-	-1 array types defaulted to null
-**/	
 
+	protected Event validateDataFile(BindingResult errors, ImportDefinition importDefinition, ImportSetup importSetup) throws Exception {
+		CrmsImportSetup crmsImportSetup = (CrmsImportSetup) importSetup;
+		if (super.validateDataFile(errors, importDefinition, importSetup).getId().equals(ERROR_FLOW_EVENT_ID)) {
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
+		
+		// set indices here as this only needs to be done once for the entire data file
+		
+		// ** the import definition mapping file second row must have entity.property strings that match exactly
+		// the entity.property name strings below  
+	
+		// look up the indices of fields in the import definition mapping file properties row that are required 
+		// to search for existing entities and/or populate new entities, and record the indices to be used in 
+		// processing each import record
+		// required fields for creating new Patient/EnrollmentStatus/Visit/instrument which could have the same 
+		// uniform value across all records imported from a data file may be specified as part of the import 
+		// definition rather then being supplied in the data file. but the data file takes precedent so first 
+		// check the data file and set the index if the field has a value in the data file.			
+//TODO: global error on entire import file if either no PIDN or no FirstName/LastName 			
+		crmsImportSetup.setIndexPatientPIDN(ArrayUtils.indexOf(importSetup.getMappingProps(), "patient.PIDN")); // only for matching existing Patient; will never set this property b/c new Patient ids are generated by db
+		crmsImportSetup.setIndexPatientFirstName(ArrayUtils.indexOf(importSetup.getMappingProps(), "patient.firstName"));
+		crmsImportSetup.setIndexPatientLastName(ArrayUtils.indexOf(importSetup.getMappingProps(), "patient.lastName"));
+		crmsImportSetup.setIndexPatientBirthDate(ArrayUtils.indexOf(importSetup.getMappingProps(), "patient.birthDate"));
+		crmsImportSetup.setIndexPatientGender(ArrayUtils.indexOf(importSetup.getMappingProps(), "patient.gender"));
+		crmsImportSetup.setIndexEsStatusDate(ArrayUtils.indexOf(importSetup.getMappingProps(), "enrollmentStatus.date"));
+		crmsImportSetup.setIndexEsStatus(ArrayUtils.indexOf(importSetup.getMappingProps(), "enrollmentStatus.status"));
+//TODO: global error on entire import file if no visitDate 			
+		crmsImportSetup.setIndexVisitDate(ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitDate"));
+		crmsImportSetup.setIndexVisitTime(ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitTime"));
+		crmsImportSetup.setIndexVisitType(ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitType"));
+		crmsImportSetup.setIndexVisitWith(ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitWith"));
+		crmsImportSetup.setIndexVisitLoc(ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitLoc"));
+		crmsImportSetup.setIndexVisitStatus(ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitStatus"));
+		// note if data collection date is not in the data file then the visit date is used to populate it in new instruments
+		crmsImportSetup.setIndexInstrDcDate(ArrayUtils.indexOf(importSetup.getMappingProps(), "instrument.dcDate"));
+		crmsImportSetup.setIndexInstrDcStatus(ArrayUtils.indexOf(importSetup.getMappingProps(), "instrument.dcStatus"));
+	
+		setOtherIndices((CrmsImportDefinition)importDefinition, crmsImportSetup);
+
+		//TODO: move these checks to the CrmsImportDefinitionHandler
+		if (crmsImportSetup.getIndexPatientPIDN() == -1 && 
+				(crmsImportSetup.getIndexPatientFirstName() == -1 || crmsImportSetup.getIndexPatientLastName() == -1)) {
+			LavaComponentFormAction.createCommandError(errors, "Insufficient Patient properties (must have PIDN or FirstName Lastname) in Import Definition mapping file");
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
+		else if (crmsImportSetup.getIndexVisitDate() == -1) {
+			LavaComponentFormAction.createCommandError(errors, "Import Definition mapping file must have 'visit.visitDate' property to link import record to a date");
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
+
+		return new Event(this, SUCCESS_FLOW_EVENT_ID);
+	}
+	
+
+	/**
+	 * The created and existed flags are used by the logic involved in processing each import
+	 * record, as well as for updating the importLog counts.
+	 */
+	protected void initEntityFlags(CrmsImportSetup importSetup) {
+		importSetup.setPatientCreated(false);
+		importSetup.setPatientExisted(false);
+		importSetup.setContactInfoCreated(false);
+		importSetup.setContactInfoExisted(false);
+		importSetup.setCaregiverCreated(false);
+		importSetup.setCaregiverExisted(false);
+		importSetup.setCaregiverContactInfoCreated(false);
+		importSetup.setCaregiverContactInfoExisted(false);
+		importSetup.setEnrollmentStatusCreated(false);
+		importSetup.setEnrollmentStatusExisted(false);
+		importSetup.setVisitCreated(false);
+		importSetup.setVisitExisted(false);
+		importSetup.setInstrCreated(false);
+		importSetup.setInstrExisted(false);
+		importSetup.setInstrExistedWithData(false);
+	}
+
+	
+	
+	/**
+	 * Subclasses should override to generate custom projName
+	 * 
+	 * @return
+	 */
+	protected void generateRevisedProjName(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup) {
+		importSetup.setRevisedProjName(importSetup.getProjName());
+	}
+
+	
+	/**
+	 * Subclasses override this to set indices for custom imports. 
+	 * 
+	 * @param importDefinition
+	 * @param importSetup
+	 * @throws Exception
+	 */
+	protected void setOtherIndices(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup) throws Exception {
+		// do nothing
+	}
+
+
+	
+	
+	/**
+	 * patientExistsHandling
+	 * 
+	 * Determine whether patient exists or not and act accordingly based on the importDefinition settings.
+	 * 
+	 * The approach to logging is to log the error when it occurs within the method but have the 
+	 * caller increment the error count if an error Event is returned (in which case processing of 
+	 * the current record will abort and will go to the next import record).
+	 * 
+	 * @param context
+	 * @param errors
+	 * @param importDefinition
+	 * @param importSetup
+	 * @param lineNum
+	 * @return SUCCESS Event if no import errors with current record; ERROR EVENT if errors
+	 */
+	protected Event patientExistsHandling(RequestContext context, BindingResult errors, 
+			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog,
+			int lineNum) {
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		LavaDaoFilter filter = EntityBase.newFilterInstance();
+		SimpleDateFormat formatter;
+		String dateOrTimeAsString;
+		Date birthDate = null;
+
+		// search for existing patient
+		Patient p = null;
+
+		filter.clearDaoParams();
+		if (importSetup.getIndexPatientPIDN() != -1) {
+			String pidnAsString = importSetup.getDataValues()[importSetup.getIndexPatientPIDN()];
+			Long pidn = null;
+			try {
+				pidn = Long.valueOf(pidnAsString);
+			} catch (NumberFormatException ex) {
+				importLog.addErrorMessage(lineNum, "PIDN Is not a number="+ pidnAsString);
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+			filter.addIdDaoEqualityParam(pidn);
+			p = (Patient) Patient.MANAGER.getById(pidn);
+		}
+		else { // have already validated that firstName and lastName are present in the mapping definition file if PIDN is not
+			filter.addDaoParam(filter.daoEqualityParam("firstName", importSetup.getDataValues()[importSetup.getIndexPatientFirstName()]));
+			filter.addDaoParam(filter.daoEqualityParam("lastName", importSetup.getDataValues()[importSetup.getIndexPatientLastName()]));
+			// birthDate is optional for search as it is often not part of data files
+			if (importSetup.getIndexPatientBirthDate() != -1) {
+				dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexPatientBirthDate()];
+				formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+				formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+				try {
+					birthDate = formatter.parse(dateOrTimeAsString);
+				} catch (ParseException e) {
+					// likely will not be called with leniency applied
+					importLog.addErrorMessage(lineNum, "Patient.birthDate is an invalid Date format, Date:" + dateOrTimeAsString);
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+				filter.addDaoParam(filter.daoEqualityParam("birthDate", birthDate));
+			}
+			//TODO: consider Danny's Levenson algorithm for fuzzy matching Patient Last Name
+			try {
+				p = (Patient) Patient.MANAGER.getOne(filter);
+			}
+			catch (IncorrectResultSizeDataAccessException ex) {
+				importLog.addErrorMessage(lineNum, "Dupliate Patient records for patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
+						" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]); 
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+		}
+			
+		if (p == null) {
+			if (importDefinition.getPatientExistRule().equals(MUST_EXIST)) {
+				if (importSetup.getIndexPatientPIDN() != -1) {
+					importLog.addErrorMessage(lineNum, "Patient does not exist violating MUST_NOT_EXIST flag. PIDN:" + importSetup.getDataValues()[importSetup.getIndexPatientPIDN()]); 
+				}
+				else {
+					importLog.addErrorMessage(lineNum, "Patient does not exist violating MUST_NOT_EXIST flag.Line:" +  
+						" First Name:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] + " Last Name:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]);
+				}
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}else {
+				// for either MUST_NOT_EXIST or MAY_OR_MAY_NOT_EXIST instantiate the Patient
+				
+				if (importSetup.getIndexPatientFirstName() == -1 || !StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientFirstName()])) {
+					importLog.addErrorMessage(lineNum, "Cannot create Patient. First Name field (patient.firstName) is missing or has no value");
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+				if (importSetup.getIndexPatientLastName() == -1 || !StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientLastName()])) {
+					importLog.addErrorMessage(lineNum, "Cannot create Patient. Last Name field (patient.lastName) is missing or has no value");
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+				if (importSetup.getIndexPatientBirthDate() == -1 || !StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientBirthDate()])) {
+					importLog.addErrorMessage(lineNum, "Cannot create Patient. Date of Birth field (patient.birthDate) is missing or has no value");
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+				if (importSetup.getIndexPatientGender() == -1 || !StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientGender()])) {
+					importLog.addErrorMessage(lineNum, "Cannot create Patient. Gender field (patient.gender) is missing or has no value");
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+					
+				// create Patient record
+				p = createPatient(importDefinition, importSetup);
+					
+				// the property values will be assigned when iterating dataValues below. could assign
+				// the "indexed" Patient properties here since those were found as part of determing whether the
+				// Patient exists. but still need to assign other Patient properties (can not index them
+				// all because do not even know what all the properties could be) and since will be 
+				// iterating thru all data values just assign all properties when iterating dataValues
+
+				// however, do set first name, last name, dob properties as they may be used in error log
+				p.setFirstName(importSetup.getDataValues()[importSetup.getIndexPatientFirstName()]);
+				p.setLastName(importSetup.getDataValues()[importSetup.getIndexPatientLastName()]);
+				p.updateCalculatedFields(); // so can use full name in log messages
+				// if the birthDate conversion was not done yet, i.e. PIDN was supplied such that a PIDN match was done (and failed)
+				if (birthDate == null) {
+//look at making this data conversion into a small helper method									
+					dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexPatientBirthDate()];
+					formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+					formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+					try {
+						birthDate = formatter.parse(dateOrTimeAsString);
+					} catch (ParseException e) {
+						// likely will not be called with leniency applied
+						importLog.addErrorMessage(lineNum, "Patient.birthDate is an invalid Date format, Date:" + dateOrTimeAsString);
+						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+					}
+				}
+				p.setBirthDate(birthDate);
+				// at this point have already validated that patient.gender exists in import file and has a value
+				p.setGender(importSetup.getDataValues()[importSetup.getIndexPatientGender()].toLowerCase().startsWith("m") || 
+						importSetup.getDataValues()[importSetup.getIndexPatientGender()].equals("1") ? (byte)1 : (byte)2);
+				
+				importSetup.setPatientCreated(true);
+				importSetup.setPatient(p);
+			}
+		}
+		else { // Patient already exists
+			importSetup.setPatientExisted(true);
+			importSetup.setPatient(p);
+			if (importDefinition.getPatientExistRule().equals(MUST_NOT_EXIST)) {
+				// typically with this flag the first time the import is run the Patients will not exist
+				// so they will be created above. if there were some import data errors they would be fixed
+				// and the script re-imported, at which point there will be these errors for all Patients that 
+				// were created on first run, so record will be skipped and Patient will correctly not be
+				// created again
+					
+				// note: this is why it is important that Patient should not be persisted until EnrollmentStatus,
+				// Visit and Instrument have all been validated for errors and successfully added. because if 
+				// Patient were persisted, then there were errors with Visit, Instrument, etc. when those errors 
+				// were fixed and script re-imported the records will be skipped because Patient now exists
+				
+				// note: this differs from MAY_OR_MAY_NOT_EXIST where import of the record will continue if
+				// the Patient exists (as well as if Patient does not exist as it will be created above)
+				importLog.addErrorMessage(lineNum, "Patient already exists, violates Import Definition MUST_NOT_EXIST setting. Patient::" + p.getFullNameWithId());
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+		}
+		
+		Map<String,Patient> eventAttrMap = new HashMap<String,Patient>();
+		eventAttrMap.put("patient", p);
+		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
+		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
+	}
+
+	
+
+	/**
+	 * enrollmentStatusExistsHandling
+	 * 
+	 * Determine whether enrollmentStatus exists or not and act accordingly based on the importDefinition settings.
+	 * 
+	 * @param context
+	 * @param errors
+	 * @param importDefinition
+	 * @param importSetup
+	 * @param lineNum
+	 * @return SUCCESS Event if no import errors with current record; ERROR EVENT if errors
+	 */
+	protected Event enrollmentStatusExistsHandling(RequestContext context, BindingResult errors, 
+			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup,  CrmsImportLog importLog,
+			int lineNum) {
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		LavaDaoFilter filter = EntityBase.newFilterInstance();
+		SimpleDateFormat formatter;
+		String dateOrTimeAsString;
+
+		// search for existing enrollmentStatus
+		EnrollmentStatus es = null;
+
+		if (!importSetup.isPatientCreated()) { 
+			filter.clearDaoParams();
+			filter.setAlias("patient", "patient");
+			filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
+			filter.addDaoParam(filter.daoEqualityParam("projName", importSetup.getRevisedProjName()));
+			// note: could get the list of project enrollment statuses for the given projName and then
+			// filter on a certain set of statuses, e.g. exclude 'Withdrew'. But statuses can be custom
+			// for each project so that is a lot of logic and probably too much for the import definition,
+			// as can generally assume that if there is data for a patient and project that the patient 
+			// is currently enrolled
+			try {
+				es = (EnrollmentStatus) EnrollmentStatus.MANAGER.getOne(filter);
+			}
+			catch (IncorrectResultSizeDataAccessException ex) {
+				importLog.addErrorMessage(lineNum, "Duplicate EnrollmentStatus records for patient " + importSetup.getPatient().getFullNameWithId() + 
+						" and project " + importSetup.getRevisedProjName());
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+		}
+		
+		if (es == null) {
+			if (importDefinition.getEsExistRule().equals(MUST_EXIST)) {
+				importLog.addErrorMessage(lineNum, "Patient Enrollment does not exist for Project:" + importSetup.getRevisedProjName() + 
+						" violating MUST_NOT_EXIST flag. Patient:" + importSetup.getPatient().getFullNameRevWithId());
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}else {
+				// for either MUST_NOT_EXIST or MAY_OR_MAY_NOT_EXIST instantiate the Enrollment Status
+
+				// enrollmentStatus date will typically not be supplied in the data file, so default to visitDate if not
+				Date esDate = null;
+				dateOrTimeAsString = importSetup.getIndexEsStatusDate() != -1 ? importSetup.getDataValues()[importSetup.getIndexEsStatusDate()] : importSetup.getDataValues()[importSetup.getIndexVisitDate()];
+				formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+				formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+				try {
+					esDate = formatter.parse(dateOrTimeAsString);
+				} catch (ParseException e) {
+					// likely will not be called with leniency applied
+					importLog.addErrorMessage(lineNum, "Enrollment Status Date or Visit Date is an invalid Date format. Date:" + dateOrTimeAsString);
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+					
+				String esStatus = importSetup.getIndexEsStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexEsStatus()] : importDefinition.getEsStatus();
+				if (!StringUtils.hasText(esStatus)) {
+					if (importSetup.getIndexEsStatus() != -1) {
+						importLog.addErrorMessage(lineNum, "Cannot create Enrollment Status. Status field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexEsStatus()] + ") has no value");
+					}
+					else {
+						importLog.addErrorMessage(lineNum, "Cannot create Enrollment Status. No Status field supplied in data file and no value specified in definition");
+					}
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+					
+				// note that non-required fields will be set in the setPropertyHandling method which iterates thru all
+				// property values. this could include custom, instance specfic fields. 
+						
+				// create Enrollment Status record
+				es = createEnrollmentStatus(importDefinition, importSetup);
+				es.setPatient(importSetup.getPatient());
+				es.setProjName(importSetup.getRevisedProjName());
+				es.setStatus(esStatus, esDate);
+				es.updateLatestStatusValues();
+
+				importSetup.setEnrollmentStatusCreated(true);
+				importSetup.setEnrollmentStatus(es);
+			}
+		}
+		else { // EnrollmentStatus already exists
+			importSetup.setEnrollmentStatusExisted(true);
+			importSetup.setEnrollmentStatus(es);
+			if (importDefinition.getPatientExistRule().equals(MUST_NOT_EXIST)) {
+				// typically with this flag the first time the import is run the Enrollment Status will not 
+				// exist so it will be created above. if there were some import data errors they would be fixed
+				// and the script re-imported, at which point there will be these errors for all Enrollment 
+				// Statuses that were created on first run, so record will be skipped and Enrollment Status
+				// will correctly not be created again
+						
+				// note: this differs from MAY_OR_MAY_NOT_EXIST where import of the record will continue if
+				// the Enrollment Status exists (as well as if Enrollment Status does not exist as it will be 
+				// created above)
+				importLog.addErrorMessage(lineNum, "Enrollment Status already exists, violates Import Definition MUST_NOT_EXIST setting. Patient:" + importSetup.getPatient().getFullNameWithId());
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+		}
+	
+		Map<String,EnrollmentStatus> eventAttrMap = new HashMap<String,EnrollmentStatus>();
+		eventAttrMap.put("enrollmentStatus", es);
+		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
+		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
+	}
+
+
+	
+	/**
+	 * visitExistHandling
+	 * 
+	 * Determine whether visit exists or not and act accordingly based on the importDefinition settings.
+	 *  
+	 * @param context
+	 * @param errors
+	 * @param importDefinition
+	 * @param importSetup
+	 * @param lineNum
+	 * @return SUCCESS Event if no import errors with current record; ERROR EVENT if errors
+	 */
+	protected Event visitExistsHandling(RequestContext context, BindingResult errors, 
+			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup,  CrmsImportLog importLog,
+			int lineNum) {
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		LavaDaoFilter filter = EntityBase.newFilterInstance();
+		SimpleDateFormat formatter;
+		String dateOrTimeAsString;
+
+		// search for existing Visit
+		Visit v = null;
+		Date visitDate = null;
+		Time visitTime = null;
+		String visitType = null;
+
+		// visitDate is required for both matching Visit and as a required field when creating new Visit
+		dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitDate()];
+		formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+		formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+		try {
+			visitDate = formatter.parse(dateOrTimeAsString);
+		} catch (ParseException e) {
+			// likely will not occur with leniency applied
+			importLog.addErrorMessage(lineNum, "Visit.visitDate is an invalid Date format. Date:" + dateOrTimeAsString);
+			return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+		}
+
+		if (importSetup.getIndexVisitTime() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitTime()])) {
+			Date visitTimeAsDate = null;
+			dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitTime()];
+			formatter = new SimpleDateFormat(importDefinition.getTimeFormat() != null ? importDefinition.getTimeFormat() : DEFAULT_TIME_FORMAT);
+			try{
+				visitTimeAsDate = formatter.parse(dateOrTimeAsString);
+				visitTime = LavaDateUtils.getTimePart(visitTimeAsDate);
+			}catch (ParseException e){
+				importLog.addErrorMessage(lineNum, "Visit.visitTime is an invalid Time format. Time:" + dateOrTimeAsString);
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+		}
+		
+		
+		// visitType is optional for the search; it typically is not in generated data files, and if the import
+		// is such that new Visits will not be created then it need not be specified in the definition. however,
+		// if new Visits will be created it is required, either from the import record or the definition
+		visitType = importSetup.getIndexVisitType() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitType()] : importDefinition.getVisitType();
+		if (StringUtils.hasText(visitType)) {
+			filter.addDaoParam(filter.daoEqualityParam("visitType", visitType));
+		}
+		
+		if (!importSetup.isPatientCreated() || !importSetup.isEnrollmentStatusCreated()) {
+			filter.clearDaoParams();
+			filter.setAlias("patient", "patient");
+			filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
+			filter.addDaoParam(filter.daoEqualityParam("projName", importSetup.getRevisedProjName()));
+			if (StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitDate()])) {
+
+				// do not have a flag for whether both date and time must match. just assume that whichever is provided should
+				// match. if only date can just do a full date comparison, i.e. should not need datepart because the date in
+				// the Visit is just the datepart and the date in the data file will just be a date
+
+				// currently do not handle existing columns that have date and time in same column. not sure if this will
+				// be encountered
+				
+				filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate));
+				if (importSetup.getIndexVisitTime() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitTime()])) {
+					filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime));
+				}
+				// note: could also use daoDateAndTimeEqualityParam
+				
+				try {
+					v = (Visit) Visit.MANAGER.getOne(filter);
+				}
+				catch (IncorrectResultSizeDataAccessException ex) {
+					importLog.addErrorMessage(lineNum, "Duplicate Visit records for Patient:" + importSetup.getPatient().getFullNameWithId() + 
+							" and Visit Date:" + dateOrTimeAsString);
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+//TODO: check that visit status != 'Cancelled'
+			}
+			else {
+				// this is not the same as Visit does not exist because do not have fields to check that the
+				// Visit does or does not exist
+				importLog.addErrorMessage(lineNum, "Cannot determine if Visit exists or not. Column:" + importSetup.getDataCols()[importSetup.getIndexVisitDate()] + " has no data");
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+		}
+		
+		if (v == null) {
+			if (importDefinition.getVisitExistRule().equals(MUST_EXIST)) {
+				importLog.addErrorMessage(lineNum, "Visit does not exist for Patient:" + importSetup.getPatient().getFullNameRevWithId() + " Project:" + importSetup.getRevisedProjName() + " violating MUST_NOT_EXIST flag");
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}else {
+				// for either MUST_NOT_EXIST or MAY_OR_MAY_NOT_EXIST instantiate the Enrollment Status
+
+				// get required fields that were not already obtained for querying for existing Visit
+				
+				String visitLoc = importSetup.getIndexVisitLoc() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitLoc()] : importDefinition.getVisitLoc();
+				if (!StringUtils.hasText(visitLoc)) {
+					if (importSetup.getIndexVisitLoc() != -1) {
+						importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit Location field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexVisitLoc()] + ") has no value");
+					}
+					else {
+						importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit Location field not supplied in data file and no value specified in definition");									
+					}
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+				
+				String visitWith = importSetup.getIndexVisitWith() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitWith()] : importDefinition.getVisitWith();
+				if (!StringUtils.hasText(visitWith)) {
+					if (importSetup.getIndexVisitWith() != -1) {
+						importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit With field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexVisitWith()] + ") has no value");
+					}
+					else {
+						importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit With field not supplied in data file and no value specified in definition");									
+					}
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+
+				String visitStatus = importSetup.getIndexVisitStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitStatus()] : importDefinition.getVisitStatus();
+				if (!StringUtils.hasText(visitStatus)) {
+					if (importSetup.getIndexVisitStatus() != -1) {
+						importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit Status field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexVisitStatus()] + ") has no value");
+					}
+					else {
+						importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit Status field not supplied in data file and no value specified in definition");									
+					}
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+
+				// create Visit record
+				v = createVisit(importDefinition, importSetup);
+				v.setPatient(importSetup.getPatient());
+				v.setProjName(importSetup.getRevisedProjName());
+				v.setVisitType(visitType);
+				// visitDate and visitTime have already been converted above in search for Visit
+				v.setVisitDate(visitDate);
+				v.setVisitTime(visitTime);
+				v.setVisitLocation(visitLoc);
+				v.setVisitWith(visitWith);
+				v.setVisitStatus(visitStatus);
+
+				// note that non-required fields will be set in the setPropertyHandling method which iterates thru all
+				// property values. this could include custom, instance specfic fields. 
+						
+				importSetup.setVisitCreated(true);
+				importSetup.setVisit(v);
+			}
+		}
+		else { // Visit already exists
+			importSetup.setVisitExisted(true);
+			importSetup.setVisit(v);
+			if (importDefinition.getPatientExistRule().equals(MUST_NOT_EXIST)) {
+				// typically with this flag the first time the import is run the Enrollment Status will not 
+				// exist so it will be created above. if there were some import data errors they would be fixed
+				// and the script re-imported, at which point there will be these errors for all Enrollment 
+				// Statuses that were created on first run, so record will be skipped and Enrollment Status
+				// will correctly not be created again
+					
+				// note: this differs from MAY_OR_MAY_NOT_EXIST where import of the record will continue if
+				// the Enrollment Status exists (as well as if Enrollment Status does not exist as it will be 
+				// created above)
+				importLog.addErrorMessage(lineNum, "Visit already exists, violates Import Definition MUST_NOT_EXIST setting. Patient:" + importSetup.getPatient().getFullNameWithId());
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+		}
+			
+		Map<String,Visit> eventAttrMap = new HashMap<String,Visit>();
+		eventAttrMap.put("visit", v);
+		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
+		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
+	}
+		
+
+	
+	/**
+	 * insrtumentExistsHandler
+	 * 
+	 * Determine whether instrument exists or not and act accordingly based on the importDefinition
+	 * settings. 
+	 * 
+	 * @param context
+	 * @param errors
+	 * @param importDefinition
+	 * @param importSetup
+	 * @param lineNum
+	 * @return SUCCESS Event if no import errors with current record; ERROR EVENT if errors
+	 */
+	protected Event instrumentExistsHandling(RequestContext context, BindingResult errors, 
+			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup,  CrmsImportLog importLog,
+			int lineNum) {
+		
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		LavaDaoFilter filter = EntityBase.newFilterInstance();
+		SimpleDateFormat formatter;
+		String dateOrTimeAsString;
+		
+		// search for existing instrument
+		Instrument instr = null;
+
+		Class instrClazz =instrumentManager.getInstrumentClass(
+				Instrument.getInstrTypeEncoded(importDefinition.getInstrType(), importDefinition.getInstrVer()));
+
+		// determine dcDate for search
+		// convert DCDate
+		Date dcDate = null;
+		// if not supplied in data file then it defaults to visit date when adding new instrument
+		if (importSetup.getIndexInstrDcDate() != -1) {
+			dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexInstrDcDate()];
+			formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+			formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+			try {
+				dcDate = formatter.parse(dateOrTimeAsString);
+			} catch (ParseException e) {
+				// likely will not occur with leniency applied
+				importLog.addErrorMessage(lineNum, "Instrumet.dcDate is an invalid Date format. Date:" + dateOrTimeAsString);
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+		}
+		else {
+			dcDate = importSetup.getVisit().getVisitDate();
+		}
+
+		// if Patient, EnrollmentStatus or Visit were just added, already know instrument could not exist
+		if (!importSetup.isPatientCreated() || !importSetup.isEnrollmentStatusCreated() || !importSetup.isVisitCreated()) {
+			filter.clearDaoParams();
+			filter.setAlias("patient", "patient");
+			filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
+			filter.addDaoParam(filter.daoEqualityParam("projName", importSetup.getRevisedProjName()));
+			filter.setAlias("visit", "visit");
+			filter.addDaoParam(filter.daoEqualityParam("visit.id", importSetup.getVisit().getId()));
+			filter.addDaoParam(filter.daoEqualityParam("instrType", importDefinition.getInstrType()));
+			filter.addDaoParam(filter.daoEqualityParam("dcDate", dcDate));
+			try {
+				instr = (Instrument) Instrument.MANAGER.getOne(instrClazz, filter);
+			}
+			catch (IncorrectResultSizeDataAccessException ex) {
+				importLog.addErrorMessage(lineNum, "Duplicate " + importDefinition.getInstrType() + " records for Patient:" + importSetup.getPatient().getFullNameWithId() + 
+						" and Visit Date:" + importSetup.getVisit().getVisitDate());
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+		}
+		
+		if (instr == null) {
+			if (importDefinition.getInstrExistRule().equals(MUST_EXIST)) {
+				importLog.addErrorMessage(lineNum, "Instrument does not exist. Patient:" + importSetup.getPatient().getFullNameWithId() 
+						+ " Visit Date:" + importSetup.getVisit().getVisitDate());
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}else {
+				// instrument does not exist so instantiate
+				
+				String dcStatus = importSetup.getIndexInstrDcStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexInstrDcStatus()] : importDefinition.getInstrDcStatus();
+				if (!StringUtils.hasText(dcStatus)) {
+					if (importSetup.getIndexInstrDcStatus() != -1) {
+						importLog.addErrorMessage(lineNum, "Cannot create Instrument. Instrument DC Status field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexInstrDcStatus()] + ") has no value");
+					}
+					else {
+						importLog.addErrorMessage(lineNum, "Cannot create Instrument. Instrument DC Status field not supplied in data file and no value specified in definition");									
+					}
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+
+				try {
+					instr = createInstrument(importDefinition, importSetup, instrClazz, dcDate, dcStatus);
+					instr.setDcBy(importSetup.getVisit().getVisitWith());
+					instr.setDeBy("IMPORTED");
+					instr.setDeDate(new Date());
+					// if import record does not have any errors then instrument will be saved so set data entry
+					// status complete; if there are errors import record will be skipped and instrument will not 
+					// be saved, so it is ok if setting data entry status "Complete" here
+					instr.setDeStatus("Complete");
+					instr.setDeNotes("Data Imported by:" + CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request).getShortUserNameRev());				}
+				catch (Exception ex) {
+					importLog.addErrorMessage(lineNum, "Error instantiating instrument. Patient:" + importSetup.getPatient().getFullNameWithId() 
+							+ " and Visit Date:" + importSetup.getVisit().getVisitDate());
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+			}
+			importSetup.setInstrCreated(true);
+			importSetup.setInstrument(instr);
+		}
+		else { // instrument already exists
+			importSetup.setInstrExisted(true);
+			importSetup.setInstrument(instr);
+			if (importDefinition.getInstrExistRule().equals(MUST_NOT_EXIST)) {
+				importLog.addErrorMessage(lineNum, "Instrument already exists violating Import Definition MUST_NOT_EXIST setting. Patient:" + importSetup.getPatient().getFullNameWithId()
+						+ " and Visit Date:" + importSetup.getVisit().getVisitDate());
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+			else {
+				// MAY_OR_MAY_NOT_EXIST or MUST_EXIST
+				
+				// this is where exist flag handling differs for instruments than for Patient, EnrollmentStatus, Visit.
+				// need a further check in the case of instruments to make sure it does not have date entered, and if it
+				// does then only proceed with import if the allowInstrUpdate flag is set in the import definition.
+				// if used allow..Update flags for Patient, EnrollmentStatus and Visit, then just their mere existence
+				// would be enough to consider the flag, i.e. not whether they have been data entered or not, because
+				// if they exist they must have been data entered because of required fields validation. instruments
+				// can be exist without being data entered.
+
+				// note that this is also different than flags for updating Patient,EnrollmentStatus and Visit because 
+				// those would not affect whether the instrument data is imported or not. so while the instrument 
+				// flag can be handled at the level of the import record in terms of skipping the whole import 
+				// record or not, the Patient,EnrollmentStatus and,Visit update flags would not dictate this, and so 
+				// their allow..Update flags would be enforced at the individual property setting level
+				
+				// using deDate to determine if instrument has been data entered. not looking for a specific deStatus
+				// such as 'Complete' since data entry could have any number of deStatus values
+				if (instr.getDeDate() != null && !importDefinition.getAllowInstrUpdate()) {
+					// this is not an error in the sense that the there was a problem; rather the ERROR Event is 
+					// returned so the current record is not imported since data already exists, and it is likely
+					// that a data file with this record was already imported. 
+					importSetup.setInstrExistedWithData(true);
+					importLog.addDebugMessage(lineNum, "Instrument exists and has already been data entered. Cannot overwrite per Import Definition. Patient:" + 
+						importSetup.getPatient().getFullNameWithId() + " and Visit Date:" + importSetup.getVisit().getVisitDate());
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+			}
+		}
+		
+		Map<String,Instrument> eventAttrMap = new HashMap<String,Instrument>();
+		eventAttrMap.put("instrument", instr);
+		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
+		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
+	}
+
+	
+	
+	/**
+	 * otherExistsHandling
+	 * 
+	 * Subclasses should override to handle additional entities beyond Patient/EnrollmentStatus/
+	 * Visit/instrument.
+	 * 
+	 * @param context
+	 * @param errors
+	 * @param importDefinition
+	 * @param importSetup
+	 * @param lineNum
+	 * @return
+	 */
+	protected Event otherExistsHandling(RequestContext context, BindingResult errors, 
+			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, 
+			int lineNum) {
+		// do nothing
+		return new Event(this, SUCCESS_FLOW_EVENT_ID);
+	}
+	
+	
+
+	
+	/**
+	 * Subclasses override to instantiate a custom, typically instance specific Patient subclass.
+	 * 
+	 * @param importDefinition
+	 * @param importSetup
+	 * @return
+	 */
+	protected Patient createPatient(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup) {
+		return new Patient();
+	}
+
+	
+	/**
+	 * Subclasses override to instantiate a custom, typically instance specific Patient subclass.
+	 * 
+	 * @param importDefinition
+	 * @param importSetup
+	 * @return
+	 */
+	protected EnrollmentStatus createEnrollmentStatus(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup) {
+		return enrollmentManager.getEnrollmentStatusPrototype(importSetup.getRevisedProjName());
+	}
+
+	
+	/** 
+	 * Subclasses override to instantiate a custom, typically instance specific Visit subclass.
+	 * 
+	 * @param importDefinition
+	 * @param importSetup
+	 * @return
+	 */
+	protected Visit createVisit(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup) {
+		return new Visit();
+	}
+
+	/**
+	 * Subclasses override if instrument creation requires custom behavior.
+	 * 
+	 * @param importDefinition
+	 * @param importSetup
+	 * @param instrClazz
+	 * @param p
+	 * @param projName
+	 * @param v
+	 * @param instrType
+	 * @param dcDate
+	 * @param dcStatus
+	 * @return
+	 */
+	protected Instrument createInstrument(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, 
+			Class instrClazz, Date dcDate, String dcStatus) {
+		return Instrument.create(instrClazz, importSetup.getPatient(), importSetup.getVisit(), importSetup.getRevisedProjName(), 
+				importDefinition.getInstrType(), dcDate, dcStatus);
+	}
+	
+
+	
+	/**
+	 * setPropertyHandling
+	 * 
+	 * Iterate over all field/property values in the current data import record, setting the
+	 * value on the entity property designated by the import mapping file column and property
+	 * with the same column index. 
+	 * 
+	 * @param importDefinition
+	 * @param importSetup
+	 * @param lineNum
+	 * @return true to continue processing this record, false to abort processing this record 
+	 */
+	protected Event setPropertyHandling(RequestContext context, BindingResult errors, 
+			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum) throws Exception {
+		Event returnEvent = null;
+		String mappingPropName;
+		for (int i = 0; i < importSetup.getDataValues().length; i++) {
+			returnEvent = new Event(this, SUCCESS_FLOW_EVENT_ID);
+			mappingPropName = importSetup.getMappingProps()[i];
+			
+logger.info("i="+i+" mapppingPropName="+mappingPropName);
+
+			// skip fields with column name or property name prefixed by XX						
+			if (importSetup.getMappingCols()[i].startsWith("XX") || (mappingPropName != null && mappingPropName.startsWith("XX"))) {
+				// do nothing
+			}
+			
+			// Set Property Values
+			// give instrument first shot at determining if the property applies to it, because instruments
+			// handle setting properties where the definition mapping file property name is empty, so for all
+			// subsequent entities (Patient, EnrollmentStatus, Visit, etc.) it is guaranteed that projName is
+			// not empty
+
+			// instrument properties -- as opposed to other entities in the import record -- are designated by:
+			// 1) blank/empty string in the import definition mapping file property row, meaning that the property
+			//    name is the same as the import column name in the column row (row 1)
+			// or
+			// 2) import definition mapping file property has a property name without an entity name, i.e. does not have
+			//    an entity and '.' character prefixing the property name (if the data import file contains data for 
+			//    multiple instruments this refers to the "primary" instrument)
+			// or
+			// 3) import definition mapping file property contains the instrument name (type) followed by the '.'
+			//    character and the property name
+			else if (!StringUtils.hasText(mappingPropName) ||
+					mappingPropName.indexOf(".") == -1 ||
+					mappingPropName.startsWith(importSetup.getInstrument().getInstrTypeEncoded())) 
+			{	
+				// note that if the instrument should not be updated because it has already been data entered and user
+				// has specified not to overwrite in this case (in the import definition), the import record will have 
+				// already been skipped and will not get to the setting of properties
+				String propName = null;
+				if (!StringUtils.hasText(mappingPropName)) {
+					propName = importSetup.getMappingCols()[i];
+				}
+				else {
+					propName = mappingPropName;
+				}
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument(), propName, i, lineNum);
+			}
+			//Patient properties
+			else if (mappingPropName.startsWith("patient")) {
+				// if decide to allow updates on existing Patients, then have the flags in data model to do: 
+				// (importSetup.isPatientCreated() || importDefinition.getAllowPatientUpdates())
+				// same for EnrollmentStatus, Visit
+				
+				//thinking is that should not have Patient, EnrollmentStatus, Visit allowUpdate flags because import 
+				//will be used for either 
+				//a) creating these if they do not exist and importing assessment data, or
+				//b) importing assessment data, 
+				//i.e. import is not a mechanism for updating Patient, EnrollmentStatus and Visit data
+				if (importSetup.isPatientCreated()) {
+					// don't need to set properties already set when Patient was created
+					if (!mappingPropName.endsWith("firstName") && !mappingPropName.endsWith("lastName") && !mappingPropName.endsWith("birthDate")
+							&& !mappingPropName.endsWith("gender")) {
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getPatient(), mappingPropName, i, lineNum);
+					}
+				}
+			}
+			//EnrollmentStatus properties
+			else if (mappingPropName.startsWith("enrollmentStatus")) {
+				if (importSetup.isEnrollmentStatusCreated()) {
+					returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getEnrollmentStatus(), mappingPropName, i, lineNum);
+				}
+			}
+			//Visit properties
+			else if (mappingPropName.startsWith("visit")) {
+				if (importSetup.isVisitCreated()) {
+					// don't need to set properties already set when Visit was created
+					if (!mappingPropName.endsWith("visitDate") && !mappingPropName.endsWith("visitType") && !mappingPropName.endsWith("visitLocation")
+							&& !mappingPropName.endsWith("visitWith") && !mappingPropName.endsWith("visitStatus")) {
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getVisit(), mappingPropName, i, lineNum);
+					}
+				}
+			}
+			else {
+				// allow subclasses to set entity properties for any custom behavior
+				returnEvent = setOtherPropertyHandling(importDefinition, importSetup, importLog, i, lineNum);
+			}
+			
+			// abort import of the current record if there was an error setting the imported value on the property
+			if (returnEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+		}
+		
+		return new Event(this, SUCCESS_FLOW_EVENT_ID);
+	}
+	
+
+	/**
+	 * Subclasses override this is setting a property involves any custom behavior.
+	 * 
+	 * @param importDefinition
+	 * @param importSetup
+	 * @param entity
+	 * @param propName
+	 * @param i
+	 * @throws Exception
+	 */
+	protected Event setProperty(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup,	CrmsImportLog importLog, LavaEntity entity, String propName, int i, int lineNum) throws Exception {
+		// default BeanUtils converter will set empty values to a default which is not null, so change the
+		// behavior so property is set to null
+		// note: could just skip null values since property value is already null on new instrument, but if
+		// this code were to be used for import/update then would need to set null values
+		if (!StringUtils.hasText(importSetup.getDataValues()[i])) {
+			// false -use a default value instead of throwing a conversion exception (for any conversions)
+			// true - use null for the default value
+			// -1 - array types defaulted to null
+			this.getConvertUtilsBean().register(false, true, -1);
+		}
+		try {
+			// use Apache Commons BeanUtils rather than PropertyUtils as BeanUtils will convert the data value
+			// from String to its correct type
+			
+			//TODO: future version enhancement:
+			//validate data value by obtaining metadata for the entity.property, i.e. list of valid values
+
+			// if the property name is qualified by the entity name, removed the entity part
+			if (propName.indexOf(".") != -1) {
+				propName = propName.substring(propName.indexOf(".")+1);
+			}
+			BeanUtils.setProperty(entity, propName, importSetup.getDataValues()[i]);
+		}
+		catch (InvocationTargetException ex) {
+			importLog.addErrorMessage(lineNum, "[InvocationTargetException] Error setting property: Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
+					" Patient:" + importSetup.getPatient().getFullNameWithId() + "Visit Date:" + importSetup.getVisit().getVisitDate());
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
+		catch (IllegalAccessException ex) {
+			importLog.addErrorMessage(lineNum, "[IllegalAccessException] Error setting property: Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
+					" Patient:" + importSetup.getPatient().getFullNameWithId() + "Visit Date:" + importSetup.getVisit().getVisitDate());
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
+		if (!StringUtils.hasText(importSetup.getDataValues()[i])) {
+			// resume throwing exceptions (second and third arguments ignored in this case)
+			this.setupBeanUtilConverters();
+		}								
+		return new Event(this, SUCCESS_FLOW_EVENT_ID);
+	}
+
+	/**
+	 * Subclasses override this to set a value on a property of an entity other than Patient,
+	 * Visit, EnrollmentStatus or the instrument. 
+	 * 
+	 * @param importDefinition
+	 * @param importSetup
+	 * @param i
+	 * @throws Exception
+	 */
+	protected Event setOtherPropertyHandling(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, 
+			CrmsImportLog importLog, int i, int lineNum) throws Exception {
+		// do nothing
+		return new Event(this, SUCCESS_FLOW_EVENT_ID);
+	}
+
+
+	/**
+	 * saveImportRecord
+	 * 
+	 * Persist the import record to the applicable entities. 
+	 * 
+	 * Subclasses should override if they involve additional entities, such as ContactInfo or
+	 * Caregiver, or for other custom handling. Make sure they call this superclass method. 
+	 */
+	protected void saveImportRecord(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup) {
+		// for new entities must explicitly save since not associated with a Hibernate session. for
+		// updates, entity was retrieved and thus attached to a session and Hibernate dirty checking should
+		// implicitly update the entity
+//TODO: test that update persists. may need to explicitly save in all cases		
+		if (importSetup.isPatientCreated()) {
+			importSetup.getPatient().save();
+		}
+		if (importSetup.isEnrollmentStatusCreated()) {
+			importSetup.getEnrollmentStatus().save();
+		}
+		if (importSetup.isVisitCreated()) {
+			importSetup.getVisit().save();
+		}
+		// allowInstrUpdate is used to determine whether an already existing instrument which has already
+		// been data entered can be updated
+		if (importSetup.isInstrCreated() || importDefinition.getAllowInstrUpdate()) {
+			importSetup.getInstrument().save();
+		}
+	}
+	
+	
+	
+	/**
+	 * Called at the end of processing an import record (that was not aborted due to an error).
+	 * 
+	 */
+	protected void updateEntityCounts(CrmsImportSetup importSetup, CrmsImportLog importLog) {
+		if (importSetup.isPatientCreated()) {
+			importLog.incNewPatients();
+		}
+		if (importSetup.isPatientExisted()) {
+			importLog.incExistingPatients();
+		}
+		if (importSetup.isContactInfoCreated()) {
+			importLog.incNewContactInfo();
+		}
+		if (importSetup.isContactInfoExisted()) {
+			importLog.incExistingContactInfo();
+		}
+		if (importSetup.isCaregiverCreated()) {
+			importLog.incNewCaregivers();
+		}
+		if (importSetup.isCaregiverExisted()) {
+			importLog.incExistingCaregivers();
+		}
+		if (importSetup.isCaregiverContactInfoCreated()) {
+			importLog.incNewCaregiverContactInfo();
+		}
+		if (importSetup.isCaregiverContactInfoExisted()) {
+			importLog.incExistingCaregiverContactInfo();
+		}
+		if (importSetup.isEnrollmentStatusCreated()) {
+			importLog.incNewEnrollmentStatuses();
+		}
+		if (importSetup.isEnrollmentStatusExisted()) {
+			importLog.incExistingEnrollmentStatuses();
+		}
+		if (importSetup.isVisitCreated()) {
+			importLog.incNewVisits();
+		}
+		if (importSetup.isVisitExisted()) {
+			importLog.incExistingVisits();
+		}
+		if (importSetup.isInstrCreated()) {
+			importLog.incNewInstruments();
+		}
+		// both instrument existed flags will be set but "WithData" takes precedence
+		if (importSetup.isInstrExistedWithData()) {
+			importLog.incExistingInstrumentsWithData();
+		}
+		else if (importSetup.isInstrExisted()) {
+			importLog.incExistingInstruments();
+		}
+	}
+	
 	
 	@Override
 	public Map addReferenceData(RequestContext context, Object command,	BindingResult errors, Map model) {
