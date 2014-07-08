@@ -179,6 +179,23 @@ public abstract class EntityBase implements LavaEntity, Cloneable, LogicCheckEnt
 	}
 	
 	/**
+	 * Equivalent static method to getEntityNameEncoded where entityName is supplied
+	 * as an arguemnt
+	 */
+	public static String getEntityNameEncoded(String entityName, String entityVersion) {
+		String entityNameEncoded = entityName;
+		if(entityNameEncoded==null){return new String();}
+		
+		entityNameEncoded = entityNameEncoded.replaceAll("[^a-zA-Z0-9]","").toLowerCase();
+		    
+		if (entityVersion != null) {
+				return new StringBuffer(entityNameEncoded).append(getEntityVersionEncoded(entityVersion)).toString();
+		}
+		return entityNameEncoded;
+	}
+	
+	
+	/**
 	 * Convenience method (includes encoded entityVersion by default)
 	 */
 	public String getEntityNameEncoded(){
@@ -244,9 +261,17 @@ public abstract class EntityBase implements LavaEntity, Cloneable, LogicCheckEnt
 		return new String();
 	}
 	
-	
+	/**
+	 * Equivalent static method to getEntityVersionEndoded where entityVersion is
+	 * passed as an argument.
+	 */
+	public static String getEntityVersionEncoded(String entityVersion) {
+		if(entityVersion != null && entityVersion.equals(DATA_CODES_LOGICAL_SKIP.toString())){
+			return entityVersion.replaceAll("[^a-zA-Z0-9]","_");
+		}
+		return new String();
+	}
 
-	
 	
 	
 		
