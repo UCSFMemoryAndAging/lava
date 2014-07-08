@@ -4,27 +4,26 @@ import edu.ucsf.lava.core.importer.model.ImportLog;
 
 public class CrmsImportLog extends ImportLog {
 	private String projName;
-
-	private Short totalPatientRecords;
-	private Short numExistingPatients;
-	private Short newPatientsCreated;
 	
-	private Long dupCaregivers;
-	private Long newCaregivers;
-	
-	private Long dupContactInfo;
-	private Long newContactInfo;
-	
-	private Long dupEnrollments;
-	private Long newEnrollments;
-	
-	private Long dupVisits;
-	private Long newVisits;
-	
-	private Long dupInstruments;
-	private Long newInstruments;
-	
-	//TODO logMsgs collection object
+	// Record the following counts, which are for specific entities within an import record. Note
+	// that these do not represent errors and are just informational. 
+	// The superclass maintains properties for counts for import records as a whole, i.e. total
+	// imported, number not imported due to errors, number with warnings, etc. 
+	private Integer newPatients;
+	private Integer existingPatients;
+	private Integer newContactInfo;
+	private Integer existingContactInfo;
+	private Integer newCaregivers;
+	private Integer existingCaregivers;
+	private Integer newCaregiverContactInfo;
+	private Integer existingCaregiverContactInfo;
+	private Integer newEnrollmentStatuses;
+	private Integer existingEnrollmentStatuses;
+	private Integer newVisits;
+	private Integer existingVisits;
+	private Integer newInstruments;
+	private Integer existingInstruments;
+	private Integer existingInstrumentsWithData;
 	
 	public CrmsImportLog(){
 		super();
@@ -37,9 +36,184 @@ public class CrmsImportLog extends ImportLog {
 	public void setProjName(String projName) {
 		this.projName = projName;
 	}
+
+	public Integer getNewPatients() {
+		return newPatients;
+	}
+
+	public void setNewPatients(Integer newPatients) {
+		this.newPatients = newPatients;
+	}
+
+	public Integer getExistingPatients() {
+		return existingPatients;
+	}
+
+	public void setExistingPatients(Integer existingPatients) {
+		this.existingPatients = existingPatients;
+	}
+
+	public Integer getNewCaregivers() {
+		return newCaregivers;
+	}
+
+	public void setNewCaregivers(Integer newCaregivers) {
+		this.newCaregivers = newCaregivers;
+	}
+
+	public Integer getExistingCaregivers() {
+		return existingCaregivers;
+	}
+
+	public void setExistingCaregivers(Integer existingCaregivers) {
+		this.existingCaregivers = existingCaregivers;
+	}
+
+	public Integer getExistingContactInfo() {
+		return existingContactInfo;
+	}
+
+	public void setExistingContactInfo(Integer existingContactInfo) {
+		this.existingContactInfo = existingContactInfo;
+	}
 	
+	public Integer getNewContactInfo() {
+		return newContactInfo;
+	}
+
+	public void setNewContactInfo(Integer newContactInfo) {
+		this.newContactInfo = newContactInfo;
+	}
+
+	public Integer getNewCaregiverContactInfo() {
+		return newCaregiverContactInfo;
+	}
+
+	public void setNewCaregiverContactInfo(Integer newCaregiverContactInfo) {
+		this.newCaregiverContactInfo = newCaregiverContactInfo;
+	}
+
+	public Integer getExistingCaregiverContactInfo() {
+		return existingCaregiverContactInfo;
+	}
+
+	public void setExistingCaregiverContactInfo(Integer existingCaregiverContactInfo) {
+		this.existingCaregiverContactInfo = existingCaregiverContactInfo;
+	}
+
+	public Integer getNewEnrollmentStatuses() {
+		return newEnrollmentStatuses;
+	}
+
+	public void setNewEnrollmentStatuses(Integer newEnrollmentStatuses) {
+		this.newEnrollmentStatuses = newEnrollmentStatuses;
+	}
+
+	public Integer getExistingEnrollmentStatuses() {
+		return existingEnrollmentStatuses;
+	}
+
+	public void setExistingEnrollmentStatuses(Integer existingEnrollmentStatuses) {
+		this.existingEnrollmentStatuses = existingEnrollmentStatuses;
+	}
+
+	public Integer getNewVisits() {
+		return newVisits;
+	}
+
+	public void setNewVisits(Integer newVisits) {
+		this.newVisits = newVisits;
+	}
+
+	public Integer getExistingVisits() {
+		return existingVisits;
+	}
+
+	public void setExistingVisits(Integer existingVisits) {
+		this.existingVisits = existingVisits;
+	}
+
+	public Integer getNewInstruments() {
+		return newInstruments;
+	}
+
+	public void setNewInstruments(Integer newInstruments) {
+		this.newInstruments = newInstruments;
+	}
+
+	public Integer getExistingInstruments() {
+		return existingInstruments;
+	}
+
+	public void setExistingInstruments(Integer existingInstruments) {
+		this.existingInstruments = existingInstruments;
+	}
 	
+	public Integer getExistingInstrumentsWithData() {
+		return existingInstrumentsWithData;
+	}
+
+	public void setExistingInstrumentsWithData(Integer existingInstrumentsWithData) {
+		this.existingInstrumentsWithData = existingInstrumentsWithData;
+	}
+
+	public void incNewPatients() {
+		this.newPatients++;
+	}
 	
+	public void incExistingPatients() {
+		this.existingPatients++;
+	}
+
+	public void incNewContactInfo() {
+		this.newContactInfo++;
+	}
 	
+	public void incExistingContactInfo() {
+		this.existingContactInfo++;
+	}
+
+	public void incNewCaregivers() {
+		this.newCaregivers++;
+	}
 	
+	public void incExistingCaregivers() {
+		this.existingCaregivers++;
+	}
+
+	public void incNewCaregiverContactInfo() {
+		this.newCaregiverContactInfo++;
+	}
+	
+	public void incExistingCaregiverContactInfo() {
+		this.existingCaregiverContactInfo++;
+	}
+
+	public void incNewEnrollmentStatuses() {
+		this.newEnrollmentStatuses++;
+	}
+	
+	public void incExistingEnrollmentStatuses() {
+		this.existingEnrollmentStatuses++;
+	}
+
+	public void incNewVisits() {
+		this.newVisits++;
+	}
+	
+	public void incExistingVisits() {
+		this.existingVisits++;
+	}
+
+	public void incNewInstruments() {
+		this.newInstruments++;
+	}
+	
+	public void incExistingInstruments() {
+		this.existingInstruments++;
+	}
+
+	public void incExistingInstrumentsWithData() {
+		this.existingInstrumentsWithData++;
+	}
 }
