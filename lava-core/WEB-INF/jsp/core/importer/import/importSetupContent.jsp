@@ -12,11 +12,11 @@ or import results (with a Close button) --%>
 <page:applyDecorator name="component.entity.section">
   <page:param name="sectionId">setup</page:param>
   <page:param name="sectionNameKey">import.setup.section</page:param>
-	<tags:createField property="definitionId" component="${component}"/>
+	<tags:createField property="definitionId" component="${component}" entityType="import"/>
 	<c:if test="${componentMode != 'vw'}">
 		<tags:fileUpload paramName="uploadFile"  component="${component}"/>
 	</c:if>	
 	<div class="verticalSpace10">&nbsp;</div>
-	<tags:createField property="notes" component="${component}"/>
+	<tags:createField property="notes" component="${component}" entityType="import"/>
 </page:applyDecorator>
 
