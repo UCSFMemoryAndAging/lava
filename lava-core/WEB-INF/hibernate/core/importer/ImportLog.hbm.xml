@@ -13,11 +13,28 @@
 			<generator class="identity"/>
 		</id>
 		<timestamp name="modified" column="modified"/>
-		<property name="filename" column="filename" type="string" length="100" not-null="true"/>
-		<property name="definitionName" column="definition_name" type="string" length="30"/>
 		<property name="importTimestamp" column="import_timestamp" type="timestamp" not-null="true"/>
 		<property name="importedBy" column="imported_by" type="string" length="25" not-null="true"/>
+		<many-to-one name="dataFile" column="data_file_id" unique="true" class="edu.ucsf.lava.core.file.model.LavaFile" cascade="all" outer-join="true"/>
+		<!-- do not map a reference to ImportDefinition because it may have changed since it was used
+			for this import -->
+		<property name="definitionName" column="definition_name" type="string" length="30"/>
+		<property name="totalRecords" column="total_records" type="integer"/>
+		<property name="imported" column="imported" type="integer"/>
+		<property name="alreadyExist" column="already_exist" type="integer"/>
+		<property name="errors" column="errors" type="integer"/>
+		<property name="warnings" column="errors" type="integer"/>
 		<property name="notes" column="notes" type="string" length="500"/>
+   		<list name="messages" table="import_log_message" lazy="false" cascade="all">
+   			<key column="message_id" not-null="true"/>
+			<list-index column="list_index" base="1"/>
+			<composite-element class="edu.ucsf.lava.core.importer.model.ImportLog$ImportLogMessage">
+				<property name="type" column="msg_type" type="string" length="10"/>
+				<property name="lineNum" column="line_num" type="integer"/>
+				<property name="message" column="message" type="string" length="255"/>
+   			</composite-element>
+   		</list>
+		
 	</class>
 	
 </hibernate-mapping>
