@@ -1,8 +1,5 @@
 package edu.ucsf.lava.core.importer.controller;
 
-import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_DEF_MAPPING_FILE_TYPE;
-import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_REPOSITORY_ID;
-
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Map;
@@ -23,6 +20,8 @@ import edu.ucsf.lava.core.file.model.ImportDefinitionMappingFile;
 import edu.ucsf.lava.core.importer.model.ImportDefinition;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.core.type.LavaDateUtils;
+import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_DEF_MAPPING_FILE_TYPE;
+import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_REPOSITORY_ID;
 
 
 public class ImportDefinitionHandler extends BaseEntityComponentHandler {
@@ -30,7 +29,7 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	public ImportDefinitionHandler() {
 		super();
 		setHandledEntity("importDefinition", ImportDefinition.class);
-		this.setRequiredFields(new String[]{"name"});
+		this.setRequiredFields(new String[]{"name", "dataFileFormat"});
 	}
 	
 	protected Object initializeNewCommandInstance(RequestContext context, Object command) {
