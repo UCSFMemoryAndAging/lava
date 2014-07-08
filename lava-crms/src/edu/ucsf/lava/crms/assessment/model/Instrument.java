@@ -152,6 +152,14 @@ public class Instrument extends CrmsEntity {
 	public String getInstrTypeEncoded(){
 		return this.getEntityNameEncoded(true);
 	}
+
+	public static String getInstrTypeEncoded(String instrType, String instrVersion) {
+		return EntityBase.getEntityNameEncoded(instrType, instrVersion);
+	}
+
+	public static String getInstrTypeEncoded(String instrType) {
+		return EntityBase.getEntityNameEncoded(instrType, null);
+	}
 	
 		
     public Visit getVisit() {return this.visit;}
