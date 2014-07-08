@@ -82,7 +82,7 @@ public class FlowRegistrar implements LavaFlowRegistrar {
     protected void buildFlow(String actionId){
     	
     	/** debugging specific flow...
-		if (actionId.equals("lava.crms.people.findPatient.findPatient")) {
+		if (actionId.equals("lava.core.importer.import.import")) {
 				logger.debug("stopping prior to building of flow to debug");
 		}
     	*/
@@ -150,6 +150,16 @@ public class FlowRegistrar implements LavaFlowRegistrar {
     	//recurse through customizingFlows
     	for (String customizingFlowId: action.getCustomizingFlows()){
     		logger.debug("Customizing Subflow actionId: "+customizingFlowId+" found for actionId: "+action.getId());
+
+    		// if customizing flow is itself instance customized then build the instance flow
+    		Action customizingAction = actionManager.getAction(customizingFlowId);
+			// make sure this is a base "lava" action. 
+    		if(customizingAction.getInstance().equals(ActionUtils.LAVA_INSTANCE_IDENTIFIER)){
+    			String instanceActionId = ActionUtils.getActionIdWithInstance(customizingAction.getId(), actionManager.getWebAppInstanceName());
+    			if (actionManager.getAction(instanceActionId) != null) {
+    				customizingFlowId = instanceActionId;
+    			}
+    		}
     		buildFlow(customizingFlowId);
     	}
     	
