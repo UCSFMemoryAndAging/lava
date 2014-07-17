@@ -7,7 +7,8 @@ ALTER TABLE `patient` ADD COLUMN `FamilyStatus` VARCHAR(25) NULL DEFAULT NULL AF
 ALTER TABLE `patient` ADD COLUMN `FamilyStudy` VARCHAR(50) NULL DEFAULT NULL AFTER `FamilyStatus`;
 ALTER TABLE `patient` ADD COLUMN `RelationToProband` VARCHAR(25) NULL DEFAULT NULL AFTER `FamilyStudy`;
 ALTER TABLE `patient` ADD COLUMN `ProbandCandidate` BOOLEAN NULL DEFAULT NULL AFTER `RelationToProband`;
-ALTER TABLE `patient` ADD COLUMN `TwinZygosity` SMALLINT NULL DEFAULT NULL AFTER `ProbandCandidate`;
+ALTER TABLE `patient` ADD COLUMN `Twin` SMALLINT NULL DEFAULT NULL AFTER `ProbandCandidate`;
+ALTER TABLE `patient` ADD COLUMN `TwinZygosity` SMALLINT NULL DEFAULT NULL AFTER `Twin`;
 ALTER TABLE `patient` ADD COLUMN `TwinID` SMALLINT NULL DEFAULT NULL AFTER `TwinZygosity`;
 ALTER TABLE `patient` ADD COLUMN `RelationNotes` VARCHAR(100) NULL DEFAULT NULL AFTER `TwinID`;
 -- ProjSiteID is temporary and will go to the EnrollmentStatus record
