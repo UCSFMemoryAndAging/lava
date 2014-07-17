@@ -27,12 +27,16 @@
        <property name="state" column="State" type="string" length="10"/>
        <property name="zip" column="Zip" type="string" length="10"/>
        <property name="country" column="Country" type="string" length="50"/>
+       <property name="preferredContactMethod" column="PrefContact" type="string" length="20"/>
        <property name="phone1" column="Phone1" type="string" length="25"/>
        <property name="phoneType1" column="PhoneType1" type="string" length="10"/>
+       <property name="bestTimePhone1" column="Phone1BestTime" type="string" length="30"/>
        <property name="phone2" column="Phone2" type="string" length="25"/>
        <property name="phoneType2" column="PhoneType2" type="string" length="10"/>
+       <property name="bestTimePhone2" column="Phone2BestTime" type="string" length="30"/>
        <property name="phone3" column="Phone3" type="string" length="25"/>
        <property name="phoneType3" column="PhoneType3" type="string" length="10"/>
+       <property name="bestTimePhone3" column="Phone3BestTime" type="string" length="30"/>
        <property name="email" column="Email" type="string" length="100"/>
        <property name="notes" column="Notes" type="string" length="250"/>
        <property name="contactNameRev" column="ContactNameRev" type="string" length="100"/>
@@ -48,7 +52,7 @@
 
 
          <!-- queries  -->
-              <query name="list.contactInfo.city"><![CDATA[
+	<query name="list.contactInfo.city"><![CDATA[
 		select new edu.ucsf.lava.core.list.model.LabelValueBean(ci.city, ci.city)
 		from edu.ucsf.lava.crms.people.model.ContactInfo ci 
 		group by city having count(city)>=2 order by city

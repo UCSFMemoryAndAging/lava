@@ -26,12 +26,16 @@ public class ContactInfo extends CrmsEntity {
 	private String state;
 	private String zip;
 	private String country;
+	private String preferredContactMethod;
 	private String phone1;
 	private String phoneType1;
+	private String bestTimePhone1;
 	private String phone2;
 	private String phoneType2;
+	private String bestTimePhone2;
 	private String phone3;
 	private String phoneType3;
+	private String bestTimePhone3;
 	private String email;
 	private String notes;
 	private String contactNameRev;
@@ -354,9 +358,32 @@ public class ContactInfo extends CrmsEntity {
 	public void setPhoneType3(String phoneType3) {
 		this.phoneType3 = phoneType3;
 	}
+	
 
-
-
+	public String getPreferredContactMethod() {
+		return preferredContactMethod;
+	}
+	public void setPreferredContactMethod(String preferredContactMethod) {
+		this.preferredContactMethod = preferredContactMethod;
+	}
+	public String getBestTimePhone1() {
+		return bestTimePhone1;
+	}
+	public void setBestTimePhone1(String bestTimePhone1) {
+		this.bestTimePhone1 = bestTimePhone1;
+	}
+	public String getBestTimePhone2() {
+		return bestTimePhone2;
+	}
+	public void setBestTimePhone2(String bestTimePhone2) {
+		this.bestTimePhone2 = bestTimePhone2;
+	}
+	public String getBestTimePhone3() {
+		return bestTimePhone3;
+	}
+	public void setBestTimePhone3(String bestTimePhone3) {
+		this.bestTimePhone3 = bestTimePhone3;
+	}
 	public String getState() {
 		return state;
 	}
