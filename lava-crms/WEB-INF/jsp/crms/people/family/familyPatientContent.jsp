@@ -10,10 +10,10 @@
   <page:param name="sectionNameKey"></page:param>
   <page:param name="quicklinkPosition">top</page:param>
 	<tags:createField property="familyStatus" component="${component}" entityType="patient"/>
-	<tags:createField property="familyStudy" component="${component}" entityType="patient"/>
 	<tags:createField property="relationToProband" component="${component}" entityType="patient"/>
 	<tags:createField property="familyId" component="${component}" entityType="patient"/>
 	<tags:createField property="probandCandidate" component="${component}" entityType="patient"/>
+	<tags:createField property="twin" component="${component}" entityType="patient"/>
 	<tags:createField property="twinZygosity" component="${component}" entityType="patient"/>
 	<tags:createField property="twinId" component="${component}" entityType="patient"/>
 	<tags:createField property="projSiteId" component="${component}" entityType="patient"/>
@@ -23,17 +23,15 @@
 <c:if test="${componentMode != 'vw'}">
 <ui:formGuide ignoreUndo="true" ignoreUndoOnLoad="true">
     <ui:observe elementIds="${component}_familyStatus" forValue="Individual|^$"/>
-	<ui:disable elementIds="${component}_familyStudy"/>
 	<ui:disable elementIds="${component}_relationToProband"/>
 	<ui:disable elementIds="${component}_familyId"/>
 	<ui:disable elementIds="${component}_probandCandidate"/>
-	<ui:disable elementIds="${component}_twinZygosity"/>
+	<ui:disable elementIds="${component}_twin"/>
 	<ui:disable elementIds="${component}_projSiteId"/>
 	<ui:disable elementIds="${component}_relationNotes"/>
-	<ui:setValue elementIds="${component}_familyStudy" value=""/>
     <ui:setValue elementIds="${component}_relationToProband" value=""/>
 	<ui:setValue elementIds="${component}_probandCandidate" value=""/>
-	<ui:setValue elementIds="${component}_twinZygosity" value=""/>
+	<ui:setValue elementIds="${component}_twin" value=""/>
 	<ui:setValue elementIds="${component}_projSiteId" value=""/>
     <ui:setValue elementIds="${component}_relationNotes" value=""/>
     <ui:setValue elementIds="${component}_familyId" value=""/>
@@ -41,23 +39,12 @@
 
 <ui:formGuide ignoreUndo="true" ignoreUndoOnLoad="true">
     <ui:observe elementIds="${component}_familyStatus" forValue="Family$"/>
-    <ui:disable elementIds="${component}_familyStudy"/>
     <ui:enable elementIds="${component}_relationToProband"/>
 	<ui:enable elementIds="${component}_probandCandidate"/>
-	<ui:enable elementIds="${component}_twinZygosity"/>
+	<ui:enable elementIds="${component}_twin"/>
 	<ui:enable elementIds="${component}_projSiteId"/>
     <ui:enable elementIds="${component}_relationNotes"/>  
     <ui:setValue elementIds="${component}_familyStudy" value=""/>
-</ui:formGuide>
-
-<ui:formGuide ignoreUndo="true" ignoreUndoOnLoad="true">
-    <ui:observe elementIds="${component}_familyStatus" forValue="Family Study"/>
-    <ui:enable elementIds="${component}_familyStudy"/>
-    <ui:enable elementIds="${component}_relationToProband"/>
-	<ui:enable elementIds="${component}_probandCandidate"/>
-	<ui:enable elementIds="${component}_twinZygosity"/>
-	<ui:enable elementIds="${component}_projSiteId"/>
-    <ui:enable elementIds="${component}_relationNotes"/>  
 </ui:formGuide>
 
 <ui:formGuide>
@@ -73,7 +60,9 @@
 
 <ui:formGuide simulateEvents="true">
 	<ui:depends elementIds="${component}_familyStatus"/>
-    <ui:observe elementIds="${component}_twinZygosity" forValue="1|2|3" negate="true"/>
+    <ui:observe elementIds="${component}_twin" forValue="1" negate="true"/>
+	<ui:disable elementIds="${component}_twinZygosity"/>
+	<ui:setValue elementIds="${component}_twinZygosity" value=""/>
 	<ui:disable elementIds="${component}_twinId"/>
 	<ui:setValue elementIds="${component}_twinId" value=""/>
 </ui:formGuide>
