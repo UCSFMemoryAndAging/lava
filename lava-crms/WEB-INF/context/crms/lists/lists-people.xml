@@ -64,18 +64,18 @@
 	
 	<!-- Family lists -->
 	<bean id="list.patient.familyStatus" parent="list.standardValueNoLabel">
-		<property name="dbListName" value="patientFamilyStatus"/>
+		<property name="dbListName" value="PatientFamilyStatus"/>
 		<property name="defaultSort" value="orderIndex"/>
 	</bean>
 
 	<!-- defaultSort="value" -->
  	<bean id="list.patient.relationToProband" parent="list.standardValueNoLabel">
-		<property name="dbListName" value="patientRelationToProband"/>
+		<property name="dbListName" value="PatientRelationToProband"/>
 		<property name="defaultSort" value="orderIndex"/>
 	</bean>
 	
 	<bean id="list.patient.twinZygosity" parent="list.standardNumericValue">
-		<property name="dbListName" value="patientTwinZygosity"/>
+		<property name="dbListName" value="PatientTwinZygosity"/>
 		<property name="defaultSort" value="orderIndex"/>
 	</bean>
 	
@@ -95,6 +95,11 @@
 	<bean id="list.generic.state" parent="list.standardValueIsLabel">
 		<property name="dbListName" value="States"/>
 	</bean>		
+
+	<bean id="list.contactInfo.preferredContactMethod" parent="list.standardValueNoLabel">
+		<property name="dbListName" value="PreferredContactMethod"/>
+		<property name="defaultSort" value="orderIndex"/>
+	</bean>
 
 	<bean id="list.generic.phoneType" parent="list.standardValueNoLabel">
 		<property name="dbListName" value="PhoneType"/>
