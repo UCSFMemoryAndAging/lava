@@ -114,5 +114,12 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 		}
 		return model; 
 	}
+	
+	
+//TODO: override doSave to validate that the mapping file has either a PIDN or firstName/lastName fields, and
+// a visitDate field. This would involve opening/reading the mapping file property names (i.e. second row,
+// where first row is the column names) into an array and searching them using ArrayUtils.indexOf
+// presently this validation is being done in the CrmsImportHandler validateDataFile method but would
+//  be better to catch it earlier	
 
 }

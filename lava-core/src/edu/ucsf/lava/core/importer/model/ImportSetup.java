@@ -4,9 +4,14 @@ import java.io.Serializable;
 
 import edu.ucsf.lava.core.file.model.LavaFile;
 
-public class ImportSetup implements Serializable {
+/**
+ * This class contains properties used during the import of a data file. Note that this
+ * is not a persisted class; it just faciliates the import process. 
+ *   
+ * @author ctoohey
+ *
+ */public class ImportSetup implements Serializable {
 	private Long definitionId;
-	private LavaFile dataFile;
 	private String notes; // for importLog
 
 	// these are made class properties to facilitate sharing with subclasses
@@ -32,14 +37,6 @@ public class ImportSetup implements Serializable {
 	
 	public void setDefinitionId(Long definitionId) {
 		this.definitionId = definitionId;
-	}
-
-	public LavaFile getDataFile() {
-		return dataFile;
-	}
-
-	public void setDataFile(LavaFile dataFile) {
-		this.dataFile = dataFile;
 	}
 
 	public String getNotes() {

@@ -12,6 +12,8 @@ or import results (with a Close button) --%>
 <page:applyDecorator name="component.entity.section">
   <page:param name="sectionId">setup</page:param>
   <page:param name="sectionNameKey">import.setup.section</page:param>
+	<%-- if this is an instance customization action the component is 'crmsImport' but if not it
+		is 'import' so explicitly use entityType to get 'import' metadata to cover all cases --%>
 	<tags:createField property="definitionId" component="${component}" entityType="import"/>
 	<c:if test="${componentMode != 'vw'}">
 		<tags:fileUpload paramName="uploadFile"  component="${component}"/>

@@ -30,11 +30,12 @@ CREATE TABLE `import_log` (
   `imported_by` varchar(25) NOT NULL,
   `data_file_id` int DEFAULT NULL,
   `definition_name` varchar(30) NULL,
-  `total_records` smallint NULL,
-  `imported` smallint NULL,
-  `already_exist` smallint NULL,
-  `errors` smallint NULL,
-  `warnings` smallint NULL,
+  `total_records` int NULL,
+  `imported` int NULL,
+  `updated` int NULL,
+  `already_exist` int NULL,
+  `errors` int NULL,
+  `warnings` int NULL,
   `notes` varchar(500) DEFAULT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`log_id`)
@@ -43,7 +44,7 @@ CREATE TABLE `import_log` (
 
 DROP TABLE IF EXISTS `import_log_message`;
 
-CREATE TABLE `import_log_messsage` (
+CREATE TABLE `import_log_message` (
   `message_id` int NOT NULL AUTO_INCREMENT,
   `log_id` int NOT NULL,
   `list_index` int NOT NULL,

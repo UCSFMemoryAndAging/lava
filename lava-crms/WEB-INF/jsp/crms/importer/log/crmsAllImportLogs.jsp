@@ -38,7 +38,7 @@
 			<tags:listField property="importedBy" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="filename" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
+			<tags:listField property="dataFile.name" component="${component}" listIndex="${iterator.index}" metadataName="importLog.dataFilename"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="definitionName" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>

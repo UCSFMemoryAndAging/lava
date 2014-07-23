@@ -15,19 +15,47 @@ public class CrmsImportLog extends ImportLog {
 	private Integer existingContactInfo;
 	private Integer newCaregivers;
 	private Integer existingCaregivers;
-	private Integer newCaregiverContactInfo;
-	private Integer existingCaregiverContactInfo;
+	private Integer newCaregiversContactInfo;
+	private Integer existingCaregiversContactInfo;
 	private Integer newEnrollmentStatuses;
 	private Integer existingEnrollmentStatuses;
 	private Integer newVisits;
 	private Integer existingVisits;
 	private Integer newInstruments;
-	private Integer existingInstruments;
-	private Integer existingInstrumentsWithData;
+	private Integer existingInstruments; // deDate == null
+	private Integer existingInstrumentsWithData; // deDate != null 
 	
 	public CrmsImportLog(){
 		super();
+		this.newPatients = 0;
+		this.existingPatients = 0;
+		this.newContactInfo = 0;
+		this.existingContactInfo = 0;
+		this.newCaregivers = 0;
+		this.existingCaregivers = 0;
+		this.newCaregiversContactInfo = 0;
+		this.existingCaregiversContactInfo = 0;
+		this.newEnrollmentStatuses = 0;
+		this.existingEnrollmentStatuses = 0;
+		this.newVisits = 0;
+		this.existingVisits = 0;
+		this.newInstruments = 0;
+		this.existingInstruments = 0;
+		this.existingInstrumentsWithData = 0; 
 	}
+	
+	public CrmsImportLog(ImportLog importLog){
+		this();
+		this.setImportedBy(importLog.getImportedBy());
+		this.setImportTimestamp(importLog.getImportTimestamp());
+		this.setTotalRecords(importLog.getTotalRecords());
+		this.setImported(importLog.getImported());
+		this.setUpdated(importLog.getUpdated());
+		this.setAlreadyExist(importLog.getAlreadyExist());
+		this.setErrors(importLog.getErrors());
+		this.setWarnings(importLog.getWarnings());
+	}
+	
 
 	public String getProjName() {
 		return projName;
@@ -85,20 +113,20 @@ public class CrmsImportLog extends ImportLog {
 		this.newContactInfo = newContactInfo;
 	}
 
-	public Integer getNewCaregiverContactInfo() {
-		return newCaregiverContactInfo;
+	public Integer getNewCaregiversContactInfo() {
+		return newCaregiversContactInfo;
 	}
 
-	public void setNewCaregiverContactInfo(Integer newCaregiverContactInfo) {
-		this.newCaregiverContactInfo = newCaregiverContactInfo;
+	public void setNewCaregiversContactInfo(Integer newCaregiversContactInfo) {
+		this.newCaregiversContactInfo = newCaregiversContactInfo;
 	}
 
-	public Integer getExistingCaregiverContactInfo() {
-		return existingCaregiverContactInfo;
+	public Integer getExistingCaregiversContactInfo() {
+		return existingCaregiversContactInfo;
 	}
 
-	public void setExistingCaregiverContactInfo(Integer existingCaregiverContactInfo) {
-		this.existingCaregiverContactInfo = existingCaregiverContactInfo;
+	public void setExistingCaregiversContactInfo(Integer existingCaregiversContactInfo) {
+		this.existingCaregiversContactInfo = existingCaregiversContactInfo;
 	}
 
 	public Integer getNewEnrollmentStatuses() {
@@ -182,11 +210,11 @@ public class CrmsImportLog extends ImportLog {
 	}
 
 	public void incNewCaregiverContactInfo() {
-		this.newCaregiverContactInfo++;
+		this.newCaregiversContactInfo++;
 	}
 	
 	public void incExistingCaregiverContactInfo() {
-		this.existingCaregiverContactInfo++;
+		this.existingCaregiversContactInfo++;
 	}
 
 	public void incNewEnrollmentStatuses() {

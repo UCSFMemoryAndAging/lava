@@ -27,13 +27,13 @@ action customizes the core action whose target is 'import' (see BaseFlowBuilder 
 		</page:applyDecorator>
 	</c:if>
 	
-	<c:if test="${flowState == 'review'}"> 
+	<c:if test="${flowState == 'result'}"> 
 		<%-- note that component 'imporResult' is put into the ComponentCommand map as well
 			as the 'import' component. this is done when an import is executed and used to display 
 			results, when indicated by the flowState value. but still want 'import' as 
 			the "primary" component because this is what the handler is using as the default 
 			component object name so it used to set up the component mode and component view --%>
-		<c:import url="/WEB-INF/jsp/core/importer/import/importResultContent.jsp">
+		<c:import url="/WEB-INF/jsp/crms/importer/log/crmsImportLogContent.jsp">
 			<c:param name="component">${component}</c:param>
 		</c:import>
 		

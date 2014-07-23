@@ -23,8 +23,8 @@ component object name so it used to set up the component mode and component view
 			<c:param name="component">${component}</c:param>
 		</c:import>
 	</c:if>	
-	<c:if test="${flowState == 'review'}"> 
-		<c:import url="/WEB-INF/jsp/core/importer/import/importResultContent.jsp">
+	<c:if test="${flowState == 'result'}"> 
+		<c:import url="/WEB-INF/jsp/core/importer/log/importLogContent.jsp">
 			<c:param name="component">${component}</c:param>
 		</c:import>
 	</c:if>	

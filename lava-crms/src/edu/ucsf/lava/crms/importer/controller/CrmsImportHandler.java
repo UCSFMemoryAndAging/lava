@@ -33,10 +33,12 @@ import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentFormAction;
+import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.file.model.LavaFile;
 import edu.ucsf.lava.core.importer.controller.ImportHandler;
 import edu.ucsf.lava.core.importer.model.ImportDefinition;
+import edu.ucsf.lava.core.importer.model.ImportLog;
 import edu.ucsf.lava.core.importer.model.ImportSetup;
 import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.core.model.EntityBase;
@@ -119,38 +121,38 @@ public class CrmsImportHandler extends ImportHandler {
 	
 	public Map getBackingObjects(RequestContext context, Map components) {
 		Map backingObjects = super.getBackingObjects(context, components);
+		CrmsImportSetup importSetup = (CrmsImportSetup) components.get(this.getDefaultObjectName());
 		
 		// replace the importLog for crms
-		CrmsImportLog importLog = new CrmsImportLog();
+		ImportLog baseImportLog = (ImportLog) backingObjects.get("importLog");
+		CrmsImportLog importLog = new CrmsImportLog(baseImportLog);
 		backingObjects.put("importLog", importLog);
 		
 		return backingObjects;
 	}
 	
 	
-//TODO: default projName to "GND Registry"(sp?)	
-	
 	
 	protected Event doImport(RequestContext context, Object command, BindingResult errors) throws Exception {
-//TODO: should ImportSetup eagerly load ImportDefinition because right now explicitly loading it in core ImportHandler		
 		CrmsImportSetup importSetup = (CrmsImportSetup) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
 		CrmsImportLog importLog = (CrmsImportLog) ((ComponentCommand)command).getComponents().get("importLog");
 		Event returnEvent = new Event(this,this.SUCCESS_FLOW_EVENT_ID);
 		Event handlingEvent = null;
-		
+
+		importLog.setProjName(importSetup.getProjName());
+
 		// the CrmsImportSetup command object is used as a parameter object to pass parameters to methods which would
 		// otherwise require many arguments
-		// additionally, its ImportSetup superclass stores properties which facilitate using  properties in this 
-		// handler that are set in its superclass handler, ImportHandler
-		// these include the columns array (mappingCols) and properties array (mappingProps) that ImportHandler creates
-		// when reading the definition mapping file
+		// additionally it facilitates using properties from its ImportSetup superclass in this handler 
+		// these include the columns array (mappingCols) and properties array (mappingProps) that ImportHandler 
+		// creates when reading the definition mapping file
 		if ((returnEvent = super.doImport(context, command, errors)).getId().equals(SUCCESS_FLOW_EVENT_ID)) {
 			CrmsImportDefinition importDefinition = (CrmsImportDefinition) importSetup.getImportDefinition();
 
 			// read data file
-			
 // NOTE: remember to review jfesenko data load script		
 			LavaFile dataFile = this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
+			importLog.setDataFile(dataFile);
 			Scanner fileScanner = new Scanner(new ByteArrayInputStream(dataFile.getContent()), "UTF-8");
 			String currentLine;
 			int lineNum = 0;
@@ -257,32 +259,42 @@ public class CrmsImportHandler extends ImportHandler {
 
 				// find matching instrument. possibly create new instrument. type of instrument specified in the 
 				// importDefinition
-				if ((handlingEvent = instrumentExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					importLog.incErrors();
+				Event instrHandlingEvent = null;
+				if ((instrHandlingEvent = instrumentExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					if (instrHandlingEvent.getAttributes() != null && (Boolean)instrHandlingEvent.getAttributes().get("alreadyExists")) {
+						importLog.incAlreadyExist();
+					}
+					else {
+						importLog.incErrors();
+					}
 					continue;
 				}
 
 //RIGHT HERE 
-// ready to test import log but first have to add all the new count fields from CrmsImportLog to Hibernate mapping and schema
-// also, moved a bunch of properties from Spdc..ImportSetup to CrmsImportSetup but do not believe these are persistent fields
-// get log persisting				
+// get log persisting (test with WESChecklist)				
+// add creation of entities as importLog info messages (test with WESChecklist)				
+// output the log info on import execution and as a list	
+// pedi new patient history import (full, not cut off)				
+// pertinent TODOs in here				
+// import and definition UI cleanup				
 				
 // other majors:
-//   new patient history import (full, not cut off)				
-//     pertinent TODOs in here				
-//   add creation of entities as importLog info messages				
-//   output log info on import execution and as a list	
-//   call calculate on save (or is it done automatically?)				
 // do pedi attachments (consents) when working in the following with LavaFile stuff				
 //   download definition mapping file
 //   persist data file
 // 	 download data file				
-//   import and definition UI cleanup				
-//   open csv				
-//   BASC import
-//   Visit window feature for Rankin
-//     see other Rankin meeting notes				
-//   migrate to MAC LAVA				
+// open csv				
+// call calculate on save (or is it done automatically?)
+// importLog list (view action, show same jsp as on import execution)				
+// BASC import
+// Visit window feature for Rankin
+//   see other Rankin meeting notes				
+// migrate to MAC LAVA
+// expand to work with multiple instruments (crmsImportDefinition will have inputs for up to 15 or 20 
+//    instruments, and will have to rework instrumentExistsHandling to go thru each specified instrument)
+// expand to work with files in folders for special not-exactly-import use cases:
+//      a) for instruments that load individual patient files, e.g. e-prime instruments
+//      b) for PDFs that should be attached to an existing instrument				
 				
 				if ((handlingEvent = otherExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 					importLog.incErrors();
@@ -302,13 +314,27 @@ public class CrmsImportHandler extends ImportHandler {
 				// update counts
 				
 				// applies to entire import record
-				importLog.incImported();
+				if (instrHandlingEvent.getAttributes() != null && (Boolean)instrHandlingEvent.getAttributes().get("update")) {
+					importLog.incUpdated();
+				}
+				else {
+					importLog.incImported();
+				}
 				
 				// these counts apply to specific entities within an import record
 				updateEntityCounts(importSetup, importLog);
 			}
 		}
-
+		
+		importLog.save();
+		
+		
+/*
+Map components = ((ComponentCommand)command).getComponents();
+ScrollablePagedListHolder logMessagesListHolder = new ScrollablePagedListHolder();
+logMessagesListHolder.setSourceFromEntityList(importLog.getMessages());
+components.put("importLogMessages", logMessagesListHolder);
+*/
 		return returnEvent;
 	}	
 	
@@ -331,7 +357,6 @@ public class CrmsImportHandler extends ImportHandler {
 		// uniform value across all records imported from a data file may be specified as part of the import 
 		// definition rather then being supplied in the data file. but the data file takes precedent so first 
 		// check the data file and set the index if the field has a value in the data file.			
-//TODO: global error on entire import file if either no PIDN or no FirstName/LastName 			
 		crmsImportSetup.setIndexPatientPIDN(ArrayUtils.indexOf(importSetup.getMappingProps(), "patient.PIDN")); // only for matching existing Patient; will never set this property b/c new Patient ids are generated by db
 		crmsImportSetup.setIndexPatientFirstName(ArrayUtils.indexOf(importSetup.getMappingProps(), "patient.firstName"));
 		crmsImportSetup.setIndexPatientLastName(ArrayUtils.indexOf(importSetup.getMappingProps(), "patient.lastName"));
@@ -339,7 +364,6 @@ public class CrmsImportHandler extends ImportHandler {
 		crmsImportSetup.setIndexPatientGender(ArrayUtils.indexOf(importSetup.getMappingProps(), "patient.gender"));
 		crmsImportSetup.setIndexEsStatusDate(ArrayUtils.indexOf(importSetup.getMappingProps(), "enrollmentStatus.date"));
 		crmsImportSetup.setIndexEsStatus(ArrayUtils.indexOf(importSetup.getMappingProps(), "enrollmentStatus.status"));
-//TODO: global error on entire import file if no visitDate 			
 		crmsImportSetup.setIndexVisitDate(ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitDate"));
 		crmsImportSetup.setIndexVisitTime(ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitTime"));
 		crmsImportSetup.setIndexVisitType(ArrayUtils.indexOf(importSetup.getMappingProps(), "visit.visitType"));
@@ -353,11 +377,13 @@ public class CrmsImportHandler extends ImportHandler {
 		setOtherIndices((CrmsImportDefinition)importDefinition, crmsImportSetup);
 
 		//TODO: move these checks to the CrmsImportDefinitionHandler
+		// error on entire import if either no PIDN or no FirstName/LastName 			
 		if (crmsImportSetup.getIndexPatientPIDN() == -1 && 
 				(crmsImportSetup.getIndexPatientFirstName() == -1 || crmsImportSetup.getIndexPatientLastName() == -1)) {
 			LavaComponentFormAction.createCommandError(errors, "Insufficient Patient properties (must have PIDN or FirstName Lastname) in Import Definition mapping file");
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
+		// error on entire import if no visitDate 			
 		else if (crmsImportSetup.getIndexVisitDate() == -1) {
 			LavaComponentFormAction.createCommandError(errors, "Import Definition mapping file must have 'visit.visitDate' property to link import record to a date");
 			return new Event(this, ERROR_FLOW_EVENT_ID);
@@ -571,11 +597,13 @@ public class CrmsImportHandler extends ImportHandler {
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
 		}
-		
-		Map<String,Patient> eventAttrMap = new HashMap<String,Patient>();
-		eventAttrMap.put("patient", p);
-		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
-		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
+	
+//TODO: NUKE		
+//		Map<String,Patient> eventAttrMap = new HashMap<String,Patient>();
+//		eventAttrMap.put("patient", p);
+//		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
+//		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
+		return new Event(this, SUCCESS_FLOW_EVENT_ID);
 	}
 
 	
@@ -603,6 +631,8 @@ public class CrmsImportHandler extends ImportHandler {
 		// search for existing enrollmentStatus
 		EnrollmentStatus es = null;
 
+		// if patient was just created, know that the enrollmentStatus could not exist yet, but if patient
+		// was not just created, then check whether enrollmentStatus exists or not
 		if (!importSetup.isPatientCreated()) { 
 			filter.clearDaoParams();
 			filter.setAlias("patient", "patient");
@@ -686,11 +716,13 @@ public class CrmsImportHandler extends ImportHandler {
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
 		}
-	
-		Map<String,EnrollmentStatus> eventAttrMap = new HashMap<String,EnrollmentStatus>();
-		eventAttrMap.put("enrollmentStatus", es);
-		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
-		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
+
+//TODO: NUKE		
+//		Map<String,EnrollmentStatus> eventAttrMap = new HashMap<String,EnrollmentStatus>();
+//		eventAttrMap.put("enrollmentStatus", es);
+//		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
+//		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
+		return new Event(this, SUCCESS_FLOW_EVENT_ID);
 	}
 
 
@@ -755,7 +787,9 @@ public class CrmsImportHandler extends ImportHandler {
 			filter.addDaoParam(filter.daoEqualityParam("visitType", visitType));
 		}
 		
-		if (!importSetup.isPatientCreated() || !importSetup.isEnrollmentStatusCreated()) {
+		// if enrollmentStatus was just created (whether patient just created or patient already existed) then 
+		// know that the Visit could not exist yet. otherwise, check to see if Visit exists or not.
+		if (!importSetup.isEnrollmentStatusCreated()) {
 			filter.clearDaoParams();
 			filter.setAlias("patient", "patient");
 			filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
@@ -774,6 +808,7 @@ public class CrmsImportHandler extends ImportHandler {
 					filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime));
 				}
 				// note: could also use daoDateAndTimeEqualityParam
+				filter.addDaoParam(filter.daoNot(filter.daoEqualityParam("visitStatus", "Cancelled")));
 				
 				try {
 					v = (Visit) Visit.MANAGER.getOne(filter);
@@ -783,7 +818,6 @@ public class CrmsImportHandler extends ImportHandler {
 							" and Visit Date:" + dateOrTimeAsString);
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
-//TODO: check that visit status != 'Cancelled'
 			}
 			else {
 				// this is not the same as Visit does not exist because do not have fields to check that the
@@ -871,11 +905,13 @@ public class CrmsImportHandler extends ImportHandler {
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
 		}
-			
-		Map<String,Visit> eventAttrMap = new HashMap<String,Visit>();
-		eventAttrMap.put("visit", v);
-		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
-		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
+
+//TODO: NUKE		
+//		Map<String,Visit> eventAttrMap = new HashMap<String,Visit>();
+//		eventAttrMap.put("visit", v);
+//		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
+//		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
+		return new Event(this, SUCCESS_FLOW_EVENT_ID);
 	}
 		
 
@@ -901,6 +937,8 @@ public class CrmsImportHandler extends ImportHandler {
 		LavaDaoFilter filter = EntityBase.newFilterInstance();
 		SimpleDateFormat formatter;
 		String dateOrTimeAsString;
+		Map<String,Object> eventAttrMap = new HashMap<String,Object>();
+		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
 		
 		// search for existing instrument
 		Instrument instr = null;
@@ -928,8 +966,8 @@ public class CrmsImportHandler extends ImportHandler {
 			dcDate = importSetup.getVisit().getVisitDate();
 		}
 
-		// if Patient, EnrollmentStatus or Visit were just added, already know instrument could not exist
-		if (!importSetup.isPatientCreated() || !importSetup.isEnrollmentStatusCreated() || !importSetup.isVisitCreated()) {
+		// if Visit just created, know instrument could not exist. otherwise, check if instrument exists or not
+		if (!importSetup.isVisitCreated()) {
 			filter.clearDaoParams();
 			filter.setAlias("patient", "patient");
 			filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
@@ -987,7 +1025,6 @@ public class CrmsImportHandler extends ImportHandler {
 			importSetup.setInstrument(instr);
 		}
 		else { // instrument already exists
-			importSetup.setInstrExisted(true);
 			importSetup.setInstrument(instr);
 			if (importDefinition.getInstrExistRule().equals(MUST_NOT_EXIST)) {
 				importLog.addErrorMessage(lineNum, "Instrument already exists violating Import Definition MUST_NOT_EXIST setting. Patient:" + importSetup.getPatient().getFullNameWithId()
@@ -1013,21 +1050,33 @@ public class CrmsImportHandler extends ImportHandler {
 				
 				// using deDate to determine if instrument has been data entered. not looking for a specific deStatus
 				// such as 'Complete' since data entry could have any number of deStatus values
-				if (instr.getDeDate() != null && !importDefinition.getAllowInstrUpdate()) {
-					// this is not an error in the sense that the there was a problem; rather the ERROR Event is 
-					// returned so the current record is not imported since data already exists, and it is likely
-					// that a data file with this record was already imported. 
-					importSetup.setInstrExistedWithData(true);
-					importLog.addDebugMessage(lineNum, "Instrument exists and has already been data entered. Cannot overwrite per Import Definition. Patient:" + 
-						importSetup.getPatient().getFullNameWithId() + " and Visit Date:" + importSetup.getVisit().getVisitDate());
-					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				if (instr.getDeDate() == null) {
+					importSetup.setInstrExisted(true);
+				}
+				else {
+					if (importDefinition.getAllowInstrUpdate()) {
+						importSetup.setInstrExistedWithData(true);
+						// set an attribute on the return event so the caller can distinguish between an error and the
+						// record already exists
+						eventAttrMap.put("update", Boolean.TRUE);
+					}
+					else {
+						// this is not an error in the sense that the there was a problem; rather the ERROR Event is 
+						// returned so the current record will not be imported since data already exists, and it is likely
+						// that a data file with this record was already imported. 
+						importSetup.setInstrExistedWithData(true);
+						importLog.addDebugMessage(lineNum, "Instrument exists and has already been data entered. Cannot overwrite per Import Definition. Patient:" + 
+							importSetup.getPatient().getFullNameWithId() + " and Visit Date:" + importSetup.getVisit().getVisitDate());
+
+						// set an attribute on the return event so the caller can distinguish between an error and the
+						// record already exists
+						eventAttrMap.put("alreadyExists", Boolean.TRUE);
+						return new Event(this, ERROR_FLOW_EVENT_ID, attributeMap); // to abort processing this import record
+					}
 				}
 			}
 		}
 		
-		Map<String,Instrument> eventAttrMap = new HashMap<String,Instrument>();
-		eventAttrMap.put("instrument", instr);
-		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
 		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
 	}
 

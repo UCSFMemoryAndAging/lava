@@ -41,7 +41,6 @@ public class ImportFlowBuilder extends BaseFlowBuilder {
                        	ifReturnedSuccess(new Action[]{
                        		invoke("customBind", formAction),
                        		invoke("handleFlowEvent", formAction)})),
-                       		
                     transition(on(objectName + "__import"), to("result"), 
                        	ifReturnedSuccess(new Action[]{
                        		invoke("customBind", formAction),

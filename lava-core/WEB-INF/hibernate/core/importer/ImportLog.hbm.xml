@@ -21,12 +21,13 @@
 		<property name="definitionName" column="definition_name" type="string" length="30"/>
 		<property name="totalRecords" column="total_records" type="integer"/>
 		<property name="imported" column="imported" type="integer"/>
+		<property name="updated" column="updated" type="integer"/>
 		<property name="alreadyExist" column="already_exist" type="integer"/>
 		<property name="errors" column="errors" type="integer"/>
-		<property name="warnings" column="errors" type="integer"/>
+		<property name="warnings" column="warnings" type="integer"/>
 		<property name="notes" column="notes" type="string" length="500"/>
    		<list name="messages" table="import_log_message" lazy="false" cascade="all">
-   			<key column="message_id" not-null="true"/>
+   			<key column="log_id" not-null="true"/>
 			<list-index column="list_index" base="1"/>
 			<composite-element class="edu.ucsf.lava.core.importer.model.ImportLog$ImportLogMessage">
 				<property name="type" column="msg_type" type="string" length="10"/>

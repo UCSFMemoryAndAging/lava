@@ -90,8 +90,8 @@ public class CrmsImportSetup extends ImportSetup {
 	private int indexInstrDcStatus;
 	private Instrument instrument;
 	private boolean instrCreated;
-	private boolean instrExisted;
-	private boolean instrExistedWithData;
+	private boolean instrExisted; // instrument exists with no data entered (deDate == null)
+	private boolean instrExistedWithData; // instrument exists with data entered (deDate != null)
 	
 	public CrmsImportSetup() {
 		super();

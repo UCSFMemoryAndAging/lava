@@ -3,6 +3,7 @@ package edu.ucsf.lava.core.importer.model;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import edu.ucsf.lava.core.file.model.LavaFile;
@@ -19,15 +20,29 @@ public class ImportLog extends EntityBase {
 	private LavaFile dataFile;
 	private String definitionName;
 	private Integer totalRecords;
-	private Integer imported;
+	// record imported (generally means row inserted, though  populating an "empty" record could 
+	// qualify as an import instead of an update 
+	private Integer imported; 
+	// update to existing data, mutually exclusive with imported   							
+	private Integer updated; 
+	// record already existed so no import or update
 	private Integer alreadyExist;
+	// record not imported due to an error
 	private Integer errors; 
+	// record imported or updated, but with a warning
 	private Integer warnings; 
 	private String notes; // entered by user when doing the import
 	private List<ImportLogMessage> messages = new ArrayList<ImportLogMessage>(); // warnings, errors
 	
 	public ImportLog(){
 		super();
+		this.totalRecords = 0;
+		this.imported = 0;
+		this.updated = 0;
+		this.alreadyExist = 0;
+		this.errors = 0;
+		this.warnings = 0;
+		this.importTimestamp = new Timestamp(new Date().getTime());
 	}
 	
 	public Timestamp getImportTimestamp() {
@@ -80,6 +95,14 @@ public class ImportLog extends EntityBase {
 
 	public Integer getAlreadyExist() {
 		return alreadyExist;
+	}
+
+	public Integer getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(Integer updated) {
+		this.updated = updated;
 	}
 
 	public void setAlreadyExist(Integer alreadyExist) {
@@ -145,6 +168,10 @@ public class ImportLog extends EntityBase {
 	
 	public void incImported() {
 		this.imported++;
+	}
+
+	public void incUpdated() {
+		this.updated++;
 	}
 
 	public void incAlreadyExist() {

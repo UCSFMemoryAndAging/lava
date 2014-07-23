@@ -30,6 +30,7 @@ import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentFormAction;
+import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.file.model.LavaFile;
 import edu.ucsf.lava.core.importer.model.ImportDefinition;
 import edu.ucsf.lava.core.importer.model.ImportLog;
@@ -115,6 +116,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	 	StateDefinition state = context.getCurrentState();
 
 	 	ImportSetup importSetup = (ImportSetup) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
+	 	ImportLog importLog = (ImportLog) ((ComponentCommand)command).getComponents().get("importLog");
 
 	 	model = super.addReferenceData(context, command, errors, model);
 
@@ -128,6 +130,13 @@ public class ImportHandler extends BaseEntityComponentHandler {
 			Map<String,String> definitionList = listManager.getDynamicList("importDefinition.definitions"); 
 			dynamicLists.put("importDefinition.definitions", definitionList);
 		}
+	 	else if (state.getId().equals("result")){
+			// individual log messages
+			ScrollablePagedListHolder logMessagesListHolder = new ScrollablePagedListHolder();
+			logMessagesListHolder.setSourceFromEntityList(importLog.getMessages());
+			((ComponentCommand)command).getComponents().put("importLogMessages", logMessagesListHolder);
+	 	}
+
 
 	 	// get the list of all importLogs for the selected import definition, to be displayed as a 
 	 	// secondary list component in both "edit" and "result" flow states
@@ -177,10 +186,16 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	
 		
 	protected Event doImport(RequestContext context, Object command, BindingResult errors) throws Exception {
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		ImportSetup importSetup = (ImportSetup) ((ComponentCommand)command).getComponents().get(getDefaultObjectName());
-		
+		ImportLog importLog = (ImportLog) ((ComponentCommand)command).getComponents().get("importLog");
+		AuthUser user = CoreSessionUtils.getCurrentUser(sessionManager, request);
+		importLog.setImportedBy(user.getUserName());
+
 		// definition and mapping file
+//TODO: eagerly load ImportDefinition instead of explicitly loading it		
 		importSetup.setImportDefinition(ImportDefinition.findOneById(importSetup.getDefinitionId()));
+		importLog.setDefinitionName(importSetup.getImportDefinition().getName());
 		LavaFile mappingFile = importSetup.getImportDefinition().getMappingFile();
 		
 		// data file
@@ -200,7 +215,12 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		//UPDATE: write/call method to instantiate a CrmsImportLog, instantiate a LavaFile for the data
 		
 		// definition mapping and data arrays
-//TODO: redo these comments with a definition for each array		
+//TODO: redo these comments with a definition for each String array:
+// String mappingCols[];
+// String mappingProps[];
+// String dataCols[];
+// String dataValues[];
+		
 		// dataColumns are the column headers in the data file so are specific to the data file and can be anything. the same column
 		// headers are in the definition mapping file and these are stored in columns array. the properties array is mapped to columns
 		// in the definition mapping file and the values are class property names that can be set via reflection
@@ -272,6 +292,8 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		if (validateDataFile(errors, importSetup.getImportDefinition(), importSetup).getId().equals(ERROR_FLOW_EVENT_ID)) {
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
+		
+		
 
 		return new Event(this, SUCCESS_FLOW_EVENT_ID);		
 	}
