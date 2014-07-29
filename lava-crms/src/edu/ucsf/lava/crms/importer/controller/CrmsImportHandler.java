@@ -261,7 +261,8 @@ public class CrmsImportHandler extends ImportHandler {
 				// importDefinition
 				Event instrHandlingEvent = null;
 				if ((instrHandlingEvent = instrumentExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					if (instrHandlingEvent.getAttributes() != null && (Boolean)instrHandlingEvent.getAttributes().get("alreadyExists")) {
+					// it is simply enough to check for the existence of the "alreadyExists" attribute, i.e. do not need to check its value
+					if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("alreadyExists") != null) {
 						importLog.incAlreadyExist();
 					}
 					else {
@@ -270,12 +271,18 @@ public class CrmsImportHandler extends ImportHandler {
 					continue;
 				}
 
-//RIGHT HERE 
-// get log persisting (test with WESChecklist)				
-// add creation of entities as importLog info messages (test with WESChecklist)				
-// output the log info on import execution and as a list	
+//RIGHT HERE
+// crmsAllImportLogs needs a Filter
+// crmsAllImportLogs needs to format importTimestamp in page title
+// crmsImportLog needs a table for log results
+// importLog/crmsImportLog needs to get rid of edit
+// importLog/crmsImportLog needs to transfer notes from importSetup to importLog				
+// add creation of entities as importLog info messages (test with WESChecklist)
+// ?? create preview mode, at least for development, that does not do anything to db				
 // pedi new patient history import (full, not cut off)				
-// pertinent TODOs in here				
+// pertinent TODOs in here
+// Rankin TODOs (e.g. match Visit on Visit Type, match Visit Date on time window)
+//   note: these Rankin TODOs can wait until migrate to MAC LAVA in August/Sept.				
 // import and definition UI cleanup				
 				
 // other majors:
@@ -314,7 +321,8 @@ public class CrmsImportHandler extends ImportHandler {
 				// update counts
 				
 				// applies to entire import record
-				if (instrHandlingEvent.getAttributes() != null && (Boolean)instrHandlingEvent.getAttributes().get("update")) {
+				// it is simply enough to check for the existence of the "update" attribute, i.e. do not need to check its value
+				if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("update") != null) {
 					importLog.incUpdated();
 				}
 				else {
