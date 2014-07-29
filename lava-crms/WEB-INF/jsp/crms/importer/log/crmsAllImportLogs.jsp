@@ -1,6 +1,5 @@
 <%@ include file="/WEB-INF/jsp/includes/include.jsp" %>
 
-
 <c:set var="component" value="allImportLogs"/>
 
 <page:applyDecorator name="component.content">
@@ -13,23 +12,19 @@
 
 <content tag="listColumns">
 <tags:listRow>
-	<tags:componentListColumnHeader component="${component}" label="Action" width="8%"/>
-	<tags:componentListColumnHeader component="${component}" label="Project" width="15%" sort="projName"/>
+	<tags:componentListColumnHeader component="${component}" label="&nbsp;" width="3%"/>
 	<tags:componentListColumnHeader component="${component}" label="Timestamp" width="12%" sort="importTimestamp" />
 	<tags:componentListColumnHeader component="${component}" label="ImportedBy" width="15%" sort="importedBy"/>
-	<tags:componentListColumnHeader component="${component}" label="Data File" width="25%"/>
-<%-- TODO: probably change this col from definition to a results summary --%>	
-	<tags:componentListColumnHeader component="${component}" label="Definition" width="25%"/>
+	<tags:componentListColumnHeader component="${component}" label="Data File" width="20%" sort="dataFile.name"/>
+	<tags:componentListColumnHeader component="${component}" label="Definition" width="15%"/>
+	<tags:componentListColumnHeader component="${component}" label="Summary" width="35%"/>
 </tags:listRow>
 </content>
 
 <tags:list component="${component}" >
 	<tags:listRow>
 		<tags:listCell styleClass="actionButton">
-			<tags:listActionURLButton buttonImage="view" actionId="lava.crms.importer.log.importLog" eventId="importLog__view" idParam="${item.id}"/>	    
-		</tags:listCell>
-		<tags:listCell>
-			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
+			<tags:listActionURLButton buttonImage="view" actionId="lava.core.importer.log.importLog" eventId="importLog__view" idParam="${item.id}"/>	    
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="importTimestamp" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
@@ -42,6 +37,10 @@
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="definitionName" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
+		</tags:listCell>
+		<tags:listCell>
+			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="importLog"/><br/>
+			<tags:listField property="summaryBlock" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
 		</tags:listCell>
 	</tags:listRow>
 </tags:list>
