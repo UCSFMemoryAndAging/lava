@@ -109,5 +109,6 @@ two decimal place intervals use
 <import resource="lists/lists-common.xml"/>
 <import resource="lists/lists-file.xml"/>
 <import resource="lists/lists-home.xml"/>
+<import resource="lists/lists-import.xml"/>
 <import resource="lists/lists-session.xml"/>
 </beans>

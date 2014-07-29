@@ -44,6 +44,11 @@ public class ProjectContextHandler extends CrmsContextChangeComponentHandler{
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		//load up dynamic lists
 		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
+		// note that this list is filtered via projectAuth filter. CrmsAuthUser getAuthDaoFilters determines the 
+		// projects to which a user has some kind of access (the specific type of access could be further governed
+		// by permissions so if this list were obtained for a handler for a specific action then the list should
+		// additionally be filtered to make sure the user has permission for the given action for each project
+		// in the list)
 		dynamicLists.put("context.projectList", 
 			listManager.getDynamicList(CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request), "context.projectList"));
 		model.put("dynamicLists", dynamicLists);

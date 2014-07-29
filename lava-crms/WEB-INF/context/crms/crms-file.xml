@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+     
+	<bean id="crmsFileRepository" class="edu.ucsf.lava.core.file.BaseFileRepository">
+		<!-- id must be set before repositories because setRepositories uses id -->
+		<property name="id" value="lava_crms"/>
+		<property name="order" value="0"/>
+		<property name="repositories"><ref bean="fileRepositories"/></property>
+		<property name="strategy"><ref bean="crmsRepositoryStrategy"/></property>
+	</bean>
+	
+	<bean id="crmsRepositoryStrategy" class="edu.ucsf.lava.crms.file.CrmsRepositoryStrategy">
+		<property name="rootPath" value="/var/lava_repository/crms"/>
+		<property name="archiveRoot" value="/var/lava_repository/crms/archive"/>
+	</bean>
+	
+</beans>
+	

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+	<joined-subclass name="edu.ucsf.lava.crms.importer.model.CrmsImportDefinition" table="crms_import_definition" extends="edu.ucsf.lava.core.importer.model.ImportDefinition" select-before-update="true">
+		<key column="definition_id"/>		
+		<property name="patientExistRule" column="patient_exist_rule" type="short"/>
+		<property name="allowPatientUpdate" column="patient_update" type="boolean"/>
+		<property name="esExistRule" column="es_exist_rule" type="short"/>
+		<property name="allowEsUpdate" column="es_update" type="boolean"/>
+		<property name="esStatus" column="es_status" type="string" length="25"/>
+		<property name="visitExistRule" column="visit_exist_rule" type="short"/>
+		<property name="allowVisitUpdate" column="visit_update" type="boolean"/>
+		<property name="visitType" column="visit_type" type="string" length="25"/>
+		<property name="visitLoc" column="visit_loc" type="string" length="25"/>
+		<property name="visitWith" column="visit_with" type="string" length="25"/>
+		<property name="visitStatus" column="visit_status" type="string" length="25"/>
+		<property name="instrExistRule" column="instr_exist_rule" type="short"/>
+		<property name="allowInstrUpdate" column="instr_update" type="boolean"/>
+		<property name="instrType" column="instr_type" type="string" length="25"/>
+		<property name="instrVer" column="instr_ver" type="string" length="25"/>
+		<property name="instrDcStatus" column="instr_dc_status" type="string" length="25"/>
+	</joined-subclass>
+</hibernate-mapping>

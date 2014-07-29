@@ -2,7 +2,7 @@ package edu.ucsf.lava.core.controller;
 
 import static edu.ucsf.lava.core.webflow.builder.EntityFlowTypeBuilder.ENTITY_EVENTS;
 
-import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,16 +26,16 @@ import org.springframework.webflow.execution.RequestContext;
 import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.action.model.Action;
 import edu.ucsf.lava.core.auth.model.AuthUser;
+import edu.ucsf.lava.core.file.exception.AlreadyExistsFileAccessException;
+import edu.ucsf.lava.core.file.exception.FileAccessException;
+import edu.ucsf.lava.core.file.exception.NoFileSelectedException;
+import edu.ucsf.lava.core.file.model.LavaFile;
 import edu.ucsf.lava.core.logiccheck.controller.LogicCheckUtils;
 import edu.ucsf.lava.core.logiccheck.model.LogicCheckIssue;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.LavaEntity;
 import edu.ucsf.lava.core.model.ValidationException;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
-import edu.ucsf.lava.core.controller.LavaComponentFormAction;
-import edu.ucsf.lava.core.file.exception.AlreadyExistsFileAccessException;
-import edu.ucsf.lava.core.file.exception.FileAccessException;
-import edu.ucsf.lava.core.file.model.LavaFile;
 
 
 /*
@@ -338,7 +338,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		 
 	 // override this subclass to set required fields where the request event is needed to 
 	 // determine which fields to set as required. if the required fields are not dependent
-	 // upon request-specific data, override setRequiredFields instead
+	 // upon request-specific data, call setRequiredFields instead
 	 protected String[] defineRequiredFields(RequestContext context, Object command) {
 		 return getRequiredFields();
 	 }
@@ -765,27 +765,35 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 			return this.doUploadFile(context, command, errors);
 		}
 	public Event doUploadFile(RequestContext context, Object command, BindingResult errors) throws Exception {
+		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
 		LavaFile lavaFile = this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
 		if(lavaFile==null){return new Event(this,ERROR_FLOW_EVENT_ID);}
+		
+		// have to use getDeclaredMethod instead of getMethod for non-public methods
+		Method doSaveMethod = BaseEntityComponentHandler.class.getDeclaredMethod("doSave", new Class[]{RequestContext.class, Object.class, BindingResult.class});
+		returnEvent = fileOperationHandler(doSaveMethod, context, command, errors);		
+		
+		return returnEvent;
+	}
+	
+	protected Event fileOperationHandler(Method fileOperationCallback, RequestContext context, Object command, BindingResult errors) throws Exception {
+		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
+		
 		try {
-			this.doSave(context, command, errors);
+			returnEvent = (Event) fileOperationCallback.invoke(this, new Object[]{context, command, errors});
 		} catch (AlreadyExistsFileAccessException e){
 			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.fileExistsException"}, null, ""));
 			return new Event(this,ERROR_FLOW_EVENT_ID);	
 		} catch (FileAccessException e){
 			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.genericException"}, null, ""));
 			return new Event(this,ERROR_FLOW_EVENT_ID);			
-		} catch (IOException e){
-			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.noFileException"}, null, ""));
-			return new Event(this,ERROR_FLOW_EVENT_ID);	
 		} catch (Exception e){
 			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.genericException"}, null, ""));
 			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
 		
-		return new Event(this,SUCCESS_FLOW_EVENT_ID);
+		return returnEvent;
 	}
-
 
 	protected LavaFile getUploadFile(RequestContext context, Map components, BindingResult errors) throws Exception {
 		LavaFile lavaFile = this.getLavaFileBackingObject(context, components, errors);
@@ -798,7 +806,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		String fileName = paths[paths.length-1];
 		
 		if (fileName.equals("")){
-			throw new IOException("Upload file error: No file selected");
+			throw new NoFileSelectedException("Upload file error: No file selected");
 		}
 		
 		lavaFile.setName(fileName);
@@ -807,6 +815,40 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		lavaFile.setFileStatus(LavaFile.DEFAULT_UPLOADED_STATUS);
 		return lavaFile; 
 	}
+
+	/**
+	 * This is a callback method for subclasses to implement with file operation(s) that should be done on a
+	 * saveAdd. Note this differs from doUploadFile which is persisting LavaFile object along with writing its
+	 * file to the repository, whereas this is part of persisting a command object which has a LavaFile object
+	 * as a property such that the LavaFile repository operations need to be done explicitly.
+	 * 
+	 * @param context
+	 * @param command
+	 * @param errors
+	 * @return
+	 * @throws Exception
+	 */
+	protected Event saveAddFileCallback(RequestContext context, Object command, BindingResult errors) throws Exception {
+		return new Event(this,SUCCESS_FLOW_EVENT_ID);
+	}
+
+
+	/**
+	 * This is a callback method for subclasses to implement with file operation(s) that should be done on a
+	 * save. Note this differs from doUploadFile which is persisting LavaFile object along with writing its
+	 * file to the repository, whereas this is part of persisting a command object which has a LavaFile object
+	 * as a property such that the LavaFile repository operations need to be done explicitly.
+	 * 
+	 * @param context
+	 * @param command
+	 * @param errors
+	 * @return
+	 * @throws Exception
+	 */
+	protected Event saveFileCallback(RequestContext context, Object command, BindingResult errors) throws Exception {
+		return new Event(this,SUCCESS_FLOW_EVENT_ID);
+	}
+
 	
 	public Event handleFinishUploadFileEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
 		return this.doFinishUploadFile(context, command, errors);

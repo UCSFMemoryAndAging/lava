@@ -16,13 +16,6 @@
 	<bean id="lava.crms.admin.auth.crmsAuthUser" parent="crmsEntityFlowAction">
     	<property name="customizedFlow" value="lava.core.admin.auth.authUser"/>
     </bean>
-    <!-- 
-	<bean id="lava.core.admin.auth.authUser" parent="coreEntityFlowAction">
-		<property name="parentFlows"><list>
-  			<value>lava.core.admin.auth.authUsers</value>
-  		</list></property>
-	</bean>
-	 -->	
 	
     <bean id="lava.crms.admin.auth.crmsAuthRole" parent="crmsEntityFlowAction">
     	<property name="customizedFlow" value="lava.core.admin.auth.authRole"/>

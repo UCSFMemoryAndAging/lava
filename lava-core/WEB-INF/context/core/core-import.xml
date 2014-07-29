@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!--  parent is coreAction instead of coreEntityFlowAction because the action uses the import flow,
+		not the entity flow -->
+ 	<bean id="lava.core.importer.import.import" parent="coreAction">
+ 		<property name="flowTypeBuilder"><ref bean="coreImportFlowTypeBuilder"/></property>
+ 	  	<property name="moduleDefault" value="true"/>
+  		<property name="sectionDefault" value="true"/>
+ 	</bean>		
+
+ 	<bean id="lava.core.importer.launcher.importLaunch" parent="coreAction">
+ 		<property name="flowTypeBuilder"><ref bean="coreStaticPageFlowTypeBuilder"/></property>
+  		<property name="sectionDefault" value="true"/>
+	</bean> 	
+
+	<bean id="lava.core.importer.log.allImportLogs" parent="coreSectionListAction"/>
+ 				
+	<!-- user can view import log which will have details (info, warning alert msgs), but there
+		is no add/edit/delete (log entries are added in by the importing action)  -->
+	<bean id="lava.core.importer.log.importLog" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.importer.log.allImportLogs</value>
+		</list></property>
+	</bean>	
+
+	<bean id="lava.core.importer.definition.allImportDefinitions" parent="coreSectionListAction"/>
+				
+ 	<bean id="lava.core.importer.definition.importDefinition" parent="coreEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.core.importer.definition.allImportDefinitions</value>
+		</list></property>
+	</bean>
+
+	<!-- form action definitions -->
+	
+	<bean id="importFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.importer.controller.ImportHandler" parent="coreHandler"/>
+		<bean class="edu.ucsf.lava.core.importer.controller.AllImportLogsHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+	
+	<bean id="importLaunchFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.controller.StaticPageHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+   
+	<bean id="allImportLogsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.importer.controller.AllImportLogsHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>  	   
+
+	<bean id="importLogFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.importer.controller.ImportLogHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+   
+	<bean id="allImportDefinitionsFormAction" parent="coreListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.importer.controller.AllImportDefinitionsHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>  	   
+ 
+ 	<bean id="importDefinitionFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.core.importer.controller.ImportDefinitionHandler" parent="coreHandler"/>
+	</list></constructor-arg></bean>
+	
+	
+	<!-- import file repository for data files and definition mapping files -->
+	<bean id="importLavaFileRepository" class="edu.ucsf.lava.core.file.BaseFileRepository">
+		<property name="id" value="import_repository"/>
+		<!-- this repository is the only one for import files so order is not important but must be specified -->
+		<property name="order" value="0"/>
+		<property name="repositories"><ref bean="fileRepositories"/></property>
+		<property name="strategy"><ref bean="importRepositoryStrategy"/></property>
+	</bean>
+	
+	<bean id="importRepositoryStrategy" class="edu.ucsf.lava.core.file.ImportRepositoryStrategy">
+		<property name="rootPath" value="/home/ctoohey/lava_repository/import"/>
+		<property name="archiveRoot" value="/home/ctoohey/lava_repository/import/archive"/>
+			
+	</bean>
+ 
+</beans>

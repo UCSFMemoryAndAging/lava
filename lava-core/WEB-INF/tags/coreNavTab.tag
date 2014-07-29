@@ -12,7 +12,9 @@
               description="the default target identifier to use for the default module action" %>
 <%@ attribute name="idParam" required="false"  
               description="optional id param for the action" %>
+<%@ attribute name="startMode" required="false"
+			  description="flow Mode, defaults to 'view'"%>
 <%@ attribute name="disabled" required="false"  
               description="indicates that the tab should be disabled (e.g. modal state)" %>
     
-<tags:navTab text="${text}" selected="${currentAction.module == module ? true : false}" actionId="lava.defaultScope.${module}.${empty defaultTargetIdentifier ? 'defaultAction' : defaultTargetIdentifier}" idParam="${idParam}" disabled="${disabled}"/>
+<tags:navTab text="${text}" selected="${currentAction.module == module ? true : false}" actionId="lava.defaultScope.${module}.${empty defaultTargetIdentifier ? 'defaultAction' : defaultTargetIdentifier}" startMode="${startMode}" idParam="${idParam}" disabled="${disabled}"/>

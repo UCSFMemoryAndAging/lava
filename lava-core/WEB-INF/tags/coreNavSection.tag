@@ -17,6 +17,8 @@
               description="the default target identifier to use for the default module action" %>
 <%@ attribute name="idParam" required="false"  
               description="optional id param for the action" %>
+<%@ attribute name="startMode" required="false"
+			  description="flow Mode, defaults to 'view'"%>
 <%@ attribute name="disabled" required="false"  
               description="indicates that the section link should be disabled (e.g. modal state)" %>
 <%@ attribute name="lastSection" required="false" 
@@ -26,5 +28,5 @@
 <c:if test="${currentAction.module == module}">    
 	<tags:navSection text="${text}" textCode="${textCode}" selected="${currentAction.section == section ? true : false}" 
 			actionId="lava.defaultScope.${module}.${section}.${empty defaultTargetIdentifier ? 'defaultAction' : defaultTargetIdentifier}" 
-			idParam="${idParam}" disabled="${disabled}" lastSection="${lastSection}"/>
+			startMode="${startMode}" idParam="${idParam}" disabled="${disabled}" lastSection="${lastSection}"/>
 </c:if>

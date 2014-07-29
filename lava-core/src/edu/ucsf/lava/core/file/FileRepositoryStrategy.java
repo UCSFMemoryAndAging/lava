@@ -16,19 +16,6 @@ import edu.ucsf.lava.core.file.model.LavaFile;
 public interface FileRepositoryStrategy {
 	
 	/**
-	 * Set the object reference back to the repository instance.
-	 * @param repository
-	 */
-	public void setRepository(FileRepository repository);
-	
-	/**
-	 * Gets the object reference to the repository instance.
-	 * @return
-	 */
-	public FileRepository getRepository();
-	
-
-	/**
 	 * Connect to repository.
 	 * @return true if connection succeeds or already connected
 	 * @throws FileAccessException

@@ -1,7 +1,5 @@
 package edu.ucsf.lava.crms.assessment.model;
 
-import static edu.ucsf.lava.crms.assessment.controller.InstrumentComponentFormAction.INSTRUMENT;
-
 import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -17,7 +15,6 @@ import org.apache.commons.lang.StringUtils;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
-
 import edu.ucsf.lava.crms.logiccheck.model.InstrumentLogicCheck;
 import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
 import edu.ucsf.lava.crms.model.CrmsEntity;
@@ -151,6 +148,14 @@ public class Instrument extends CrmsEntity {
 	
 	public String getInstrTypeEncoded(){
 		return this.getEntityNameEncoded(true);
+	}
+
+	public static String getInstrTypeEncoded(String instrType, String instrVersion) {
+		return EntityBase.getEntityNameEncoded(instrType, instrVersion);
+	}
+
+	public static String getInstrTypeEncoded(String instrType) {
+		return EntityBase.getEntityNameEncoded(instrType, null);
 	}
 	
 		

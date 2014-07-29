@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean id="list.importDefinition.definitions" parent="list.dynamic">
+		<property name="query" value="list.importDefinition.definitions"/>
+	</bean>
+
+	<bean id="list.importDefinition.dataFileFormat" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="CSV"/><constructor-arg value="CSV"/></bean>
+			<bean parent="list.data"><constructor-arg value="TAB"/><constructor-arg value="TAB"/></bean>
+		</list></property>	
+	</bean>
+	
+	<!-- this is a suggest list --> 	
+	<bean id="list.importDefinition.dateFormat" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="MM/dd/yyyy"/><constructor-arg value="MM/dd/yyyy"/></bean>
+		</list></property>	
+	</bean>
+
+	<!-- this is a suggest list --> 	
+	<bean id="list.importDefinition.timeFormat" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="hh:mm a"/><constructor-arg value="hh:mm a"/></bean>
+		</list></property>	
+	</bean>
+			
+</beans>

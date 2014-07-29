@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+	<joined-subclass name="edu.ucsf.lava.crms.importer.model.CrmsImportLog" table="crms_import_log" extends="edu.ucsf.lava.core.importer.model.ImportLog" select-before-update="true">
+		<key column="log_id"/>		
+		<property name="projName" type="string" length="75" column="ProjName" not-null="true"/>
+		<property name="newPatients" column="new_patients" type="integer"/>
+		<property name="existingPatients" column="existing_patients" type="integer"/>
+		<property name="newContactInfo" column="new_contact_info" type="integer"/>
+		<property name="existingContactInfo" column="existing_contact_info" type="integer"/>
+		<property name="newCaregivers" column="new_caregivers" type="integer"/>
+		<property name="existingCaregivers" column="existing_caregivers" type="integer"/>
+		<property name="newCaregiversContactInfo" column="new_caregivers_contact_info" type="integer"/>
+		<property name="existingCaregiversContactInfo" column="existing_caregivers_contact_info" type="integer"/>
+		<property name="newEnrollmentStatuses" column="new_enroll_statuses" type="integer"/>
+		<property name="existingEnrollmentStatuses" column="existing_enroll_statuses" type="integer"/>
+		<property name="newVisits" column="new_visits" type="integer"/>
+		<property name="existingVisits" column="existing_visits" type="integer"/>
+		<property name="newInstruments" column="new_instrs" type="integer"/>
+		<property name="existingInstruments" column="existing_instrs" type="integer"/>
+		<property name="existingInstrumentsWithData" column="existing_instrs_w_data" type="integer"/>
+	</joined-subclass>
+</hibernate-mapping>

@@ -2,7 +2,6 @@ package edu.ucsf.lava.core.file.model;
 
 
 
-import edu.ucsf.lava.core.file.FileRepository;
 import edu.ucsf.lava.core.file.FileManager;
 import edu.ucsf.lava.core.file.exception.FileAccessException;
 import edu.ucsf.lava.core.model.EntityManagerBase;
