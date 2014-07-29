@@ -6,7 +6,7 @@
 
 <page:applyDecorator name="component.content">
   <page:param name="component">${component}</page:param>
-  <page:param name="pageHeadingArgs"><tags:componentProperty component="${component}" property="importTimestamp"/>,<tags:componentProperty component="${component}" property="filename"/></page:param>
+  <page:param name="pageHeadingArgs"><tags:componentProperty component="${component}" property="importTimestamp"/>,<tags:componentProperty component="${component}" property="dataFile" property2="name"/></page:param>
  
 <page:applyDecorator name="component.entity.content">
   <page:param name="component">${component}</page:param>
