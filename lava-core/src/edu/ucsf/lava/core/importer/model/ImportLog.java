@@ -185,6 +185,16 @@ public class ImportLog extends EntityBase {
 	public void incWarnings() {
 		this.warnings++;
 	}
+	
+	public String getSummaryBlock() {
+		StringBuffer sb = new StringBuffer("Total=").append(this.getTotalRecords()).append(", ");
+		sb.append("Imported=").append(this.getImported()).append(", ");
+		sb.append("Updated=").append(this.getUpdated()).append("\n");
+		sb.append("Already Exists=").append(this.getAlreadyExist()).append(", ");
+		sb.append("Errors=").append(this.getErrors()).append(", ");
+		sb.append("Warnings=").append(this.getWarnings());
+		return sb.toString();
+	}
 
 	public static class ImportLogMessage implements Serializable {
 		private String type;
