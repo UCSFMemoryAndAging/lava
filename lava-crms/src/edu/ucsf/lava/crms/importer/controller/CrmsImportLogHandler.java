@@ -19,7 +19,7 @@ public class CrmsImportLogHandler extends ImportLogHandler {
 	
 	public CrmsImportLogHandler() {
 		super();
-		setHandledEntity("crmsImportLog", CrmsImportLog.class);
+		setHandledEntity("importLog", CrmsImportLog.class);
 	}
 	
 	/**
