@@ -17,8 +17,6 @@ public class CrmsAllImportDefinitionsHandler extends AllImportDefinitionsHandler
 	
 	public CrmsAllImportDefinitionsHandler() {
 		super();
-//PROB DO NOT NEED THIS SINCE SAME AS SUPERCLASS		
-		this.setHandledList("allImportDefinitions","importDefinition");
 		this.setEntityForStandardSourceProvider(CrmsImportDefinition.class);
 	}
 	
