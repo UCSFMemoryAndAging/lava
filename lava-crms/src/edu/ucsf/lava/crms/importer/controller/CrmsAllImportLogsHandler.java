@@ -17,8 +17,6 @@ public class CrmsAllImportLogsHandler extends AllImportLogsHandler {
 	
 	public CrmsAllImportLogsHandler() {
 		super();
-//PROB DO NOT NEED THIS SINCE SAME AS SUPERCLASS		
-		this.setHandledList("allImportLogs","importLog");
 		this.setEntityForStandardSourceProvider(CrmsImportLog.class);
 	}
 	
@@ -38,6 +36,7 @@ public class CrmsAllImportLogsHandler extends AllImportLogsHandler {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter =  CrmsSessionUtils.setFilterProjectContext(sessionManager,request,CrmsImportLog.newFilterInstance(getCurrentUser(request)));
 		filter.addDefaultSort("importTimestamp",true);
+		filter.setAlias("dataFile","dataFile");
 		return filter;
 	}
 	
