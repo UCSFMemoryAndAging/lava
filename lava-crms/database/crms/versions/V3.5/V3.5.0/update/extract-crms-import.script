@@ -1,0 +1,1 @@
+mysql -s -r -u pedi -p pedi < extract-crms-import-data.sql > lava-crms-import-data.sql
