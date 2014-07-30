@@ -1,0 +1,1 @@
+mysql -s -r -u lava_pedi -p lava_pedi < extract-crms-patient-data.sql > lava-crms-patient-data.sql
