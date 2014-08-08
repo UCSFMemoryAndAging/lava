@@ -31,6 +31,7 @@ import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
+import edu.ucsf.lava.core.file.model.ImportFile;
 import edu.ucsf.lava.core.file.model.LavaFile;
 import edu.ucsf.lava.core.importer.model.ImportDefinition;
 import edu.ucsf.lava.core.importer.model.ImportLog;
@@ -75,6 +76,24 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		this.convertUtilsBean = BeanUtilsBean.getInstance().getConvertUtils();
 		this.setupBeanUtilConverters();
 	}
+	
+	 public void prepareToRender(RequestContext context, Object command, BindingResult errors) {
+		 // check the flow id, and if necessary, the event id, to determine how to set componentMode
+		 // and componentView for this component
+		 HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		 String event = ActionUtils.getEventName(context);
+		 String flowMode = ActionUtils.getFlowMode(context.getActiveFlow().getId()); 
+		 StateDefinition state = context.getCurrentState();
+
+		if (state.getId().equals("edit")) {
+			setComponentMode(request, getDefaultObjectName(), "dc");
+			setComponentView(request, getDefaultObjectName(), "edit");
+		}
+		else if (state.getId().equals("result")) {
+			setComponentMode(request, getDefaultObjectName(), "vw");
+			setComponentView(request, getDefaultObjectName(), "view");
+		}
+	 }
 
 	public Event authorizationCheck(RequestContext context) throws Exception {
 		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
@@ -175,7 +194,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	// this is called in getUploadFile which uploads the specified file and populates the mappingFile LavaFile properties
 	protected LavaFile getLavaFileBackingObject(RequestContext context, Map components, BindingResult errors) throws Exception{
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		LavaFile dataFile = new LavaFile();
+		LavaFile dataFile = new ImportFile();
 		dataFile.setContentType(IMPORT_DATA_FILE_TYPE);
 		dataFile.setRepositoryId(IMPORT_REPOSITORY_ID);
 		AuthUser user = CoreSessionUtils.getCurrentUser(sessionManager, request);
@@ -274,7 +293,11 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		}
 
 		// read in the data column headers
-		LavaFile dataFile = this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
+		ImportFile dataFile = (ImportFile) this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
+		// dataFile needs definitionName for generating a location in the repository (folder is named after the definition name
+		// with encoding as necessary
+		dataFile.setDefinitionName(importLog.getDefinitionName());
+		importLog.setDataFile(dataFile);
 		fileScanner = new Scanner(new ByteArrayInputStream(dataFile.getContent()), "UTF-8");
 		if (fileScanner.hasNextLine()) {
 			currentLine = fileScanner.nextLine().trim();
@@ -293,8 +316,21 @@ public class ImportHandler extends BaseEntityComponentHandler {
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		
+		// persist the dataFile file to the file repository. the dataFile itself is an ImportFile property of
+		// the importLog record and will be persisted when importLog is persisted. 
+		// note: this is not part of the BaseEntityComponentHandler fileOperationHandler as this is not
+		// part of saving an entity via UI event handling. rather, the dataFile and importLog are saved
+		// here as artifacts of the import action to import data
 		
+		// dataFile is saved as a historical record of the import and will never be replaced by another
+		// file, so can just call saveFile, not saveOrUpdateFile
+		dataFile.saveFile();
 
+		
+		// logImport.save() is not called here. it must therefore be called in a subclass or this
+		// method should be refactored so that it is called here after it is populated.
+		
+		
 		return new Event(this, SUCCESS_FLOW_EVENT_ID);		
 	}
 
