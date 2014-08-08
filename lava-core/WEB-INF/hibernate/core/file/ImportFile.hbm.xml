@@ -5,10 +5,12 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <!-- this is required so that LavaFile can be subclassed to store non-persistent properties
-to be used in the respository strategy generateLocation method. A subclass of a persistent 
-class must have a Hibernate mapping even if there are no additional persistent fields -->    
+to be used in the respository strategy generateLocation method for both import definition mapping
+files and import data files. A subclass of a persistent class must have a Hibernate mapping even
+if there are no additional persistent fields -->   
+ 
 <hibernate-mapping>
-	<joined-subclass name="edu.ucsf.lava.core.file.model.ImportDefinitionMappingFile" table="import_definition_mapping_file" extends="edu.ucsf.lava.core.file.model.LavaFile" select-before-update="true">
+	<joined-subclass name="edu.ucsf.lava.core.file.model.ImportFile" table="import_file" extends="edu.ucsf.lava.core.file.model.LavaFile" select-before-update="true">
 		<key column="id"/>		
 	</joined-subclass>
 </hibernate-mapping>
