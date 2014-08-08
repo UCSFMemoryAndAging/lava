@@ -17,8 +17,21 @@
     <!-- note default is primarily a test configuration and is not used in the demo app which
      	uses CrmsFileRepository. applications should configure their own repository and
      	strategy to define the organizational structure of the repository, i.e. directory
-     	structure and file naming. see CrmsFileRepository, ImportFileRepository -->
-	<bean id="defaultLavaFileRepository" class="edu.ucsf.lava.core.file.BaseFileRepository">
+     	structure and file naming. see lava-crms CrmsFileRepository, lava-core ImportFileRepository.
+     	
+     	these repository and strategy beans would work using the rootPath and archiveRoot
+     	configured here, and using the generateFileId and generateLocation methods implemented in
+     	LocalFileSystemRepositoryStrategy. an application would typically subclass the strategy
+     	and configure its own repository and strategy beans (where the repository could still use
+     	the BaseFileRepository class and its strategy would be a bean configured with the subclassed
+     	strategy class). the app would configure app specific values for rootPath and archivePath
+     	in the strategy bean, and override generateFileId and generateLocation in the strategy subclass
+     	(unless the implementations in LocalFileSystemRepositoryStrategy would suffice). The application 
+     	should make sure that the repositoryId of any LavaFile instances is set to whatever id is
+     	set for the repository in the bean configuration (e.g. "lava_default" below) 
+     -->
+     	 
+	<bean abstract="true" id="defaultLavaFileRepository" class="edu.ucsf.lava.core.file.BaseFileRepository">
 		<!-- id must be set before repositories because setRepositories uses id -->
 		<property name="id" value="lava_default"/>
 		<property name="order" value="0"/>
@@ -26,7 +39,7 @@
 		<property name="strategy"><ref bean="defaultLavaFileRepositoryStrategy"/></property>
 	</bean>
 	
-	<bean id="defaultLavaFileRepositoryStrategy" class="edu.ucsf.lava.core.file.ArchivingLocalFileSystemRepositoryStrategy">
+	<bean abstract="true" id="defaultLavaFileRepositoryStrategy" class="edu.ucsf.lava.core.file.ArchivingLocalFileSystemRepositoryStrategy">
 		<property name="rootPath" value="/var/lava/repository"/>
 		<property name="archiveRoot" value="/var/lava/repository/archive"/>
 	</bean>

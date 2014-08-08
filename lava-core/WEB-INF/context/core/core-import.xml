@@ -63,7 +63,7 @@
 	
 	
 	<!-- import file repository for data files and definition mapping files -->
-	<bean id="importLavaFileRepository" class="edu.ucsf.lava.core.file.BaseFileRepository">
+	<bean id="importLavaFileRepository" abstract="true" class="edu.ucsf.lava.core.file.BaseFileRepository">
 		<property name="id" value="import_repository"/>
 		<!-- this repository is the only one for import files so order is not important but must be specified -->
 		<property name="order" value="0"/>
@@ -71,7 +71,7 @@
 		<property name="strategy"><ref bean="importRepositoryStrategy"/></property>
 	</bean>
 	
-	<bean id="importRepositoryStrategy" class="edu.ucsf.lava.core.file.ImportRepositoryStrategy">
+	<bean id="importRepositoryStrategy" abstract="true" class="edu.ucsf.lava.core.file.ImportRepositoryStrategy">
 		<property name="rootPath" value="/home/ctoohey/lava_repository/import"/>
 		<property name="archiveRoot" value="/home/ctoohey/lava_repository/import/archive"/>
 			
