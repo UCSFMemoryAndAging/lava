@@ -11,6 +11,10 @@
   <decorator:getProperty property="componentView"/>
 </c:set>	
 
+<c:set var="parameters">
+  <decorator:getProperty property="parameters"/>
+</c:set>
+
 <c:if test="${empty componentView}">
 	<c:set var="viewString" value="${component}_view"/>
 	<c:set var="componentView" value="${requestScope[viewString]}"/>
@@ -106,11 +110,11 @@ that submits the form (eventButton, eventLink) --%>
 	<c:choose>
 		<%-- see earlier remarks about testing flowIsRoot --%>
 		<c:when test="${numStdEventButtons == 1}">
-			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}" locked="${button1_locked}"/>
+			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}" locked="${button1_locked}" parameters="${parameters}"/>
 		</c:when>
 		<c:otherwise>			
-			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}" locked="${button1_locked}"/>
-			<tags:eventButton buttonText="${button2_text}" action="${button2_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightButton" target="${button2_target}" locked="${button2_locked}"/>
+			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}" locked="${button1_locked}" parameters="${parameters}"/>
+			<tags:eventButton buttonText="${button2_text}" action="${button2_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightButton" target="${button2_target}" locked="${button2_locked}" parameters="${parameters}"/>
 		</c:otherwise>
 	</c:choose>
 	${customActions}
@@ -150,11 +154,11 @@ that submits the form (eventButton, eventLink) --%>
 	<c:choose>
 		<%-- see earlier remarks about testing flowIsRoot --%>
 		<c:when test="${numStdEventButtons == 1}">
-			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}" locked="${button1_locked}"/>
+			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}" locked="${button1_locked}" parameters="${parameters}"/>
 		</c:when>
 		<c:otherwise>			
-			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}" locked="${button1_locked}"/>
-			<tags:eventButton buttonText="${button2_text}" action="${button2_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightButton" target="${button2_target}" locked="${button2_locked}"/>
+			<tags:eventButton buttonText="${button1_text}" action="${button1_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightmostButton" target="${button1_target}" locked="${button1_locked}" parameters="${parameters}"/>
+			<tags:eventButton buttonText="${button2_text}" action="${button2_action}" component="${component}" pageName="${pageName}"  className="pageLevelRightButton" target="${button2_target}" locked="${button2_locked}" parameters="${parameters}"/>
 		</c:otherwise>
 	</c:choose>
   
