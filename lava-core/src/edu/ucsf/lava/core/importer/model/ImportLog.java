@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import edu.ucsf.lava.core.file.model.LavaFile;
+import edu.ucsf.lava.core.file.model.ImportFile;
 import edu.ucsf.lava.core.model.EntityBase;
 
 public class ImportLog extends EntityBase {
@@ -17,7 +17,7 @@ public class ImportLog extends EntityBase {
 	
 	private Timestamp importTimestamp;
 	private String importedBy;
-	private LavaFile dataFile;
+	private ImportFile dataFile;
 	private String definitionName;
 	private Integer totalRecords;
 	// record imported (generally means row inserted, though  populating an "empty" record could 
@@ -61,11 +61,11 @@ public class ImportLog extends EntityBase {
 		this.importedBy = importedBy;
 	}
 
-	public LavaFile getDataFile() {
+	public ImportFile getDataFile() {
 		return dataFile;
 	}
 
-	public void setDataFile(LavaFile dataFile) {
+	public void setDataFile(ImportFile dataFile) {
 		this.dataFile = dataFile;
 	}
 
