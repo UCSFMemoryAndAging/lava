@@ -67,7 +67,7 @@ INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`Or
 INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'lava','crms','2','Same-sex DZ',2,NOW() FROM `list` where `ListName`='PatientTwinZygosity';
 INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`) SELECT `ListID`,'lava','crms','3','Opposite-sex DZ',3,NOW() FROM `list` where `ListName`='PatientTwinZygosity';
 
-DELETE FROM versionhistory WHERE module='lava-crms-data' AND version='3.4.2';
+DELETE FROM versionhistory WHERE module='lava-crms-data' AND version='3.4.1';
 INSERT INTO versionhistory(module,version,versiondate,major,minor,fix,updaterequired)
-VALUES ('lava-crms-data','3.4.2',NOW(),3,4,2,0);
+VALUES ('lava-crms-data','3.4.1',NOW(),3,4,1,0);
 
