@@ -1,3 +1,11 @@
+ALTER TABLE `crms_file` ADD COLUMN `consent_id` INT DEFAULT NULL AFTER `enroll_stat_id`;
+
+ALTER TABLE `crms_file` ADD CONSTRAINT `fk_crms_file__consent_id`
+ FOREIGN KEY (`consent_id` )
+ REFERENCES `patientconsent` (`ConsentID`)
+ ON DELETE NO ACTION
+ ON UPDATE NO ACTION, ADD INDEX `fk_crms_file__consent_id` (`consent_id` ASC);
+
 DROP TABLE IF EXISTS `crms_import_definition`;
 
 CREATE TABLE `crms_import_definition` (
