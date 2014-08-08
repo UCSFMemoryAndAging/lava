@@ -33,9 +33,8 @@ import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentFormAction;
-import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
-import edu.ucsf.lava.core.file.model.LavaFile;
+import edu.ucsf.lava.core.file.model.ImportFile;
 import edu.ucsf.lava.core.importer.controller.ImportHandler;
 import edu.ucsf.lava.core.importer.model.ImportDefinition;
 import edu.ucsf.lava.core.importer.model.ImportLog;
@@ -132,7 +131,6 @@ public class CrmsImportHandler extends ImportHandler {
 	}
 	
 	
-	
 	protected Event doImport(RequestContext context, Object command, BindingResult errors) throws Exception {
 		CrmsImportSetup importSetup = (CrmsImportSetup) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
 		CrmsImportLog importLog = (CrmsImportLog) ((ComponentCommand)command).getComponents().get("importLog");
@@ -151,44 +149,14 @@ public class CrmsImportHandler extends ImportHandler {
 
 			// read data file
 // NOTE: remember to review jfesenko data load script		
-			LavaFile dataFile = this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
-			importLog.setDataFile(dataFile);
+			ImportFile dataFile = importLog.getDataFile();
 			Scanner fileScanner = new Scanner(new ByteArrayInputStream(dataFile.getContent()), "UTF-8");
 			String currentLine;
 			int lineNum = 0;
 			
-//TODO: figure out errors / skipped records
-//what to put in import log?
-//  each record that was skipped? if rerun a script could put entire data file in import log, so maybe not
-//  records that were skipped because already exist, but records that were skipped because of problems
-//  for records skipped because already exist, can just have a skip count for that (skippedAlreadyExistsCount)
-
-// i.e. if instrument already exists (with data) then no error, just increment a count for already exists,
-// but if does not exist and cannot be created for whatever reason then an error
-// errors should be things that the user can try to correct either in the mapping definition or
-// the data file 
-
-// Patient Does Not Exist (Could be that record does not match a Patient but should), 
-//				Patient Already Exist, 
-//		 	    Record Matches Multiple Patients		
-
-// UPDATE:				
-// totalRecordsInFile
-// newPatients
-// newVisits
-// newInstruments
-// recordsSkippedForErrors
-// recordsSkippedAlreadyExists (i.e. imports are rerunnable)
-//				
-// importLog details:
-// individual record errors: line, patient name, visit date, error msg
 				
-		
-// how to handle skipping records when Patient and Enrollment and Visit and Instrument records have been
-// added? Hibernate will persist what is dirty but if Hibernote does not know about object, i.e. have not
-// called Hibernate add, right? for update just set objects null?
-				
-// UPDATE: so not calling save on the entity should solve that but what if existing entities are modified
+// not calling save on the entity should solve not persisting new records that should be skipped
+// that but what if existing entities are modified
 // and then record is to be skipped --- Hibernate would implicitly save changes so would have to explicitly
 // rollback. however, use cases don't support modifying existing Patient/ES/Visit, only an existing Instrument
 // so based on how CRUD editing cancel is done try calling refresh on the modified object (could fool around
@@ -273,13 +241,12 @@ public class CrmsImportHandler extends ImportHandler {
 
 //RIGHT HERE
 // crmsAllImportLogs needs a Filter
-// crmsAllImportLogs needs to format importTimestamp in page title
-// crmsImportLog needs a table for log results
+// crmsImportLogContent needs to format log summary results in a table
 // importLog/crmsImportLog needs to get rid of edit
 // importLog/crmsImportLog needs to transfer notes from importSetup to importLog				
 // add creation of entities as importLog info messages (test with WESChecklist)
 // ?? create preview mode, at least for development, that does not do anything to db				
-// pedi new patient history import (full, not cut off)				
+// pedi new patient history import (data file with all columns, not cut off at 256 cols)				
 // pertinent TODOs in here
 // Rankin TODOs (e.g. match Visit on Visit Type, match Visit Date on time window)
 //   note: these Rankin TODOs can wait until migrate to MAC LAVA in August/Sept.				
@@ -288,17 +255,15 @@ public class CrmsImportHandler extends ImportHandler {
 // other majors:
 // do pedi attachments (consents) when working in the following with LavaFile stuff				
 //   download definition mapping file
-//   persist data file
 // 	 download data file				
 // open csv				
 // call calculate on save (or is it done automatically?)
-// importLog list (view action, show same jsp as on import execution)				
 // BASC import
-// Visit window feature for Rankin
-//   see other Rankin meeting notes				
 // migrate to MAC LAVA
 // expand to work with multiple instruments (crmsImportDefinition will have inputs for up to 15 or 20 
-//    instruments, and will have to rework instrumentExistsHandling to go thru each specified instrument)
+//    instruments, and will have to rework instrumentExistsHandling to go thru each specified instrument,
+//	   and use of instrType,instrVer for generateLocation for data files will just have to use that of
+//     the first instrument chosen)
 // expand to work with files in folders for special not-exactly-import use cases:
 //      a) for instruments that load individual patient files, e.g. e-prime instruments
 //      b) for PDFs that should be attached to an existing instrument				
@@ -336,13 +301,6 @@ public class CrmsImportHandler extends ImportHandler {
 		
 		importLog.save();
 		
-		
-/*
-Map components = ((ComponentCommand)command).getComponents();
-ScrollablePagedListHolder logMessagesListHolder = new ScrollablePagedListHolder();
-logMessagesListHolder.setSourceFromEntityList(importLog.getMessages());
-components.put("importLogMessages", logMessagesListHolder);
-*/
 		return returnEvent;
 	}	
 	
@@ -943,7 +901,8 @@ components.put("importLogMessages", logMessagesListHolder);
 		
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter = EntityBase.newFilterInstance();
-		SimpleDateFormat formatter;
+		SimpleDateFormat formatter, msgDateFormatter = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
+
 		String dateOrTimeAsString;
 		Map<String,Object> eventAttrMap = new HashMap<String,Object>();
 		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
@@ -989,7 +948,7 @@ components.put("importLogMessages", logMessagesListHolder);
 			}
 			catch (IncorrectResultSizeDataAccessException ex) {
 				importLog.addErrorMessage(lineNum, "Duplicate " + importDefinition.getInstrType() + " records for Patient:" + importSetup.getPatient().getFullNameWithId() + 
-						" and Visit Date:" + importSetup.getVisit().getVisitDate());
+						" and Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
 		}
@@ -997,7 +956,7 @@ components.put("importLogMessages", logMessagesListHolder);
 		if (instr == null) {
 			if (importDefinition.getInstrExistRule().equals(MUST_EXIST)) {
 				importLog.addErrorMessage(lineNum, "Instrument does not exist. Patient:" + importSetup.getPatient().getFullNameWithId() 
-						+ " Visit Date:" + importSetup.getVisit().getVisitDate());
+						+ " Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}else {
 				// instrument does not exist so instantiate
@@ -1025,7 +984,7 @@ components.put("importLogMessages", logMessagesListHolder);
 					instr.setDeNotes("Data Imported by:" + CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request).getShortUserNameRev());				}
 				catch (Exception ex) {
 					importLog.addErrorMessage(lineNum, "Error instantiating instrument. Patient:" + importSetup.getPatient().getFullNameWithId() 
-							+ " and Visit Date:" + importSetup.getVisit().getVisitDate());
+							+ " and Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
 			}
@@ -1036,7 +995,7 @@ components.put("importLogMessages", logMessagesListHolder);
 			importSetup.setInstrument(instr);
 			if (importDefinition.getInstrExistRule().equals(MUST_NOT_EXIST)) {
 				importLog.addErrorMessage(lineNum, "Instrument already exists violating Import Definition MUST_NOT_EXIST setting. Patient:" + importSetup.getPatient().getFullNameWithId()
-						+ " and Visit Date:" + importSetup.getVisit().getVisitDate());
+						+ " and Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
 			else {
@@ -1074,7 +1033,7 @@ components.put("importLogMessages", logMessagesListHolder);
 						// that a data file with this record was already imported. 
 						importSetup.setInstrExistedWithData(true);
 						importLog.addDebugMessage(lineNum, "Instrument exists and has already been data entered. Cannot overwrite per Import Definition. Patient:" + 
-							importSetup.getPatient().getFullNameWithId() + " and Visit Date:" + importSetup.getVisit().getVisitDate());
+							importSetup.getPatient().getFullNameWithId() + " and Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
 
 						// set an attribute on the return event so the caller can distinguish between an error and the
 						// record already exists
