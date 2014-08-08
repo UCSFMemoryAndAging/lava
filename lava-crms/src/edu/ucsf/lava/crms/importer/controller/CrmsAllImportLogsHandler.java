@@ -30,8 +30,10 @@ public class CrmsAllImportLogsHandler extends AllImportLogsHandler {
 	public Event preSetupFlowDirector(RequestContext context) throws Exception {
 		return new Event(this,CONTINUE_FLOW_EVENT_ID);
 	}
-		
-
+	
+	/**
+	 * Override lava-core superclass version to add in Project context filtering.
+	 */
 	public LavaDaoFilter extractFilterFromRequest(RequestContext context, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter =  CrmsSessionUtils.setFilterProjectContext(sessionManager,request,CrmsImportLog.newFilterInstance(getCurrentUser(request)));
