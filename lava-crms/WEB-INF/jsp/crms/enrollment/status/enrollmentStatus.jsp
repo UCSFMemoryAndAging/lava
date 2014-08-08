@@ -17,6 +17,13 @@
 	<c:import url="/WEB-INF/jsp/crms/enrollment/status/enrollmentStatusHistoryContent.jsp">
 		<c:param name="component">${component}</c:param>
 	</c:import>
+	
+	<%-- associated attachments listing --%>
+	<c:set var="id"><tags:componentProperty component="${component}" property="id"/></c:set>
+	<c:import url="/WEB-INF/jsp/crms/enrollment/attachments/enrollmentAttachmentListContent.jsp">
+		<c:param name="propertyValues">enrollStatId,${id}</c:param>
+	</c:import>
+
 </page:applyDecorator>  
 
 </page:applyDecorator>    
