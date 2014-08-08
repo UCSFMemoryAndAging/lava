@@ -20,6 +20,8 @@
 		<property name="instrId" column="instr_id" type="long"/>
 		<many-to-one name="enrollmentStatus" column="enroll_stat_id" class="edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus" insert="false" update="false" lazy="false"/>
 		<property name="enrollStatId" column="enroll_stat_id" type="long"/>   	
+		<many-to-one name="consent" column="consent_id" class="edu.ucsf.lava.crms.enrollment.model.Consent" insert="false" update="false" lazy="false"/>
+		<property name="consentId" column="consent_id" type="long"/>   	
 	</join>
 
 	<filter name="projectAuth" condition="id IN (SELECT cf.id from crms_file cf inner join enrollmentstatus e on e.EnrollStatID=cf.enroll_stat_id where cf.id=id and e.ProjName in (:projectList))"></filter>
