@@ -1,13 +1,11 @@
 package edu.ucsf.lava.crms.file.controller;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.definition.StateDefinition;
@@ -15,22 +13,55 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.action.ActionUtils;
-import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.file.controller.BaseLavaFileComponentHandler;
 import edu.ucsf.lava.core.type.LavaDateUtils;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
+import edu.ucsf.lava.crms.enrollment.model.Consent;
 import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 import edu.ucsf.lava.crms.file.model.CrmsFile;
-import edu.ucsf.lava.crms.people.model.ContactInfo;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
+import static edu.ucsf.lava.crms.file.CrmsRepositoryStrategy.CRMS_REPOSITORY_ID;
 
 /**
- * Base class for files that are linked to patients, projects, visits or instruments. 
+ * Base class for files that are linked to patients, projects, visits or instruments, i.e.
+ * PatientAttachmentHandler
+ * EnrollmentAttachmentHandler
+ * ConsentAttachmentHandler
+ * TODO: VisitAttachmentHandler
+ * AssessmentAttachmentHandler
+ * 
+ * Note there are two UIs to attach a file.
+ * One UI presents a list of all attachments for a given type of entity, e.g. all EnrollmentStatus
+ * attachments (enrollmentAttachments action for patient list, projectEnrollmentAttachments action
+ * for project list). 
+ * The Add view is currently generic for all entities, e.g. an Assessment attachment 
+ * could be added under the EnrollmentStatus attachment list, and vice versa.
+ * e.g. enrollmentAttachments action, which shows enrollmentAttachments.jsp (which includes
+ * enrollmentAttachmentsContent.jsp which is a separate include as it is also included by 
+ * enrollmentAttachmentsListContent.jsp as described below).
+ * 
+ * The second UI is where a specific entity includes a list of attachments at the end (as a secondary
+ * component supported by CrmsAttachmentsListHandler). In that case, it is already known which entity
+ * to which the file will be attached, so the Add view does not need the user to select the
+ * entity.
+ * e.g. enrollmentStatus.jsp includes enrollmentAttachmentListContent.jsp which includes
+ * enrollmentAttachmentsContent.jsp to display the list (this is a separate include as it is also
+ * included by enrollmentAttachments.jsp as described above).  
+ * 
+ * Both of these UIs use the enrollmentAttachment action for attachment CRUD, but they pass a 
+ * request parameter to each CRUD action indicating whether the action was invoked from the list
+ * of all attachments for a given type of entity or invoked from the list of attachments for a
+ * specific entity. This parameter is put into the model by the handler so the jsp can display
+ * accordingly.
+ * e.g. enrollmentAttachment.jsp has logic that either displays the attachments/attachmentContent.jsp
+ * which can be used across patients, enrollmentStatus, visit and assessment, or it displays
+ * content specific to an enrollmentStatus attachment.
+ *  * 
  * @author jhesse
  *
  */
@@ -53,14 +84,27 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 	protected Object initializeNewCommandInstance(RequestContext context, Object command) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		CrmsFile crmsFile = (CrmsFile)command;
+		// critical to set the 
+		crmsFile.setRepositoryId(CRMS_REPOSITORY_ID);
 		//Setup default values
 		crmsFile.setFileStatusBy(CrmsSessionUtils.getCrmsCurrentUser(sessionManager, request).getShortUserNameRev());
 		crmsFile.setFileStatusDate(LavaDateUtils.getDatePart(new Date()));
 		
 		//setup the linking data depending on the parameter supplied. 
+		
+		// when this handler is used by EnrollmentAttachmentsHandler/ProjectEnrollmentAttachmentsHandler, the "patientId" request param
+		// is set, and user must input the EnrollmentStatus (i.e. Project) at which time reRender event handling will set the EnrollmentStatus
+		// on CrmsFile
+		// when this handler is used by the secondary CrmsAttachmentsListHandler, the "enrollStatId" request param is set, so the
+		// EnrollmentStatus is set on CrmsFile. user need not input an EnrollmentStatus and rerender.
 		if (request.getParameterMap().containsKey("enrollStatId")){
 			EnrollmentStatus es = getEnrollmentStatus(Long.valueOf(request.getParameter("enrollStatId")), request);
 			setEnrollmentStatus(crmsFile,es,request);
+		}else if (request.getParameterMap().containsKey("consentId")){
+			Consent consent = (Consent) Consent.MANAGER.getOne(this.getFilterWithId(request,Long.valueOf(request.getParameter("consentId"))));
+			crmsFile.setConsentId(consent.getId());
+			crmsFile.setConsent(consent);
+			this.setPatient(crmsFile, consent.getPatient(), request);
 		}else if (request.getParameterMap().containsKey("visitId")){
 			Visit v = (Visit)Visit.MANAGER.getOne(this.getFilterWithId(request, Long.valueOf(request.getParameter("visitId"))));
 			setVisit(crmsFile,v,request);
@@ -71,6 +115,9 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 			setPatient(crmsFile,p,request);
 		}else{
 			//no parameter supplied, so make assumptions based on current context
+			
+			//note that for Consent a parameter will always be supplied as do not support the patient/project
+			//lists of all Consents, only list of Consents for a specific Consent entity
 			Instrument i = CrmsSessionUtils.getCurrentInstrument(sessionManager, request);
 			Visit v = CrmsSessionUtils.getCurrentVisit(sessionManager, request);
 			Patient p = CrmsSessionUtils.getCurrentPatient(sessionManager, request);
@@ -104,6 +151,11 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 			EnrollmentStatus es = getEnrollmentStatus(Long.valueOf(request.getParameter("enrollStatId")), request);
 			if(es!=null){
 				return es.getPatient().getId();
+			}
+		}else if (request.getParameterMap().containsKey("consentId")){
+			Consent consent = (Consent) Consent.MANAGER.getOne(this.getFilterWithId(request,Long.valueOf(request.getParameter("consentId"))));
+			if(consent!=null){
+				return consent.getPatient().getId();
 			}
 		}else if (request.getParameterMap().containsKey("visitId")){
 			Visit v = (Visit)Visit.MANAGER.getOne(this.getFilterWithId(request, Long.valueOf(request.getParameter("visitId"))));
@@ -310,6 +362,11 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 		this.handleEntityLinkChanges(context,command,errors);
 		return super.doSave(context, command, errors);
 	}
+	
+	/** Consents are not handled here because do not have patient/project lists of Consent
+	 * attachments, only list of Consent attachments for a specific Consent. So Consent attachments
+	 * are not involved in this chaining UI business.
+	 */
 
 
 	/**
