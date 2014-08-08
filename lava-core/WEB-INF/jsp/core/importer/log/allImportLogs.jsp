@@ -34,6 +34,7 @@
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="filename" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
+<%-- add download icon / action --%>			
 		</tags:listCell>
 <%-- TODO: prob replace definitionName with import results summary --%>		
 		<tags:listCell>
