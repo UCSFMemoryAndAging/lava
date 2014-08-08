@@ -1,6 +1,6 @@
 package edu.ucsf.lava.core.importer.model;
 
-import edu.ucsf.lava.core.file.model.LavaFile;
+import edu.ucsf.lava.core.file.model.ImportFile;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
 
@@ -15,7 +15,7 @@ public class ImportDefinition extends EntityBase {
 	
 	private String name;
 	private String category; // not currently used. available for future use.
-	private LavaFile mappingFile;
+	private ImportFile mappingFile;
 	private String dataFileFormat; // "CSV", "TAB", etc.
 	// assuming all date fields in an import data file would have same format, e.g. birthDate, visitDate, dcDate
 	private String dateFormat; // default: MM/dd/yyyy
@@ -42,11 +42,11 @@ public class ImportDefinition extends EntityBase {
 		this.category = category;
 	}
 	
-	public LavaFile getMappingFile() {
+	public ImportFile getMappingFile() {
 		return mappingFile;
 	}
 
-	public void setMappingFile(LavaFile mappingFile) {
+	public void setMappingFile(ImportFile mappingFile) {
 		this.mappingFile = mappingFile;
 	}
 
