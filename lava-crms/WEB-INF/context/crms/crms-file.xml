@@ -2,8 +2,26 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+
+	<!-- these abstract beans are for example purposes only. applications should define their own
+		CRMS repository beans because the rootPath and archiveRoot locations are specific to a given
+		application server environment.
+		The repository bean could use the lava-core BaseFileRepository class.
+		The strategy bean could use CrmsRepositoryStrategy but is may be desired that generateFileId
+		and generateLocation should be overridden so an app strategy subclass would be created to 
+		override these methods (otherwise the implementations in lava-core LocalFileSystemRepositoryStrategy
+		would be used)
+		In this case, make sure that the app sets the respositoryId property on all instantiated
+		LavaFile or CrmsFile or subclasses that should use the repository and strategy to whatever
+		id is configured in the repository bean (e.g. "lava_crms" below), as this is used to determine
+		which repository / strategy should handle the file.
+		
+		note: if these beans were not abstract and there were no conflicting beans in the app then
+		crms attachments would work using the rootPath and archiveRoot configured here and using
+		the generateFileId and generateLocation implementations in lava-core LocalFileSystemRepositoryStrategy 
+	-->
      
-	<bean id="crmsFileRepository" class="edu.ucsf.lava.core.file.BaseFileRepository">
+	<bean abstract="true" id="crmsFileRepository" class="edu.ucsf.lava.core.file.BaseFileRepository">
 		<!-- id must be set before repositories because setRepositories uses id -->
 		<property name="id" value="lava_crms"/>
 		<property name="order" value="0"/>
@@ -11,9 +29,9 @@
 		<property name="strategy"><ref bean="crmsRepositoryStrategy"/></property>
 	</bean>
 	
-	<bean id="crmsRepositoryStrategy" class="edu.ucsf.lava.crms.file.CrmsRepositoryStrategy">
-		<property name="rootPath" value="/var/lava_repository/crms"/>
-		<property name="archiveRoot" value="/var/lava_repository/crms/archive"/>
+	<bean abstract="true" id="crmsRepositoryStrategy" class="edu.ucsf.lava.crms.file.CrmsRepositoryStrategy">
+		<property name="rootPath" value="/var/lava/repository/crms"/>
+		<property name="archiveRoot" value="/var/lava/repository/crms/archive"/>
 	</bean>
 	
 </beans>
