@@ -872,19 +872,29 @@ public abstract class BaseListComponentHandler extends LavaComponentHandler {
 		
 		public List loadElements(Locale locale, Object filter) {
 			LavaDaoFilter daoFilter = (LavaDaoFilter)filter;
-			daoFilter = listHandler.onPreFilterParamConversion(daoFilter);
-			daoFilter.convertParamsToDaoParams();
-			daoFilter = listHandler.onPostFilterParamConversion(daoFilter);
-			return listHandler.getList(entityClass,daoFilter);
+    		if(daoFilter.getParams().containsKey("DO_NOT_EXECUTE")){
+    			return new ArrayList();
+    		}
+    		else {
+    			daoFilter = listHandler.onPreFilterParamConversion(daoFilter);
+    			daoFilter.convertParamsToDaoParams();
+    			daoFilter = listHandler.onPostFilterParamConversion(daoFilter);
+    			return listHandler.getList(entityClass,daoFilter);
+    		}
 		}
 
     	public List loadList(Locale locale, Object filter) {
     		LavaDaoFilter daoFilter = (LavaDaoFilter)filter;
-			daoFilter = listHandler.onPreFilterParamConversion(daoFilter);
-			daoFilter.convertParamsToDaoParams();
-			daoFilter = listHandler.onPostFilterParamConversion(daoFilter);
-			return ScrollablePagedListHolder.createSourceList(
+    		if(daoFilter.getParams().containsKey("DO_NOT_EXECUTE")){
+    			return new ArrayList();
+    		}
+    		else {
+    			daoFilter = listHandler.onPreFilterParamConversion(daoFilter);
+    			daoFilter.convertParamsToDaoParams();
+    			daoFilter = listHandler.onPostFilterParamConversion(daoFilter);
+    			return ScrollablePagedListHolder.createSourceList(
 					listHandler.getList(entityClass,daoFilter),daoFilter);
+    		}
     	}
     	
 	}
