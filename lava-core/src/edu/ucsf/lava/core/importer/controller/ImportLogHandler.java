@@ -1,6 +1,13 @@
 package edu.ucsf.lava.core.importer.controller;
 
+import java.util.Map;
+
+import org.springframework.validation.BindingResult;
+import org.springframework.webflow.execution.RequestContext;
+
 import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
+import edu.ucsf.lava.core.controller.ComponentCommand;
+import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.importer.model.ImportLog;
 
 /**
@@ -19,5 +26,15 @@ public class ImportLogHandler extends BaseEntityComponentHandler {
 		setHandledEntity("importLog", ImportLog.class);
 	}
 
+	public Map addReferenceData(RequestContext context, Object command, BindingResult errors, Map model)
+	{
+		// put individual log messages in a component for the view to display
+	 	ImportLog importLog = (ImportLog) ((ComponentCommand)command).getComponents().get("importLog");
+		ScrollablePagedListHolder logMessagesListHolder = new ScrollablePagedListHolder();
+		logMessagesListHolder.setSourceFromEntityList(importLog.getMessages());
+		((ComponentCommand)command).getComponents().put("importLogMessages", logMessagesListHolder);
+
+		return model;
+	}
 
 }
