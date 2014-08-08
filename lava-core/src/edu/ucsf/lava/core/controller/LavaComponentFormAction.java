@@ -19,7 +19,6 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.propertyeditors.CharacterEditor;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomCollectionEditor;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.validation.BindingResult;
@@ -34,9 +33,9 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.action.ActionUtils;
+import edu.ucsf.lava.core.file.controller.AttachmentsListHandler;
 import edu.ucsf.lava.core.type.LavaCustomDateEditor;
 import edu.ucsf.lava.core.type.LavaCustomTimeEditor;
-
 import edu.ucsf.lava.core.webflow.CustomReportSelector;
 import edu.ucsf.lava.core.webflow.CustomViewSelector;
 
@@ -51,6 +50,8 @@ public class LavaComponentFormAction extends BaseComponentFormAction {
 	protected CustomViewSelector customViewSelector; //injected
 	protected CustomReportSelector customReportSelector; //injected
 	protected ViewSelector defaultActionViewSelector; //injected
+	
+	protected AttachmentsListHandler attachmentsListHandler;
 
 	// command-level error keys
     protected static final String COMMAND_REQUIRED_FIELD_ERROR_CODE = "required.command";
@@ -362,6 +363,17 @@ public class LavaComponentFormAction extends BaseComponentFormAction {
 	public void setDefaultActionViewSelector(ViewSelector defaultActionViewSelector) {
 		this.defaultActionViewSelector = defaultActionViewSelector;
 	}
+
+	public AttachmentsListHandler getAttachmentsListHandler() {
+		return attachmentsListHandler;
+	}
+
+	public void setAttachmentsListHandler(
+			AttachmentsListHandler attachmentsListHandler) {
+		this.attachmentsListHandler = attachmentsListHandler;
+		this.componentHandlers.add(attachmentsListHandler);
+	}
+	
 }
 	
 
