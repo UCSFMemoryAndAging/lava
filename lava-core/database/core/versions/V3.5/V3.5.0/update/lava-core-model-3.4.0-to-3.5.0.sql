@@ -6,6 +6,7 @@ CREATE TABLE `import_definition` (
   `category` varchar(30) DEFAULT NULL,
   `mapping_file_id` int DEFAULT NULL,
   `data_file_format` varchar(25) NULL,
+  `first_data_row` smallint NULL,
   `date_format` varchar(15) NULL,
   `time_format` varchar(15) NULL,
   `notes` varchar(500) DEFAULT NULL,
@@ -57,8 +58,7 @@ CREATE TABLE `import_log_message` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
--- WAIT ON THIS UNTIL TIME TO RELEASE
--- insert into versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
--- 	VALUES ('lava-core-model','3.5.0',NOW(),3,5,0,0);
+INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
+VALUES ('lava-core-model','3.5.0',NOW(),3,5,0,0);
 
 
