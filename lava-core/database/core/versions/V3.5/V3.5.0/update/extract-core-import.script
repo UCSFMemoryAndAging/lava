@@ -1,1 +1,0 @@
-mysql -s -r -u pedi -p pedi < extract-core-import-data.sql > lava-core-import-data.sql
