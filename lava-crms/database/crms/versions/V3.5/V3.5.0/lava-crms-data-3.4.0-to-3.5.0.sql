@@ -1,3 +1,6 @@
+UPDATE viewproperty SET label = 'Content Type' WHERE entity = 'crmsFile' AND property = 'contentType';
+UPDATE viewproperty SET context = 'c' WHERE entity = 'crmsFile' AND property = 'name';
+
 DELETE FROM viewproperty WHERE scope = 'crms-import';
 INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) VALUES('*.import.projName','en','lava','crms-import',NULL,'import','projName',NULL,'i','range','Yes','Project',NULL,NULL,NULL,0,NULL,'context.projectList',NULL,NULL,'Project for imported data','2014-04-28 16:08:27');
 INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) VALUES('*.importLog.projName','en','lava','crms-import',NULL,'importLog','projName',NULL,'c','string',NULL,'Project',NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,'Project for imported data','2014-04-28 16:08:27');
