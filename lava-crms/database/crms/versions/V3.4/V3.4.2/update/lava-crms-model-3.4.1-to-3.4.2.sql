@@ -3,5 +3,6 @@ ALTER TABLE `contactinfo` ADD COLUMN `Phone1BestTime` varchar(30) NULL DEFAULT N
 ALTER TABLE `contactinfo` ADD COLUMN `Phone2BestTime` varchar(30) NULL DEFAULT NULL AFTER `PhoneType2`;
 ALTER TABLE `contactinfo` ADD COLUMN `Phone3BestTime` varchar(30) NULL DEFAULT NULL AFTER `PhoneType3`;
 
+DELETE FROM versionhistory WHERE module='lava-crms-model' AND version='3.4.2';
 INSERT INTO versionhistory(module,version,versiondate,major,minor,fix,updaterequired)
-VALUES ('lava-crms-model','3.4.2','2014-07-11',3,4,2,0);
+VALUES ('lava-crms-model','3.4.2','2014-07-17',3,4,2,0);
