@@ -16,7 +16,6 @@
 	<tags:createField property="twin" component="${component}" entityType="patient"/>
 	<tags:createField property="twinZygosity" component="${component}" entityType="patient"/>
 	<tags:createField property="twinId" component="${component}" entityType="patient"/>
-	<tags:createField property="projSiteId" component="${component}" entityType="patient"/>
 	<tags:createField property="relationNotes" component="${component}" entityType="patient"/>
 </page:applyDecorator> 
 
@@ -27,12 +26,10 @@
 	<ui:disable elementIds="${component}_familyId"/>
 	<ui:disable elementIds="${component}_probandCandidate"/>
 	<ui:disable elementIds="${component}_twin"/>
-	<ui:disable elementIds="${component}_projSiteId"/>
 	<ui:disable elementIds="${component}_relationNotes"/>
     <ui:setValue elementIds="${component}_relationToProband" value=""/>
 	<ui:setValue elementIds="${component}_probandCandidate" value=""/>
 	<ui:setValue elementIds="${component}_twin" value=""/>
-	<ui:setValue elementIds="${component}_projSiteId" value=""/>
     <ui:setValue elementIds="${component}_relationNotes" value=""/>
     <ui:setValue elementIds="${component}_familyId" value=""/>
 </ui:formGuide>
@@ -42,7 +39,6 @@
     <ui:enable elementIds="${component}_relationToProband"/>
 	<ui:enable elementIds="${component}_probandCandidate"/>
 	<ui:enable elementIds="${component}_twin"/>
-	<ui:enable elementIds="${component}_projSiteId"/>
     <ui:enable elementIds="${component}_relationNotes"/>  
     <ui:setValue elementIds="${component}_familyStudy" value=""/>
 </ui:formGuide>
