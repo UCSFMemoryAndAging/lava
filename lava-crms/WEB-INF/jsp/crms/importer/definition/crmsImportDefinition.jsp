@@ -24,7 +24,7 @@
   				mission of the import functionality
   			<tags:createField property="allowPatientUpdate" component="${component}"/>
   			  --%>
-  			<tags:createField property="projNameForContext" component="${component}"/>
+  			<tags:createField property="projName" component="${component}"/>
   			<tags:createField property="esExistRule" component="${component}"/>
   			<%-- currently not allow existing EnrollmentStatus properties to be overwritten as that 
   				is not the 	mission of the import functionality
@@ -48,7 +48,7 @@
  		</page:applyDecorator>
 	
 		<ui:formGuide observeAndOr="or" ignoreDoOnLoad="true" simulateEvents="true">
-	    	<ui:observe elementIds="importDefinition_projNameForContext" forValue=".+"/>
+	    	<ui:observe elementIds="importDefinition_projName" forValue=".+"/>
 	    	<ui:setValue elementIds="importDefinition_esStatus" value=""/>
 	    	<ui:setValue elementIds="importDefinition_visitType" value=""/>
 	    	<ui:setValue elementIds="importDefinition_visitWith" value=""/>
