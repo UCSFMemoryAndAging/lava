@@ -6,7 +6,7 @@ CREATE TABLE `import_definition` (
   `category` varchar(30) DEFAULT NULL,
   `mapping_file_id` int DEFAULT NULL,
   `data_file_format` varchar(25) NULL,
-  `first_data_row` smallint NULL,
+  `start_data_row` smallint NULL,
   `date_format` varchar(15) NULL,
   `time_format` varchar(15) NULL,
   `notes` varchar(500) DEFAULT NULL,
