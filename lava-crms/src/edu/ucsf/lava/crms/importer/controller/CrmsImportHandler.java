@@ -240,6 +240,10 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 
 //RIGHT HERE
+// implement startDataRow
+// change mapping file format to 3 rows: row 2 is entity type, row 3 is property name (if
+//  both are blank then defaults to 1st instrument and prop name == column name (row 1))				
+				
 // crmsAllImportLogs needs a Filter
 // crmsImportLogContent needs to format log summary results in a table
 // importLog/crmsImportLog needs to get rid of edit
@@ -260,7 +264,7 @@ public class CrmsImportHandler extends ImportHandler {
 // call calculate on save (or is it done automatically?)
 // BASC import
 // migrate to MAC LAVA
-// expand to work with multiple instruments (crmsImportDefinition will have inputs for up to 15 or 20 
+// expand to work with multiple instruments (crmsImportDefinition will have inputs for up to 10 
 //    instruments, and will have to rework instrumentExistsHandling to go thru each specified instrument,
 //	   and use of instrType,instrVer for generateLocation for data files will just have to use that of
 //     the first instrument chosen)
