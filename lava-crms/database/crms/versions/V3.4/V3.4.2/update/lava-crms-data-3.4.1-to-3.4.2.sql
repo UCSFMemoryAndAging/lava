@@ -1,6 +1,6 @@
 DELETE FROM `viewproperty` WHERE `messageCode` = '*.patient.created';
 INSERT INTO `viewproperty` (`messageCode`, `locale`, `instance`, `scope`, `entity`, `property`, `section`, `context`, `style`, `required`, `label`, `indentLevel`, `attributes`, `list`, `quickHelp`)
-  VALUES ('*.patient.created', 'en', 'lava', 'crms', 'patient', 'created', '', 'c', 'date', 'No', 'Created', 0, '', '', '');
+  VALUES ('*.patient.created', 'en', 'lava', 'crms', 'patient', 'created', '', 'c', 'date', 'No', 'Created', 0, '', '', 'Patient Creation Date');
 
 DELETE FROM `viewproperty` WHERE `messageCode` = '*.contactInfo.preferredContactMethod';
 INSERT INTO `viewproperty` (`messageCode`, `locale`, `instance`, `scope`, `entity`, `property`, `section`, `context`, `style`, `required`, `label`, `indentLevel`, `list`, `quickHelp`)
@@ -29,4 +29,4 @@ INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`Or
 
 DELETE FROM versionhistory WHERE module='lava-crms-data' AND version='3.4.2';
 INSERT INTO versionhistory(module,version,versiondate,major,minor,fix,updaterequired)
-VALUES ('lava-crms-data','3.4.2','2014-07-11',3,4,2,0);
+VALUES ('lava-crms-data','3.4.2','2014-07-17',3,4,2,0);
