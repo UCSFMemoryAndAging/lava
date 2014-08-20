@@ -11,13 +11,10 @@ ALTER TABLE `patient` ADD COLUMN `Twin` SMALLINT NULL DEFAULT NULL AFTER `Proban
 ALTER TABLE `patient` ADD COLUMN `TwinZygosity` SMALLINT NULL DEFAULT NULL AFTER `Twin`;
 ALTER TABLE `patient` ADD COLUMN `TwinID` SMALLINT NULL DEFAULT NULL AFTER `TwinZygosity`;
 ALTER TABLE `patient` ADD COLUMN `RelationNotes` VARCHAR(100) NULL DEFAULT NULL AFTER `TwinID`;
--- ProjSiteID is temporary and will go to the EnrollmentStatus record
-ALTER TABLE `patient` ADD COLUMN `ProjSiteID` VARCHAR(25) NULL DEFAULT NULL AFTER `RelationNotes`;
--- NativeProjSiteID is temporary and will go to the EnrollmentStatus record
-ALTER TABLE `patient` ADD COLUMN `NativeProjSiteID` VARCHAR(25) NULL DEFAULT NULL AFTER `ProjSiteID`;
 
 ALTER TABLE `enrollmentstatus` CHANGE COLUMN `SubjectStudyID` `SubjectStudyID` VARCHAR(25) NULL DEFAULT NULL;
 
+-- new fields to support project level patient id string:FamilyID-ProjCode-SiteCode-FamilyRelationCoding
 ALTER TABLE `projectunit` ADD COLUMN `ProjCode` VARCHAR(4) NULL DEFAULT NULL AFTER `Project`;
 ALTER TABLE `projectunit` ADD COLUMN `UnitCode` VARCHAR(4) NULL DEFAULT NULL AFTER `Unit`;
 
