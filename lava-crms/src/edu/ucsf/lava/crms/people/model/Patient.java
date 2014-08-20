@@ -65,8 +65,6 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	private Short probandCandidate;
 	private Short twinZygosity;
 	private String twinId;
-	// the following property is temporary until move it down to EnrollmentStatus
-	private String projSiteId;
 	private String relationNotes;
 	
 	private String createdBy;
@@ -305,14 +303,6 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 
 	public void setTwinId(String twinId) {
 		this.twinId = twinId;
-	}
-
-	public String getProjSiteId() {
-		return projSiteId;
-	}
-
-	public void setProjSiteId(String projSiteId) {
-		this.projSiteId = projSiteId;
 	}
 
 	public String getRelationNotes() {

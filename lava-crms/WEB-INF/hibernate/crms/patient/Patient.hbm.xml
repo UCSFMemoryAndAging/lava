@@ -58,7 +58,6 @@
 		<property name="probandCandidate" column="ProbandCandidate" type="short"/>
 		<property name="twinZygosity" column="twinZygosity" type="short"/>
 		<property name="twinId" column="TwinID" type="string" length="2"/>
-		<property name="projSiteId" column="ProjSiteID" type="string" length="25"/>
 		<property name="relationNotes" column="RelationNotes" type="string" length="100"/>
 		
 		<!-- these associations are solely to support the cascade delete of related objects on a patient delete. 
