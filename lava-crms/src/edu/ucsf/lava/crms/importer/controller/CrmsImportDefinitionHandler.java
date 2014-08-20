@@ -69,7 +69,7 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 	 	StateDefinition state = context.getCurrentState();
 
 		//	load up dynamic lists
-	 	String projName = crmsImportDefinition.getProjNameForContext(); 
+	 	String projName = crmsImportDefinition.getProjName(); 
 	 	
 		model = super.addReferenceData(context, command, errors, model); 
 		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
