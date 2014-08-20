@@ -32,12 +32,6 @@ action customizes the core action whose target is 'import' (see BaseFlowBuilder 
  		<c:import url="/WEB-INF/jsp/core/importer/import/importSetupContent.jsp">
 			<c:param name="component">${component}</c:param>
 		</c:import>
-		
-		<page:applyDecorator name="component.entity.section">
-			<page:param name="sectionId">crmsSetup</page:param>
-			<page:param name="sectionNameKey">import.crmsSetup.section</page:param>
-			<tags:createField property="projName" component="${component}"/>
-		</page:applyDecorator>
 	</c:if>
 	
 	<c:if test="${flowState == 'result'}"> 
