@@ -1,1 +1,0 @@
-mysql -s -r -u lava_pedi -p lava_pedi < extract-crms-contactInfo-data.sql > lava-crms-contactInfo-data.sql
