@@ -16,6 +16,7 @@
 <%-- TODO: button to download the mapping file 
    and prob some info text about uploading / downloading mapping file --%>
 	<tags:createField property="dataFileFormat" component="${component}"/>
+	<tags:createField property="startDataRow" component="${component}"/>
 	default is MM/dd/yyyy
 	<tags:createField property="dateFormat" component="${component}"/>
 	default is hh:mm a
