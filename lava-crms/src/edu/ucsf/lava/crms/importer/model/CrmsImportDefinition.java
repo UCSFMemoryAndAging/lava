@@ -21,30 +21,7 @@ public class CrmsImportDefinition extends ImportDefinition {
 	
 //TODO: jhesse re: security of exporting PHI CSV files for update --- is REDCap update done
 // within the context of REDCap?? pretty sure Songster does updates in Excel
-	
-	//more:
-	// CrmsInsertImportDefinition
-	
-	// CrmsUpdateImportDefinition
-	// not sure if there will be a definition mapping file, in which case maybe definition file should 
-	// not exist at core level and put into CrmsInsertImportDefinition, but feeling is that it 
-	// should be left in core and just not used here (for this envisioning an export which uses 
-	// reflection to essentially export the definition mapping, but with data, and then import it
-	// using that same export file so there is no definition mapping file needed, i.e. the data 
-	// file is also the definition mapping file
-	
-	//UPDATE: can also consider CoreInsertImportDefinition with def mapping file and 
-	//CoreUpdateImportDefinition without def mapping file
-	
 
-	
-	// createPatient (if not exists)
-	// createCaregiver (if not exists)
-	// createContactInfo (if not exists)
-	// project
-	// enrollPatient (if not enrolled)
-	// createVisit (if not exists)
-	// createInstrument (if not exists)
 	
 	private Short patientExistRule;
 	// currently this flag is not used unless it is determined that import files should be able to overwrite
@@ -54,9 +31,9 @@ public class CrmsImportDefinition extends ImportDefinition {
 //?? need flags for Caregiver, Contact Info, etc.. or just handle that with property names in mapping file?
 // note that pediLAVA new patient history could have multiple caregivers, also caregivers may have contact info	
 
-	// this is not a persistent property. it is available for user to specify a project if they need to
-	// choose other property values that are dependent on projName (visitType, visitWith, visitLocation)
-	private String projNameForContext;
+	// this is used both for importing data in the context of a specific project, and to provide context for
+	// lists for other property values that are dependent on projName (visitType, visitWith, visitLocation)
+	private String projName;
 
 	// Enrollment Status
 	private Short esExistRule;
@@ -78,21 +55,6 @@ public class CrmsImportDefinition extends ImportDefinition {
 	private String visitWith;
 	private String visitLoc;
 	private String visitStatus;
-	
-// need to figure out which variables needed for;
-// instrument must not exist in which case it will be created
-// instrument must exist in which case it will be updated
-// instrument must not exist and it it does error log record
-// instrument must exist and it it does not error log record
-	
-// if instrument does not exist or instrument exists but not data entered proceed, but error log record
-// if instrument exists and is already data entered
-// alternatively, an update mode would allow update even if instrment was data entered
-// easy way out would be to always create new instrument without regard for whether instrument
-// already exists, in which case could have duplicate instruments
-	
-// goal of re-runnable scripts should be a consideration 
-// initially just tink about typical use case
 	
 	// Instrument
 	private Short instrExistRule; 
@@ -123,12 +85,12 @@ public class CrmsImportDefinition extends ImportDefinition {
 		this.allowPatientUpdate = allowPatientUpdate;
 	}
 
-	public String getProjNameForContext() {
-		return projNameForContext;
+	public String getProjName() {
+		return projName;
 	}
 
-	public void setProjNameForContext(String projNameForContext) {
-		this.projNameForContext = projNameForContext;
+	public void setProjName(String projName) {
+		this.projName = projName;
 	}
 
 	public Short getEsExistRule() {

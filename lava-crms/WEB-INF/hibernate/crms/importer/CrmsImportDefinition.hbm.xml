@@ -7,6 +7,7 @@
 <hibernate-mapping>
 	<joined-subclass name="edu.ucsf.lava.crms.importer.model.CrmsImportDefinition" table="crms_import_definition" extends="edu.ucsf.lava.core.importer.model.ImportDefinition" select-before-update="true">
 		<key column="definition_id"/>		
+		<property name="projName" type="string" length="75" column="ProjName" not-null="true"/>
 		<property name="patientExistRule" column="patient_exist_rule" type="short"/>
 		<property name="allowPatientUpdate" column="patient_update" type="boolean"/>
 		<property name="esExistRule" column="es_exist_rule" type="short"/>
