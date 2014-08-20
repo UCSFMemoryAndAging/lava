@@ -10,6 +10,10 @@ DELETE FROM `viewproperty` WHERE `messageCode` = '*.patient.familyStatus';
 INSERT INTO `viewproperty` (`messageCode`, `locale`, `instance`, `scope`, `entity`, `property`, `section`, `context`, `style`, `required`, `label`, `indentLevel`, `list`, `quickHelp`)
   VALUES ('*.patient.familyStatus', 'en', 'lava', 'crms', 'Patient', 'familyStatus', '', 'i', 'range', 'No', 'Family Status', 0, 'patient.familyStatus', 'Family Status');
 
+DELETE FROM `viewproperty` WHERE `messageCode` = '*.patient.familyStudy';
+INSERT INTO `viewproperty` (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`) 
+  VALUES('*.patient.familyStudy','en','lava','crms',NULL,'Patient','familyStudy','','i','string','No','Family Study',NULL,50,NULL,0,NULL,NULL,NULL,NULL,'Family Study');
+  
 DELETE FROM `viewproperty` WHERE `messageCode` = '*.patient.relationToProband'; 
 INSERT INTO `viewproperty` (`messageCode`, `locale`, `instance`, `scope`, `entity`, `property`, `section`, `context`, `style`, `required`, `label`, `indentLevel`, `list`, `quickHelp`)
   VALUES ('*.patient.relationToProband', 'en', 'lava', 'crms', 'Patient', 'relationToProband', '', 'i', 'range', 'No', 'Relation to Proband', 0, 'patient.relationToProband', 'Relation to Proband');
@@ -34,11 +38,6 @@ DELETE FROM `viewproperty` WHERE `messageCode` = '*.patient.relationNotes';
 INSERT INTO `viewproperty` (`messageCode`, `locale`, `instance`, `scope`, `entity`, `property`, `section`, `context`, `style`, `required`, `label`, `maxLength`, `indentLevel`, `attributes`, `quickHelp`)
   VALUES ('*.patient.relationNotes', 'en', 'lava', 'crms', 'Patient', 'relationNotes', '', 'i', 'text', 'No', 'Relation Notes', 100, 0, 'rows="2" cols="50"', 'Relation Notes');
   
--- this is temporary and will move down to EnrollmentStatus
-DELETE FROM `viewproperty` WHERE `messageCode` = '*.patient.projSiteId'; 
-INSERT INTO `viewproperty` (`messageCode`, `locale`, `instance`, `scope`, `entity`, `property`, `section`, `context`, `style`, `required`, `label`, `maxLength`, `size`, `indentLevel`, `list`, `quickHelp`)
-  VALUES ('*.patient.projSiteId', 'en', 'lava', 'crms', 'Patient', 'projSiteId', '', 'i', 'string', 'No', 'Project Site ID', 25, 20, 0, NULL, 'Project Site ID');
-
 DELETE FROM `listvalues` WHERE `ListID` IN (SELECT `ListID` FROM `list` WHERE `ListName` = 'PatientFamilyStatus');
 DELETE FROM `list` WHERE `ListName` = 'PatientFamilyStatus';
 INSERT INTO `list` (`ListName`,`instance`,`scope`,`NumericKey`,`modified`) VALUES('PatientFamilyStatus','lava','crms',1,NOW());
