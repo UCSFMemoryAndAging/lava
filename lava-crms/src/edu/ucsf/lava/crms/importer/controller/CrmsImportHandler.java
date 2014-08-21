@@ -240,37 +240,61 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 
 //RIGHT HERE
-// implement startDataRow
 // change mapping file format to 3 rows: row 2 is entity type, row 3 is property name (if
 //  both are blank then defaults to 1st instrument and prop name == column name (row 1))				
+
+// X-do pedi attachments (consents) when working in the following with LavaFile stuff				
+//   download definition mapping file
+//	 download data file				
+
+// pedi new patient history import (data file with all columns, not cut off at 256 cols)				
+
+// change importLog to store definition_id, not name, and create an FK constraint to the
+// importDefinition so user cannot delete any import definitions that were used
+// map as an association				
+// create a link from the importLog to the importDefinition so user can quickly see what
+// definition was used (e.g. which instruments were created)				
+
+// open csv				
 				
+// pertinent TODOs in code, config, Hibernate mapping, jsp, etc.
+				
+// import and definition UI cleanup				
 // crmsAllImportLogs needs a Filter
 // crmsImportLogContent needs to format log summary results in a table
 // importLog/crmsImportLog needs to get rid of edit
 // importLog/crmsImportLog needs to transfer notes from importSetup to importLog				
 // add creation of entities as importLog info messages (test with WESChecklist)
 // ?? create preview mode, at least for development, that does not do anything to db				
-// pedi new patient history import (data file with all columns, not cut off at 256 cols)				
-// pertinent TODOs in here
-// Rankin TODOs (e.g. match Visit on Visit Type, match Visit Date on time window)
-//   note: these Rankin TODOs can wait until migrate to MAC LAVA in August/Sept.				
-// import and definition UI cleanup				
-				
+
 // other majors:
-// do pedi attachments (consents) when working in the following with LavaFile stuff				
-//   download definition mapping file
-// 	 download data file				
-// open csv				
-// call calculate on save (or is it done automatically?)
 // BASC import
 // migrate to MAC LAVA
-// expand to work with multiple instruments (crmsImportDefinition will have inputs for up to 10 
-//    instruments, and will have to rework instrumentExistsHandling to go thru each specified instrument,
-//	   and use of instrType,instrVer for generateLocation for data files will just have to use that of
-//     the first instrument chosen)
-// expand to work with files in folders for special not-exactly-import use cases:
+// Rankin TODOs:
+//   call calculate on save (or is it done automatically?)
+//				
+//   implement startDataRow (defaults to 2 for all imports done prior to implementation)
+//				
+//   match existing Visit on Visit Type if user sets flag to do so. even if not, Visit Type could still be
+//   used when creating new Visits (default is false)				
+//   (columns and metadata to support already added to db)
+//				
+//   match existing	Visit on user specified time window, in days, around the visitDate in data file. set
+//   to 0 for an exact date match (need info text with this) (0 is the default)				
+//   (columns and metadata to support already added to db)
+//				
+//   expand to work with multiple instruments (crmsImportDefinition will have inputs for up to 10 
+//   instruments, and will have to rework instrumentExistsHandling to go thru each specified instrument,
+//   and use of instrType,instrVer for generateLocation for data files will just have to use that of
+//   the first instrument chosen)
+//   (columns and metadata to support already added to db, i.e. 2 thru 10 instrType/instrVer)
+//				
+// 2.0  expand to work with files in folders for special not-exactly-import use cases:
 //      a) for instruments that load individual patient files, e.g. e-prime instruments
-//      b) for PDFs that should be attached to an existing instrument				
+//      b) for PDFs that should be attached to an existing instrument
+// 2.0: validation, i.e. read property metadata to obtain type, list of valid values
+// 
+// 3.0 import detail data files, e.g. Freesurfer 5.1 data				
 				
 				if ((handlingEvent = otherExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 					importLog.incErrors();
