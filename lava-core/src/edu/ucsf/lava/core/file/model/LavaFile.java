@@ -94,6 +94,10 @@ public class LavaFile extends EntityBase {
 	 */
 	protected boolean contentLoaded = false;
 	
+	/**
+	 * Notes about the file
+	 */
+	private String notes;
 	
 	
 	public String getRepositoryId() {
@@ -203,8 +207,12 @@ public class LavaFile extends EntityBase {
 		this.location = location;
 	}
 	
-
-	
+	public String getNotes() {
+		return notes;
+	}
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
 	/**
 	 * Delete any file in the repository for this deleted FileEntity.
 	 */

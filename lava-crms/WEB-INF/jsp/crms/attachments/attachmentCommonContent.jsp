@@ -13,6 +13,7 @@
 <%-- debugging only
 <tags:createField property="checksum" entityType="lavaFile" component="${component}"/>
 --%>
+<tags:createField property="notes" entityType="lavaFile" component="${component}"/>
 </page:applyDecorator>   
 
 <%-- debugging only
