@@ -26,6 +26,13 @@
 		<c:param name="componentMode">${componentMode}</c:param>
 		<c:param name="componentView">${componentView}</c:param>
 	</c:import>
+	
+	<%-- associated attachments listing --%>
+	<c:set var="id"><tags:componentProperty component="${component}" property="id"/></c:set>
+	<c:import url="/WEB-INF/jsp/crms/scheduling/attachments/visitAttachmentListContent.jsp">
+		<c:param name="propertyValues">visitId,${id}</c:param>
+	</c:import>
+	
 </page:applyDecorator>  
 
 

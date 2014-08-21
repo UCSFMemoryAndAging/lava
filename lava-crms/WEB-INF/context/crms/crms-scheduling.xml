@@ -76,6 +76,16 @@
 		<property name="patientSectionDefault" value="true"/>
 	</bean>			
 			
+	<!-- visitAttachment only exists for a specific Visit so there are no patient/project lists
+	of Visit attachments like there are for EnrollmentStatus (which may or may not be used but
+	the preference for attachments is to display a list on a specific entity instead of displaying
+	lists of attachments across all entities of a specific type -->
+	<bean id="lava.crms.scheduling.attachments.visitAttachment" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.scheduling.visit.visit</value>
+		</list></property>
+	</bean>	
+		
 			
 
 	<!-- form action definitions -->
@@ -100,6 +110,8 @@
     		<bean class="edu.ucsf.lava.crms.mylava.controller.MyCalendarHandler" parent="crmsHandler"/>
    	</list></constructor-arg></bean>  
     
-    
+	<bean id="visitAttachmentFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.scheduling.controller.VisitAttachmentHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
 
 </beans>
