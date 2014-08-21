@@ -7,7 +7,7 @@
 <page:applyDecorator name="component.content">
   <page:param name="component">${component}</page:param>
   <page:param name="hasFileUpload">true</page:param>
-  <page:param name="pageHeadingArgs"><tags:componentProperty component="${component}" property="contentType"/>,<tags:componentProperty component="${component}" property="name"/></page:param>
+  <page:param name="pageHeadingArgs"><tags:componentProperty component="${component}" property="contentType"/>,<tags:componentProperty component="${component}" property="patient" property2="fullNameNoSuffix"/>,<tags:componentProperty component="${component}" property="name"/></page:param>
  
 <page:applyDecorator name="component.entity.content">
   <page:param name="component">${component}</page:param>
