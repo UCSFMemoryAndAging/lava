@@ -12,4 +12,9 @@
 		</list></property>	
  	</bean>
 
+	<bean id="list.importDefinition.visitMatchRange" parent="list.numericRange">
+		<property name="defaultMinValue" value="0"/>	
+		<property name="defaultMaxValue" value="100"/>
+	</bean>
+
 </beans>
