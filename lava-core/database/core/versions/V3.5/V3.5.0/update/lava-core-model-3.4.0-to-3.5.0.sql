@@ -58,6 +58,8 @@ CREATE TABLE `import_log_message` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
+ALTER TABLE `lava_file` ADD COLUMN `notes` VARCHAR(255) DEFAULT NULL AFTER `checksum`;
+
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
 VALUES ('lava-core-model','3.5.0',NOW(),3,5,0,0);
 
