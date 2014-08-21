@@ -7,7 +7,8 @@
 <page:applyDecorator name="component.content">
   <page:param name="component">${component}</page:param>
   <page:param name="hasFileUpload">true</page:param>
-  <page:param name="pageHeadingArgs"><tags:componentProperty component="${component}" property="contentType"/>,<tags:componentProperty component="${component}" property="name"/></page:param>
+  <page:param name="pageHeadingArgs"><tags:componentProperty component="${component}" property="contentType"/>,<tags:componentProperty component="${component}" property="patient" property2="fullNameNoSuffix"/>,<tags:componentProperty component="${component}" property="name"/></page:param>
+ 
  
 <page:applyDecorator name="component.entity.content">
   <page:param name="component">${component}</page:param>
@@ -26,6 +27,7 @@
 <page:applyDecorator name="component.entity.section">
 	<page:param name="sectionNameKey">attachment.linking.section</page:param>
 		<tags:createField property="patient.fullNameRevNoSuffix" entityType="crmsFile" component="${component}"/>
+		<tags:createField property="consent.projName" entityType="crmsFile" component="${component}"/>
 </page:applyDecorator>  
 
 <c:if test="${componentView != 'view' && componentView != 'delete'}">
