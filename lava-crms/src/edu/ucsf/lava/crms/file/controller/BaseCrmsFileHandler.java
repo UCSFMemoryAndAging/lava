@@ -32,7 +32,7 @@ import static edu.ucsf.lava.crms.file.CrmsRepositoryStrategy.CRMS_REPOSITORY_ID;
  * PatientAttachmentHandler
  * EnrollmentAttachmentHandler
  * ConsentAttachmentHandler
- * TODO: VisitAttachmentHandler
+ * VisitAttachmentHandler
  * AssessmentAttachmentHandler
  * 
  * Note there are two UIs to attach a file.
@@ -222,7 +222,7 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 		if(crmsFile!=null && v!=null){
 			crmsFile.setVisitId(v.getId());
 			crmsFile.setVisit(v);
-			EnrollmentStatus es = this.getEnrollmentStatus(crmsFile.getPatient(), crmsFile.getVisit().getProjName(), request);
+			EnrollmentStatus es = this.getEnrollmentStatus(crmsFile.getVisit().getPatient(), crmsFile.getVisit().getProjName(), request);
 			if(es!=null){
 				this.setEnrollmentStatus(crmsFile, es, request);
 			}else{
