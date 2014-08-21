@@ -51,7 +51,8 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 	<tags:createField property="existingVisits" component="${component}" labelStyle="longLeft"/>
 	
 	<tags:createField property="newInstruments" component="${component}" labelStyle="longLeft"/>
-<%-- TODO: list instrType created --%>	
+<%-- TODO: list instrType(s) created. can reference importLog.importDefinition --%>	
+<%--   info text that instruments are handled as a group in terms of new/exisitng,etc. --%>	
 	<tags:createField property="existingInstruments" component="${component}" labelStyle="longLeft"/>
 <%-- TODO: info text to clarify this number vs. prior (the following is essentially an update) --%>	
 	<tags:createField property="existingInstrumentsWithData" component="${component}" labelStyle="longLeft"/>
