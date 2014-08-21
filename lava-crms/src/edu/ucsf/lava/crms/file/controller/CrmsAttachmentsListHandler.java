@@ -14,6 +14,7 @@ import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.enrollment.model.Consent;
 import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 import edu.ucsf.lava.crms.file.model.CrmsFile;
+import edu.ucsf.lava.crms.scheduling.model.Visit;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 
 /*
@@ -71,6 +72,9 @@ public class CrmsAttachmentsListHandler extends AttachmentsListHandler {
 		} else if (components.containsKey("consent")){
 			filter.addParamHandler(new LavaEqualityParamHandler("consentId"));
 			filter.setParam("consentId", ((Consent)components.get("consent")).getId());
+		} else if (components.containsKey("visit")){
+			filter.addParamHandler(new LavaEqualityParamHandler("visitId"));
+			filter.setParam("visitId", ((Visit)components.get("visit")).getId());
 		} else{
 			filter.setParam("DO_NOT_EXECUTE", true);
 		}
