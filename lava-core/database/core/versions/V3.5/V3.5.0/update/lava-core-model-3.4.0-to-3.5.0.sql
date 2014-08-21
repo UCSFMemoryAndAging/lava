@@ -60,6 +60,7 @@ CREATE TABLE `import_log_message` (
 
 ALTER TABLE `lava_file` ADD COLUMN `notes` VARCHAR(255) DEFAULT NULL AFTER `checksum`;
 
+DELETE FROM versionhistory WHERE module='lava-core-model' AND version='3.5.0';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
 VALUES ('lava-core-model','3.5.0',NOW(),3,5,0,0);
 

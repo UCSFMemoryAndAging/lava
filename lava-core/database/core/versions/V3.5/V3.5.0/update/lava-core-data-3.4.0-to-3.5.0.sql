@@ -20,3 +20,6 @@ INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`en
 INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) VALUES('*.importLog.notes','en','lava','core',NULL,'importLog','notes',NULL,'c','text',NULL,'Notes',NULL,NULL,NULL,0,'rows="5" cols="35"',NULL,NULL,NULL,'Import Notes','2014-04-28 15:42:08');
 INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) VALUES('*.lavaFile.notes','en','lava','core',NULL,'lavaFile','notes',NULL,'i','text','No','Notes',NULL,255,NULL,0,'rows="3" cols="85"',NULL,NULL,NULL,'Attachment Notes','2014-07-09 10:13:04');
 
+DELETE FROM versionhistory WHERE module='lava-core-data' AND version='3.5.0';
+INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
+VALUES ('lava-core-data','3.5.0',NOW(),3,5,0,0);
