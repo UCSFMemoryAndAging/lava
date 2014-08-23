@@ -53,6 +53,11 @@ public class LavaDaoHibernateImpl extends HibernateDaoSupport implements LavaDao
 	protected void saveLavaEntity(LavaEntity entity){
 		entity.beforeCreate();
 		getHibernateTemplate().saveOrUpdate(entity);
+		// the following refresh was required when encountering an inexplicable StaleObjectStateException which
+		// occurred on prodction but not on dev even with dev pointing to production db. the fact that an update
+		// was being done following an insert triggered this exception, but doing a refresh here prevents the
+		// exception
+		getHibernateTemplate().refresh(entity);			
 		boolean resave = entity.afterCreate();
 		if(resave){
 			getHibernateTemplate().saveOrUpdate(entity);
