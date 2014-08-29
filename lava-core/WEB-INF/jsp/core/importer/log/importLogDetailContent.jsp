@@ -12,6 +12,7 @@
 <page:applyDecorator name="component.list.content">
   <page:param name="pageName">${pageName}</page:param>
   <page:param name="component">${component}</page:param>
+  <page:param name="listTitle">Individual Record Errors / Warnings / Info</page:param>
   <page:param name="isSecondary">true</page:param>
   
 <%-- TODO: quickFilter on message type --%>  
