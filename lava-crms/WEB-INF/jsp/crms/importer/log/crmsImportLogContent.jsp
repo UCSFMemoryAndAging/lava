@@ -16,10 +16,17 @@ This content is only displayed in view mode, i.e. there is no concept of editing
   <page:param name="sectionNameKey">importLog.info.section</page:param>
 	<tags:createField property="importTimestamp" component="${component}"/>
 	<tags:createField property="importedBy" component="${component}"/>
-  	<tags:createField property="dataFile.name" component="${component}" metadataName="importLog.dataFilename"/>
+  	<tags:createField property="dataFile.name" component="${component}"/>
 <%-- TODO: download data file button --%>
 	<tags:createField property="projName" component="${component}"/>
-	<tags:createField property="definitionName" component="${component}"/>
+	<c:set var="definitionId">
+		<tags:componentProperty component="${component}" property="definition" property2="id"/>
+	</c:set>
+ 	<tags:createField property="definition.name" component="${component}" inline="true"/>
+	<%-- TODO: fix because since eventId is not specified, this will result in a new root flow, 
+		so definition needs to be made a subflow of importLog --%>
+	<%-- using listActionURLButton for the list icon --%>	
+	<tags:listActionURLButton buttonImage="view" actionId="lava.core.importer.definition.importDefinition" idParam="${definitionId}"/>
 </page:applyDecorator>
 
 <page:applyDecorator name="component.entity.section">
