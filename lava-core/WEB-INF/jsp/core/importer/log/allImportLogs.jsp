@@ -38,7 +38,7 @@
 		</tags:listCell>
 <%-- TODO: prob replace definitionName with import results summary --%>		
 		<tags:listCell>
-			<tags:listField property="definitionName" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
+			<tags:listField property="definition.name" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
 		</tags:listCell>
 	</tags:listRow>
 </tags:list>

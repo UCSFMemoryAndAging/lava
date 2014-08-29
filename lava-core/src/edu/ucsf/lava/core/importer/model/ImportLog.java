@@ -18,7 +18,7 @@ public class ImportLog extends EntityBase {
 	private Timestamp importTimestamp;
 	private String importedBy;
 	private ImportFile dataFile;
-	private String definitionName;
+	private ImportDefinition definition;
 	private Integer totalRecords;
 	// record imported (generally means row inserted, though  populating an "empty" record could 
 	// qualify as an import instead of an update 
@@ -69,12 +69,12 @@ public class ImportLog extends EntityBase {
 		this.dataFile = dataFile;
 	}
 
-	public String getDefinitionName() {
-		return definitionName;
+	public ImportDefinition getDefinition() {
+		return definition;
 	}
 
-	public void setDefinitionName(String definitionName) {
-		this.definitionName = definitionName;
+	public void setDefinition(ImportDefinition definition) {
+		this.definition = definition;
 	}
 
 	public Integer getTotalRecords() {

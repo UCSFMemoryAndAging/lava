@@ -214,7 +214,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		// definition and mapping file
 //TODO: eagerly load ImportDefinition instead of explicitly loading it		
 		importSetup.setImportDefinition(ImportDefinition.findOneById(importSetup.getDefinitionId()));
-		importLog.setDefinitionName(importSetup.getImportDefinition().getName());
+		importLog.setDefinition(importSetup.getImportDefinition());
 		LavaFile mappingFile = importSetup.getImportDefinition().getMappingFile();
 		
 		// data file
@@ -227,11 +227,6 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		
 //TODO: add import event to audit events (persisted import data file in combination with importLog will essentially be the 
 // import data audit log)		
-		
-//TODO: write the data file to the repository, regardless of what errors might follow
-		//data files need to be associated with importLog record for the import and the importLog lists
-		//should have a download action icon to allow downloading the data file that was imported
-		//UPDATE: write/call method to instantiate a CrmsImportLog, instantiate a LavaFile for the data
 		
 		// definition mapping and data arrays
 //TODO: redo these comments with a definition for each String array:
@@ -296,7 +291,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		ImportFile dataFile = (ImportFile) this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
 		// dataFile needs definitionName for generating a location in the repository (folder is named after the definition name
 		// with encoding as necessary
-		dataFile.setDefinitionName(importLog.getDefinitionName());
+		dataFile.setDefinitionName(importLog.getDefinition().getName());
 		importLog.setDataFile(dataFile);
 		fileScanner = new Scanner(new ByteArrayInputStream(dataFile.getContent()), "UTF-8");
 		if (fileScanner.hasNextLine()) {

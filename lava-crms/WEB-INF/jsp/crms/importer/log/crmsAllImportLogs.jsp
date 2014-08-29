@@ -33,10 +33,10 @@
 			<tags:listField property="importedBy" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="dataFile.name" component="${component}" listIndex="${iterator.index}" metadataName="importLog.dataFilename"/>
+			<tags:listField property="dataFile.name" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="definitionName" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
+			<tags:listField property="definition.name" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="importLog"/><br/>

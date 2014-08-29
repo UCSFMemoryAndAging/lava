@@ -15,9 +15,9 @@ This content is only displayed in view mode, i.e. there is no concept of editing
   <page:param name="sectionNameKey">importLog.info.section</page:param>
 	<tags:createField property="importTimestamp" component="${component}"/>
 	<tags:createField property="importedBy" component="${component}"/>
-  	<tags:createField property="dataFile.name" component="${component}" metadataName="importLog.dataFilename"/>
+  	<tags:createField property="dataFile.name" component="${component}"/>
 <%-- TODO: download data file button --%>
-	<tags:createField property="definitionName" component="${component}"/>
+	<tags:createField property="definition.name" component="${component}"/>
 </page:applyDecorator>
 
 <page:applyDecorator name="component.entity.section">

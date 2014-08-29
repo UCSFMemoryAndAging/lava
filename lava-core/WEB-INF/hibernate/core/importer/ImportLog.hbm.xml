@@ -15,10 +15,10 @@
 		<timestamp name="modified" column="modified"/>
 		<property name="importTimestamp" column="import_timestamp" type="timestamp" not-null="true"/>
 		<property name="importedBy" column="imported_by" type="string" length="25" not-null="true"/>
-		<many-to-one name="dataFile" column="data_file_id" unique="true" class="edu.ucsf.lava.core.file.model.LavaFile" cascade="all" outer-join="true"/>
+		<many-to-one name="dataFile" column="data_file_id" not-null="true" unique="true" class="edu.ucsf.lava.core.file.model.LavaFile" cascade="all" outer-join="true"/>
 		<!-- do not map a reference to ImportDefinition because it may have changed since it was used
 			for this import -->
-		<property name="definitionName" column="definition_name" type="string" length="30"/>
+		<many-to-one name="definition" column="definition_id"  not-null="true" class="edu.ucsf.lava.core.importer.model.ImportDefinition" outer-join="true"/>
 		<property name="totalRecords" column="total_records" type="integer"/>
 		<property name="imported" column="imported" type="integer"/>
 		<property name="updated" column="updated" type="integer"/>
