@@ -16,6 +16,7 @@
 		<property name="category" column="category" type="string" length="30"/>
 		<many-to-one name="mappingFile" column="mapping_file_id" unique="true" class="edu.ucsf.lava.core.file.model.LavaFile" cascade="all" outer-join="true"/>
 		<property name="dataFileFormat" column="data_file_format" type="string" length="25"/>
+		<property name="startDataRow" column="start_data_row" type="short"/>
 		<property name="dateFormat" column="date_format" type="string" length="20"/>
 		<property name="timeFormat" column="time_format" type="string" length="20"/>
 		<property name="notes" column="notes" type="string" length="500"/>

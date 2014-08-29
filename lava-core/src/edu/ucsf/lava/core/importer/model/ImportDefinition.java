@@ -17,6 +17,7 @@ public class ImportDefinition extends EntityBase {
 	private String category; // not currently used. available for future use.
 	private ImportFile mappingFile;
 	private String dataFileFormat; // "CSV", "TAB", etc.
+	private Short startDataRow; // the first row of data, following column header row and possibly other rows
 	// assuming all date fields in an import data file would have same format, e.g. birthDate, visitDate, dcDate
 	private String dateFormat; // default: MM/dd/yyyy
 	private String timeFormat; // default hh:mm
@@ -56,6 +57,14 @@ public class ImportDefinition extends EntityBase {
 
 	public void setDataFileFormat(String dataFileFormat) {
 		this.dataFileFormat = dataFileFormat;
+	}
+	
+	public Short getStartDataRow() {
+		return startDataRow;
+	}
+
+	public void setStartDataRow(Short startDataRow) {
+		this.startDataRow = startDataRow;
 	}
 
 	public String getDateFormat() {
