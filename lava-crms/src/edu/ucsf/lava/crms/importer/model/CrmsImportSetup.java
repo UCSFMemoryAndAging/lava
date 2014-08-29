@@ -20,14 +20,11 @@ import edu.ucsf.lava.crms.scheduling.model.Visit;
  */
 public class CrmsImportSetup extends ImportSetup {
 	
-	// projName is required for creating Patients (initial EnrollmentStatus), creating Visits and
-	// creating Instruments
-	
-	// decided to put projName in setup rather than in definition because a given def could be
-	// used with different projects over time
-	private String projName;
-	// allow custom generation of projName in case import data file only contains unit (aka site) and need
-	// to append it
+	// projName is part of CrmsImportDefinition and is required for creating Patients (initial 
+	// EnrollmentStatus), creating Visits and creating Instruments
+	// specific to the import is to allow custom generation of projName in case import data file 
+	// only contains unit (aka site) and need to append it to projName to create a revisedProjName
+	// which includes project and unit (see Project class)
 	private String revisedProjName;
 	
 	// these properties facilitate the import of Patient, EnrollmentStatus, Visit and instrument
@@ -95,14 +92,6 @@ public class CrmsImportSetup extends ImportSetup {
 	
 	public CrmsImportSetup() {
 		super();
-	}
-
-	public String getProjName() {
-		return projName;
-	}
-
-	public void setProjName(String projName) {
-		this.projName = projName;
 	}
 
 	public String getRevisedProjName() {

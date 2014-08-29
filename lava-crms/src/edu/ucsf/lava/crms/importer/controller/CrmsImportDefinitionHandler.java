@@ -39,8 +39,11 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 	public CrmsImportDefinitionHandler() {
 		super();
 		setHandledEntity("importDefinition", CrmsImportDefinition.class);
+		// projName is required if the import is inserting new Patients, EnrollmentStatuses, Visit and Instruments,
+		// if dealing with pre-existing entities may not need projName, but for the most part will be creating the
+		// instrument at a minimum so make it required
 		this.setRequiredFields(StringUtils.mergeStringArrays(this.getRequiredFields(), 
-				new String[]{"patientExistRule", "esExistRule", "visitExistRule", "instrExistRule"}));
+				new String[]{"projName", "patientExistRule", "esExistRule", "visitExistRule", "instrExistRule"}));
 	}
 	
 	/**

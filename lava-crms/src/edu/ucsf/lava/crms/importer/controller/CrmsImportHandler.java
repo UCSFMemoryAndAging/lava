@@ -83,11 +83,6 @@ public class CrmsImportHandler extends ImportHandler {
 		// will construct the event to be submitted which should match the transition
 		setHandledEntity("import", CrmsImportSetup.class);
 		setDefaultObjectBaseClass(ImportSetup.class);
-		// projName is required if the import is inserting new Patients, EnrollmentStatuses, Visit and Instruments,
-		// if dealing with pre-existing entities may not need projName, but for the most part will be creating the
-		// instrument at a minimum so make it required
-		this.setRequiredFields(StringUtils.mergeStringArrays(this.getRequiredFields(), 
-			new String[]{"projName"}));
 	}
 	
 	public void updateManagers(Managers managers){
@@ -137,8 +132,6 @@ public class CrmsImportHandler extends ImportHandler {
 		Event returnEvent = new Event(this,this.SUCCESS_FLOW_EVENT_ID);
 		Event handlingEvent = null;
 
-		importLog.setProjName(importSetup.getProjName());
-
 		// the CrmsImportSetup command object is used as a parameter object to pass parameters to methods which would
 		// otherwise require many arguments
 		// additionally it facilitates using properties from its ImportSetup superclass in this handler 
@@ -146,6 +139,8 @@ public class CrmsImportHandler extends ImportHandler {
 		// creates when reading the definition mapping file
 		if ((returnEvent = super.doImport(context, command, errors)).getId().equals(SUCCESS_FLOW_EVENT_ID)) {
 			CrmsImportDefinition importDefinition = (CrmsImportDefinition) importSetup.getImportDefinition();
+
+			importLog.setProjName(importDefinition.getProjName());
 
 			// read data file
 // NOTE: remember to review jfesenko data load script		
@@ -240,20 +235,21 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 
 //RIGHT HERE
-// change mapping file format to 3 rows: row 2 is entity type, row 3 is property name (if
-//  both are blank then defaults to 1st instrument and prop name == column name (row 1))				
-
+// create a link from the importLog to the importDefinition so user can quickly see what
+// to support this, definition needs to be a subflow of log
+				
 // X-do pedi attachments (consents) when working in the following with LavaFile stuff				
 //   download definition mapping file
 //	 download data file				
 
-// pedi new patient history import (data file with all columns, not cut off at 256 cols)				
+// change mapping file format to 3 rows: row 2 is entity type, row 3 is property name (if
+//  both are blank then defaults to 1st instrument and prop name == column name (row 1))				
 
-// change importLog to store definition_id, not name, and create an FK constraint to the
-// importDefinition so user cannot delete any import definitions that were used
-// map as an association				
-// create a link from the importLog to the importDefinition so user can quickly see what
-// definition was used (e.g. which instruments were created)				
+// pedi new patient history import (data file with all columns, not cut off at 256 cols)
+// need separate definitions for old and current versions because var names from old
+//  need to map to current, e.g. field5 old maps to field6 current, whereas for current
+//  field5 maps to field5				
+
 
 // open csv				
 				
@@ -269,8 +265,10 @@ public class CrmsImportHandler extends ImportHandler {
 
 // other majors:
 // BASC import
-// migrate to MAC LAVA
+				
 // Rankin TODOs:
+//   migrate to MAC LAVA
+//				
 //   call calculate on save (or is it done automatically?)
 //				
 //   implement startDataRow (defaults to 2 for all imports done prior to implementation)
@@ -417,7 +415,7 @@ public class CrmsImportHandler extends ImportHandler {
 	 * @return
 	 */
 	protected void generateRevisedProjName(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup) {
-		importSetup.setRevisedProjName(importSetup.getProjName());
+		importSetup.setRevisedProjName(importDefinition.getProjName());
 	}
 
 	
