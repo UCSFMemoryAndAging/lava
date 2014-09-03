@@ -32,6 +32,7 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 		super();
 		setHandledEntity("importDefinition", ImportDefinition.class);
 		this.setRequiredFields(new String[]{"name", "dataFileFormat"});
+		this.setSupportsAttachedFiles(true);
 	}
 	
 	protected Object initializeNewCommandInstance(RequestContext context, Object command) {
@@ -48,7 +49,8 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	} 
 	
 	
-	// this is called in getUploadFile which uploads the specified file and populates the mappingFile LavaFile properties
+	// this is called in getUploadFile which uploads the specified file and populates the mappingFile 
+	// LavaFile properties and is called in getDownloadFileContent to download the file 
 	protected LavaFile getLavaFileBackingObject(RequestContext context, Map components, BindingResult errors) throws Exception{
 		ImportDefinition definition = (ImportDefinition) components.get(getDefaultObjectName());
 		if(ImportFile.class.isAssignableFrom(definition.getMappingFile().getClass())){
@@ -167,7 +169,7 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	
 	
 
-//TODO: handle delete event to delete the mappingFile from the repository (also in ImportDefinitionHandler,
+//TODO: handle delete event to delete the mappingFile from the repository
 //UPDATE: how does user delete the mapping file?? seems like they can just replace the one that is there	
 	
 	
