@@ -25,6 +25,7 @@ public class ImportDefinition extends EntityBase {
 
 	public ImportDefinition(){
 		super();
+		this.setAuditEntityType("ImportDefinition");
 	}
 
 	public String getName() {
