@@ -1,8 +1,12 @@
 package edu.ucsf.lava.crms.importer.model;
 
 import edu.ucsf.lava.core.importer.model.ImportDefinition;
+import edu.ucsf.lava.core.model.EntityBase;
+import edu.ucsf.lava.core.model.EntityManager;
 
 public class CrmsImportDefinition extends ImportDefinition {
+	public static EntityManager MANAGER = new EntityBase.Manager(CrmsImportDefinition.class);
+	
 	// if does not exist, will be created. support re-runnable imports. note that for instruments,
 	// additional requirement is that if it does exist it must not have data entered, as do not 
 	// want to overwrite data
@@ -67,6 +71,7 @@ public class CrmsImportDefinition extends ImportDefinition {
 	
 	public CrmsImportDefinition(){
 		super();
+		this.setAuditEntityType("CrmsImportDefinition");
 	}
 
 	public Short getPatientExistRule() {
