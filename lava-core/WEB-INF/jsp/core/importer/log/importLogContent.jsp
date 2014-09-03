@@ -15,9 +15,17 @@ This content is only displayed in view mode, i.e. there is no concept of editing
   <page:param name="sectionNameKey">importLog.info.section</page:param>
 	<tags:createField property="importTimestamp" component="${component}"/>
 	<tags:createField property="importedBy" component="${component}"/>
-  	<tags:createField property="dataFile.name" component="${component}"/>
-<%-- TODO: download data file button --%>
+  	<tags:createField property="dataFile.name" component="${component}" inline="true"/>
+	<%-- the handler is written to handle download event as meaning to download the data file, so do not need to identify what property to download --%>
+	<tags:listActionURLButton buttonImage="download" actionId="lava.core.importer.log.importLog" eventId="importLog__download" />
+	<%-- div required following inline createField --%>
+	<div class="verticalSpace10">&nbsp;</div>
 	<tags:createField property="definition.name" component="${component}"/>
+	<c:set var="definitionId">
+		<tags:componentProperty component="${component}" property="definition" property2="id"/>
+	</c:set>
+	<%-- using listActionURLButton for the list icon --%>	
+	<tags:listActionURLButton buttonImage="view" actionId="lava.core.importer.definition.importDefinition" eventId="importDefinition__view" idParam="${definitionId}"/>
 </page:applyDecorator>
 
 <page:applyDecorator name="component.entity.section">
