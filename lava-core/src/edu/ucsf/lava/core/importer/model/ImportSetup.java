@@ -6,7 +6,7 @@ import edu.ucsf.lava.core.file.model.LavaFile;
 
 /**
  * This class contains properties used during the import of a data file. Note that this
- * is not a persisted class; it just faciliates the import process. 
+ * is not a persisted class; it just facilitates the import process. 
  *   
  * @author ctoohey
  *
@@ -25,6 +25,7 @@ import edu.ucsf.lava.core.file.model.LavaFile;
 	}
 
 	private String mappingCols[];
+	private String mappingEntities[];
 	private String mappingProps[];
 	private String dataCols[];
 	private String dataValues[];
@@ -53,6 +54,14 @@ import edu.ucsf.lava.core.file.model.LavaFile;
 
 	public void setMappingCols(String[] mappingCols) {
 		this.mappingCols = mappingCols;
+	}
+	
+	public String[] getMappingEntities() {
+		return mappingEntities;
+	}
+
+	public void setMappingEntities(String[] mappingEntities) {
+		this.mappingEntities = mappingEntities;
 	}
 
 	public String[] getMappingProps() {
