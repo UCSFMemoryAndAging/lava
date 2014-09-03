@@ -31,9 +31,6 @@ import edu.ucsf.lava.crms.session.CrmsSessionUtils;
  *
  */
 public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
-//	protected InstrumentManager instrumentManager;
-//	protected EnrollmentManager enrollmentManager;
-//	protected VisitManager visitManager; 
 	protected ProjectManager projectManager; 
 
 	public CrmsImportDefinitionHandler() {
@@ -59,10 +56,7 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 
 	public void updateManagers(Managers managers){
 		super.updateManagers(managers);
-//		this.enrollmentManager = CrmsManagerUtils.getEnrollmentManager(managers);
-//		this.instrumentManager = CrmsManagerUtils.getInstrumentManager(managers);
 		this.projectManager = CrmsManagerUtils.getProjectManager(managers);
-//		this.visitManager = CrmsManagerUtils.getVisitManager(managers);
 	}
 	
 	@Override
