@@ -7,15 +7,18 @@ import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
 
 public class ImportFlowTypeBuilder extends BaseFlowTypeBuilder {
 
+	public static final String[] ENTITY_EVENTS = new String[]{"edit"};
+	
 	public ImportFlowTypeBuilder(){
 		super("import");
-		setEvents(new String[]{"edit"});
+		setEvents(ENTITY_EVENTS);
 		setDefaultFlowMode("edit");
 	}
 
-	public void RegisterFlowTypeDefinitions(LavaFlowRegistrar registry,String actionId) {		
-			registry.registerFlowDefinition(assemble(actionId + ".edit", 
+	public void RegisterFlowTypeDefinitions(LavaFlowRegistrar registry,String actionId) {
+		registry.registerFlowDefinition(assemble(actionId + ".edit", 
 						new ImportFlowBuilder(registry,actionId)));
+			
 	}
 
 	public List<FlowInfo> getSubFlowInfo(String actionId, String flowType, String subFlowActionId, Map actions) {
