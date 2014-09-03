@@ -28,14 +28,10 @@
 				
 	<!-- user can view import log which will have details (info, warning alert msgs), but there
 		is no add/edit/delete (log entries are added in by the importing action)  -->
-<!-- TODO: confirm that customizing flows work in terms of inheriting parentFlows as the parent flow 
-of the core flow is:
-lava.core.importer.log.allImportLogs
-but the parent flow of this customizing flow would be:
-lava.crms.importer.log.crmsAllImportLogs
-should work because this basically builds the flows with CRUD transitions to lava.core.importer.log.ImportLog which is
-in turn customized by lava.crms.importer.log.CrmsImportLog below
- -->
+	<!-- note that a customizing flow inherits that parentFlows of the action it customizes, so
+		in this case the crms importLog action has the same parentFlows as the core importLog 
+		action, core allImportLogs, which is itself customized by the above crsm allImportLogs 
+		action --> 	
 	<bean id="lava.crms.importer.log.crmsImportLog" parent="crmsEntityFlowAction">
      	<property name="customizedFlow" value="lava.core.importer.log.importLog"/>
 	</bean>	
@@ -44,7 +40,6 @@ in turn customized by lava.crms.importer.log.CrmsImportLog below
      	<property name="customizedFlow" value="lava.core.importer.definition.allImportDefinitions"/>
  	</bean>
 				
-<!-- see above TOOD: same applies here -->
  	<bean id="lava.crms.importer.definition.crmsImportDefinition" parent="crmsEntityFlowAction">
      	<property name="customizedFlow" value="lava.core.importer.definition.importDefinition"/>
 	</bean>
