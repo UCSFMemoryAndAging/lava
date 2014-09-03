@@ -9,6 +9,10 @@
  		<property name="flowTypeBuilder"><ref bean="coreImportFlowTypeBuilder"/></property>
  	  	<property name="moduleDefault" value="true"/>
   		<property name="sectionDefault" value="true"/>
+  		<!-- allow viewing the definition from the import log results view -->
+ 		<property name="subFlows"><list>
+			<value>lava.core.importer.definition.importDefinition</value>
+		</list></property>
  	</bean>		
 
  	<bean id="lava.core.importer.launcher.importLaunch" parent="coreAction">
@@ -31,6 +35,8 @@
  	<bean id="lava.core.importer.definition.importDefinition" parent="coreEntityFlowAction">
 		<property name="parentFlows"><list>
 			<value>lava.core.importer.definition.allImportDefinitions</value>
+			<value>lava.core.importer.log.importLog</value>
+			<value>lava.core.importer.import.import</value>
 		</list></property>
 	</bean>
 
