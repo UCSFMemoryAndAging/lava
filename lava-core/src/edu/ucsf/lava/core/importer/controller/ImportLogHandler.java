@@ -8,6 +8,8 @@ import org.springframework.webflow.execution.RequestContext;
 import edu.ucsf.lava.core.controller.BaseEntityComponentHandler;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
+import edu.ucsf.lava.core.file.model.ImportFile;
+import edu.ucsf.lava.core.file.model.LavaFile;
 import edu.ucsf.lava.core.importer.model.ImportLog;
 
 /**
@@ -24,6 +26,7 @@ public class ImportLogHandler extends BaseEntityComponentHandler {
 	public ImportLogHandler() {
 		super();
 		setHandledEntity("importLog", ImportLog.class);
+		this.setSupportsAttachedFiles(true);
 	}
 
 	public Map addReferenceData(RequestContext context, Object command, BindingResult errors, Map model)
@@ -37,4 +40,16 @@ public class ImportLogHandler extends BaseEntityComponentHandler {
 		return model;
 	}
 
+	/**
+	 * Override so that the download event downloads the importLog data file.
+	 */
+	protected LavaFile getLavaFileBackingObject(RequestContext context, Map components, BindingResult errors) throws Exception{
+		ImportLog importLog = (ImportLog) components.get(getDefaultObjectName());
+		if(ImportFile.class.isAssignableFrom(importLog.getDataFile().getClass())){
+			return (ImportFile)importLog.getDataFile();
+		}
+		return null;
+	}
+	
+	
 }
