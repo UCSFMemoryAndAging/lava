@@ -16,17 +16,25 @@ This content is only displayed in view mode, i.e. there is no concept of editing
   <page:param name="sectionNameKey">importLog.info.section</page:param>
 	<tags:createField property="importTimestamp" component="${component}"/>
 	<tags:createField property="importedBy" component="${component}"/>
-  	<tags:createField property="dataFile.name" component="${component}"/>
-<%-- TODO: download data file button --%>
+	<%-- TODO: because of the horizontal alignemnt issue where value is slightly lower than label, and
+		because of the following div required (unless it is the last field), redo the inline concept to 
+		pass parameters to createField for the action and create action button within createField --%>
+  	<tags:createField property="dataFile.name" component="${component}" inline="true"/>
+	<%-- the handler is written to handle download event as meaning to download the data file, so do not need to identify what property to download --%>
+	<%-- do not show the download button in the import action as entering the import download subflow would call getBackingObject which
+		initializes a new importLog because it is just designed to prep for the import. this new importLog instance does not contain dataFile --%>
+	<c:if test="${fn:endsWith(pageName, 'Log')}">
+		<tags:listActionURLButton buttonImage="download" actionId="lava.core.importer.log.importLog" eventId="importLog__download" parameters="param,importLog"/>
+	</c:if>	
+	<%-- div required following inline createField --%>
+	<div class="verticalSpace10">&nbsp;</div>
 	<tags:createField property="projName" component="${component}"/>
+ 	<tags:createField property="definition.name" component="${component}" inline="true"/>
 	<c:set var="definitionId">
 		<tags:componentProperty component="${component}" property="definition" property2="id"/>
 	</c:set>
- 	<tags:createField property="definition.name" component="${component}" inline="true"/>
-	<%-- TODO: fix because since eventId is not specified, this will result in a new root flow, 
-		so definition needs to be made a subflow of importLog --%>
 	<%-- using listActionURLButton for the list icon --%>	
-	<tags:listActionURLButton buttonImage="view" actionId="lava.core.importer.definition.importDefinition" idParam="${definitionId}"/>
+	<tags:listActionURLButton buttonImage="view" actionId="lava.core.importer.definition.importDefinition" eventId="importDefinition__view" idParam="${definitionId}"/>
 </page:applyDecorator>
 
 <page:applyDecorator name="component.entity.section">
