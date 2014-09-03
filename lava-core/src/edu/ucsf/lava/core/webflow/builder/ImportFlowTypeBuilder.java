@@ -7,11 +7,11 @@ import edu.ucsf.lava.core.webflow.LavaFlowRegistrar;
 
 public class ImportFlowTypeBuilder extends BaseFlowTypeBuilder {
 
-	public static final String[] ENTITY_EVENTS = new String[]{"edit"};
+	public static final String[] IMPORT_EVENTS = new String[]{"edit"};
 	
 	public ImportFlowTypeBuilder(){
 		super("import");
-		setEvents(ENTITY_EVENTS);
+		setEvents(IMPORT_EVENTS);
 		setDefaultFlowMode("edit");
 	}
 
