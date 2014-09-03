@@ -42,6 +42,7 @@ import edu.ucsf.lava.core.type.LavaDateUtils;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.*;
 import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_DATA_FILE_TYPE;
 import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_REPOSITORY_ID;
+import static edu.ucsf.lava.core.webflow.builder.ImportFlowTypeBuilder.ENTITY_EVENTS;
 
 
 // subclass BaseEntityComponentHandler even though there is not entity CRUD involved with importing, because
@@ -67,8 +68,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		
 		defaultEvents = new ArrayList(Arrays.asList(new String[]{"import", "close"}));
 		
-//TODO: figure out authEvents
-		authEvents = new ArrayList();
+		authEvents = new ArrayList(Arrays.asList(ENTITY_EVENTS));
 		
 		this.requiredFieldEvents.addAll(Arrays.asList("import"));
 		this.setRequiredFields(new String[]{"definitionId"});
@@ -246,19 +246,16 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		
 		Scanner fileScanner = new Scanner(new ByteArrayInputStream(mappingFile.getContent()), "UTF-8");
 		String currentLine; 
-		// line 1 is columns, line 2 is properties
+		// line 1 is columns, line 2 is entities, line 3 is properties
 		
 		// mapping file columns
 		if (fileScanner.hasNextLine()) {
 			currentLine = fileScanner.nextLine().trim();
 			if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
-				//importSetup.setMappingCols(currentLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
-				// (?:(?<=")([^"]*)(?="))|(?<=,|^)([^,]*)(?=,|$)
 				importSetup.setMappingCols(StringUtils.commaDelimitedListToStringArray(currentLine));
 			}
 			else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
 				//TODO: tab delimited has not been tested
-				//importSetup.setMappingCols(currentLine.split("\t(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
 				importSetup.setMappingCols(StringUtils.delimitedListToStringArray(currentLine, "\t"));
 			}
 		}
@@ -267,23 +264,35 @@ public class ImportHandler extends BaseEntityComponentHandler {
 			return new Event(this,this.ERROR_FLOW_EVENT_ID);
 		}
 		
+		// mapping file entities
+		if (fileScanner.hasNextLine()) {
+			currentLine = fileScanner.nextLine().trim();
+			if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
+				importSetup.setMappingEntities(currentLine.split(",", -1));
+			}
+			else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
+				//TODO: tab delimited has not been tested
+				importSetup.setMappingEntities(StringUtils.delimitedListToStringArray(currentLine, "\t"));
+			}
+		}
+		else {
+			LavaComponentFormAction.createCommandError(errors, "Cannot import. Definition mapping file does not contain the second row of entity names");
+			return new Event(this,this.ERROR_FLOW_EVENT_ID);
+		}
+
 		// mapping file properties
 		if (fileScanner.hasNextLine()) {
 			currentLine = fileScanner.nextLine().trim();
 			if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
-//TODO: use opencsv				
-				//importSetup.setMappingProps(currentLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
-				//importSetup.setMappingProps(StringUtils.commaDelimitedListToStringArray(currentLine));
 				importSetup.setMappingProps(currentLine.split(",", -1));
 			}
 			else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
 				//TODO: tab delimited has not been tested
-				//importSetup.setMappingProps(currentLine.split("\t(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
 				importSetup.setMappingProps(StringUtils.delimitedListToStringArray(currentLine, "\t"));
 			}
 		}
 		else {
-			LavaComponentFormAction.createCommandError(errors, "Cannot import. Definition mapping file does not contain the second row of property names");
+			LavaComponentFormAction.createCommandError(errors, "Cannot import. Definition mapping file does not contain the third row of property names");
 			return new Event(this,this.ERROR_FLOW_EVENT_ID);
 		}
 
@@ -296,6 +305,8 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		fileScanner = new Scanner(new ByteArrayInputStream(dataFile.getContent()), "UTF-8");
 		if (fileScanner.hasNextLine()) {
 			currentLine = fileScanner.nextLine().trim();
+//TODO: need consistency. above using String.split and here using StringUtils utility. should not need
+//opencsv for column names, entity names, property names, just for data, but could use for everything
 			if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
 				//importSetup.setDataCols(currentLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
 				importSetup.setDataCols(StringUtils.commaDelimitedListToStringArray(currentLine));
