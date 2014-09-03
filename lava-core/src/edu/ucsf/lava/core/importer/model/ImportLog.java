@@ -8,8 +8,11 @@ import java.util.List;
 
 import edu.ucsf.lava.core.file.model.ImportFile;
 import edu.ucsf.lava.core.model.EntityBase;
+import edu.ucsf.lava.core.model.EntityManager;
 
 public class ImportLog extends EntityBase {
+	public static EntityManager MANAGER = new EntityBase.Manager(ImportLog.class);
+	
 	public static String DEBUG_MSG = "DEBUG";
 	public static String ERROR_MSG = "ERROR";
 	public static String WARNING_MSG = "WARNING";
@@ -36,6 +39,8 @@ public class ImportLog extends EntityBase {
 	
 	public ImportLog(){
 		super();
+		this.setAudited(false);
+		//this.setAuditEntityType("ImportLog");
 		this.totalRecords = 0;
 		this.imported = 0;
 		this.updated = 0;
