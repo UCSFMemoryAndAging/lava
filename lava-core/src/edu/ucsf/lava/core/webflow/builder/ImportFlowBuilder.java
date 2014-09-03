@@ -24,7 +24,6 @@ public class ImportFlowBuilder extends BaseFlowBuilder {
 	}	 
     
     public void buildEventStates() throws FlowBuilderException {
-       
     	addViewState("edit", 
     			null, 
     			formAction.getCustomViewSelector(),
@@ -46,7 +45,7 @@ public class ImportFlowBuilder extends BaseFlowBuilder {
                        		invoke("customBind", formAction),
                        		invoke("handleFlowEvent", formAction)})),
                     transition(on(objectName + "__close"), to("finish"), 
-                        	ifReturnedSuccess(invoke("handleFlowEvent", formAction))),
+                       	ifReturnedSuccess(invoke("handleFlowEvent", formAction))),
                     // support a list secondary component for nav events only, since just a reference list
                     buildListNavigationTransitions("edit")},
           		null,null,null);
@@ -55,14 +54,15 @@ public class ImportFlowBuilder extends BaseFlowBuilder {
     			null, formAction.getCustomViewSelector(), 
     			new Action[]{invoke("prepareToRender",formAction)},
     			new Transition[] { 
+    				transition(on("importDefinition__view"), to("importDefinition__view")),   		
 // on close event prob. either need to clear out the importSetup properties or redirect to this flow to 
 // restart it as a root flow which will start with a fresh command object
                     transition(on(objectName + "__close"), to("edit"), 
                        	ifReturnedSuccess(invoke("handleFlowEvent", formAction))),
                     // support a list secondary component for nav events only, since just a reference list
                     buildListNavigationTransitions("result")},
-    			null,null,null); 
-    
+    			null,null,null);
+    	
     	buildDefaultActionEndState();
     }
   
