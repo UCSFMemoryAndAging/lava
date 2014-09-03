@@ -1,8 +1,12 @@
 package edu.ucsf.lava.crms.importer.model;
 
 import edu.ucsf.lava.core.importer.model.ImportLog;
+import edu.ucsf.lava.core.model.EntityBase;
+import edu.ucsf.lava.core.model.EntityManager;
 
 public class CrmsImportLog extends ImportLog {
+	public static EntityManager MANAGER = new EntityBase.Manager(CrmsImportLog.class);
+
 	private String projName;
 	
 	// Record the following counts, which are for specific entities within an import record. Note
@@ -41,7 +45,8 @@ public class CrmsImportLog extends ImportLog {
 		this.existingVisits = 0;
 		this.newInstruments = 0;
 		this.existingInstruments = 0;
-		this.existingInstrumentsWithData = 0; 
+		this.existingInstrumentsWithData = 0;
+		this.setAuditEntityType("CrmsImportLog");
 	}
 	
 	public CrmsImportLog(ImportLog importLog){
@@ -54,6 +59,7 @@ public class CrmsImportLog extends ImportLog {
 		this.setAlreadyExist(importLog.getAlreadyExist());
 		this.setErrors(importLog.getErrors());
 		this.setWarnings(importLog.getWarnings());
+		this.setAuditEntityType("CrmsImportLog");
 	}
 	
 
