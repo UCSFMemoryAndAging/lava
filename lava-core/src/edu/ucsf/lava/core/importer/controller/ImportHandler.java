@@ -42,7 +42,7 @@ import edu.ucsf.lava.core.type.LavaDateUtils;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.*;
 import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_DATA_FILE_TYPE;
 import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_REPOSITORY_ID;
-import static edu.ucsf.lava.core.webflow.builder.ImportFlowTypeBuilder.ENTITY_EVENTS;
+import static edu.ucsf.lava.core.webflow.builder.ImportFlowTypeBuilder.IMPORT_EVENTS;
 
 
 // subclass BaseEntityComponentHandler even though there is not entity CRUD involved with importing, because
@@ -68,7 +68,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		
 		defaultEvents = new ArrayList(Arrays.asList(new String[]{"import", "close"}));
 		
-		authEvents = new ArrayList(Arrays.asList(ENTITY_EVENTS));
+		authEvents = new ArrayList(Arrays.asList(IMPORT_EVENTS));
 		
 		this.requiredFieldEvents.addAll(Arrays.asList("import"));
 		this.setRequiredFields(new String[]{"definitionId"});
