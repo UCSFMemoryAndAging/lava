@@ -263,13 +263,13 @@ public class CrmsImportHandler extends ImportHandler {
 // add creation of entities as importLog info messages (test with WESChecklist)
 // ?? create preview mode, at least for development, that does not do anything to db				
 
+//   call calculate on save (or is it done automatically?)
+				
 // other majors:
 // BASC import
 				
 // Rankin TODOs:
 //   migrate to MAC LAVA
-//				
-//   call calculate on save (or is it done automatically?)
 //				
 //   implement startDataRow (defaults to 2 for all imports done prior to implementation)
 //				
