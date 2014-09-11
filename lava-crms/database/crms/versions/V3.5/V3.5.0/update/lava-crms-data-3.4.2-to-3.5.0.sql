@@ -1,3 +1,9 @@
+-- NOTE: alternatively to this script, can just use the lava-app-pedi 
+-- database/local/crms/development/data/extract-crms-data.sql extract script to generate 
+-- lava-crms-data-VERSION.sql for transferring all metadata changes. easier as opposed to 
+-- adding individual changes to a script like this, but then again a script like this makes it
+-- clear what metadata was added, changed, deleted
+
 -- fix up some metadata changes that somehow got lost
 UPDATE viewproperty SET label='Created By',quickHelp='User who created patient record'  
   WHERE messageCode='*.patient.createdBy'; 
