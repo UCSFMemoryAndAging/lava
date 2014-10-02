@@ -12,11 +12,13 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.controller.ComponentCommand;
+import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 import edu.ucsf.lava.core.importer.controller.ImportDefinitionHandler;
 import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.crms.auth.CrmsAuthUtils;
 import edu.ucsf.lava.crms.importer.model.CrmsImportDefinition;
+import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.*;
 import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
 import edu.ucsf.lava.crms.project.ProjectManager;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
@@ -40,7 +42,7 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 		// if dealing with pre-existing entities may not need projName, but for the most part will be creating the
 		// instrument at a minimum so make it required
 		this.setRequiredFields(StringUtils.mergeStringArrays(this.getRequiredFields(), 
-				new String[]{"projName", "patientExistRule", "esExistRule", "visitExistRule", "instrExistRule"}));
+			new String[]{"projName", "patientExistRule", "esExistRule", "visitExistRule", "instrExistRule", "instrType"}));
 	}
 	
 	/**
@@ -119,4 +121,55 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 // presently this validation is being done in the CrmsImportHandler validateDataFile method but would
 //  be better to catch it earlier	
 
+	protected Event conditionalValidation(RequestContext context, Object command, BindingResult errors) throws Exception{
+		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
+		CrmsImportDefinition crmsImportDefinition = (CrmsImportDefinition) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
+
+		// look at required fields. since they are conditionally determined, can not set them in the
+		// standard way, since that takes place before binding, before properties have the values on
+		// which conditional logic depends
+		
+		if (crmsImportDefinition.getEsExistRule().equals(MAY_OR_MAY_NOT_EXIST) || crmsImportDefinition.getEsExistRule().equals(MUST_NOT_EXIST)) {
+			if (crmsImportDefinition.getEsStatus() == null) {
+				LavaComponentFormAction.createCommandError(errors, "importDefinition.esStatus.required", null);
+				return new Event(this,ERROR_FLOW_EVENT_ID);
+			}
+		}
+
+		if (crmsImportDefinition.getVisitExistRule().equals(MAY_OR_MAY_NOT_EXIST) || crmsImportDefinition.getVisitExistRule().equals(MUST_NOT_EXIST)) {
+			if (crmsImportDefinition.getVisitType() == null || crmsImportDefinition.getVisitLoc() == null || crmsImportDefinition.getVisitStatus() == null) {
+				LavaComponentFormAction.createCommandError(errors, "importDefinition.visitFields.required", null);
+				return new Event(this,ERROR_FLOW_EVENT_ID);
+			}
+		}
+
+		if (crmsImportDefinition.getInstrExistRule().equals(MAY_OR_MAY_NOT_EXIST) || crmsImportDefinition.getInstrExistRule().equals(MUST_NOT_EXIST)) {
+			if (crmsImportDefinition.getInstrDcStatus() == null) {
+				LavaComponentFormAction.createCommandError(errors, "importDefinition.instrDcStatus.required", null);
+				return new Event(this,ERROR_FLOW_EVENT_ID);
+			}
+		}
+		
+		return new Event(this,SUCCESS_FLOW_EVENT_ID);
+	}
+	
+
+	protected Event doSaveAdd(RequestContext context, Object command, BindingResult errors) throws Exception{
+		if (this.conditionalValidation(context, command, errors).getId().equals(ERROR_FLOW_EVENT_ID)) {
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
+
+		return super.doSaveAdd(context, command, errors);
+	}
+	
+	
+	protected Event doSave(RequestContext context, Object command, BindingResult errors) throws Exception{
+		if (this.conditionalValidation(context, command, errors).getId().equals(ERROR_FLOW_EVENT_ID)) {
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
+
+		return super.doSave(context, command, errors);
+	}
+
+	
 }
