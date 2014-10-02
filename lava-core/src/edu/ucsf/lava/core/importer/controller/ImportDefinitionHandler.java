@@ -60,10 +60,6 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	}
 	
 	
-	public Event handleSaveAddEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
-		return doSaveAdd(context,command,errors);
-	}
-
 	protected Event doSaveAdd(RequestContext context, Object command,BindingResult errors) throws Exception {
 		Event returnEvent;
 		MultipartFile uploadFile = context.getRequestParameters().getMultipartFile(getDefaultObjectName() + "_uploadFile");
@@ -110,10 +106,6 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	}
 	
 
-	
-	public Event handleSaveEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
-		return doSave(context,command,errors);
-	}
 	
 	protected Event doSave(RequestContext context, Object command,BindingResult errors) throws Exception {
 		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
