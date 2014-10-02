@@ -77,8 +77,7 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 
 
 <c:import url="/WEB-INF/jsp/core/importer/log/importLogDetailContent.jsp">
-	<c:param name="component">${component}</c:param>
-	<c:param name="pageName">${component}</c:param>
+	<c:param name="pageName">${pageName}</c:param>
 </c:import>
 
 
