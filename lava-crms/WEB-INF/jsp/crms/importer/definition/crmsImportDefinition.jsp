@@ -12,19 +12,17 @@
 <page:applyDecorator name="component.entity.content">
   <page:param name="component">${component}</page:param>
  
-		<c:import url="/WEB-INF/jsp/core/importer/definition/importDefinitionContent.jsp">
-			<c:param name="component">${component}</c:param>
-		</c:import>
-
 		<page:applyDecorator name="component.entity.section">
   			<page:param name="sectionId">crmsConfig</page:param>
   			<page:param name="sectionNameKey">importDefinition.crmsConfig.section</page:param>
+
+  			<tags:createField property="projName" component="${component}"/>
+
   			<tags:createField property="patientExistRule" component="${component}"/>
   			<%-- currently not allow existing Patient properties to be overwritten as that is not the
   				mission of the import functionality
   			<tags:createField property="allowPatientUpdate" component="${component}"/>
   			  --%>
-  			<tags:createField property="projName" component="${component}"/>
   			<tags:createField property="esExistRule" component="${component}"/>
   			<%-- currently not allow existing EnrollmentStatus properties to be overwritten as that 
   				is not the 	mission of the import functionality
@@ -41,7 +39,11 @@
   			<tags:createField property="visitLoc" component="${component}"/>
   			<tags:createField property="visitStatus" component="${component}"/>
   			<tags:createField property="instrExistRule" component="${component}"/>
+			<%-- currently not allowing update of instrument data because of testing needed to ensure no issues
+			  with database contention and examining data quality issues that may arise giving users the ability to 
+			  update data in bulk this way (note that REDCap has this functionality)  			
   			<tags:createField property="allowInstrUpdate" component="${component}"/>
+  			  --%>
   			<tags:createField property="instrType" component="${component}"/>
   			<tags:createField property="instrVer" component="${component}"/>
   			<tags:createField property="instrDcStatus" component="${component}"/>
@@ -55,7 +57,16 @@
 	    	<ui:setValue elementIds="importDefinition_visitLoc" value=""/>
 	    	<ui:submitForm form="importDefinition" event="importDefinition__reRender"/>
 		</ui:formGuide>
-	
+
+		<%-- currently putting this last because when projName is selected the view is rerendered to populate
+			project dependent dropdowns and because the current implementation of uploading files is such that 
+			file is not using Spring bind to bind the file to the command object, the selected file gets lost
+			on this rerender and user has to Browse and select it again. The plan is to refactor so that the
+			file to upload uses spring bind to bind to a file property on the command object--%>
+		<c:import url="/WEB-INF/jsp/core/importer/definition/importDefinitionContent.jsp">
+			<c:param name="component">${component}</c:param>
+		</c:import>
+
 	</page:applyDecorator>    
 </page:applyDecorator>	    
 
