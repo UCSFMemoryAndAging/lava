@@ -9,6 +9,8 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 
 <c:set var="pageName">${param.component}</c:set>
 <c:set var="component" value="importLog"/>
+<c:set var="viewString" value="${component}_view"/>
+<c:set var="componentView" value="${requestScope[viewString]}"/>
 
 <page:applyDecorator name="component.entity.section">
   <page:param name="sectionId">logInfo</page:param>
@@ -17,7 +19,14 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 	<tags:createField property="importedBy" component="${component}"/>
   	<tags:createField property="dataFile.name" component="${component}" inline="true"/>
 	<%-- the handler is written to handle download event as meaning to download the data file, so do not need to identify what property to download --%>
-	<tags:listActionURLButton buttonImage="download" actionId="lava.core.importer.log.importLog" eventId="importLog__download" />
+	<c:choose>
+		<c:when test="${componentView == 'view'}">
+			<tags:listActionURLButton buttonImage="download" actionId="lava.core.importer.log.importLog" eventId="importLog__download" />
+		</c:when>
+		<c:when test="${componentView == 'edit'}">
+			<tags:outputText textKey="importLog.downloadDataFile" inline="false"/>
+		</c:when>
+	</c:choose>					
 	<%-- div required following inline createField --%>
 	<div class="verticalSpace10">&nbsp;</div>
 	<tags:createField property="definition.name" component="${component}"/>
