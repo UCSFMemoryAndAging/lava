@@ -152,6 +152,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	 	else if (state.getId().equals("result")){
 			// individual log messages
 			ScrollablePagedListHolder logMessagesListHolder = new ScrollablePagedListHolder();
+			logMessagesListHolder.setPageSize(250);
 			logMessagesListHolder.setSourceFromEntityList(importLog.getMessages());
 			((ComponentCommand)command).getComponents().put("importLogMessages", logMessagesListHolder);
 	 	}
@@ -268,7 +269,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		if (fileScanner.hasNextLine()) {
 			currentLine = fileScanner.nextLine().trim();
 			if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
-				importSetup.setMappingEntities(currentLine.split(",", -1));
+				importSetup.setMappingEntities(StringUtils.commaDelimitedListToStringArray(currentLine));
 			}
 			else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
 				//TODO: tab delimited has not been tested
@@ -284,7 +285,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		if (fileScanner.hasNextLine()) {
 			currentLine = fileScanner.nextLine().trim();
 			if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
-				importSetup.setMappingProps(currentLine.split(",", -1));
+				importSetup.setMappingProps(StringUtils.commaDelimitedListToStringArray(currentLine));
 			}
 			else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
 				//TODO: tab delimited has not been tested
@@ -305,8 +306,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		fileScanner = new Scanner(new ByteArrayInputStream(dataFile.getContent()), "UTF-8");
 		if (fileScanner.hasNextLine()) {
 			currentLine = fileScanner.nextLine().trim();
-//TODO: need consistency. above using String.split and here using StringUtils utility. should not need
-//opencsv for column names, entity names, property names, just for data, but could use for everything
+			// should not need opencsv for column names, entity names, property names, just for data, but could use for everything
 			if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
 				//importSetup.setDataCols(currentLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
 				importSetup.setDataCols(StringUtils.commaDelimitedListToStringArray(currentLine));
@@ -317,8 +317,8 @@ public class ImportHandler extends BaseEntityComponentHandler {
 				importSetup.setDataCols(StringUtils.delimitedListToStringArray(currentLine, "\t"));
 			}
 		}
-
 		if (validateDataFile(errors, importSetup.getImportDefinition(), importSetup).getId().equals(ERROR_FLOW_EVENT_ID)) {
+
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		
