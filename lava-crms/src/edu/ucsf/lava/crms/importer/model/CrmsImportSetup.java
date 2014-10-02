@@ -51,7 +51,6 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean contactInfoCreated;
 	private boolean contactInfoExisted;
 
-	//TODO: general purpose import of Caregiver is not done in CrmsImportHandler
 	private int indexCaregiverFirstName;
 	private int indexCaregiverLastName;
 	private Caregiver caregiver;
@@ -59,6 +58,12 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean caregiverExisted;
 	
 	//TODO: general purpose import of Caregiver ContactInfo is not done in CrmsImportHandler
+	//i.e. need new contactInfoExistsHandling method ala caregiverExistsHandlng, new createContactInfo method
+	// and add to setPropertyHandling, saveImportRecord
+	//can just move the contactInfoExistsHandling code from SpdcHistoryFormImportHandler to CrmsImportHandler 
+	// getting rid of using Event attributes and instead put values in CrmsImportSetup and move from
+	// setOtherPropertyHandling and saveImportRecord, and move createContactInfo to PediImportHandler (except
+	// see about the isCaregiver flag, may need to be SpdcHistoryForm specific)
 	private int indexCaregiverContactInfoAddress;
 	private int indexCaregiverContactInfoCity;
 	private int indexCaregiverContactInfoState;
