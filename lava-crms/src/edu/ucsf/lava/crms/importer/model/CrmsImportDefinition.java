@@ -32,8 +32,9 @@ public class CrmsImportDefinition extends ImportDefinition {
 	// existing Patient data
 	private Boolean allowPatientUpdate; 
 	
-//?? need flags for Caregiver, Contact Info, etc.. or just handle that with property names in mapping file?
-// note that pediLAVA new patient history could have multiple caregivers, also caregivers may have contact info	
+	// note: for now, any imports that import Caregivers and/or ContactInfo are assumed to be new Patient imports
+	// such that the Caregiver and ContactInfo records will be created without checking whether existing records 
+	// already exist	
 
 	// this is used both for importing data in the context of a specific project, and to provide context for
 	// lists for other property values that are dependent on projName (visitType, visitWith, visitLocation)
@@ -72,6 +73,8 @@ public class CrmsImportDefinition extends ImportDefinition {
 	public CrmsImportDefinition(){
 		super();
 		this.setAuditEntityType("CrmsImportDefinition");
+//TODO: remove when this functionality is supported
+		this.allowInstrUpdate = Boolean.FALSE;
 	}
 
 	public Short getPatientExistRule() {
