@@ -3,13 +3,22 @@
 <c:set var="component">${param.component}</c:set>
 <c:set var="modeString" value="${component}_mode"/>
 <c:set var="componentMode" value="${requestScope[modeString]}"/>
+<c:set var="viewString" value="${component}_view"/>
+<c:set var="componentView" value="${requestScope[viewString]}"/>
 
 <page:applyDecorator name="component.entity.section">
   <page:param name="sectionId">definition</page:param>
   <page:param name="sectionNameKey">importDefinition.basicConfig.section</page:param>
 	<tags:createField property="name" component="${component}"/>
 	<tags:createField property="mappingFile.name" component="${component}" inline="true" metadataName="importDefinition.mappingFilename"/>
-	<tags:listActionURLButton buttonImage="download" actionId="lava.core.importer.definition.importDefinition" eventId="importDefinition__download" />
+	<c:choose>
+		<c:when test="${componentView == 'view'}">
+			<tags:listActionURLButton buttonImage="download" actionId="lava.core.importer.definition.importDefinition" eventId="importDefinition__download" />
+		</c:when>
+		<c:when test="${componentView == 'edit'}">
+			<tags:outputText textKey="importDefinition.downloadMappingFile" inline="false"/>
+		</c:when>
+	</c:choose>					
 	<%-- div required following inline createField --%>
 	<div class="verticalSpace10">&nbsp;</div>
 	<c:if test="${componentMode != 'vw'}">
