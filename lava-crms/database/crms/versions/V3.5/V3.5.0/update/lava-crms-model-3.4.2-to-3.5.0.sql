@@ -78,5 +78,5 @@ CREATE TABLE `crms_import_log` (
 
 DELETE FROM versionhistory WHERE module='lava-crms-model' AND version='3.5.0';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-VALUES ('lava-crms-model','3.5.0',NOW(),3,5,0,0);
+VALUES ('lava-crms-model','3.5.0','2014-08-21',3,5,0,0);
 

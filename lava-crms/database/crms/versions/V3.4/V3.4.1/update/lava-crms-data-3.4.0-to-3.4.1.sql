@@ -68,5 +68,5 @@ INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`Or
 
 DELETE FROM versionhistory WHERE module='lava-crms-data' AND version='3.4.1';
 INSERT INTO versionhistory(module,version,versiondate,major,minor,fix,updaterequired)
-VALUES ('lava-crms-data','3.4.1',NOW(),3,4,1,0);
+VALUES ('lava-crms-data','3.4.1','2014-06-17',3,4,1,0);
 

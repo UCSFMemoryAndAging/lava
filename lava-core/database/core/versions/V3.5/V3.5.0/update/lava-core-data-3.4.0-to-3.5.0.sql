@@ -32,4 +32,4 @@ INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`en
 
 DELETE FROM versionhistory WHERE module='lava-core-data' AND version='3.5.0';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-VALUES ('lava-core-data','3.5.0',NOW(),3,5,0,0);
+VALUES ('lava-core-data','3.5.0','2014-08-18',3,5,0,0);

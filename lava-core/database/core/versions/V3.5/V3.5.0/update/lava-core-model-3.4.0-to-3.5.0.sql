@@ -80,6 +80,6 @@ ALTER TABLE `lava_file` ADD COLUMN `notes` VARCHAR(255) DEFAULT NULL AFTER `chec
 
 DELETE FROM versionhistory WHERE module='lava-core-model' AND version='3.5.0';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-VALUES ('lava-core-model','3.5.0',NOW(),3,5,0,0);
+VALUES ('lava-core-model','3.5.0','2014-08-18',3,5,0,0);
 
 

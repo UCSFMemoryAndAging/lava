@@ -20,6 +20,6 @@ ALTER TABLE `projectunit` ADD COLUMN `UnitCode` VARCHAR(4) NULL DEFAULT NULL AFT
 
 DELETE FROM versionhistory WHERE module='lava-crms-model' AND version='3.4.1';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-	VALUES ('lava-crms-model','3.4.1',NOW(),3,4,1,0);
+	VALUES ('lava-crms-model','3.4.1','2014-06-17',3,4,1,0);
 
 
