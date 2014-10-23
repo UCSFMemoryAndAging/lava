@@ -42,7 +42,7 @@
 		<property name="data"><list>
 			<bean parent="list.data"><constructor-arg value="NONE, DATA ARE VALID"/>
 									<constructor-arg value="NONE, DATA ARE VALID"/>
-									<constructor-arg value="1"/>
+									<constructor-arg value="1" type="java.lang.Integer"/>
 			</bean>
 		</list></property>
 			
