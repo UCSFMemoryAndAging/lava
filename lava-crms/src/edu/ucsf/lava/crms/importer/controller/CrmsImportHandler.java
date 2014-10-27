@@ -917,7 +917,7 @@ public class CrmsImportHandler extends ImportHandler {
 			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog,
 			int lineNum) {
 //RIGHT HERE: move SpdcHistoryFormImportHandler caregiverExistsHandling here which takes indexFirst/LastName
-//and makes this reusable for importing multiple caregivers and should be able to get rid of the SpdcHistoryFormImportHandler one 	
+//and makes this reusable for importing multiple caregivers and should be able to get rid of the SpdcHistoryFormImportHandler method	
 // keep attributes to return values as that is what makes it reusable as well		
 		LavaDaoFilter filter = EntityBase.newFilterInstance();
 
