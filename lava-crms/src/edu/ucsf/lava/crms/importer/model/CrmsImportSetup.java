@@ -42,11 +42,16 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean patientCreated;
 	private boolean patientExisted;
 	
-	//TODO: general purpose import of ContactInfo is not done in CrmsImportHandler
+	// ContactInfo is created automatically if and only if a new Patient is created, and only if any 
+	// ContactInfo data exists in the data file to be imported
+	// keep in mind that these are not the only ContactInfo properties that will be imported; rather at least
+	// one of these ContactInfo properties must exist for a ContactInfo record to be created for the Patient
 	private int indexContactInfoAddress;
 	private int indexContactInfoCity;
 	private int indexContactInfoState;
 	private int indexContactInfoZip;
+	private int indexContactInfoPhone1;
+	private int indexContactInfoEmail;
 	private ContactInfo contactInfo;
 	private boolean contactInfoCreated;
 	private boolean contactInfoExisted;
@@ -56,6 +61,10 @@ public class CrmsImportSetup extends ImportSetup {
 	private Caregiver caregiver;
 	private boolean caregiverCreated;
 	private boolean caregiverExisted;
+	// caregiver ContactInfo is created automatically when caregiver is created, regardless of whether
+	// there is data or not, because at a minimum the ContactInfo will be created as for the Caregiver
+	private ContactInfo caregiverContactInfo;
+	private boolean caregiverContactInfoCreated;
 	
 	//TODO: general purpose import of Caregiver ContactInfo is not done in CrmsImportHandler
 	//i.e. need new contactInfoExistsHandling method ala caregiverExistsHandlng, new createContactInfo method
@@ -64,13 +73,17 @@ public class CrmsImportSetup extends ImportSetup {
 	// getting rid of using Event attributes and instead put values in CrmsImportSetup and move from
 	// setOtherPropertyHandling and saveImportRecord, and move createContactInfo to PediImportHandler (except
 	// see about the isCaregiver flag, may need to be SpdcHistoryForm specific)
-	private int indexCaregiverContactInfoAddress;
-	private int indexCaregiverContactInfoCity;
-	private int indexCaregiverContactInfoState;
-	private int indexCaregiverContactInfoZip;
-	private ContactInfo caregiverContactInfo;
-	private boolean caregiverContactInfoCreated;
-	private boolean caregiverContactInfoExisted;
+
+	private int indexCaregiver2FirstName;
+	private int indexCaregiver2LastName;
+	private Caregiver caregiver2;
+	private boolean caregiver2Created;
+	private boolean caregiver2Existed;
+	// caregiver2 ContactInfo is created automatically when caregiver2 is created, regardless of whether
+	// there is data or not, because at a minimum the ContactInfo will be created as for the Caregiver2
+	private ContactInfo caregiver2ContactInfo;
+	private boolean caregiver2ContactInfoCreated;
+	
 	
 	private int indexEsStatusDate;
 	private int indexEsStatus;
@@ -203,6 +216,22 @@ public class CrmsImportSetup extends ImportSetup {
 		this.indexContactInfoZip = indexContactInfoZip;
 	}
 
+	public int getIndexContactInfoPhone1() {
+		return indexContactInfoPhone1;
+	}
+
+	public void setIndexContactInfoPhone1(int indexContactInfoPhone1) {
+		this.indexContactInfoPhone1 = indexContactInfoPhone1;
+	}
+
+	public int getIndexContactInfoEmail() {
+		return indexContactInfoEmail;
+	}
+
+	public void setIndexContactInfoEmail(int indexContactInfoEmail) {
+		this.indexContactInfoEmail = indexContactInfoEmail;
+	}
+
 	public ContactInfo getContactInfo() {
 		return contactInfo;
 	}
@@ -266,40 +295,7 @@ public class CrmsImportSetup extends ImportSetup {
 	public void setCaregiverExisted(boolean caregiverExisted) {
 		this.caregiverExisted = caregiverExisted;
 	}
-
-	public int getIndexCaregiverContactInfoAddress() {
-		return indexCaregiverContactInfoAddress;
-	}
-
-	public void setIndexCaregiverContactInfoAddress(
-			int indexCaregiverContactInfoAddress) {
-		this.indexCaregiverContactInfoAddress = indexCaregiverContactInfoAddress;
-	}
-
-	public int getIndexCaregiverContactInfoCity() {
-		return indexCaregiverContactInfoCity;
-	}
-
-	public void setIndexCaregiverContactInfoCity(int indexCaregiverContactInfoCity) {
-		this.indexCaregiverContactInfoCity = indexCaregiverContactInfoCity;
-	}
-
-	public int getIndexCaregiverContactInfoState() {
-		return indexCaregiverContactInfoState;
-	}
-
-	public void setIndexCaregiverContactInfoState(int indexCaregiverContactInfoState) {
-		this.indexCaregiverContactInfoState = indexCaregiverContactInfoState;
-	}
-
-	public int getIndexCaregiverContactInfoZip() {
-		return indexCaregiverContactInfoZip;
-	}
-
-	public void setIndexCaregiverContactInfoZip(int indexCaregiverContactInfoZip) {
-		this.indexCaregiverContactInfoZip = indexCaregiverContactInfoZip;
-	}
-
+	
 	public ContactInfo getCaregiverContactInfo() {
 		return caregiverContactInfo;
 	}
@@ -316,12 +312,60 @@ public class CrmsImportSetup extends ImportSetup {
 		this.caregiverContactInfoCreated = caregiverContactInfoCreated;
 	}
 
-	public boolean isCaregiverContactInfoExisted() {
-		return caregiverContactInfoExisted;
+	public int getIndexCaregiver2FirstName() {
+		return indexCaregiver2FirstName;
 	}
 
-	public void setCaregiverContactInfoExisted(boolean caregiverContactInfoExisted) {
-		this.caregiverContactInfoExisted = caregiverContactInfoExisted;
+	public void setIndexCaregiver2FirstName(int indexCaregiver2FirstName) {
+		this.indexCaregiver2FirstName = indexCaregiver2FirstName;
+	}
+
+	public int getIndexCaregiver2LastName() {
+		return indexCaregiver2LastName;
+	}
+
+	public void setIndexCaregiver2LastName(int indexCaregiver2LastName) {
+		this.indexCaregiver2LastName = indexCaregiver2LastName;
+	}
+
+	public Caregiver getCaregiver2() {
+		return caregiver2;
+	}
+
+	public void setCaregiver2(Caregiver caregiver2) {
+		this.caregiver2 = caregiver2;
+	}
+
+	public boolean isCaregiver2Created() {
+		return caregiver2Created;
+	}
+
+	public void setCaregiver2Created(boolean caregiver2Created) {
+		this.caregiver2Created = caregiver2Created;
+	}
+
+	public boolean isCaregiver2Existed() {
+		return caregiver2Existed;
+	}
+
+	public void setCaregiver2Existed(boolean caregiver2Existed) {
+		this.caregiver2Existed = caregiver2Existed;
+	}
+
+	public ContactInfo getCaregiver2ContactInfo() {
+		return caregiver2ContactInfo;
+	}
+
+	public void setCaregiver2ContactInfo(ContactInfo caregiver2ContactInfo) {
+		this.caregiver2ContactInfo = caregiver2ContactInfo;
+	}
+
+	public boolean isCaregiver2ContactInfoCreated() {
+		return caregiver2ContactInfoCreated;
+	}
+
+	public void setCaregiver2ContactInfoCreated(boolean caregiver2ContactInfoCreated) {
+		this.caregiver2ContactInfoCreated = caregiver2ContactInfoCreated;
 	}
 
 	public int getIndexEsStatusDate() {
