@@ -24,11 +24,11 @@ import edu.ucsf.lava.core.file.model.LavaFile;
 		this.importDefinition = importDefinition;
 	}
 
-	private String mappingCols[];
-	private String mappingEntities[];
-	private String mappingProps[];
-	private String dataCols[];
-	private String dataValues[];
+	private String mappingCols[]; // array of the mapping file column names (i.e. column names in the data file); row 1 of the mapping file
+	private String mappingEntities[]; // array of the mapping file entity names; row 2 of the mapping file
+	private String mappingProps[]; // array of the mapping file property names; row 3 of the mapping file
+	private String dataCols[]; // array of the data file variable names, i.e. column names in the data file; row 1 of the data file
+	private String dataValues[]; // array of the data file variable values; row 3 of the data file 
 
 	public ImportSetup() {}
 	
