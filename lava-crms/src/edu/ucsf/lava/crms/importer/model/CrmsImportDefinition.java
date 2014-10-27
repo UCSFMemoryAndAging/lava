@@ -33,8 +33,8 @@ public class CrmsImportDefinition extends ImportDefinition {
 	private Boolean allowPatientUpdate; 
 	
 	// note: for now, any imports that import Caregivers and/or ContactInfo are assumed to be new Patient imports
-	// such that the Caregiver and ContactInfo records will be created without checking whether existing records 
-	// already exist	
+	// such that the Caregiver and ContactInfo records will be created if a new Patient is created and without 
+	// checking whether existing records already exist 	
 
 	// this is used both for importing data in the context of a specific project, and to provide context for
 	// lists for other property values that are dependent on projName (visitType, visitWith, visitLocation)
