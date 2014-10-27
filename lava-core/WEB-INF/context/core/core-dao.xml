@@ -85,7 +85,15 @@
 		</property>
 		<property name="transactionAttributeSource">
 			<ref bean="transactionAttributeSource"/>
-		</property>			
+		</property>		
+<!-- COMMENT out until confirm that it works to expose exceptions that take place
+in before/after Create/Update methods 	
+		<property name="postInterceptors">
+			<list>
+				<bean class="edu.ucsf.lava.core.dao.exception.LavaThrowAdvice"/>
+			</list>
+		</property>
+-->		
 	</bean>
 
    <bean id="lavaDao" parent="abstractTransactionProxy">
