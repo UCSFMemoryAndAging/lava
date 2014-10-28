@@ -62,27 +62,21 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean caregiverCreated;
 	private boolean caregiverExisted;
 	// caregiver ContactInfo is created automatically when caregiver is created, regardless of whether
-	// there is data or not, because at a minimum the ContactInfo will be created as for the Caregiver
+	// there is data or not, because at a minimum the ContactInfo will be created with caregiverId,
+	// so can use the caregiver2Created flag to determine if created
+//TODO: UPDATE: thinking will do away with this approach. will not create ContactInfo unless there is ContactInfo
+//data. no sense in a ContactInfo record with a Caregiver association but not contact info
 	private ContactInfo caregiverContactInfo;
-	private boolean caregiverContactInfoCreated;
 	
-	//TODO: general purpose import of Caregiver ContactInfo is not done in CrmsImportHandler
-	//i.e. need new contactInfoExistsHandling method ala caregiverExistsHandlng, new createContactInfo method
-	// and add to setPropertyHandling, saveImportRecord
-	//can just move the contactInfoExistsHandling code from SpdcHistoryFormImportHandler to CrmsImportHandler 
-	// getting rid of using Event attributes and instead put values in CrmsImportSetup and move from
-	// setOtherPropertyHandling and saveImportRecord, and move createContactInfo to PediImportHandler (except
-	// see about the isCaregiver flag, may need to be SpdcHistoryForm specific)
-
 	private int indexCaregiver2FirstName;
 	private int indexCaregiver2LastName;
 	private Caregiver caregiver2;
 	private boolean caregiver2Created;
 	private boolean caregiver2Existed;
 	// caregiver2 ContactInfo is created automatically when caregiver2 is created, regardless of whether
-	// there is data or not, because at a minimum the ContactInfo will be created as for the Caregiver2
+	// there is data or not, because at a minimum the ContactInfo will be created with caregiver2 id,
+	// so can use the caregiver2Created flag to determine if created
 	private ContactInfo caregiver2ContactInfo;
-	private boolean caregiver2ContactInfoCreated;
 	
 	
 	private int indexEsStatusDate;
@@ -304,14 +298,6 @@ public class CrmsImportSetup extends ImportSetup {
 		this.caregiverContactInfo = caregiverContactInfo;
 	}
 
-	public boolean isCaregiverContactInfoCreated() {
-		return caregiverContactInfoCreated;
-	}
-
-	public void setCaregiverContactInfoCreated(boolean caregiverContactInfoCreated) {
-		this.caregiverContactInfoCreated = caregiverContactInfoCreated;
-	}
-
 	public int getIndexCaregiver2FirstName() {
 		return indexCaregiver2FirstName;
 	}
@@ -358,14 +344,6 @@ public class CrmsImportSetup extends ImportSetup {
 
 	public void setCaregiver2ContactInfo(ContactInfo caregiver2ContactInfo) {
 		this.caregiver2ContactInfo = caregiver2ContactInfo;
-	}
-
-	public boolean isCaregiver2ContactInfoCreated() {
-		return caregiver2ContactInfoCreated;
-	}
-
-	public void setCaregiver2ContactInfoCreated(boolean caregiver2ContactInfoCreated) {
-		this.caregiver2ContactInfoCreated = caregiver2ContactInfoCreated;
 	}
 
 	public int getIndexEsStatusDate() {
