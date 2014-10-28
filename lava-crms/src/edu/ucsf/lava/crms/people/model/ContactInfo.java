@@ -14,7 +14,7 @@ public class ContactInfo extends CrmsEntity {
 	public static EntityManager MANAGER = new EntityBase.Manager(ContactInfo.class);
 	private edu.ucsf.lava.crms.people.model.Patient patient;
 	private Boolean isCaregiver;
-	private Long caregiverId;
+	private Caregiver caregiver;
 	private Short contactPatient;
 	private Short isPatientResidence;
 	private Short optOutMac;
@@ -143,14 +143,14 @@ public class ContactInfo extends CrmsEntity {
 
 
 
-	public Long getCaregiverId() {
-		return caregiverId;
+	public Caregiver getCaregiver() {
+		return caregiver;
 	}
 
 
 
-	public void setCaregiverId(Long caregiverId) {
-		this.caregiverId = caregiverId;
+	public void setCaregiver(Caregiver caregiver) {
+		this.caregiver = caregiver;
 	}
 
 
@@ -427,13 +427,14 @@ public class ContactInfo extends CrmsEntity {
 
 	
 	public void updateContactNameRev(){
-		if(getPatient()!=null && getCaregiverId()==null){
+		if(getPatient()!=null && getCaregiver()==null){
 			setContactNameRev(getPatient().getFullNameRev());
-		}else if(getCaregiverId()!=null){
-			Caregiver c = (Caregiver)Caregiver.MANAGER.getById(getCaregiverId(),newFilterInstance());
-			if(c!=null){
-				setContactNameRev(c.getFullNameRev());
-			}
+		}else if(getCaregiver()!=null){
+////			Caregiver c = (Caregiver)Caregiver.MANAGER.getById(getCaregiverId(),newFilterInstance());
+////			if(c!=null){
+////				setContactNameRev(c.getFullNameRev());
+			setContactNameRev(getCaregiver().getFullNameRev());
+////			}
 		}else{
 			setContactNameRev(null);
 		}
@@ -441,7 +442,7 @@ public class ContactInfo extends CrmsEntity {
 	}
 	
 	public void updateContactDesc(){
-		if(getCaregiverId()==null){
+		if(getCaregiver()==null){
 			StringBuffer buffer = new StringBuffer();
 			if(getContactPatient() != null && getContactPatient()==(short)1){
 				buffer.append("Patient is contact");
@@ -453,7 +454,7 @@ public class ContactInfo extends CrmsEntity {
 			}
 			setContactDesc(buffer.toString());
 		}else{
-			Caregiver c = (Caregiver)Caregiver.MANAGER.getById(getCaregiverId(),newFilterInstance());
+////			Caregiver c = (Caregiver)Caregiver.MANAGER.getById(getCaregiverId(),newFilterInstance());
 			if(c!=null){
 				setContactDesc(c.getContactDesc());
 			}		
