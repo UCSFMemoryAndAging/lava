@@ -204,15 +204,31 @@ public class CrmsImportHandler extends ImportHandler {
 				// with either a new or existing Patient)
 				// (this goes for EnrollmentStatus, Visit and instrument as well)
 
-				//TODO: implement contactInfoExistsHandling and caregiverContactInfoExistsHandler as needed
-/** NullPointer on 
-		at edu.ucsf.lava.crms.people.model.Caregiver.updateFullName(Caregiver.java:375)
-        at edu.ucsf.lava.crms.people.model.Caregiver.updateCalculatedFields(Caregiver.java:354)
-				if ((handlingEvent = caregiverExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+				if ((handlingEvent = contactInfoExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 					importLog.incErrors();
 					continue;
 				}
+				
+/** NullPointer on 
+		at edu.ucsf.lava.crms.people.model.Caregiver.updateFullName(Caregiver.java:375)
+        at edu.ucsf.lava.crms.people.model.Caregiver.updateCalculatedFields(Caregiver.java:354)
  */
+				// because caregiverExistsHandling may be reused for multiple Caregiver instances if data file has multiple Caregivers, it does not
+				// directly set entities on importSetup like other existsHandling methods; instead it passes instantiated entities back via the
+				// Event attributes
+				if ((handlingEvent = caregiverExistsHandling(context, errors, importDefinition, importSetup, importLog, importSetup.getIndexCaregiverFirstName(), importSetup.getIndexCaregiverLastName(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					importLog.incErrors();
+					continue;
+				}
+				importSetup.setCaregiverCreated((Boolean) handlingEvent.getAttributes().get("caregiverCreated"));
+				if (importSetup.isCaregiverCreated()) {
+					importSetup.setCaregiver((Caregiver) handlingEvent.getAttributes().get("caregiver"));
+					importSetup.setCaregiverContactInfoCreated((Boolean) handlingEvent.getAttributes().get("caregiverContactInfoCreated"));
+					if (importSetup.isCaregiverContactInfoCreated()) {
+//TODO: set "caregiverContactInfo" attribute in caregiverExistsHandling					
+						importSetup.setCaregiverContactInfo((ContactInfo) handlingEvent.getAttributes().get("caregiverContactInfo"));
+					}
+				}
 				
 //RIGHT HERE: call caregiverExistsHandling again for caregiver2 (pass first/last name indices as arguments, get stuff back as attributes				
 
@@ -503,12 +519,30 @@ public class CrmsImportHandler extends ImportHandler {
 				break;
 			}
 		}
-//RIGHT HERE: caregiver2 first/last name indices (then can removed from SpdcHistoryFormImportSetup		
+		
 		crmsImportSetup.setIndexCaregiverLastName(-1);
 		propIndex = -1;
 		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "lastName", propIndex+1)) != -1) {
 			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("caregiver")) {
 				crmsImportSetup.setIndexCaregiverLastName(propIndex); 
+				break;
+			}
+		}
+
+		crmsImportSetup.setIndexCaregiver2FirstName(-1);
+		propIndex = -1;
+		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "firstName", propIndex+1)) != -1) {
+			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("caregiver2")) {
+				crmsImportSetup.setIndexCaregiver2FirstName(propIndex); 
+				break;
+			}
+		}
+		
+		crmsImportSetup.setIndexCaregiver2LastName(-1);
+		propIndex = -1;
+		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "lastName", propIndex+1)) != -1) {
+			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("caregiver2")) {
+				crmsImportSetup.setIndexCaregiver2LastName(propIndex); 
 				break;
 			}
 		}
@@ -901,6 +935,26 @@ public class CrmsImportHandler extends ImportHandler {
 
 	
 	/**
+	 * contactInfoExistsHandling
+	 * 
+	 * PatientExistsHandling handles ContactInfo handling so no implementation is needed but this method needs to be
+	 * defined so that subclasses can override for custom ContactInfo handling.
+	 * 
+	 * @param context
+	 * @param errors
+	 * @param importDefinition
+	 * @param importSetup
+	 * @param lineNum
+	 * @return SUCCESS Event if no import errors with current record; ERROR EVENT if errors
+	 */
+	protected Event contactInfoExistsHandling(RequestContext context, BindingResult errors, 
+			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog,
+			int lineNum) {
+		return new Event(this, SUCCESS_FLOW_EVENT_ID);
+	}
+
+	
+	/**
 	 * caregiverExistsHandling
 	 * 
 	 * Determine whether Caregiver exists or not and create if it does not. Can can assume an exists setting
@@ -915,6 +969,7 @@ public class CrmsImportHandler extends ImportHandler {
 	 */
 	protected Event caregiverExistsHandling(RequestContext context, BindingResult errors, 
 			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog,
+			int indexFirstName, int indexLastName,
 			int lineNum) {
 //RIGHT HERE: move SpdcHistoryFormImportHandler caregiverExistsHandling here which takes indexFirst/LastName
 //and makes this reusable for importing multiple caregivers and should be able to get rid of the SpdcHistoryFormImportHandler method	
@@ -923,6 +978,9 @@ public class CrmsImportHandler extends ImportHandler {
 
 		// search for existing Caregiver
 		Caregiver caregiver = null;
+		Boolean caregiverCreated = null;
+		ContactInfo caregiverContactInfo = null;
+		Boolean caregiverContactInfoCreated = null;
 
 		// only search if the Patient already exists because if Patient did not exist then Caregiver does not exist
 		if (!importSetup.isPatientCreated()) { 
@@ -950,25 +1008,33 @@ public class CrmsImportHandler extends ImportHandler {
 			caregiver = createCaregiver(importDefinition, importSetup);
 			caregiver.setPatient(importSetup.getPatient());
 			caregiver.setActive((short)1);
-			importSetup.setCaregiverCreated(true);
-			importSetup.setCaregiver(caregiver);
+			caregiverCreated = true;
 			
 			// if a new Caregiver is created, automatically create a new ContactInfo record for that Caregiver. any
 			// caregiverContactInfo properties are set in setPropertyHandling
-//RIGHT HERE: decide whether to check for existence of data in at least one of address1/city/state/zip/phone1/email			
-			ContactInfo contactInfo = createContactInfo(importDefinition, importSetup);
-			contactInfo.setPatient(importSetup.getPatient());
-			contactInfo.setIsCaregiver(true);
-			contactInfo.setActive((short)1);
-//RIGHT HERE: need to add this to CrmsImportSetup			
-			importSetup.setCaregiverContactInfo(contactInfo);
+//RIGHT HERE: check for existence of data in at least one of address1/city/state/zip/phone1/email
+			caregiverContactInfo = createContactInfo(importDefinition, importSetup);
+			caregiverContactInfo.setPatient(importSetup.getPatient());
+			caregiverContactInfo.setIsCaregiver(true);
+			// NOTE: had to refactor lava-crms ContactInfo to map Caregiver as an association rather than mapping caregiverId 
+			// property since do not know caregiverId at this point given that new Caregiver has not been persisted. ORM will
+			// take care of assigning caregiverId to ContactInfo at persistence
+			caregiverContactInfo.setCaregiver(caregiver);
+			caregiverContactInfo.setActive((short)1);
+			caregiverContactInfoCreated = true;
 		}
 		else { 
-			importSetup.setCaregiverExisted(true);
-			importSetup.setCaregiver(caregiver);
+			caregiverCreated = false;
+			caregiverContactInfoCreated = false;
 		}
 	
-		return new Event(this, SUCCESS_FLOW_EVENT_ID);
+		Map<String,Object> eventAttrMap = new HashMap<String,Object>();
+		eventAttrMap.put("caregiver", caregiver);
+		eventAttrMap.put("caregiverCreated", caregiverCreated);
+		eventAttrMap.put("caregiverContactInfo", caregiverContactInfo);
+		eventAttrMap.put("caregiverContactInfoCreated", caregiverContactInfoCreated);
+		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
+		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
 	}
 
 
@@ -1850,6 +1916,9 @@ logger.info("setting prop name="+propName+" to value="+importSetup.getDataValues
 		if (importSetup.isCaregiverCreated()) {
 			importSetup.getCaregiver().save();
 		}
+	//RIGHT HERE: add handling for "caregiverContactInfo"			
+	//RIGHT HERE: add handling for "caregiver2"		
+	//RIGHT HERE: add handling for "caregiver2ContactInfo"			
 		if (importSetup.isEnrollmentStatusCreated()) {
 			importSetup.getEnrollmentStatus().save();
 		}
@@ -1910,8 +1979,10 @@ logger.info("setting prop name="+propName+" to value="+importSetup.getDataValues
 		if (importSetup.isCaregiverContactInfoCreated()) {
 			importLog.incNewCaregiverContactInfo();
 		}
-		// note: do not have existed for Caregiver ContactInfo since don't check for that, i.e. this ContactInfo
+		// note: do not keep a count of "existing" for Caregiver ContactInfo since don't check for that, i.e. this ContactInfo
 		// is added a) when a new Caregiver is created, and b) if it exists in the data file
+//RIGHT HERE: add handling for "caregiver2"		
+//RIGHT HERE: add handling for "caregiver2ContactInfo"			
 		if (importSetup.isEnrollmentStatusCreated()) {
 			importLog.incNewEnrollmentStatuses();
 		}
