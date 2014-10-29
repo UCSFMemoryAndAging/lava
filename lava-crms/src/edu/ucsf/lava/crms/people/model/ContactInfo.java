@@ -14,6 +14,7 @@ public class ContactInfo extends CrmsEntity {
 	public static EntityManager MANAGER = new EntityBase.Manager(ContactInfo.class);
 	private edu.ucsf.lava.crms.people.model.Patient patient;
 	private Boolean isCaregiver;
+	private Long caregiverId;
 	private Caregiver caregiver;
 	private Short contactPatient;
 	private Short isPatientResidence;
@@ -154,7 +155,13 @@ public class ContactInfo extends CrmsEntity {
 	}
 
 
-
+	public Long getCaregiverId() {
+		return caregiverId;
+	}
+	
+	public void setCaregiverId(Long caregiverId) {
+		this.caregiverId = caregiverId;
+	}
 	public String getCity() {
 		return city;
 	}
@@ -455,9 +462,10 @@ public class ContactInfo extends CrmsEntity {
 			setContactDesc(buffer.toString());
 		}else{
 ////			Caregiver c = (Caregiver)Caregiver.MANAGER.getById(getCaregiverId(),newFilterInstance());
-			if(c!=null){
-				setContactDesc(c.getContactDesc());
-			}		
+////			if(c!=null){
+////				setContactDesc(c.getContactDesc());
+			setContactDesc(getCaregiver().getContactDesc());
+////			}		
 		}
 	}
 	
