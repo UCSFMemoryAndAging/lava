@@ -14,7 +14,7 @@ import edu.ucsf.lava.crms.scheduling.model.Visit;
  * is imported and persisted in crms entities, the CrmsImportLog persists information about
  * the results of an import, in addition to a link to the imported data file, which is written
  * to the import file respository.
- *  * 
+ *  
  * @author ctoohey
  *
  */
@@ -42,10 +42,11 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean patientCreated;
 	private boolean patientExisted;
 	
-	// ContactInfo is created automatically if and only if a new Patient is created, and only if any 
-	// ContactInfo data exists in the data file to be imported
+	// ContactInfo is created if and only if a new Patient is created, and only if any ContactInfo data exists
+	// in the data file to be imported
 	// keep in mind that these are not the only ContactInfo properties that will be imported; rather at least
-	// one of these ContactInfo properties must exist for a ContactInfo record to be created for the Patient
+	// one of these ContactInfo properties must exist for a ContactInfo record to be created for the Patient, but
+	// other properties can be imported, e.g. address2
 	private int indexContactInfoAddress;
 	private int indexContactInfoCity;
 	private int indexContactInfoState;
@@ -61,22 +62,36 @@ public class CrmsImportSetup extends ImportSetup {
 	private Caregiver caregiver;
 	private boolean caregiverCreated;
 	private boolean caregiverExisted;
-	// caregiver ContactInfo is created automatically when caregiver is created, regardless of whether
-	// there is data or not, because at a minimum the ContactInfo will be created with caregiverId,
-	// so can use the caregiver2Created flag to determine if created
-//TODO: UPDATE: thinking will do away with this approach. will not create ContactInfo unless there is ContactInfo
-//data. no sense in a ContactInfo record with a Caregiver association but not contact info
+
+	// caregiver contactInfo is created automatically when caregiver is created, if there is ContactInfo data in the
+	// import data file for the caregiver. if caregiver already exists, there is not a check to see if caregiver contactInfo
+	// exists as decided not to extend import to that level, i.e. there are basically no use cases for importing
+	// an existing Caregiver's ContactInfo. so do not need flag whether Caregiver ContactInfo existed
+	// see comments for ContactInfo index fields above
+	private int indexCaregiverContactInfoAddress;
+	private int indexCaregiverContactInfoCity;
+	private int indexCaregiverContactInfoState;
+	private int indexCaregiverContactInfoZip;
+	private int indexCaregiverContactInfoPhone1;
+	private int indexCaregiverContactInfoEmail;
 	private ContactInfo caregiverContactInfo;
+	private boolean caregiverContactInfoCreated;
 	
 	private int indexCaregiver2FirstName;
 	private int indexCaregiver2LastName;
 	private Caregiver caregiver2;
 	private boolean caregiver2Created;
 	private boolean caregiver2Existed;
-	// caregiver2 ContactInfo is created automatically when caregiver2 is created, regardless of whether
-	// there is data or not, because at a minimum the ContactInfo will be created with caregiver2 id,
-	// so can use the caregiver2Created flag to determine if created
+
+	// caregiver2 ContactInfo - see comments for caregiver contactInfo above
+	private int indexCaregiver2ContactInfoAddress;
+	private int indexCaregiver2ContactInfoCity;
+	private int indexCaregiver2ContactInfoState;
+	private int indexCaregiver2ContactInfoZip;
+	private int indexCaregiver2ContactInfoPhone1;
+	private int indexCaregiver2ContactInfoEmail;
 	private ContactInfo caregiver2ContactInfo;
+	private boolean caregiver2ContactInfoCreated;
 	
 	
 	private int indexEsStatusDate;
@@ -506,4 +521,122 @@ public class CrmsImportSetup extends ImportSetup {
 		this.instrument = instrument;
 	}
 
+	public boolean isCaregiverContactInfoCreated() {
+		return caregiverContactInfoCreated;
+	}
+
+	public void setCaregiverContactInfoCreated(boolean caregiverContactInfoCreated) {
+		this.caregiverContactInfoCreated = caregiverContactInfoCreated;
+	}
+
+	public boolean isCaregiver2ContactInfoCreated() {
+		return caregiver2ContactInfoCreated;
+	}
+
+	public void setCaregiver2ContactInfoCreated(boolean caregiver2ContactInfoCreated) {
+		this.caregiver2ContactInfoCreated = caregiver2ContactInfoCreated;
+	}
+
+	public int getIndexCaregiverContactInfoAddress() {
+		return indexCaregiverContactInfoAddress;
+	}
+
+	public void setIndexCaregiverContactInfoAddress(
+			int indexCaregiverContactInfoAddress) {
+		this.indexCaregiverContactInfoAddress = indexCaregiverContactInfoAddress;
+	}
+
+	public int getIndexCaregiverContactInfoCity() {
+		return indexCaregiverContactInfoCity;
+	}
+
+	public void setIndexCaregiverContactInfoCity(int indexCaregiverContactInfoCity) {
+		this.indexCaregiverContactInfoCity = indexCaregiverContactInfoCity;
+	}
+
+	public int getIndexCaregiverContactInfoState() {
+		return indexCaregiverContactInfoState;
+	}
+
+	public void setIndexCaregiverContactInfoState(int indexCaregiverContactInfoState) {
+		this.indexCaregiverContactInfoState = indexCaregiverContactInfoState;
+	}
+
+	public int getIndexCaregiverContactInfoZip() {
+		return indexCaregiverContactInfoZip;
+	}
+
+	public void setIndexCaregiverContactInfoZip(int indexCaregiverContactInfoZip) {
+		this.indexCaregiverContactInfoZip = indexCaregiverContactInfoZip;
+	}
+
+	public int getIndexCaregiverContactInfoPhone1() {
+		return indexCaregiverContactInfoPhone1;
+	}
+
+	public void setIndexCaregiverContactInfoPhone1(
+			int indexCaregiverContactInfoPhone1) {
+		this.indexCaregiverContactInfoPhone1 = indexCaregiverContactInfoPhone1;
+	}
+
+	public int getIndexCaregiverContactInfoEmail() {
+		return indexCaregiverContactInfoEmail;
+	}
+
+	public void setIndexCaregiverContactInfoEmail(int indexCaregiverContactInfoEmail) {
+		this.indexCaregiverContactInfoEmail = indexCaregiverContactInfoEmail;
+	}
+
+	public int getIndexCaregiver2ContactInfoAddress() {
+		return indexCaregiver2ContactInfoAddress;
+	}
+
+	public void setIndexCaregiver2ContactInfoAddress(
+			int indexCaregiver2ContactInfoAddress) {
+		this.indexCaregiver2ContactInfoAddress = indexCaregiver2ContactInfoAddress;
+	}
+
+	public int getIndexCaregiver2ContactInfoCity() {
+		return indexCaregiver2ContactInfoCity;
+	}
+
+	public void setIndexCaregiver2ContactInfoCity(int indexCaregiver2ContactInfoCity) {
+		this.indexCaregiver2ContactInfoCity = indexCaregiver2ContactInfoCity;
+	}
+
+	public int getIndexCaregiver2ContactInfoState() {
+		return indexCaregiver2ContactInfoState;
+	}
+
+	public void setIndexCaregiver2ContactInfoState(
+			int indexCaregiver2ContactInfoState) {
+		this.indexCaregiver2ContactInfoState = indexCaregiver2ContactInfoState;
+	}
+
+	public int getIndexCaregiver2ContactInfoZip() {
+		return indexCaregiver2ContactInfoZip;
+	}
+
+	public void setIndexCaregiver2ContactInfoZip(int indexCaregiver2ContactInfoZip) {
+		this.indexCaregiver2ContactInfoZip = indexCaregiver2ContactInfoZip;
+	}
+
+	public int getIndexCaregiver2ContactInfoPhone1() {
+		return indexCaregiver2ContactInfoPhone1;
+	}
+
+	public void setIndexCaregiver2ContactInfoPhone1(
+			int indexCaregiver2ContactInfoPhone1) {
+		this.indexCaregiver2ContactInfoPhone1 = indexCaregiver2ContactInfoPhone1;
+	}
+
+	public int getIndexCaregiver2ContactInfoEmail() {
+		return indexCaregiver2ContactInfoEmail;
+	}
+
+	public void setIndexCaregiver2ContactInfoEmail(
+			int indexCaregiver2ContactInfoEmail) {
+		this.indexCaregiver2ContactInfoEmail = indexCaregiver2ContactInfoEmail;
+	}
+	
 }
