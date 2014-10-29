@@ -10,10 +10,12 @@ import java.util.Scanner;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.converters.DateConverter;
+import org.apache.commons.lang.ArrayUtils;
 
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
@@ -365,6 +367,29 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		}
 		return new Event(this, SUCCESS_FLOW_EVENT_ID);
 	}
+
+	
+	/**
+	 * Find the index of a specified entity property in the data file, i.e. the column index of that property in the data file.
+	 * Set the resulting index on that entity property's index property in ImportSetup (or subclass).
+	 * 
+	 * @param importSetup
+	 * @param indexProperty
+	 * @param entityName
+	 * @param propertyName
+	 * @throws Exception
+	 */
+	protected void setDataFilePropertyIndex(ImportSetup importSetup, String indexProperty, String entityName, String propertyName) throws Exception {
+		BeanUtils.setProperty(importSetup, indexProperty, -1);
+		int propIndex = -1;
+		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), propertyName, propIndex+1)) != -1) {
+			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase(entityName)) {
+				BeanUtils.setProperty(importSetup, indexProperty, propIndex); 
+				break;
+			}
+		}
+	}
+
 	
 
 	public Event handleCloseEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
