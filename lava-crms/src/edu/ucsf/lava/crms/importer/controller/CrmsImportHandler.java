@@ -378,7 +378,13 @@ public class CrmsImportHandler extends ImportHandler {
 					
 				// iterate thru the values of the current import record, setting each value on the property of an entity, as 
 				// determined by the importDefinition mapping file
-					if ((handlingEvent = setPropertyHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+				if ((handlingEvent = setPropertyHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					importLog.incErrors();
+					continue;
+				}
+					
+					
+				if ((handlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 					importLog.incErrors();
 					continue;
 				}
@@ -1667,23 +1673,8 @@ public class CrmsImportHandler extends ImportHandler {
 					propName = definitionPropName;
 				}
 				
-				// special handling for instruments that have a Caregiver
-				// add "instrumentCaregiverId" as the last column of the mapping file even though there is no caregiver ID column in the data file 
-				// This is a flag should be mapped to the instrument property that stores caregiver ID, as defined in the mapping file
-//TODO:when support multiple instruments in a single import, each caregiver instrument could have an "instrumentCaregiverId" column mapping where the
-//entity would map it for a specific instrument, so would then need to check mappingEntities for which instrument to set (can assume that the Caregiver
-//is the same for all instruments on the same row of data).
-//PROBLEM is then need a separate indexInstrCaregiverId for each instrument, so that needs to be figure out in conjunction with how handling and setting
-//properties on multiple instruments will be done in general (e.g. also need separate instrDcDate, instrDcStatus properties for each instrument)				
-				if (definitionColName.equalsIgnoreCase("instrumentCaregiverId")) {
-					if (importSetup.isCaregiverCreated() || importSetup.isCaregiverExisted()) {
-						BeanUtils.setProperty(importSetup.getInstrument(), importSetup.getMappingProps()[((CrmsImportSetup)importSetup).getIndexInstrCaregiverId()], ((CrmsImportSetup)importSetup).getCaregiver());
-					}
-				}
-				else {
-					// set property on the first instrument specified in importDefinition
-					returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument(), propName, i, lineNum);
-				}
+				// set property on the first instrument specified in importDefinition
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument(), propName, i, lineNum);
 			}
 			//Patient properties
 			else if (definitionEntityName.equalsIgnoreCase("patient")) {
