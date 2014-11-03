@@ -13,7 +13,7 @@ import edu.ucsf.lava.crms.model.CrmsEntity;
 public class ContactInfo extends CrmsEntity {
 	public static EntityManager MANAGER = new EntityBase.Manager(ContactInfo.class);
 	private edu.ucsf.lava.crms.people.model.Patient patient;
-	private Boolean isCaregiver;
+	private Boolean isCaregiver; // non-persistent property calculated in ContactInfoHandler getBackingObjects
 	private Long caregiverId;
 	private Caregiver caregiver;
 	private Short contactPatient;
@@ -51,7 +51,7 @@ public class ContactInfo extends CrmsEntity {
 		
 	}
 	public Object[] getAssociationsToInitialize(String method) {
-		return new Object[]{this.patient};
+		return new Object[]{this.patient, this.caregiver};
 	}
 	
 	
@@ -142,18 +142,16 @@ public class ContactInfo extends CrmsEntity {
 		this.address2 = address2;
 	}
 
-
-
 	public Caregiver getCaregiver() {
 		return caregiver;
 	}
 
-
-
 	public void setCaregiver(Caregiver caregiver) {
 		this.caregiver = caregiver;
+		if(this.caregiver!=null){
+			this.caregiverId = this.caregiver.getId();
+		}
 	}
-
 
 	public Long getCaregiverId() {
 		return caregiverId;
@@ -162,11 +160,10 @@ public class ContactInfo extends CrmsEntity {
 	public void setCaregiverId(Long caregiverId) {
 		this.caregiverId = caregiverId;
 	}
+
 	public String getCity() {
 		return city;
 	}
-
-
 
 	public void setCity(String city) {
 		this.city = city;
