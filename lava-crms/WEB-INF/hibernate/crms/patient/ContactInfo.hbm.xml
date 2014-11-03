@@ -15,7 +15,7 @@
   	   <timestamp name="modified" column="modified"/>
 
        <many-to-one name="patient" column="PIDN" class="edu.ucsf.lava.crms.people.model.Patient" not-null="true"/>
-       <many-to-one name="caregiver" column="CareID" class="edu.ucsf.lava.crms.people.model.Caregiver">
+       <many-to-one name="caregiver" column="CareID" class="edu.ucsf.lava.crms.people.model.Caregiver"/>
        <property name="contactPatient" column="ContactPT" type="short"/>
        <property name="isPatientResidence" column="IsPTResidence" type="short"/>
        <property name="optOutMac" column="OptOutMAC" type="short"/>
