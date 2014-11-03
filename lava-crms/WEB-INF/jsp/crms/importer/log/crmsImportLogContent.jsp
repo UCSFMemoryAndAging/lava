@@ -57,7 +57,11 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 	<tags:createField property="existingCaregivers" component="${component}" labelStyle="longLeft"/>
 
 	<tags:createField property="newCaregiversContactInfo" component="${component}" labelStyle="longLeft"/>
+	<%-- currently not counting existing Caregivers ContactInfo, just existing Caregivers, as not searching
+		for existing ContactInfo of Caregivers. since Caregivers and their ContactInfo are tightly bound in 
+		the import process, just counting existing Caregivers is enough
 	<tags:createField property="existingCaregiversContactInfo" component="${component}" labelStyle="longLeft"/>
+	--%>
 
 	<tags:createField property="newEnrollmentStatuses" component="${component}" labelStyle="longLeft"/>
 	<tags:createField property="existingEnrollmentStatuses" component="${component}" labelStyle="longLeft"/>
