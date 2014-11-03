@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
@@ -208,10 +209,6 @@ public class CrmsImportHandler extends ImportHandler {
 					continue;
 				}
 				
-/** NullPointer on 
-		at edu.ucsf.lava.crms.people.model.Caregiver.updateFullName(Caregiver.java:375)
-        at edu.ucsf.lava.crms.people.model.Caregiver.updateCalculatedFields(Caregiver.java:354)
- */
 				// because caregiverExistsHandling may be reused for multiple Caregiver instances if data file has multiple Caregivers, it does not
 				// directly set entities on importSetup like other existsHandling methods; instead it passes flags and instantiated entities back 
 				// via the returned Event, which has attributes, and the values of these attributes are then use to set the Caregiver.
@@ -230,7 +227,8 @@ public class CrmsImportHandler extends ImportHandler {
 					continue;
 				}
 				importSetup.setCaregiverCreated((Boolean) handlingEvent.getAttributes().get("caregiverCreated"));
-				if (importSetup.isCaregiverCreated()) {
+				importSetup.setCaregiverExisted((Boolean) handlingEvent.getAttributes().get("caregiverExisted"));
+				if (importSetup.isCaregiverCreated() || importSetup.isCaregiverExisted()) {
 					importSetup.setCaregiver((Caregiver) handlingEvent.getAttributes().get("caregiver"));
 					importSetup.setCaregiverContactInfoCreated((Boolean) handlingEvent.getAttributes().get("caregiverContactInfoCreated"));
 					if (importSetup.isCaregiverContactInfoCreated()) {
@@ -249,7 +247,8 @@ public class CrmsImportHandler extends ImportHandler {
 					continue;
 				}
 				importSetup.setCaregiver2Created((Boolean) handlingEvent.getAttributes().get("caregiverCreated"));
-				if (importSetup.isCaregiver2Created()) {
+				importSetup.setCaregiver2Existed((Boolean) handlingEvent.getAttributes().get("caregiverExisted"));
+				if (importSetup.isCaregiver2Created() || importSetup.isCaregiver2Existed()) {
 					importSetup.setCaregiver2((Caregiver) handlingEvent.getAttributes().get("caregiver"));
 					importSetup.setCaregiver2ContactInfoCreated((Boolean) handlingEvent.getAttributes().get("caregiverContactInfoCreated"));
 					if (importSetup.isCaregiver2ContactInfoCreated()) {
@@ -298,11 +297,11 @@ public class CrmsImportHandler extends ImportHandler {
 //  both are blank then defaults to 1st instrument and prop name == column name (row 1))				
 
 // pedi new patient history import (data file with all columns, not cut off at 256 cols)
-// should only create caregiver and caregiver contactInfo records if data 
-// log totals do not reflect caregivers and contactInfo records (but they could. not bothering with
+// X-should only create caregiver and caregiver contactInfo records if data exists
+// X-log totals do not reflect caregivers and contactInfo records (but they could. not bothering with
 //   caregiverContactInfo totals since that is tightly bound with caregiver)
-// SPDC History Form 2 metadata not populated ??				
-// SPDC History Form 2 only showing when run server in non-debug mode)				
+// X-SPDC History Form 2 metadata populated, e.g. marco_lab...history_timestamp (which will be used for versioning)				
+// X-SPDC History Form 2 only showing when run server in non-debug mode - KNOWN ISSUE				
 // confirm that data is being loaded correctly (incl. caregiver livesWithPatient, ContactInfo is
 //   for caregiver)
 // need separate definitions for old and current versions because var names from old
@@ -317,12 +316,14 @@ public class CrmsImportHandler extends ImportHandler {
 				
 // pertinent TODOs in code, config, Hibernate mapping, jsp, etc.
 	
-// make mapping definition name longer (50?)				
+// X-make mapping definition name longer (50?)				
 // import definition UI cleanup (for now move Project near top, ahead of selection of Import
 //  MappingData File since the project refresh removes mapping file selection)				
 //  (why does Browse button have _ in it?)				
+//   help text: if mapping file changes, have to re-upload
+
 // importLogContent / crmsImportLogContent format log summary results in a table
-// importLog/crmsImportLog needs to get rid of edit
+// importLog/crmsImportLog needs to get rid of Edit button
 // crmsAllImportLogs needs a Filter
 // add creation of entities as importLog info messages (test with WESChecklist)
 // ?? create preview mode, at least for development, that does not do anything to db				
@@ -347,6 +348,7 @@ public class CrmsImportHandler extends ImportHandler {
 //   migrate to MAC LAVA
 //				
 //   implement startDataRow (defaults to 2 for all imports done prior to implementation)
+//   UPDATE: believe this is needed for pedi BASC too				
 //				
 //   match existing Visit on Visit Type if user sets flag to do so. even if not, Visit Type could still be
 //   used when creating new Visits (default is false)				
@@ -423,10 +425,29 @@ public class CrmsImportHandler extends ImportHandler {
 
 	protected Event validateDataFile(BindingResult errors, ImportDefinition importDefinition, ImportSetup importSetup) throws Exception {
 		CrmsImportSetup crmsImportSetup = (CrmsImportSetup) importSetup;
-////		int propIndex;
-		if (super.validateDataFile(errors, importDefinition, importSetup).getId().equals(ERROR_FLOW_EVENT_ID)) {
-			return new Event(this, ERROR_FLOW_EVENT_ID);
+				
+		// caregiver instruments have special handling to set their caregiver ID property, which involves putting an "instrumentCaregiverId" 
+		// column in the mapping file even though there is no such column in the data file (the data does presumably have caregiver first and
+		// last names from which an existing Caregiver is matched or a new Caregiver is created)
+		crmsImportSetup.setIndexInstrCaregiverId(ArrayUtils.indexOf(importSetup.getMappingCols(), "instrumentCaregiverId"));
+		
+		// validate the mapping file data columns against the import file data columns as they should be
+		// identical (mapping file is created by pasting data column headers into row 1)
+		if ((crmsImportSetup.getIndexInstrCaregiverId() == -1 ? importSetup.getMappingCols().length : importSetup.getMappingCols().length-1) != importSetup.getDataCols().length) {
+			LavaComponentFormAction.createCommandError(errors, "Cannot import. Mismatch in number of columns in mapping file vs data file");
+			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
+		// the "instrumentCaregiverId" column, if used, must be put at the end of the mapping file, for this validation to pass 
+		for (int i=0; i < importSetup.getMappingCols().length; i++) {
+			if (importSetup.getMappingCols()[i].equals("instrumentCaregiverId")) {
+				break;
+			}
+			if (!importSetup.getMappingCols()[i].equals(importSetup.getDataCols()[i])) {
+				LavaComponentFormAction.createCommandError(errors, "Cannot import. Mapping file column name " + importSetup.getMappingCols()[i] + " does not exactly match column header in data file");
+				return new Event(this,ERROR_FLOW_EVENT_ID);
+			}
+		}
+		
 		
 		// set indices here as this only needs to be done once for the entire data file
 		
@@ -452,122 +473,21 @@ public class CrmsImportHandler extends ImportHandler {
 		setDataFilePropertyIndex(importSetup, "indexPatientLastName", "patient", "lastName");
 		setDataFilePropertyIndex(importSetup, "indexPatientBirthDate", "patient", "birthDate");
 		setDataFilePropertyIndex(importSetup, "indexPatientGender", "patient", "gender");
+
 		setDataFilePropertyIndex(importSetup, "indexContactInfoAddress", "contactInfo", "address");
 		setDataFilePropertyIndex(importSetup, "indexContactInfoCity", "contactInfo", "city");
 		setDataFilePropertyIndex(importSetup, "indexContactInfoState", "contactInfo", "state");
 		setDataFilePropertyIndex(importSetup, "indexContactInfoZip", "contactInfo", "zip");
-		setDataFilePropertyIndex(importSetup, "indexContactInfoPhone", "contactInfo", "phone");
+		setDataFilePropertyIndex(importSetup, "indexContactInfoPhone1", "contactInfo", "phone1");
 		setDataFilePropertyIndex(importSetup, "indexContactInfoEmail", "contactInfo", "email");
 
-/*		
-		crmsImportSetup.setIndexPatientPIDN(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "PIDN", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("patient")) {
-				// only for matching existing Patient; will never set this property b/c new Patient ids are generated by db
-				crmsImportSetup.setIndexPatientPIDN(propIndex);
-				break;
-			}
-		}
-		
-		crmsImportSetup.setIndexPatientFirstName(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "firstName", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("patient")) {
-				crmsImportSetup.setIndexPatientFirstName(propIndex); 
-				break;
-			}
-		}
-		
-		crmsImportSetup.setIndexPatientLastName(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "lastName", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("patient")) {
-				crmsImportSetup.setIndexPatientLastName(propIndex);
-				break;
-			}
-		}
-
-		crmsImportSetup.setIndexPatientBirthDate(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "birthDate", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("patient")) {
-				crmsImportSetup.setIndexPatientBirthDate(propIndex);
-				break;
-			}
-		}
-		
-		crmsImportSetup.setIndexPatientGender(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "gender", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("patient")) {
-				crmsImportSetup.setIndexPatientGender(propIndex);
-				break;
-			}
-		}
-		
-		crmsImportSetup.setIndexContactInfoAddress(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "address", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("contactInfo")) {
-				crmsImportSetup.setIndexContactInfoAddress(propIndex); 
-				break;
-			}
-		}
-		
-		crmsImportSetup.setIndexContactInfoCity(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "city", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("contactInfo")) {
-				crmsImportSetup.setIndexContactInfoCity(propIndex); 
-				break;
-			}
-		}
-		
-		crmsImportSetup.setIndexContactInfoState(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "state", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("contactInfo")) {
-				crmsImportSetup.setIndexContactInfoState(propIndex); 
-				break;
-			}
-		}
-		
-		crmsImportSetup.setIndexContactInfoZip(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "zip", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("contactInfo")) {
-				crmsImportSetup.setIndexContactInfoZip(propIndex); 
-				break;
-			}
-		}
-		
-		crmsImportSetup.setIndexContactInfoPhone1(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "phone1", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("contactInfo")) {
-				crmsImportSetup.setIndexContactInfoPhone1(propIndex); 
-				break;
-			}
-		}
-		
-		crmsImportSetup.setIndexContactInfoEmail(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "email", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("contactInfo")) {
-				crmsImportSetup.setIndexContactInfoEmail(propIndex); 
-				break;
-			}
-		}
-*/		
-		
 		setDataFilePropertyIndex(importSetup, "indexCaregiverFirstName", "caregiver", "firstName");
 		setDataFilePropertyIndex(importSetup, "indexCaregiverLastName", "caregiver", "lastName");
 		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoAddress", "caregiverContactInfo", "address");
 		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoCity", "caregiverContactInfo", "city");
 		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoState", "caregiverContactInfo", "state");
 		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoZip", "caregiverContactInfo", "zip");
-		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoPhone", "caregiverContactInfo", "phone");
+		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoPhone1", "caregiverContactInfo", "phone1");
 		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoEmail", "caregiverContactInfo", "email");
 		
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2FirstName", "caregiver2", "firstName");
@@ -576,46 +496,9 @@ public class CrmsImportHandler extends ImportHandler {
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoCity", "caregiver2ContactInfo", "city");
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoState", "caregiver2ContactInfo", "state");
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoZip", "caregiver2ContactInfo", "zip");
-		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoPhone", "caregiver2ContactInfo", "phone");
+		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoPhone1", "caregiver2ContactInfo", "phone1");
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoEmail", "caregiver2ContactInfo", "email");
 		
-/*		
-		crmsImportSetup.setIndexCaregiverFirstName(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "firstName", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("caregiver")) {
-				crmsImportSetup.setIndexCaregiverFirstName(propIndex); 
-				break;
-			}
-		}
-		
-		crmsImportSetup.setIndexCaregiverLastName(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "lastName", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("caregiver")) {
-				crmsImportSetup.setIndexCaregiverLastName(propIndex); 
-				break;
-			}
-		}
-
-		crmsImportSetup.setIndexCaregiver2FirstName(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "firstName", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("caregiver2")) {
-				crmsImportSetup.setIndexCaregiver2FirstName(propIndex); 
-				break;
-			}
-		}
-		
-		crmsImportSetup.setIndexCaregiver2LastName(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "lastName", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("caregiver2")) {
-				crmsImportSetup.setIndexCaregiver2LastName(propIndex); 
-				break;
-			}
-		}
-*/		
 		
 		setDataFilePropertyIndex(importSetup, "indexEsStatusDate", "enrollmentStatus", "date");
 		setDataFilePropertyIndex(importSetup, "indexEsStatus", "enrollmentStatus", "status");
@@ -628,99 +511,6 @@ public class CrmsImportHandler extends ImportHandler {
 		setDataFilePropertyIndex(importSetup, "indexInstrDcDate", "instrument", "dcDate");
 		setDataFilePropertyIndex(importSetup, "indexInstrDcStatus", "instrument", "dcStatus");
 
-/*		
-		crmsImportSetup.setIndexEsStatusDate(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "date", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("enrollmentStatus")) {
-				crmsImportSetup.setIndexEsStatusDate(propIndex); 
-				break;
-			}
-		}
-
-		crmsImportSetup.setIndexEsStatus(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "status", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("enrollmentStatus")) {
-				crmsImportSetup.setIndexEsStatus(propIndex); 
-				break;
-			}
-		}
-
-		crmsImportSetup.setIndexVisitDate(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "visitDate", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("visit")) {
-				crmsImportSetup.setIndexVisitDate(propIndex); 
-				break;
-			}
-		}
-
-		crmsImportSetup.setIndexVisitTime(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "visitTime", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("visit")) {
-				crmsImportSetup.setIndexVisitTime(propIndex); 
-				break;
-			}
-		}
-
-		crmsImportSetup.setIndexVisitType(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "visitType", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("visit")) {
-				crmsImportSetup.setIndexVisitType(propIndex); 
-				break;
-			}
-		}
-
-		crmsImportSetup.setIndexVisitWith(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "visitWith", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("visit")) {
-				crmsImportSetup.setIndexVisitWith(propIndex); 
-				break;
-			}
-		}
-
-		crmsImportSetup.setIndexVisitLoc(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "visitLoc", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("visit")) {
-				crmsImportSetup.setIndexVisitLoc(propIndex); 
-				break;
-			}
-		}
-
-		crmsImportSetup.setIndexVisitStatus(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "visitStatus", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("visit")) {
-				crmsImportSetup.setIndexVisitStatus(propIndex); 
-				break;
-			}
-		}
-
-		// note if data collection date is not in the data file then the visit date is used to populate it in new instruments
-		crmsImportSetup.setIndexInstrDcDate(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "dcDate", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("instrument")) {
-				crmsImportSetup.setIndexInstrDcDate(propIndex); 
-				break;
-			}
-		}
-		
-		crmsImportSetup.setIndexInstrDcStatus(-1);
-		propIndex = -1;
-		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), "dcStatus", propIndex+1)) != -1) {
-			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase("instrument")) {
-				crmsImportSetup.setIndexInstrDcStatus(propIndex); 
-				break;
-			}
-		}
-*/		
-	
 		setOtherIndices((CrmsImportDefinition)importDefinition, crmsImportSetup);
 
 		//TODO: move these checks to the CrmsImportDefinitionHandler
@@ -919,7 +709,7 @@ public class CrmsImportHandler extends ImportHandler {
 				p.updateCalculatedFields(); // so can use full name in log messages
 				// if the birthDate conversion was not done yet, i.e. PIDN was supplied such that a PIDN match was done (and failed)
 				if (birthDate == null) {
-//look at making this data conversion into a small helper method									
+//look at making this date conversion into a small helper method									
 					dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexPatientBirthDate()];
 					formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
 					formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
@@ -1000,7 +790,8 @@ public class CrmsImportHandler extends ImportHandler {
 			int lineNum) {
 		
 		// the assumption is that ContactInfo is only imported as part of a new Patient import, so if a new Patient was created
-		// and any ContactInfo properties are mapped and have data then create a new ContactInfo record
+		// and any ContactInfo properties are mapped and have data then create a new ContactInfo record.
+		// because currently not a use case for importing new ContactInfo for already existing Patients
 		if (importSetup.isPatientCreated()) {
 			// check that at least one of what are considered the key ContactInfo properties has data
 			if ((importSetup.getIndexContactInfoAddress() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexContactInfoAddress()])) || 
@@ -1063,94 +854,114 @@ public class CrmsImportHandler extends ImportHandler {
 		// search for existing Caregiver
 		Caregiver caregiver = null;
 		Boolean caregiverCreated = null;
+		Boolean caregiverExisted = null;
 		ContactInfo caregiverContactInfo = null;
 		Boolean caregiverContactInfoCreated = null;
 
-		// only search if the Patient already exists because if Patient did not exist then Caregiver does not exist
-		if (!importSetup.isPatientCreated()) { 
-			filter.clearDaoParams();
-			filter.setAlias("patient", "patient");
-			filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
-			filter.addDaoParam(filter.daoEqualityParam("firstName", importSetup.getDataValues()[importSetup.getIndexCaregiverFirstName()]));
-			filter.addDaoParam(filter.daoEqualityParam("lastName", importSetup.getDataValues()[importSetup.getIndexCaregiverLastName()]));
-			try {
-				caregiver = (Caregiver) Caregiver.MANAGER.getOne(filter);
-			}
-			// this should never happen. if re-running import of a data file, should just be one 
-			catch (IncorrectResultSizeDataAccessException ex) {
-				importLog.addErrorMessage(lineNum, "Duplicate Caregiver records for patient " + importSetup.getPatient().getFullNameWithId() + 
-						" and Caregiver firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] 
-						+ " lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]);
-				return new Event(this, "error"); // to abort processing this import record
-			}
+		if (indexFirstName == -1 || !StringUtils.hasText(importSetup.getDataValues()[indexFirstName]) 
+			|| indexLastName == -1 || !StringUtils.hasText(importSetup.getDataValues()[indexLastName])) {
+			// if no caregiver data in the data file cannot check if caregiver exists or create a new
+			// caregiver
+			caregiverCreated = false;
+			caregiverExisted = false;
+			caregiverContactInfoCreated = false;
 		}
-		
-		if (caregiver == null) {
-			// required fields firstName, lastName, and other non-required fields will be assigned in setProperty as they
-			// are encountered in the import record
+		else {
 			
-			if ((indexFirstName != -1 && StringUtils.hasText(importSetup.getDataValues()[indexFirstName])) && 
-					(indexLastName != -1 && StringUtils.hasText(importSetup.getDataValues()[indexLastName]))) {
-				caregiver = createCaregiver(importDefinition, importSetup);
-				caregiver.setPatient(importSetup.getPatient());
-				caregiver.setActive((short)1);
-				caregiverCreated = true;
-			
-				// if a new Caregiver is created, create a new ContactInfo record for that Caregiver if there is
-				// ContactInfo data in the import data file
-				// caregiverContactInfo properties are set in setPropertyHandling
-				if ((indexContactInfoAddress != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoAddress])) || 
-					(indexContactInfoCity != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoCity])) ||  
-					(indexContactInfoState != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoState])) || 
-					(indexContactInfoZip != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoZip])) ||
-					(indexContactInfoPhone1 != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoPhone1])) || 
-					(indexContactInfoEmail != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoEmail]))) {
-			
-					caregiverContactInfo = createContactInfo(importDefinition, importSetup);
-					caregiverContactInfo.setPatient(importSetup.getPatient());
-					caregiverContactInfo.setIsCaregiver(true);
-					// NOTE: had to refactor lava-crms ContactInfo to map Caregiver as an association rather than mapping caregiverId 
-					// property since do not know caregiverId at this point given that new Caregiver has not been persisted. ORM will
-					// take care of assigning caregiverId to ContactInfo at persistence
-					caregiverContactInfo.setCaregiver(caregiver);
-					caregiverContactInfo.setActive((short)1);
-					if (indexContactInfoAddress != -1) {
-						caregiverContactInfo.setAddress(importSetup.getDataValues()[indexContactInfoAddress]);
-					}
-					if (indexContactInfoCity != -1) {
-						caregiverContactInfo.setCity(importSetup.getDataValues()[indexContactInfoCity]);
-					}
-					if (indexContactInfoState != -1) {
-						caregiverContactInfo.setState(importSetup.getDataValues()[indexContactInfoState]);
-					}
-					if (indexContactInfoZip != -1) {
-						caregiverContactInfo.setZip(importSetup.getDataValues()[indexContactInfoZip]);
-					}
-					if (indexContactInfoPhone1 != -1) {
-						caregiverContactInfo.setPhone1(importSetup.getDataValues()[indexContactInfoPhone1]);
-					}
-					if (indexContactInfoEmail != -1) {
-						caregiverContactInfo.setEmail(importSetup.getDataValues()[indexContactInfoEmail]);
-					}
-					caregiverContactInfoCreated = true;
+			// only search if the Patient already exists because if Patient did not exist then Caregiver does not exist
+			if (!importSetup.isPatientCreated()) { 
+				filter.clearDaoParams();
+				filter.setAlias("patient", "patient");
+				filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
+				filter.addDaoParam(filter.daoEqualityParam("firstName", importSetup.getDataValues()[importSetup.getIndexCaregiverFirstName()]));
+				filter.addDaoParam(filter.daoEqualityParam("lastName", importSetup.getDataValues()[importSetup.getIndexCaregiverLastName()]));
+				try {
+					caregiver = (Caregiver) Caregiver.MANAGER.getOne(filter);
 				}
-				else {
+				// this should never happen. if re-running import of a data file, should just be one 
+				catch (IncorrectResultSizeDataAccessException ex) {
+					importLog.addErrorMessage(lineNum, "Duplicate Caregiver records for patient " + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
+							" and Caregiver firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] 
+							+ " lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]);
+					return new Event(this, "error"); // to abort processing this import record
+				}
+			}
+			
+			if (caregiver == null) {
+				caregiverExisted = false;
+				
+				// at this point either Patient was just created in which case there cannot be a Caregiver yet, or Patient
+				// already existed but Caregiver could not be found
+	
+				if ((indexFirstName != -1 && StringUtils.hasText(importSetup.getDataValues()[indexFirstName])) && 
+						(indexLastName != -1 && StringUtils.hasText(importSetup.getDataValues()[indexLastName]))) {
+					caregiver = createCaregiver(importDefinition, importSetup);
+					caregiver.setPatient(importSetup.getPatient());
+					caregiver.setFirstName(importSetup.getDataValues()[indexFirstName]);
+					caregiver.setLastName(importSetup.getDataValues()[indexLastName]);
+					caregiver.setActive((short)1);
+					// any other (non required) caregiver fields will be assigned in setProperty as they are encountered 
+					// in the import record
+					caregiverCreated = true;
+				
+					// if a new Caregiver is created, create a new ContactInfo record for that Caregiver if there is
+					// ContactInfo data in the import data file
+					// caregiverContactInfo properties are set in setPropertyHandling
+					if ((indexContactInfoAddress != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoAddress])) || 
+						(indexContactInfoCity != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoCity])) ||  
+						(indexContactInfoState != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoState])) || 
+						(indexContactInfoZip != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoZip])) ||
+						(indexContactInfoPhone1 != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoPhone1])) || 
+						(indexContactInfoEmail != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoEmail]))) {
+				
+						caregiverContactInfo = createContactInfo(importDefinition, importSetup);
+						caregiverContactInfo.setPatient(importSetup.getPatient());
+						caregiverContactInfo.setIsCaregiver(true);
+						// NOTE: had to refactor lava-crms ContactInfo to map Caregiver as an association rather than mapping caregiverId 
+						// property since do not know caregiverId at this point given that new Caregiver has not been persisted. ORM will
+						// take care of assigning caregiverId to ContactInfo at persistence
+						caregiverContactInfo.setCaregiver(caregiver);
+						caregiverContactInfo.setActive((short)1);
+						if (indexContactInfoAddress != -1) {
+							caregiverContactInfo.setAddress(importSetup.getDataValues()[indexContactInfoAddress]);
+						}
+						if (indexContactInfoCity != -1) {
+							caregiverContactInfo.setCity(importSetup.getDataValues()[indexContactInfoCity]);
+						}
+						if (indexContactInfoState != -1) {
+							caregiverContactInfo.setState(importSetup.getDataValues()[indexContactInfoState]);
+						}
+						if (indexContactInfoZip != -1) {
+							caregiverContactInfo.setZip(importSetup.getDataValues()[indexContactInfoZip]);
+						}
+						if (indexContactInfoPhone1 != -1) {
+							caregiverContactInfo.setPhone1(importSetup.getDataValues()[indexContactInfoPhone1]);
+						}
+						if (indexContactInfoEmail != -1) {
+							caregiverContactInfo.setEmail(importSetup.getDataValues()[indexContactInfoEmail]);
+						}
+						caregiverContactInfoCreated = true;
+					}
+					else {
+						caregiverContactInfoCreated = false;
+					}
+				}
+				else { 
+					caregiverCreated = false;
 					caregiverContactInfoCreated = false;
 				}
 			}
 			else { 
+				caregiverExisted = true;
 				caregiverCreated = false;
 				caregiverContactInfoCreated = false;
 			}
-		}
-		else { 
-			caregiverCreated = false;
-			caregiverContactInfoCreated = false;
 		}
 	
 		Map<String,Object> eventAttrMap = new HashMap<String,Object>();
 		eventAttrMap.put("caregiver", caregiver);
 		eventAttrMap.put("caregiverCreated", caregiverCreated);
+		eventAttrMap.put("caregiverExisted", caregiverExisted);
 		eventAttrMap.put("caregiverContactInfo", caregiverContactInfo);
 		eventAttrMap.put("caregiverContactInfoCreated", caregiverContactInfoCreated);
 		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
@@ -1198,7 +1009,7 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 			// this should never happen. if re-running import of a data file, should just be one 
 			catch (IncorrectResultSizeDataAccessException ex) {
-				importLog.addErrorMessage(lineNum, "Duplicate EnrollmentStatus records for patient " + importSetup.getPatient().getFullNameWithId() + 
+				importLog.addErrorMessage(lineNum, "Duplicate EnrollmentStatus records for patient " + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
 						" and project " + importSetup.getRevisedProjName());
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
@@ -1275,7 +1086,7 @@ public class CrmsImportHandler extends ImportHandler {
 				// note: this differs from MAY_OR_MAY_NOT_EXIST where import of the record will continue if
 				// the Enrollment Status exists (as well as if Enrollment Status does not exist as it will be 
 				// created above)
-				importLog.addErrorMessage(lineNum, "Enrollment Status already exists, violates Import Definition MUST_NOT_EXIST setting. Patient:" + importSetup.getPatient().getFullNameWithId());
+				importLog.addErrorMessage(lineNum, "Enrollment Status already exists, violates Import Definition MUST_NOT_EXIST setting. Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()));
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
 		}
@@ -1391,7 +1202,7 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 				// this should never happen. if re-running import of a data file, should just be one 
 				catch (IncorrectResultSizeDataAccessException ex) {
-					importLog.addErrorMessage(lineNum, "Duplicate Visit records for Patient:" + importSetup.getPatient().getFullNameWithId() + 
+					importLog.addErrorMessage(lineNum, "Duplicate Visit records for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
 							" and Visit Date:" + dateOrTimeAsString);
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
@@ -1417,7 +1228,7 @@ public class CrmsImportHandler extends ImportHandler {
 				// within a single import file
 				
 				String visitLoc = importSetup.getIndexVisitLoc() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitLoc()] : importDefinition.getVisitLoc();
-				/** in case decide to require visitLoc
+				// note there is a catch-all "Home" entry in the Visit Location list that can be used generically. could add more as needed
 				if (!StringUtils.hasText(visitLoc)) {
 					if (importSetup.getIndexVisitLoc() != -1) {
 						importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit Location field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexVisitLoc()] + ") has no value");
@@ -1427,7 +1238,6 @@ public class CrmsImportHandler extends ImportHandler {
 					}
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
-				**/
 				
 				String visitWith = importSetup.getIndexVisitWith() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitWith()] : importDefinition.getVisitWith();
 				/** in case decide to require visitWith
@@ -1443,7 +1253,6 @@ public class CrmsImportHandler extends ImportHandler {
 				**/
 
 				String visitStatus = importSetup.getIndexVisitStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitStatus()] : importDefinition.getVisitStatus();
-				/** in case decide to require visitStatus
 				if (!StringUtils.hasText(visitStatus)) {
 					if (importSetup.getIndexVisitStatus() != -1) {
 						importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit Status field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexVisitStatus()] + ") has no value");
@@ -1453,7 +1262,6 @@ public class CrmsImportHandler extends ImportHandler {
 					}
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
-				**/
 
 				// create Visit record
 				v = createVisit(importDefinition, importSetup);
@@ -1487,7 +1295,7 @@ public class CrmsImportHandler extends ImportHandler {
 				// note: this differs from MAY_OR_MAY_NOT_EXIST where import of the record will continue if
 				// the Enrollment Status exists (as well as if Enrollment Status does not exist as it will be 
 				// created above)
-				importLog.addErrorMessage(lineNum, "Visit already exists, violates Import Definition MUST_NOT_EXIST setting. Patient:" + importSetup.getPatient().getFullNameWithId());
+				importLog.addErrorMessage(lineNum, "Visit already exists, violates Import Definition MUST_NOT_EXIST setting. Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()));
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
 		}
@@ -1498,7 +1306,7 @@ public class CrmsImportHandler extends ImportHandler {
 
 	
 	/**
-	 * insrtumentExistsHandler
+	 * insrtumentExistsHandling
 	 * 
 	 * Determine whether instrument exists or not and act accordingly based on the importDefinition
 	 * settings. 
@@ -1562,7 +1370,7 @@ public class CrmsImportHandler extends ImportHandler {
 				instr = (Instrument) Instrument.MANAGER.getOne(instrClazz, filter);
 			}
 			catch (IncorrectResultSizeDataAccessException ex) {
-				importLog.addErrorMessage(lineNum, "Duplicate " + importDefinition.getInstrType() + " records for Patient:" + importSetup.getPatient().getFullNameWithId() + 
+				importLog.addErrorMessage(lineNum, "Duplicate " + importDefinition.getInstrType() + " records for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
 						" and Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
@@ -1570,7 +1378,7 @@ public class CrmsImportHandler extends ImportHandler {
 		
 		if (instr == null) {
 			if (importDefinition.getInstrExistRule().equals(MUST_EXIST)) {
-				importLog.addErrorMessage(lineNum, "Instrument does not exist. Patient:" + importSetup.getPatient().getFullNameWithId() 
+				importLog.addErrorMessage(lineNum, "Instrument does not exist. Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
 						+ " Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}else {
@@ -1588,7 +1396,7 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 
 				try {
-					instr = createInstrument(importDefinition, importSetup, instrClazz, dcDate, dcStatus);
+					instr = createInstrument(context, importDefinition, importSetup, instrClazz, dcDate, dcStatus);
 					instr.setDcBy(importSetup.getVisit().getVisitWith());
 					instr.setDeBy("IMPORTED");
 					instr.setDeDate(new Date());
@@ -1598,7 +1406,7 @@ public class CrmsImportHandler extends ImportHandler {
 					instr.setDeStatus("Complete");
 					instr.setDeNotes("Data Imported by:" + CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request).getShortUserNameRev());				}
 				catch (Exception ex) {
-					importLog.addErrorMessage(lineNum, "Error instantiating instrument. Patient:" + importSetup.getPatient().getFullNameWithId() 
+					importLog.addErrorMessage(lineNum, "Error instantiating instrument. Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
 							+ " and Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
@@ -1609,7 +1417,7 @@ public class CrmsImportHandler extends ImportHandler {
 		else { // instrument already exists
 			importSetup.setInstrument(instr);
 			if (importDefinition.getInstrExistRule().equals(MUST_NOT_EXIST)) {
-				importLog.addErrorMessage(lineNum, "Instrument already exists violating Import Definition MUST_NOT_EXIST setting. Patient:" + importSetup.getPatient().getFullNameWithId()
+				importLog.addErrorMessage(lineNum, "Instrument already exists violating Import Definition MUST_NOT_EXIST setting. Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName())
 						+ " and Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
@@ -1648,7 +1456,7 @@ public class CrmsImportHandler extends ImportHandler {
 						// that a data file with this record was already imported. 
 						importSetup.setInstrExistedWithData(true);
 						importLog.addDebugMessage(lineNum, "Instrument exists and has already been data entered. Cannot overwrite per Import Definition. Patient:" + 
-							importSetup.getPatient().getFullNameWithId() + " and Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
+							(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + " and Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
 
 						// set an attribute on the return event so the caller can distinguish between an error and the
 						// record already exists
@@ -1760,7 +1568,7 @@ public class CrmsImportHandler extends ImportHandler {
 	 * @param dcStatus
 	 * @return
 	 */
-	protected Instrument createInstrument(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, 
+	protected Instrument createInstrument(RequestContext context, CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, 
 			Class instrClazz, Date dcDate, String dcStatus) {
 		return Instrument.create(instrClazz, importSetup.getPatient(), importSetup.getVisit(), importSetup.getRevisedProjName(), 
 				importDefinition.getInstrType(), dcDate, dcStatus);
@@ -1798,7 +1606,7 @@ public class CrmsImportHandler extends ImportHandler {
 			definitionEntityName = importSetup.getMappingEntities()[i];
 			definitionPropName = importSetup.getMappingProps()[i];
 			
-logger.info("i="+i+" colName="+definitionColName+ " entityName="+definitionEntityName+" propName="+definitionPropName);
+			logger.info("i="+i+" colName="+definitionColName+ " entityName="+definitionEntityName+" propName="+definitionPropName);
 
 			// skip fields with column name or property name prefixed by XX						
 			if (definitionColName.startsWith("XX") || 
@@ -1827,35 +1635,8 @@ logger.info("i="+i+" colName="+definitionColName+ " entityName="+definitionEntit
 
 			// give this first instrument first shot at determining if the property applies to it, to support
 			// this shorthand
-			else if (!StringUtils.hasText(definitionEntityName)) {
-				// missing entity means shorthand to use the first instrument specified in importDefinition
-				
-				// for all instruments, if the property name is left blank in the mapping file that means that the
-				// column name is the same as the property name, so there is no need to redundantly specify the property 
-				// name as well.
-				String propName = null;
-				if (!StringUtils.hasText(definitionPropName)) {
-					propName = definitionColName;
-				}
-				else {
-					propName = definitionPropName;
-				}
-				// set property on the first instrument specified in importDefinition
-				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument(), propName, i, lineNum);
-			}
-			else if (definitionEntityName.equalsIgnoreCase(importSetup.getInstrument().getInstrType())) {
+			else if (!StringUtils.hasText(definitionEntityName) || definitionEntityName.equalsIgnoreCase(importSetup.getInstrument().getInstrType())) {
 
-				// for all instruments, if the property name is left blank in the mapping file that means that the
-				// column name is the same as the property name, so there is no need to redundantly specify the property 
-				// name as well.
-				String propName = null;
-				if (!StringUtils.hasText(definitionPropName)) {
-					propName = definitionColName;
-				}
-				else {
-					propName = definitionPropName;
-				}
-				
 				//TODO: handle case where entity is an instrType to support multiple instrument data imports
 				//mappingPropName.startsWith(..each of the importDefinition instrType (10 of them)). this could also match
 				//the default instrument if mapping file puts in entity name (instrType) for it.
@@ -1869,8 +1650,41 @@ logger.info("i="+i+" colName="+definitionColName+ " entityName="+definitionEntit
 				//(or it can be obtained passing importDefinition instrType to the static getInstrTypeEncoded method
 				//instrTypeEncoded would be a bit off for the users. instrType just have to be careful with spaces, etc.
 				//that there is an exact match
-				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument(), propName, i, lineNum);
-			}			
+
+				// missing entity means shorthand to use the first instrument specified in importDefinition
+				//if (!StringUtils.hasText(definitionEntityName)) {
+				//	
+				//}
+				
+				// for all instruments, if the property name is left blank in the mapping file that means that the
+				// column name is the same as the property name, so there is no need to redundantly specify the property 
+				// name as well.
+				String propName = null;
+				if (!StringUtils.hasText(definitionPropName)) {
+					propName = definitionColName;
+				}
+				else {
+					propName = definitionPropName;
+				}
+				
+				// special handling for instruments that have a Caregiver
+				// add "instrumentCaregiverId" as the last column of the mapping file even though there is no caregiver ID column in the data file 
+				// This is a flag should be mapped to the instrument property that stores caregiver ID, as defined in the mapping file
+//TODO:when support multiple instruments in a single import, each caregiver instrument could have an "instrumentCaregiverId" column mapping where the
+//entity would map it for a specific instrument, so would then need to check mappingEntities for which instrument to set (can assume that the Caregiver
+//is the same for all instruments on the same row of data).
+//PROBLEM is then need a separate indexInstrCaregiverId for each instrument, so that needs to be figure out in conjunction with how handling and setting
+//properties on multiple instruments will be done in general (e.g. also need separate instrDcDate, instrDcStatus properties for each instrument)				
+				if (definitionColName.equalsIgnoreCase("instrumentCaregiverId")) {
+					if (importSetup.isCaregiverCreated() || importSetup.isCaregiverExisted()) {
+						BeanUtils.setProperty(importSetup.getInstrument(), importSetup.getMappingProps()[((CrmsImportSetup)importSetup).getIndexInstrCaregiverId()], ((CrmsImportSetup)importSetup).getCaregiver());
+					}
+				}
+				else {
+					// set property on the first instrument specified in importDefinition
+					returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument(), propName, i, lineNum);
+				}
+			}
 			//Patient properties
 			else if (definitionEntityName.equalsIgnoreCase("patient")) {
 				// if decide to allow updates on existing Patients, then have the flags in data model to do: 
@@ -1972,6 +1786,49 @@ logger.info("i="+i+" colName="+definitionColName+ " entityName="+definitionEntit
 	}
 	
 
+	
+	/**
+	 * setInstrumentCaregiver
+	 *
+	 * If the instrument has a caregiver (informant) property, set a caregiver on the property if the
+	 * data file contains a caregiver (i.e. first and last name). The first and last name of the caregiver
+	 * would either match an existing caregiver or populate a new caregiver.
+	 * 
+	 * @param context
+	 * @param errors
+	 * @param importDefinition
+	 * @param importSetup
+	 * @param importLog
+	 * @param lineNum
+	 * @return success Event to continue processing this record, error Event to abort processing this record 
+	 */
+	protected Event setInstrumentCaregiver(RequestContext context, BindingResult errors, 
+			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum) throws Exception {
+		Event returnEvent = new Event(this, SUCCESS_FLOW_EVENT_ID);
+
+		// special handling for instruments that have a Caregiver
+		// add "instrumentCaregiverId" as the last column of the mapping file even though there is no caregiver ID column in the data file 
+		// This pseudo column should be mapped to the instrument property that stores caregiver ID, as defined in the mapping file
+		
+		if (importSetup.getIndexInstrCaregiverId() != -1) {
+//TODO: problem when isCaregiverCreated is that caregiver does not have an id yet to assign to the instrument careId property
+// solution is to change Hibernate mapping to an association to Caregiver instead of a careId (just like just did for ContactInfo)
+// will need to do this for all caregiver/informant instruments that will be imported			
+			if (importSetup.isCaregiverCreated() || importSetup.isCaregiverExisted()) {
+				//TODO:when support multiple instruments in a single import, each caregiver instrument could have an "instrumentCaregiverId" column mapping where the
+				//entity would map it for a specific instrument, so would then need to check mappingEntities for which instrument to set (can assume that the Caregiver
+				//is the same for all instruments on the same row of data).
+				//PROBLEM is then need a separate indexInstrCaregiverId for each instrument, so that needs to be figure out in conjunction with how handling and setting
+				//properties on multiple instruments will be done in general (e.g. also need separate instrDcDate, instrDcStatus properties for each instrument)				
+				BeanUtils.setProperty(importSetup.getInstrument(), importSetup.getMappingProps()[((CrmsImportSetup)importSetup).getIndexInstrCaregiverId()], ((CrmsImportSetup)importSetup).getCaregiver());
+			}
+		}
+				
+		return returnEvent;
+	}
+	
+	
+	
 	/**
 	 * Subclasses override this if setting a property involves any custom behavior.
 	 * 
@@ -1986,7 +1843,7 @@ logger.info("i="+i+" colName="+definitionColName+ " entityName="+definitionEntit
 		// default BeanUtils converter will set empty values to a default which is not null, so change the
 		// behavior so property is set to null
 		// note: could just skip null values since property value is already null on new instrument, but if
-		// this code were to be used for and import update then would need to set null values
+		// this code were to be used for an import update then would need to set null values
 		
 		//TODO: consult the metadata for each property
 		// 1) if the property is a string/text value then check the length of the data vs. the max string length. 
@@ -1995,6 +1852,8 @@ logger.info("i="+i+" colName="+definitionColName+ " entityName="+definitionEntit
 		// 2) validate data value by obtaining metadata for the entity.property, i.e. list of valid values
 		
 		if (!StringUtils.hasText(importSetup.getDataValues()[i])) {
+			// temporarily change the conversion handling so if no value to convert, just sets property null instead of
+			// throwing an exception
 			// false -use a default value instead of throwing a conversion exception (for any conversions)
 			// true - use null for the default value
 			// -1 - array types defaulted to null
@@ -2004,22 +1863,23 @@ logger.info("i="+i+" colName="+definitionColName+ " entityName="+definitionEntit
 			// use Apache Commons BeanUtils rather than PropertyUtils as BeanUtils will convert the data value
 			// from String to its correct type
 			
-logger.info("setting prop name="+propName+" to value="+importSetup.getDataValues()[i]);			
+			logger.info("setting propName="+propName+" to value="+importSetup.getDataValues()[i]);
+			
 			BeanUtils.setProperty(entity, propName, importSetup.getDataValues()[i]);
 		}
 		catch (InvocationTargetException ex) {
 			importLog.addErrorMessage(lineNum, "[InvocationTargetException] Error setting property: Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
-					" Patient:" + importSetup.getPatient().getFullNameWithId() + "Visit Date:" + importSetup.getVisit().getVisitDate());
+					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + "Visit Date:" + importSetup.getVisit().getVisitDate());
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		catch (IllegalAccessException ex) {
 			importLog.addErrorMessage(lineNum, "[IllegalAccessException] Error setting property: Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
-					" Patient:" + importSetup.getPatient().getFullNameWithId() + "Visit Date:" + importSetup.getVisit().getVisitDate());
+					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + "Visit Date:" + importSetup.getVisit().getVisitDate());
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		if (!StringUtils.hasText(importSetup.getDataValues()[i])) {
 			// resume throwing exceptions (second and third arguments ignored in this case)
-			this.setupBeanUtilConverters();
+			this.setupBeanUtilConverters(importSetup);
 		}								
 		return new Event(this, SUCCESS_FLOW_EVENT_ID);
 	}
@@ -2035,8 +1895,8 @@ logger.info("setting prop name="+propName+" to value="+importSetup.getDataValues
 	 */
 	protected Event setOtherPropertyHandling(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, 
 			CrmsImportLog importLog, int i, int lineNum) throws Exception {
-		// do nothing
-		return new Event(this, SUCCESS_FLOW_EVENT_ID);
+		importLog.addErrorMessage(lineNum, "Property not set: Mapping column:" + importSetup.getMappingCols()[i] + " Mapping entity:" + importSetup.getMappingEntities()[i] + " Mapping property:" + importSetup.getMappingProps()[i]);
+		return new Event(this, ERROR_FLOW_EVENT_ID);
 	}
 
 
@@ -2053,8 +1913,6 @@ logger.info("setting prop name="+propName+" to value="+importSetup.getDataValues
 		// updates, entity was retrieved and thus attached to a session and Hibernate dirty checking should
 		// implicitly update the entity
 
-		//TODO: test that update persists. may need to explicitly save in all cases		
-		
 		if (importSetup.isPatientCreated()) {
 			importSetup.getPatient().save();
 		}
