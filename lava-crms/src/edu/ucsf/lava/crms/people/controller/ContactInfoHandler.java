@@ -11,6 +11,7 @@ import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
+import edu.ucsf.lava.crms.people.model.Caregiver;
 import edu.ucsf.lava.crms.people.model.ContactInfo;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
@@ -92,7 +93,33 @@ public class ContactInfoHandler extends CrmsEntityComponentHandler {
 			contactInfo.setCaregiverId(null);
 			setRequiredFields(new String[]{"active", "contactPatient"});
 		}
+		handleCaregiverChange(context,command, errors);
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
+	
+	protected Event doSave(RequestContext context, Object command, BindingResult errors) throws Exception {
+		handleCaregiverChange(context,command, errors);
+		return super.doSave(context, command, errors);
+	}
+	
+	protected Event doSaveAdd(RequestContext context, Object command, BindingResult errors) throws Exception {
+		handleCaregiverChange(context,command, errors);
+		return super.doSaveAdd(context, command, errors);
+	}
+
+	protected void handleCaregiverChange(RequestContext context, Object command, BindingResult errors){
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		ContactInfo contactInfo = (ContactInfo)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
+		if(doesIdDifferFromEntityId(contactInfo.getCaregiverId(),contactInfo.getCaregiver())){
+			if(contactInfo.getCaregiverId()==null){
+				contactInfo.setCaregiver(null); 	//clear the association
+			}else{
+				Caregiver caregiver = (Caregiver) Caregiver.MANAGER.getOne(getFilterWithId(request, contactInfo.getCaregiverId()));
+				contactInfo.setCaregiver(caregiver);
+			}
+		}
+	}
+
+
 
 }
