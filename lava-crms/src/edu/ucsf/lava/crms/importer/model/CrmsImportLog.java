@@ -20,8 +20,11 @@ public class CrmsImportLog extends ImportLog {
 	// both caregiver and caregiver2 are counted together in the next 3 counts
 	private Integer newCaregivers; 
 	private Integer existingCaregivers;
-	// not counting existing caregiversContactInfo since counting existing Caregivers is enough info
 	private Integer newCaregiversContactInfo;
+	// currently not maintaining this count since not checking for existing ContactInfo for a Caregiver and
+	// instead just counting existing Caregivers. since caregiver and caregiverContactInfo are tightly
+	// bound that is enough
+	private Integer existingCaregiversContactInfo;
 	private Integer newEnrollmentStatuses;
 	private Integer existingEnrollmentStatuses;
 	private Integer newVisits;
@@ -125,6 +128,15 @@ public class CrmsImportLog extends ImportLog {
 
 	public void setNewCaregiversContactInfo(Integer newCaregiversContactInfo) {
 		this.newCaregiversContactInfo = newCaregiversContactInfo;
+	}
+	
+	public Integer getExistingCaregiversContactInfo() {
+		return existingCaregiversContactInfo;
+	}
+
+	public void setExistingCaregiversContactInfo(
+			Integer existingCaregiversContactInfo) {
+		this.existingCaregiversContactInfo = existingCaregiversContactInfo;
 	}
 
 	public Integer getNewEnrollmentStatuses() {
