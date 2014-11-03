@@ -112,6 +112,7 @@ public class CrmsImportSetup extends ImportSetup {
 	
 	private int indexInstrDcDate;
 	private int indexInstrDcStatus;
+	private int indexInstrCaregiverId;
 	private Instrument instrument;
 	private boolean instrCreated;
 	private boolean instrExisted; // instrument exists with no data entered (deDate == null)
@@ -519,6 +520,14 @@ public class CrmsImportSetup extends ImportSetup {
 
 	public void setInstrument(Instrument instrument) {
 		this.instrument = instrument;
+	}
+	
+	public int getIndexInstrCaregiverId() {
+		return indexInstrCaregiverId;
+	}
+
+	public void setIndexInstrCaregiverId(int indexInstrCaregiverId) {
+		this.indexInstrCaregiverId = indexInstrCaregiverId;
 	}
 
 	public boolean isCaregiverContactInfoCreated() {
