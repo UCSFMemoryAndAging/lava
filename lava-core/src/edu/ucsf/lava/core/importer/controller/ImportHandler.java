@@ -75,8 +75,8 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		this.requiredFieldEvents.addAll(Arrays.asList("import"));
 		this.setRequiredFields(new String[]{"definitionId"});
 
+		// bean converters are set up in doImport
 		this.convertUtilsBean = BeanUtilsBean.getInstance().getConvertUtils();
-		this.setupBeanUtilConverters();
 	}
 	
 	 public void prepareToRender(RequestContext context, Object command, BindingResult errors) {
@@ -219,6 +219,9 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		importSetup.setImportDefinition(ImportDefinition.findOneById(importSetup.getDefinitionId()));
 		importLog.setDefinition(importSetup.getImportDefinition());
 		LavaFile mappingFile = importSetup.getImportDefinition().getMappingFile();
+
+		// setup BeanUtilConverters for setting imported data values on entity properties
+		this.setupBeanUtilConverters(importSetup);
 		
 		// data file
 		MultipartFile dataMultipartFile = context.getRequestParameters().getMultipartFile(getDefaultObjectName() + "_uploadFile");
@@ -402,7 +405,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	}
 
 
-	protected void setupBeanUtilConverters() {
+	protected void setupBeanUtilConverters(ImportSetup importSetup) {
 		// default to throwing exceptions on conversion errors (this is the default anyway, but explicitly
 		// set here in case handling was temporarily changed
 		this.getConvertUtilsBean().register(true, true, -1);
@@ -410,8 +413,8 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		// register a DateConverter to handle String to java.util.Date conversion
 		DateConverter dateConverter = new DateConverter(null);
 		// add any additional date formats to be converted to this array
-		dateConverter.setPatterns(new String[]{DEFAULT_DATE_FORMAT});
-		ConvertUtils.register(dateConverter, java.util.Date.class);
+		dateConverter.setPatterns(new String[]{importSetup.getImportDefinition().getDateFormat() != null ? importSetup.getImportDefinition().getDateFormat() : DEFAULT_DATE_FORMAT});
+		this.getConvertUtilsBean().register(dateConverter, java.util.Date.class);
 	}
 	
 	public ConvertUtilsBean getConvertUtilsBean() {
