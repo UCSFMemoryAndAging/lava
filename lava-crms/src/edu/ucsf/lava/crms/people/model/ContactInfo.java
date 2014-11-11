@@ -434,11 +434,7 @@ public class ContactInfo extends CrmsEntity {
 		if(getPatient()!=null && getCaregiver()==null){
 			setContactNameRev(getPatient().getFullNameRev());
 		}else if(getCaregiver()!=null){
-////			Caregiver c = (Caregiver)Caregiver.MANAGER.getById(getCaregiverId(),newFilterInstance());
-////			if(c!=null){
-////				setContactNameRev(c.getFullNameRev());
 			setContactNameRev(getCaregiver().getFullNameRev());
-////			}
 		}else{
 			setContactNameRev(null);
 		}
@@ -458,11 +454,7 @@ public class ContactInfo extends CrmsEntity {
 			}
 			setContactDesc(buffer.toString());
 		}else{
-////			Caregiver c = (Caregiver)Caregiver.MANAGER.getById(getCaregiverId(),newFilterInstance());
-////			if(c!=null){
-////				setContactDesc(c.getContactDesc());
 			setContactDesc(getCaregiver().getContactDesc());
-////			}		
 		}
 	}
 	
