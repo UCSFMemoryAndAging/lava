@@ -19,6 +19,7 @@
   			<tags:createField property="projName" component="${component}"/>
 
   			<tags:createField property="patientExistRule" component="${component}"/>
+  			<tags:createField property="patientOnlyImport" component="${component}"/>
   			<%-- currently not allow existing Patient properties to be overwritten as that is not the
   				mission of the import functionality
   			<tags:createField property="allowPatientUpdate" component="${component}"/>

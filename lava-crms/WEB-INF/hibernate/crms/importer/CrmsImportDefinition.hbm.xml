@@ -9,6 +9,7 @@
 		<key column="definition_id"/>		
 		<property name="projName" type="string" length="75" column="ProjName" not-null="true"/>
 		<property name="patientExistRule" column="patient_exist_rule" type="short"/>
+		<property name="patientOnlyImport" column="patient_only" type="boolean"/>
 		<property name="allowPatientUpdate" column="patient_update" type="boolean"/>
 		<property name="esExistRule" column="es_exist_rule" type="short"/>
 		<property name="allowEsUpdate" column="es_update" type="boolean"/>

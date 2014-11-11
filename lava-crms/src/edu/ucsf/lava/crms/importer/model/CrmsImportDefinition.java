@@ -28,6 +28,10 @@ public class CrmsImportDefinition extends ImportDefinition {
 
 	
 	private Short patientExistRule;
+	// for data files that only have Patient data, no visit or assessment data. the import will only create or match 
+	// Patients, ContactInfo, Caregivers, Caregivers ContactInfo, and if a Patient is created an EnrollmentStatus must 
+	// be created, which will use the projName project
+	private Boolean patientOnlyImport;
 	// currently this flag is not used unless it is determined that import files should be able to overwrite
 	// existing Patient data
 	private Boolean allowPatientUpdate; 
@@ -83,6 +87,14 @@ public class CrmsImportDefinition extends ImportDefinition {
 
 	public void setPatientExistRule(Short patientExistRule) {
 		this.patientExistRule = patientExistRule;
+	}
+
+	public Boolean getPatientOnlyImport() {
+		return patientOnlyImport;
+	}
+
+	public void setPatientOnlyImport(Boolean patientOnlyImport) {
+		this.patientOnlyImport = patientOnlyImport;
 	}
 
 	public Boolean getAllowPatientUpdate() {
