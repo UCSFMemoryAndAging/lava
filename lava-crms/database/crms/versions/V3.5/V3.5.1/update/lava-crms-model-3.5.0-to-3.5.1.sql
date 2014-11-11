@@ -23,8 +23,14 @@ CREATE TABLE `crms_import_log` (
   CONSTRAINT `crms_import_log__log_id` FOREIGN KEY (`log_id`) REFERENCES `import_log` (`log_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- add patient only flag for importing patient only data files with no visit or instruments
+ALTER TABLE crms_import_definition ADD COLUMN patient_only BOOLEAN NULL DEFAULT NULL AFTER patient_exist_rule;
+
+ALTER TABLE `contactinfo` MODIFY `Phone1` VARCHAR(50);
+ALTER TABLE `contactinfo` MODIFY `Phone2` VARCHAR(50);
+ALTER TABLE `contactinfo` MODIFY `Phone3` VARCHAR(50);
 
 DELETE FROM versionhistory WHERE module='lava-crms-model' AND version='3.5.1';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-VALUES ('lava-crms-model','3.5.1','2014-10-29',3,5,1,0);
+VALUES ('lava-crms-model','3.5.1','2014-11-05',3,5,1,0);
 
