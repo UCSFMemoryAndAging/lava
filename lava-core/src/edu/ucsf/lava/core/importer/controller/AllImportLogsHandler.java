@@ -26,6 +26,8 @@ public class AllImportLogsHandler extends BaseListComponentHandler {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter = ImportLog.newFilterInstance(getCurrentUser(request));
 		filter.addDefaultSort("importTimestamp",true);
+		filter.setAlias("dataFile","dataFile");
+		filter.setAlias("definition","definition");
 		return filter;
 	}
 	

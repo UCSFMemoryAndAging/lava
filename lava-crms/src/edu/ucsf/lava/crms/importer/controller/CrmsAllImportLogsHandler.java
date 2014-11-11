@@ -39,6 +39,7 @@ public class CrmsAllImportLogsHandler extends AllImportLogsHandler {
 		LavaDaoFilter filter =  CrmsSessionUtils.setFilterProjectContext(sessionManager,request,CrmsImportLog.newFilterInstance(getCurrentUser(request)));
 		filter.addDefaultSort("importTimestamp",true);
 		filter.setAlias("dataFile","dataFile");
+		filter.setAlias("definition","definition");
 		return filter;
 	}
 	

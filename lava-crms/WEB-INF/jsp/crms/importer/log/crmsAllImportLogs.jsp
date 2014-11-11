@@ -15,9 +15,8 @@
 	<tags:componentListColumnHeader component="${component}" label="&nbsp;" width="3%"/>
 	<tags:componentListColumnHeader component="${component}" label="Timestamp" width="12%" sort="importTimestamp" />
 	<tags:componentListColumnHeader component="${component}" label="ImportedBy" width="15%" sort="importedBy"/>
-	<tags:componentListColumnHeader component="${component}" label="Data File" width="20%" sort="dataFile.name"/>
-	<tags:componentListColumnHeader component="${component}" label="Definition" width="15%"/>
-	<tags:componentListColumnHeader component="${component}" label="Summary" width="35%"/>
+	<tags:componentListColumnHeader component="${component}" label="Definition / Data File" width="35%" sort="definition.name"/>
+	<tags:componentListColumnHeader component="${component}" label="Project / Summary" width="35%" sort="projName"/>
 </tags:listRow>
 </content>
 
@@ -33,10 +32,9 @@
 			<tags:listField property="importedBy" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
 		</tags:listCell>
 		<tags:listCell>
+			<tags:listField property="definition.name" component="${component}" listIndex="${iterator.index}" entityType="importLog"/><br/>
 			<tags:listField property="dataFile.name" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
-		</tags:listCell>
-		<tags:listCell>
-			<tags:listField property="definition.name" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
+			<%-- TODO: add download icon / action --%>			
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="importLog"/><br/>
