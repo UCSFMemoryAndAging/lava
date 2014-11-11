@@ -389,13 +389,12 @@ public class CrmsImportHandler extends ImportHandler {
 					continue;
 				}
 					
-/** COMMENT OUT FOR NOW					
 				if ((handlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 					importLog.incErrors();
 					continue;
 				}
-**/				
 
+				
 				// at this point all values of the import record have been successfully set on entity properties
 
 				//TODO: when enable updating existing instrument data:
