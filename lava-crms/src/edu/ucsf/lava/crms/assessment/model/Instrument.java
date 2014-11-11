@@ -18,6 +18,7 @@ import edu.ucsf.lava.core.model.EntityManager;
 import edu.ucsf.lava.crms.logiccheck.model.InstrumentLogicCheck;
 import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
 import edu.ucsf.lava.crms.model.CrmsEntity;
+import edu.ucsf.lava.crms.people.model.Caregiver;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
 
@@ -669,6 +670,36 @@ public class Instrument extends CrmsEntity {
 		
 		return !instrument.hasMissingOrIncompleteFields();
 
+	}
+	
+	
+	/**
+	 * This method is to support the InstrumentHandler in handling caregiver changes on
+	 * caregiver instruments, so do not have to create a handler subclass for each caregiver
+	 * instrument just for the purpose of handling caregiver changes.  
+	 * @return
+	 */
+	public Caregiver getCaregiver()  {
+		return null;
+	}
+
+	/**
+	 * This method is to support the InstrumentHandler in handling caregiver changes on
+	 * caregiver instruments, so do not have to create a handler subclass for each caregiver
+	 * instrument just for the purpose of handling caregiver changes.  
+	 * @return
+	 */
+	public void setCaregiver(Caregiver caregiver)  {
+	}
+	
+	/**
+	 * This method is to support the InstrumentHandler in handling caregiver changes on
+	 * caregiver instruments, so do not have to create a handler subclass for each caregiver
+	 * instrument just for the purpose of handling caregiver changes.  
+	 * @return
+	 */
+	public Long getCareId()  {
+		return null;
 	}
 	
 }
