@@ -1,6 +1,9 @@
 UPDATE viewproperty SET maxLength=50 WHERE entity = 'importDefinition' AND property = 'name';
 UPDATE viewproperty SET maxLength=50 WHERE entity = 'importDefinition' AND property = 'category';
 
+INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) 
+VALUES('*.importDefinition.truncate','en','lava','crms',NULL,'importDefinition','truncate',NULL,'i','range',NULL,'Allow truncation?',NULL,NULL,NULL,0,NULL,'generic.yesNoZero',NULL,NULL,'Allow truncation if text exceeds max length?', '2014-11-04 16:33:13');
+
 DELETE FROM versionhistory WHERE module='lava-core-data' AND version='3.5.1';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-VALUES ('lava-core-data','3.5.1','2014-10-29',3,5,1,0);
+VALUES ('lava-core-data','3.5.1','2014-11-05',3,5,1,0);
