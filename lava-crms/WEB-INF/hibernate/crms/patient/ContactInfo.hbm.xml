@@ -28,13 +28,13 @@
        <property name="zip" column="Zip" type="string" length="10"/>
        <property name="country" column="Country" type="string" length="50"/>
        <property name="preferredContactMethod" column="PrefContact" type="string" length="20"/>
-       <property name="phone1" column="Phone1" type="string" length="25"/>
+       <property name="phone1" column="Phone1" type="string" length="50"/>
        <property name="phoneType1" column="PhoneType1" type="string" length="10"/>
        <property name="bestTimePhone1" column="Phone1BestTime" type="string" length="30"/>
-       <property name="phone2" column="Phone2" type="string" length="25"/>
+       <property name="phone2" column="Phone2" type="string" length="50"/>
        <property name="phoneType2" column="PhoneType2" type="string" length="10"/>
        <property name="bestTimePhone2" column="Phone2BestTime" type="string" length="30"/>
-       <property name="phone3" column="Phone3" type="string" length="25"/>
+       <property name="phone3" column="Phone3" type="string" length="50"/>
        <property name="phoneType3" column="PhoneType3" type="string" length="10"/>
        <property name="bestTimePhone3" column="Phone3BestTime" type="string" length="30"/>
        <property name="email" column="Email" type="string" length="100"/>
