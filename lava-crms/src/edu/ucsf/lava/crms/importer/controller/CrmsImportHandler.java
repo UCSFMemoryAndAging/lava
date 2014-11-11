@@ -204,9 +204,12 @@ public class CrmsImportHandler extends ImportHandler {
 				// with either a new or existing Patient)
 				// (this goes for EnrollmentStatus, Visit and instrument as well)
 
-				if ((handlingEvent = contactInfoExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					importLog.incErrors();
-					continue;
+				// if Patient MUST_EXIST then importing assessment data, so do not deal with creating ContactInfo
+				if (!importDefinition.getPatientExistRule().equals(MUST_EXIST)) {
+					if ((handlingEvent = contactInfoExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+						importLog.incErrors();
+						continue;
+					}
 				}
 				
 				// because caregiverExistsHandling may be reused for multiple Caregiver instances if data file has multiple Caregivers, it does not
@@ -263,26 +266,29 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 						
 					
-				// find matching Visit. possibly create new Visit
-				if ((handlingEvent = visitExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					importLog.incErrors();
-					continue;
-				}
-
-
-				// find matching instrument. possibly create new instrument. type of instrument specified in the 
-				// importDefinition
 				Event instrHandlingEvent = null;
-				if ((instrHandlingEvent = instrumentExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					// it is simply enough to check for the existence of the "alreadyExists" attribute, i.e. do not need to check its value
-					if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("alreadyExists") != null) {
-						importLog.incAlreadyExist();
-					}
-					else {
+				if (!importDefinition.getPatientOnlyImport()) {
+			
+					// find matching Visit. possibly create new Visit
+					if ((handlingEvent = visitExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 						importLog.incErrors();
+						continue;
 					}
-					continue;
+
+					// find matching instrument. possibly create new instrument. type of instrument specified in the 
+					// importDefinition
+					if ((instrHandlingEvent = instrumentExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+						// it is simply enough to check for the existence of the "alreadyExists" attribute, i.e. do not need to check its value
+						if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("alreadyExists") != null) {
+							importLog.incAlreadyExist();
+						}
+						else {
+							importLog.incErrors();
+						}
+						continue;
+					}
 				}
+
 
 //RIGHT HERE
 // create a link from the importLog to the importDefinition so user can quickly see what definition was used
@@ -375,7 +381,7 @@ public class CrmsImportHandler extends ImportHandler {
 					importLog.incErrors();
 					continue;
 				}
-					
+				
 				// iterate thru the values of the current import record, setting each value on the property of an entity, as 
 				// determined by the importDefinition mapping file
 				if ((handlingEvent = setPropertyHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
@@ -383,11 +389,12 @@ public class CrmsImportHandler extends ImportHandler {
 					continue;
 				}
 					
-					
+/** COMMENT OUT FOR NOW					
 				if ((handlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 					importLog.incErrors();
 					continue;
 				}
+**/				
 
 				// at this point all values of the import record have been successfully set on entity properties
 
@@ -405,8 +412,13 @@ public class CrmsImportHandler extends ImportHandler {
 				
 				// applies to entire import record
 				// it is simply enough to check for the existence of the "update" attribute, i.e. do not need to check its value
-				if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("update") != null) {
-					importLog.incUpdated();
+				if (!importDefinition.getPatientOnlyImport()) {
+					if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("update") != null) {
+						importLog.incUpdated();
+					}
+					else {
+						importLog.incImported();
+					}
 				}
 				else {
 					importLog.incImported();
@@ -527,7 +539,7 @@ public class CrmsImportHandler extends ImportHandler {
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		// error on entire import if no visitDate 			
-		else if (crmsImportSetup.getIndexVisitDate() == -1) {
+		else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && crmsImportSetup.getIndexVisitDate() == -1) {
 			LavaComponentFormAction.createCommandError(errors, "Import Definition mapping file must have 'visit.visitDate' property to link import record to a date");
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
@@ -893,72 +905,80 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 			}
 			
-			if (caregiver == null) {
-				caregiverExisted = false;
-				
-				// at this point either Patient was just created in which case there cannot be a Caregiver yet, or Patient
-				// already existed but Caregiver could not be found
-	
-				if ((indexFirstName != -1 && StringUtils.hasText(importSetup.getDataValues()[indexFirstName])) && 
-						(indexLastName != -1 && StringUtils.hasText(importSetup.getDataValues()[indexLastName]))) {
-					caregiver = createCaregiver(importDefinition, importSetup);
-					caregiver.setPatient(importSetup.getPatient());
-					caregiver.setFirstName(importSetup.getDataValues()[indexFirstName]);
-					caregiver.setLastName(importSetup.getDataValues()[indexLastName]);
-					caregiver.setActive((short)1);
-					// any other (non required) caregiver fields will be assigned in setProperty as they are encountered 
-					// in the import record
-					caregiverCreated = true;
-				
-					// if a new Caregiver is created, create a new ContactInfo record for that Caregiver if there is
-					// ContactInfo data in the import data file
-					// caregiverContactInfo properties are set in setPropertyHandling
-					if ((indexContactInfoAddress != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoAddress])) || 
-						(indexContactInfoCity != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoCity])) ||  
-						(indexContactInfoState != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoState])) || 
-						(indexContactInfoZip != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoZip])) ||
-						(indexContactInfoPhone1 != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoPhone1])) || 
-						(indexContactInfoEmail != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoEmail]))) {
-				
-						caregiverContactInfo = createContactInfo(importDefinition, importSetup);
-						caregiverContactInfo.setPatient(importSetup.getPatient());
-						caregiverContactInfo.setIsCaregiver(true);
-						// NOTE: had to refactor lava-crms ContactInfo to map Caregiver as an association rather than mapping caregiverId 
-						// property since do not know caregiverId at this point given that new Caregiver has not been persisted. ORM will
-						// take care of assigning caregiverId to ContactInfo at persistence
-						caregiverContactInfo.setCaregiver(caregiver);
-						caregiverContactInfo.setActive((short)1);
-						if (indexContactInfoAddress != -1) {
-							caregiverContactInfo.setAddress(importSetup.getDataValues()[indexContactInfoAddress]);
+			// if Patient MUST_EXIST then importing assessment data, so do not deal with creating Caregivers / ContactInfo
+			if (!importDefinition.getPatientExistRule().equals(MUST_EXIST)) { 
+				if (caregiver == null) {
+					caregiverExisted = false;
+					
+					// at this point either Patient was just created in which case there cannot be a Caregiver yet, or Patient
+					// already existed but Caregiver could not be found
+		
+					if ((indexFirstName != -1 && StringUtils.hasText(importSetup.getDataValues()[indexFirstName])) && 
+							(indexLastName != -1 && StringUtils.hasText(importSetup.getDataValues()[indexLastName]))) {
+						caregiver = createCaregiver(importDefinition, importSetup);
+						caregiver.setPatient(importSetup.getPatient());
+						caregiver.setFirstName(importSetup.getDataValues()[indexFirstName]);
+						caregiver.setLastName(importSetup.getDataValues()[indexLastName]);
+						caregiver.setActive((short)1);
+						// any other (non required) caregiver fields will be assigned in setProperty as they are encountered 
+						// in the import record
+						caregiverCreated = true;
+					
+						// if a new Caregiver is created, create a new ContactInfo record for that Caregiver if there is
+						// ContactInfo data in the import data file
+						// caregiverContactInfo properties are set in setPropertyHandling
+						if ((indexContactInfoAddress != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoAddress])) || 
+							(indexContactInfoCity != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoCity])) ||  
+							(indexContactInfoState != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoState])) || 
+							(indexContactInfoZip != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoZip])) ||
+							(indexContactInfoPhone1 != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoPhone1])) || 
+							(indexContactInfoEmail != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoEmail]))) {
+					
+							caregiverContactInfo = createContactInfo(importDefinition, importSetup);
+							caregiverContactInfo.setPatient(importSetup.getPatient());
+							caregiverContactInfo.setIsCaregiver(true);
+							// NOTE: had to refactor lava-crms ContactInfo to map Caregiver as an association rather than mapping caregiverId 
+							// property since do not know caregiverId at this point given that new Caregiver has not been persisted. ORM will
+							// take care of assigning caregiverId to ContactInfo at persistence
+							caregiverContactInfo.setCaregiver(caregiver);
+							caregiverContactInfo.setActive((short)1);
+							if (indexContactInfoAddress != -1) {
+								caregiverContactInfo.setAddress(importSetup.getDataValues()[indexContactInfoAddress]);
+							}
+							if (indexContactInfoCity != -1) {
+								caregiverContactInfo.setCity(importSetup.getDataValues()[indexContactInfoCity]);
+							}
+							if (indexContactInfoState != -1) {
+								caregiverContactInfo.setState(importSetup.getDataValues()[indexContactInfoState]);
+							}
+							if (indexContactInfoZip != -1) {
+								caregiverContactInfo.setZip(importSetup.getDataValues()[indexContactInfoZip]);
+							}
+							if (indexContactInfoPhone1 != -1) {
+								caregiverContactInfo.setPhone1(importSetup.getDataValues()[indexContactInfoPhone1]);
+							}
+							if (indexContactInfoEmail != -1) {
+								caregiverContactInfo.setEmail(importSetup.getDataValues()[indexContactInfoEmail]);
+							}
+							caregiverContactInfoCreated = true;
 						}
-						if (indexContactInfoCity != -1) {
-							caregiverContactInfo.setCity(importSetup.getDataValues()[indexContactInfoCity]);
+						else {
+							caregiverContactInfoCreated = false;
 						}
-						if (indexContactInfoState != -1) {
-							caregiverContactInfo.setState(importSetup.getDataValues()[indexContactInfoState]);
-						}
-						if (indexContactInfoZip != -1) {
-							caregiverContactInfo.setZip(importSetup.getDataValues()[indexContactInfoZip]);
-						}
-						if (indexContactInfoPhone1 != -1) {
-							caregiverContactInfo.setPhone1(importSetup.getDataValues()[indexContactInfoPhone1]);
-						}
-						if (indexContactInfoEmail != -1) {
-							caregiverContactInfo.setEmail(importSetup.getDataValues()[indexContactInfoEmail]);
-						}
-						caregiverContactInfoCreated = true;
 					}
-					else {
+					else { 
+						caregiverCreated = false;
 						caregiverContactInfoCreated = false;
 					}
 				}
 				else { 
+					caregiverExisted = true;
 					caregiverCreated = false;
 					caregiverContactInfoCreated = false;
 				}
 			}
-			else { 
-				caregiverExisted = true;
+			else {
+				caregiverExisted = false;
 				caregiverCreated = false;
 				caregiverContactInfoCreated = false;
 			}
@@ -1030,28 +1050,34 @@ public class CrmsImportHandler extends ImportHandler {
 				// for either MUST_NOT_EXIST or MAY_OR_MAY_NOT_EXIST instantiate the Enrollment Status
 
 				// enrollmentStatus date will typically not be supplied in the data file, so default to visitDate if not
+				// note if 'patientOnlyImport' flag set in importDefinition there will not be a date to use 
 				Date esDate = null;
-				dateOrTimeAsString = importSetup.getIndexEsStatusDate() != -1 ? importSetup.getDataValues()[importSetup.getIndexEsStatusDate()] : importSetup.getDataValues()[importSetup.getIndexVisitDate()];
-				formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
-				formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
-				try {
-					esDate = formatter.parse(dateOrTimeAsString);
-				} catch (ParseException e) {
-					// likely will not be called with leniency applied
-					importLog.addErrorMessage(lineNum, "Enrollment Status Date or Visit Date is an invalid Date format. Date:" + dateOrTimeAsString);
-					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport()) {
+					dateOrTimeAsString = importSetup.getIndexEsStatusDate() != -1 ? importSetup.getDataValues()[importSetup.getIndexEsStatusDate()] : importSetup.getDataValues()[importSetup.getIndexVisitDate()];
+					formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+					formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+					try {
+						esDate = formatter.parse(dateOrTimeAsString);
+					} catch (ParseException e) {
+						// likely will not be called with leniency applied
+						importLog.addErrorMessage(lineNum, "Enrollment Status Date or Visit Date is an invalid Date format. Date:" + dateOrTimeAsString);
+						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+					}
+					// because if date format is yyyy for year part, the parser will allow any date into the future, even 5 digit dates, so 
+					// have to do range checking to catch bad date errors
+					java.util.Calendar esDateCalendar = java.util.Calendar.getInstance();
+					esDateCalendar.setTime(esDate);
+					int esDateYear = esDateCalendar.get(java.util.Calendar.YEAR);
+					java.util.Calendar nowCalendar = java.util.Calendar.getInstance();
+					int nowYear = nowCalendar.get(java.util.Calendar.YEAR);
+					// allow for dates 5 years into the future
+					if (esDateYear < (nowYear - 100) || esDateYear > (nowYear + 5)) {
+						importLog.addErrorMessage(lineNum, "Enrollment Status Date or Visit Date has an invalid Year. Date:" + dateOrTimeAsString);
+						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+					}
 				}
-				// because if date format is yyyy for year part, the parser will allow any date into the future, even 5 digit dates, so 
-				// have to do range checking to catch bad date errors
-				java.util.Calendar esDateCalendar = java.util.Calendar.getInstance();
-				esDateCalendar.setTime(esDate);
-				int esDateYear = esDateCalendar.get(java.util.Calendar.YEAR);
-				java.util.Calendar nowCalendar = java.util.Calendar.getInstance();
-				int nowYear = nowCalendar.get(java.util.Calendar.YEAR);
-				// allow for dates 5 years into the future
-				if (esDateYear < (nowYear - 100) || esDateYear > (nowYear + 5)) {
-					importLog.addErrorMessage(lineNum, "Enrollment Status Date or Visit Date has an invalid Year. Date:" + dateOrTimeAsString);
-					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				else {
+					importLog.addWarningMessage(lineNum, "Enrollment Status Date unknown for 'Patient Only Import' for:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()));
 				}
 					
 				String esStatus = importSetup.getIndexEsStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexEsStatus()] : importDefinition.getEsStatus();
@@ -1641,7 +1667,8 @@ public class CrmsImportHandler extends ImportHandler {
 
 			// give this first instrument first shot at determining if the property applies to it, to support
 			// this shorthand
-			else if (!StringUtils.hasText(definitionEntityName) || definitionEntityName.equalsIgnoreCase(importSetup.getInstrument().getInstrType())) {
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && 
+					(!StringUtils.hasText(definitionEntityName) || definitionEntityName.equalsIgnoreCase(importSetup.getInstrument().getInstrType()))) {
 
 				//TODO: handle case where entity is an instrType to support multiple instrument data imports
 				//mappingPropName.startsWith(..each of the importDefinition instrType (10 of them)). this could also match
@@ -1753,7 +1780,7 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 			}
 			//Visit properties
-			else if (definitionEntityName.equalsIgnoreCase("visit")) {
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && definitionEntityName.equalsIgnoreCase("visit")) {
 				if (importSetup.isVisitCreated()) {
 					// don't need to set properties already set when Visit was created
 					if (!definitionPropName.equalsIgnoreCase("visitDate") && !definitionPropName.equalsIgnoreCase("visitType") && !definitionPropName.equalsIgnoreCase("visitLocation")
@@ -1811,7 +1838,7 @@ public class CrmsImportHandler extends ImportHandler {
 				//is the same for all instruments on the same row of data).
 				//PROBLEM is then need a separate indexInstrCaregiverId for each instrument, so that needs to be figure out in conjunction with how handling and setting
 				//properties on multiple instruments will be done in general (e.g. also need separate instrDcDate, instrDcStatus properties for each instrument)				
-				BeanUtils.setProperty(importSetup.getInstrument(), importSetup.getMappingProps()[((CrmsImportSetup)importSetup).getIndexInstrCaregiverId()], ((CrmsImportSetup)importSetup).getCaregiver());
+				BeanUtils.setProperty(importSetup.getInstrument(), importSetup.getMappingProps()[((CrmsImportSetup)importSetup).getIndexInstrCaregiverId()], ((CrmsImportSetup)importSetup).getCaregiver().getId());
 			}
 		}
 				
@@ -1859,13 +1886,21 @@ public class CrmsImportHandler extends ImportHandler {
 			BeanUtils.setProperty(entity, propName, importSetup.getDataValues()[i]);
 		}
 		catch (InvocationTargetException ex) {
+			String visitDateAsString = ((CrmsImportDefinition)importDefinition).getPatientOnlyImport() ? "" : "Visit Date:" + importSetup.getVisit().getVisitDate(); 
 			importLog.addErrorMessage(lineNum, "[InvocationTargetException] Error setting property: Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
-					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + "Visit Date:" + importSetup.getVisit().getVisitDate());
+					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		catch (IllegalAccessException ex) {
+			String visitDateAsString = ((CrmsImportDefinition)importDefinition).getPatientOnlyImport() ? "" : "Visit Date:" + importSetup.getVisit().getVisitDate(); 
 			importLog.addErrorMessage(lineNum, "[IllegalAccessException] Error setting property: Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
-					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + "Visit Date:" + importSetup.getVisit().getVisitDate());
+					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
+		catch (Exception ex) {
+			String visitDateAsString = ((CrmsImportDefinition)importDefinition).getPatientOnlyImport() ? "" : "Visit Date:" + importSetup.getVisit().getVisitDate(); 
+			importLog.addErrorMessage(lineNum, "[Exception] Error setting property: Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
+					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		if (!StringUtils.hasText(importSetup.getDataValues()[i])) {
