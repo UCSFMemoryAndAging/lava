@@ -30,6 +30,18 @@ ALTER TABLE `contactinfo` MODIFY `Phone1` VARCHAR(50);
 ALTER TABLE `contactinfo` MODIFY `Phone2` VARCHAR(50);
 ALTER TABLE `contactinfo` MODIFY `Phone3` VARCHAR(50);
 
+-- add caregiver instrument flag for specific handling needed to set caregiver on the instrument
+ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver SMALLINT NULL DEFAULT NULL AFTER instr_ver;
+ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver2 SMALLINT NULL DEFAULT NULL AFTER instr_ver2;
+ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver3 SMALLINT NULL DEFAULT NULL AFTER instr_ver3;
+ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver4 SMALLINT NULL DEFAULT NULL AFTER instr_ver4;
+ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver5 SMALLINT NULL DEFAULT NULL AFTER instr_ver5;
+ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver6 SMALLINT NULL DEFAULT NULL AFTER instr_ver6;
+ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver7 SMALLINT NULL DEFAULT NULL AFTER instr_ver7;
+ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver8 SMALLINT NULL DEFAULT NULL AFTER instr_ver8;
+ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver9 SMALLINT NULL DEFAULT NULL AFTER instr_ver9;
+ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver10 SMALLINT NULL DEFAULT NULL AFTER instr_ver10;
+
 DELETE FROM versionhistory WHERE module='lava-crms-model' AND version='3.5.1';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
 VALUES ('lava-crms-model','3.5.1','2014-11-05',3,5,1,0);
