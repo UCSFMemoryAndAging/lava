@@ -43,7 +43,7 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 		// instrument at a minimum so make it required
 		// there is also conditional validation performed in the conditionalValidation method 
 		this.setRequiredFields(StringUtils.mergeStringArrays(this.getRequiredFields(), 
-			new String[]{"projName", "patientExistRule", "esExistRule", "visitExistRule", "instrExistRule"}));
+			new String[]{"projName", "patientExistRule", "esExistRule"}));
 	}
 	
 	/**
@@ -132,6 +132,12 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 		}
 
 		if (!crmsImportDefinition.getPatientOnlyImport()) {
+			
+			if (crmsImportDefinition.getVisitExistRule() == null) {
+				LavaComponentFormAction.createCommandError(errors, "importDefinition.visitExistRule.required", null);
+				return new Event(this,ERROR_FLOW_EVENT_ID);
+			}
+			
 			// note that visitWith is not a required Visit property so not checking for that
 			if (crmsImportDefinition.getVisitExistRule().equals(MAY_OR_MAY_NOT_EXIST) || crmsImportDefinition.getVisitExistRule().equals(MUST_NOT_EXIST)) {
 				if (crmsImportDefinition.getVisitType() == null || crmsImportDefinition.getVisitLoc() == null || crmsImportDefinition.getVisitStatus() == null) {
@@ -139,7 +145,12 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 					return new Event(this,ERROR_FLOW_EVENT_ID);
 				}
 			}
-	
+
+			if (crmsImportDefinition.getInstrExistRule() == null) {
+				LavaComponentFormAction.createCommandError(errors, "importDefinition.instrExistRule.required", null);
+				return new Event(this,ERROR_FLOW_EVENT_ID);
+			}
+			
 			if (crmsImportDefinition.getInstrType() == null) {
 				LavaComponentFormAction.createCommandError(errors, "importDefinition.instrType.required", null);
 				return new Event(this,ERROR_FLOW_EVENT_ID);
