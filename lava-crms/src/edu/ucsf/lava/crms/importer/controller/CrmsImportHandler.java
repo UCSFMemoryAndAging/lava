@@ -324,9 +324,15 @@ public class CrmsImportHandler extends ImportHandler {
 	
 // X-make mapping definition name longer (50?)				
 // import definition UI cleanup (for now move Project near top, ahead of selection of Import
+//  skip logic:
+//      if Only Import Patients then disable Visit and Instrument fields
+//      if Patient Must Not Exist rule is selected then other exist rules should be disabled and
+//         set to Must Not Exist
+//  make import definition bigger				
 //  MappingData File since the project refresh removes mapping file selection)				
 //  (why does Browse button have _ in it?)				
-//   help text: if mapping file changes, have to re-upload
+//   help text: (maybe) if mapping file changes, have to re-upload
+    				
 
 // importLogContent / crmsImportLogContent format log summary results in a table
 // importLog/crmsImportLog needs to get rid of Edit button
@@ -335,6 +341,10 @@ public class CrmsImportHandler extends ImportHandler {
 // ?? create preview mode, at least for development, that does not do anything to db				
 
 // X-call calculate on save (or is it done automatically?)
+				
+// REDCap form exports have 2 digit dates. 4 digit dates always better. make sure 2 digit dates before
+// 2000 are imported correctly				
+				
 				
 // truncation solution: add import def flag: Truncate to fit field length, then retry, create warning?  
 //   or  abort this record, create error, continue w next record	
@@ -404,8 +414,11 @@ public class CrmsImportHandler extends ImportHandler {
 				// however, use cases don't support modifying existing Patient/ES/Visit, only an existing Instrument
 				// so review how CRUD editing cancel is done and try calling refresh on the modified object 
 				// (could fool around with CRUD editing and take out refresh on cancel just to see if changes 
-				// are persisted without explicit call to save)				
-				saveImportRecord(importDefinition, importSetup);
+				// are persisted without explicit call to save)
+				if ((handlingEvent = saveImportRecord(importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					importLog.incErrors();
+					continue;
+				}
 				
 				// update counts
 				
@@ -446,19 +459,25 @@ public class CrmsImportHandler extends ImportHandler {
 		// caregiver instruments have special handling to set their caregiver ID property, which involves putting an "instrumentCaregiverId" 
 		// column in the mapping file even though there is no such column in the data file (the data does presumably have caregiver first and
 		// last names from which an existing Caregiver is matched or a new Caregiver is created)
-		crmsImportSetup.setIndexInstrCaregiverId(ArrayUtils.indexOf(importSetup.getMappingCols(), "instrumentCaregiverId"));
+////		crmsImportSetup.setIndexInstrCaregiverId(ArrayUtils.indexOf(importSetup.getMappingCols(), "instrumentCaregiverId"));
 		
 		// validate the mapping file data columns against the import file data columns as they should be
 		// identical (mapping file is created by pasting data column headers into row 1)
-		if ((crmsImportSetup.getIndexInstrCaregiverId() == -1 ? importSetup.getMappingCols().length : importSetup.getMappingCols().length-1) != importSetup.getDataCols().length) {
+////		if ((crmsImportSetup.getIndexInstrCaregiverId() == -1 ? importSetup.getMappingCols().length : importSetup.getMappingCols().length-1) != importSetup.getDataCols().length) {
+	//TODO: go back to using the base class which does htis
+	/**	
+		if (importSetup.getMappingCols().length != importSetup.getDataCols().length) {
 			LavaComponentFormAction.createCommandError(errors, "Cannot import. Mismatch in number of columns in mapping file vs data file");
 			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
-		// the "instrumentCaregiverId" column, if used, must be put at the end of the mapping file, for this validation to pass 
+	**/	
+		
+		//TODO: go back to using the base class which does htis
+	////	// the "instrumentCaregiverId" column, if used, must be put at the end of the mapping file, for this validation to pass 
 		for (int i=0; i < importSetup.getMappingCols().length; i++) {
-			if (importSetup.getMappingCols()[i].equals("instrumentCaregiverId")) {
-				break;
-			}
+	////		if (importSetup.getMappingCols()[i].equals("instrumentCaregiverId")) {
+	////			break;
+	////		}
 			if (!importSetup.getMappingCols()[i].equals(importSetup.getDataCols()[i])) {
 				LavaComponentFormAction.createCommandError(errors, "Cannot import. Mapping file column name " + importSetup.getMappingCols()[i] + " does not exactly match column header in data file");
 				return new Event(this,ERROR_FLOW_EVENT_ID);
@@ -1823,22 +1842,22 @@ public class CrmsImportHandler extends ImportHandler {
 			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum) throws Exception {
 		Event returnEvent = new Event(this, SUCCESS_FLOW_EVENT_ID);
 
+//NOW THAT HAVE CHANGED to Caregiver association, just need an importdefintion flag for Caregiver instrument, and
+// if set then try to set the caregiver here		
 		// special handling for instruments that have a Caregiver
 		// add "instrumentCaregiverId" as the last column of the mapping file even though there is no caregiver ID column in the data file 
 		// This pseudo column should be mapped to the instrument property that stores caregiver ID, as defined in the mapping file
 		
-		if (importSetup.getIndexInstrCaregiverId() != -1) {
-//TODO: problem when isCaregiverCreated is that caregiver does not have an id yet to assign to the instrument careId property
-// solution is to change Hibernate mapping to an association to Caregiver instead of a careId (just like just did for ContactInfo)
-// will need to do this for all caregiver/informant instruments that will be imported			
+//		if (importSetup.getIndexInstrCaregiverId() != -1) {
 			if (importSetup.isCaregiverCreated() || importSetup.isCaregiverExisted()) {
 				//TODO:when support multiple instruments in a single import, each caregiver instrument could have an "instrumentCaregiverId" column mapping where the
 				//entity would map it for a specific instrument, so would then need to check mappingEntities for which instrument to set (can assume that the Caregiver
 				//is the same for all instruments on the same row of data).
 				//PROBLEM is then need a separate indexInstrCaregiverId for each instrument, so that needs to be figure out in conjunction with how handling and setting
 				//properties on multiple instruments will be done in general (e.g. also need separate instrDcDate, instrDcStatus properties for each instrument)				
-				BeanUtils.setProperty(importSetup.getInstrument(), importSetup.getMappingProps()[((CrmsImportSetup)importSetup).getIndexInstrCaregiverId()], ((CrmsImportSetup)importSetup).getCaregiver().getId());
-			}
+//				BeanUtils.setProperty(importSetup.getInstrument(), importSetup.getMappingProps()[((CrmsImportSetup)importSetup).getIndexInstrCaregiverId()], ((CrmsImportSetup)importSetup).getCaregiver().getId());
+				importSetup.getInstrument().setCaregiver(importSetup.getCaregiver());
+//			}
 		}
 				
 		return returnEvent;
@@ -1920,6 +1939,8 @@ public class CrmsImportHandler extends ImportHandler {
 	 */
 	protected Event setOtherPropertyHandling(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, 
 			CrmsImportLog importLog, int i, int lineNum) throws Exception {
+		// if property was not set in setPropertyHandling then it is likely that there is a mapping problem, or it is
+		// a custom property that a subclass should handle in an overridden setOtherPropertyHandling
 		importLog.addErrorMessage(lineNum, "Property not set: Mapping column:" + importSetup.getMappingCols()[i] + " Mapping entity:" + importSetup.getMappingEntities()[i] + " Mapping property:" + importSetup.getMappingProps()[i]);
 		return new Event(this, ERROR_FLOW_EVENT_ID);
 	}
@@ -1933,38 +1954,38 @@ public class CrmsImportHandler extends ImportHandler {
 	 * Subclasses should override if they involve additional entities, such as ContactInfo or
 	 * Caregiver, or for other custom handling. Make sure they call this superclass method. 
 	 */
-	protected void saveImportRecord(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup) {
+	protected Event saveImportRecord(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum) {
 		// for new entities must explicitly save since not associated with a Hibernate session. for
 		// updates, entity was retrieved and thus attached to a session and Hibernate dirty checking should
 		// implicitly update the entity
 
-		if (importSetup.isPatientCreated()) {
-			importSetup.getPatient().save();
-		}
-		if (importSetup.isContactInfoCreated()) {
-			importSetup.getContactInfo().save();
-		}
-		if (importSetup.isCaregiverCreated()) {
-			importSetup.getCaregiver().save();
-		}
-		if (importSetup.isCaregiverContactInfoCreated()) {
-			importSetup.getCaregiverContactInfo().save();
-		}
-		if (importSetup.isCaregiver2Created()) {
-			importSetup.getCaregiver2().save();
-		}
-		if (importSetup.isCaregiver2ContactInfoCreated()) {
-			importSetup.getCaregiver2ContactInfo().save();
-		}
-		if (importSetup.isEnrollmentStatusCreated()) {
-			importSetup.getEnrollmentStatus().save();
-		}
-		if (importSetup.isVisitCreated()) {
-			importSetup.getVisit().save();
-		}
-		// allowInstrUpdate is used to determine whether an already existing instrument which has already
-		// been data entered can be updated
 		try {
+			if (importSetup.isPatientCreated()) {
+				importSetup.getPatient().save();
+			}
+			if (importSetup.isContactInfoCreated()) {
+				importSetup.getContactInfo().save();
+			}
+			if (importSetup.isCaregiverCreated()) {
+				importSetup.getCaregiver().save();
+			}
+			if (importSetup.isCaregiverContactInfoCreated()) {
+				importSetup.getCaregiverContactInfo().save();
+			}
+			if (importSetup.isCaregiver2Created()) {
+				importSetup.getCaregiver2().save();
+			}
+			if (importSetup.isCaregiver2ContactInfoCreated()) {
+				importSetup.getCaregiver2ContactInfo().save();
+			}
+			if (importSetup.isEnrollmentStatusCreated()) {
+				importSetup.getEnrollmentStatus().save();
+			}
+			if (importSetup.isVisitCreated()) {
+				importSetup.getVisit().save();
+			}
+			// allowInstrUpdate is used to determine whether an already existing instrument which has already
+			// been data entered can be updated
 			if (importSetup.isInstrCreated() || importDefinition.getAllowInstrUpdate()) {
 				importSetup.getInstrument().save();
 			}
@@ -1983,9 +2004,15 @@ public class CrmsImportHandler extends ImportHandler {
 			// if user set flag to error out on the current record, stop processing this patient record and create error
 			
 			
+			importLog.addErrorMessage(lineNum, "Exception on save. Could be incomplete import of this record." +
+					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
+					e.getMessage()
+					);
 			
-			
+			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
+		
+		return new Event(this, SUCCESS_FLOW_EVENT_ID);
 	}
 	
 	
