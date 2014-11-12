@@ -19,6 +19,7 @@
 		<property name="startDataRow" column="start_data_row" type="short"/>
 		<property name="dateFormat" column="date_format" type="string" length="20"/>
 		<property name="timeFormat" column="time_format" type="string" length="20"/>
+		<property name="truncate" column="truncate" type="short"/>
 		<property name="notes" column="notes" type="string" length="500"/>
 	</class>
 

@@ -21,6 +21,10 @@ public class ImportDefinition extends EntityBase {
 	// assuming all date fields in an import data file would have same format, e.g. birthDate, visitDate, dcDate
 	private String dateFormat; // default: MM/dd/yyyy
 	private String timeFormat; // default hh:mm
+	//TODO: access metadata for max length of string/text properties, and then implement this flag whether 
+	//imported textual data that is too long should be automatically truncated to the max length, or whether
+	//there should be an error and the record is not imported
+	private Short truncate;  
 	private String notes;
 
 	public ImportDefinition(){
@@ -82,6 +86,14 @@ public class ImportDefinition extends EntityBase {
 
 	public void setTimeFormat(String timeFormat) {
 		this.timeFormat = timeFormat;
+	}
+	
+	public Short getTruncate() {
+		return truncate;
+	}
+
+	public void setTruncate(Short truncate) {
+		this.truncate = truncate;
 	}
 
 	public String getNotes() {
