@@ -16,6 +16,7 @@
 		<property name="esStatus" column="es_status" type="string" length="25"/>
 		<property name="visitExistRule" column="visit_exist_rule" type="short"/>
 		<property name="allowVisitUpdate" column="visit_update" type="boolean"/>
+		<property name="visitWindow" column="visit_window" type="short"/>
 		<property name="visitType" column="visit_type" type="string" length="25"/>
 		<property name="visitLoc" column="visit_loc" type="string" length="25"/>
 		<property name="visitWith" column="visit_with" type="string" length="25"/>
@@ -24,6 +25,7 @@
 		<property name="allowInstrUpdate" column="instr_update" type="boolean"/>
 		<property name="instrType" column="instr_type" type="string" length="25"/>
 		<property name="instrVer" column="instr_ver" type="string" length="25"/>
+		<property name="instrCaregiver" column="instr_caregiver" type="short"/>
 		<property name="instrDcStatus" column="instr_dc_status" type="string" length="25"/>
 	</joined-subclass>
 </hibernate-mapping>

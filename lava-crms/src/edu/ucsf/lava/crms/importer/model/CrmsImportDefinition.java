@@ -55,7 +55,8 @@ public class CrmsImportDefinition extends ImportDefinition {
 	private Short visitExistRule;
 	// currently this flag is not used unless it is determined that import files should be able to overwrite
 	// existing Visit data
-	private Boolean allowVisitUpdate; 
+	private Boolean allowVisitUpdate;
+	private Short visitWindow;
 	// if import will create new Visits, account for all Visit required fields
 	// visitDate (and optionally visitTime) must be present in the data file (mapped to either visitDate or
 	// dcDate). the rest of the required fields may not be in the data file so need to be supplied as part of
@@ -72,11 +73,14 @@ public class CrmsImportDefinition extends ImportDefinition {
 	private Boolean allowInstrUpdate; 
 	private String instrType;
 	private String instrVer;
+	// is this a caregiver instrument, such that an instance of a Caregiver should be set on the instrument
+	private Short instrCaregiver;
 	private String instrDcStatus;
 	
 	public CrmsImportDefinition(){
 		super();
 		this.setAuditEntityType("CrmsImportDefinition");
+		this.visitWindow = 0;
 //TODO: remove when this functionality is supported
 		this.allowInstrUpdate = Boolean.FALSE;
 	}
@@ -152,6 +156,14 @@ public class CrmsImportDefinition extends ImportDefinition {
 	public void setAllowVisitUpdate(Boolean allowVisitUpdate) {
 		this.allowVisitUpdate = allowVisitUpdate;
 	}
+	
+	public Short getVisitWindow() {
+		return visitWindow;
+	}
+
+	public void setVisitWindow(Short visitWindow) {
+		this.visitWindow = visitWindow;
+	}
 
 	public String getVisitType() {
 		return visitType;
@@ -215,6 +227,14 @@ public class CrmsImportDefinition extends ImportDefinition {
 
 	public void setInstrVer(String instrVer) {
 		this.instrVer = instrVer;
+	}
+
+	public Short getInstrCaregiver() {
+		return instrCaregiver;
+	}
+
+	public void setInstrCaregiver(Short instrCaregiver) {
+		this.instrCaregiver = instrCaregiver;
 	}
 
 	public String getInstrDcStatus() {
