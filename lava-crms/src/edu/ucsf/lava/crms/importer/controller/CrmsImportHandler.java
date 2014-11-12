@@ -455,6 +455,10 @@ public class CrmsImportHandler extends ImportHandler {
 
 	protected Event validateDataFile(BindingResult errors, ImportDefinition importDefinition, ImportSetup importSetup) throws Exception {
 		CrmsImportSetup crmsImportSetup = (CrmsImportSetup) importSetup;
+		
+		if (super.validateDataFile(errors, importDefinition, importSetup).getId().equals(ERROR_FLOW_EVENT_ID)) {
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
 				
 		// caregiver instruments have special handling to set their caregiver ID property, which involves putting an "instrumentCaregiverId" 
 		// column in the mapping file even though there is no such column in the data file (the data does presumably have caregiver first and
@@ -464,7 +468,7 @@ public class CrmsImportHandler extends ImportHandler {
 		// validate the mapping file data columns against the import file data columns as they should be
 		// identical (mapping file is created by pasting data column headers into row 1)
 ////		if ((crmsImportSetup.getIndexInstrCaregiverId() == -1 ? importSetup.getMappingCols().length : importSetup.getMappingCols().length-1) != importSetup.getDataCols().length) {
-	//TODO: go back to using the base class which does htis
+	//TODO: go back to using the base class which does this
 	/**	
 		if (importSetup.getMappingCols().length != importSetup.getDataCols().length) {
 			LavaComponentFormAction.createCommandError(errors, "Cannot import. Mismatch in number of columns in mapping file vs data file");
@@ -472,7 +476,8 @@ public class CrmsImportHandler extends ImportHandler {
 		}
 	**/	
 		
-		//TODO: go back to using the base class which does htis
+		//TODO: go back to using the base class which does this
+	/**	
 	////	// the "instrumentCaregiverId" column, if used, must be put at the end of the mapping file, for this validation to pass 
 		for (int i=0; i < importSetup.getMappingCols().length; i++) {
 	////		if (importSetup.getMappingCols()[i].equals("instrumentCaregiverId")) {
@@ -483,7 +488,7 @@ public class CrmsImportHandler extends ImportHandler {
 				return new Event(this,ERROR_FLOW_EVENT_ID);
 			}
 		}
-		
+	**/
 		
 		// set indices here as this only needs to be done once for the entire data file
 		
@@ -1126,7 +1131,7 @@ public class CrmsImportHandler extends ImportHandler {
 		else { // EnrollmentStatus already exists
 			importSetup.setEnrollmentStatusExisted(true);
 			importSetup.setEnrollmentStatus(es);
-			if (importDefinition.getPatientExistRule().equals(MUST_NOT_EXIST)) {
+			if (importDefinition.getEsExistRule().equals(MUST_NOT_EXIST)) {
 				// typically with this flag the first time the import is run the Enrollment Status will not 
 				// exist so it will be created above. if there were some import data errors they would be fixed
 				// and the script re-imported, at which point there will be these errors for all Enrollment 
@@ -1210,19 +1215,10 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 		}
 		
-		
-		// visitType is optional for the search; it typically is not in generated data files, and if the import
-		// is such that new Visits will not be created then it need not be specified in the definition.
-		
-		// note that it is not required in the definition, so that if new visits are created and it is not defined
-		// then the new visits will not have a visitType. this is odd but this is because it may not be accurate
-		// to assign the same visitType to every visit created within the same import
+		// visitType is a required field, not null in the database, so if new Visit will be created it must be
+		// either supplied in the data file, or more likely, specified in the import definition (assuming it
+		// is accurate to assign the same visitType to every visit created within the same import)
 		visitType = importSetup.getIndexVisitType() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitType()] : importDefinition.getVisitType();
-		if (visitType != null) {
-			if (StringUtils.hasText(visitType)) {
-				filter.addDaoParam(filter.daoEqualityParam("visitType", visitType));
-			}
-		}
 		
 		// if enrollmentStatus was just created (whether patient just created or patient already existed) then 
 		// know that the Visit could not exist yet. otherwise, check to see if Visit exists or not.
@@ -1245,15 +1241,35 @@ public class CrmsImportHandler extends ImportHandler {
 					filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime));
 				}
 				// note: could also use daoDateAndTimeEqualityParam
+				
+				// visitType is optional for the search; it typically is not in generated data files, and if the import
+				// is such that new Visits will not be created then it need not be specified in the definition.
+				// however, without visitType, could match multiple visits. see more on this below 
+				if (visitType != null) {
+					if (StringUtils.hasText(visitType)) {
+						filter.addDaoParam(filter.daoEqualityParam("visitType", visitType));
+					}
+				}
+				
 				filter.addDaoParam(filter.daoNot(filter.daoEqualityParam("visitStatus", "Cancelled")));
 				
 				try {
 					v = (Visit) Visit.MANAGER.getOne(filter);
 				}
-				// this should never happen. if re-running import of a data file, should just be one 
+				// assuming visitType is supplied, this should never happen. if re-running import of a data file, should just be one instance
+				// of a given visitType on a given date
+				// however, if no visitType supplied in import definition, could match multiple visits on same date, in which case
+				// would not know which one to use. so user should then modify import definition to include visitType
+				//TODO: when start using Visit Window for Kate, figure out what to do if matches multiple visits
 				catch (IncorrectResultSizeDataAccessException ex) {
-					importLog.addErrorMessage(lineNum, "Duplicate Visit records for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
-							" and Visit Date:" + dateOrTimeAsString);
+					if (visitType != null) {
+						importLog.addErrorMessage(lineNum, "Duplicate Visit records for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
+								" and Visit Date:" + dateOrTimeAsString + " and Visit Type:" + visitType);
+					}
+					else {
+						importLog.addErrorMessage(lineNum, "Duplicate Visit records for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
+								" and Visit Date:" + dateOrTimeAsString + ". Specify Visit Type in Import Definition to match on single Visit");
+					}
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
 			}
@@ -1335,7 +1351,7 @@ public class CrmsImportHandler extends ImportHandler {
 		else { // Visit already exists
 			importSetup.setVisitExisted(true);
 			importSetup.setVisit(v);
-			if (importDefinition.getPatientExistRule().equals(MUST_NOT_EXIST)) {
+			if (importDefinition.getVisitExistRule().equals(MUST_NOT_EXIST)) {
 				// typically with this flag the first time the import is run the Enrollment Status will not 
 				// exist so it will be created above. if there were some import data errors they would be fixed
 				// and the script re-imported, at which point there will be these errors for all Enrollment 
@@ -1847,7 +1863,8 @@ public class CrmsImportHandler extends ImportHandler {
 		// special handling for instruments that have a Caregiver
 		// add "instrumentCaregiverId" as the last column of the mapping file even though there is no caregiver ID column in the data file 
 		// This pseudo column should be mapped to the instrument property that stores caregiver ID, as defined in the mapping file
-		
+
+		if (importDefinition.getInstrCaregiver().equals(1)) {
 //		if (importSetup.getIndexInstrCaregiverId() != -1) {
 			if (importSetup.isCaregiverCreated() || importSetup.isCaregiverExisted()) {
 				//TODO:when support multiple instruments in a single import, each caregiver instrument could have an "instrumentCaregiverId" column mapping where the
@@ -1857,7 +1874,7 @@ public class CrmsImportHandler extends ImportHandler {
 				//properties on multiple instruments will be done in general (e.g. also need separate instrDcDate, instrDcStatus properties for each instrument)				
 //				BeanUtils.setProperty(importSetup.getInstrument(), importSetup.getMappingProps()[((CrmsImportSetup)importSetup).getIndexInstrCaregiverId()], ((CrmsImportSetup)importSetup).getCaregiver().getId());
 				importSetup.getInstrument().setCaregiver(importSetup.getCaregiver());
-//			}
+			}
 		}
 				
 		return returnEvent;
@@ -2006,7 +2023,9 @@ public class CrmsImportHandler extends ImportHandler {
 			
 			importLog.addErrorMessage(lineNum, "Exception on save. Could be incomplete import of this record." +
 					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
-					e.getMessage()
+					" ExMessage:" + e.getMessage() +
+					" ExCause:" + e.getCause() +
+					" ExStackTrace" + e.getStackTrace()
 					);
 			
 			return new Event(this, ERROR_FLOW_EVENT_ID);
