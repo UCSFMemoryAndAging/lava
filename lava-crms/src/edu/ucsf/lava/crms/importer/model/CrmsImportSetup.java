@@ -121,6 +121,33 @@ public class CrmsImportSetup extends ImportSetup {
 	public CrmsImportSetup() {
 		super();
 	}
+	
+	/**
+	 * While the index properties apply to the import as a whole, the entities and flags are used for
+	 * each row in the import data file, so they should be initialized at the beginning of processing a 
+	 * row of data.
+	 */
+	public void reset() {
+		super.reset();
+		this.patient = null;
+		this.patientCreated = this.patientExisted = false;
+		this.contactInfo = null;
+		this.contactInfoCreated = this.contactInfoExisted = false;
+		this.caregiver = null;
+		this.caregiverCreated = this.caregiverExisted = false;
+		this.caregiverContactInfo = null;
+		this.caregiverContactInfoCreated = false;
+		this.caregiver2 = null;
+		this.caregiver2Created = this.caregiver2Existed = false;
+		this.caregiver2ContactInfo = null;
+		this.caregiver2ContactInfoCreated = false;
+		this.enrollmentStatus = null;
+		this.enrollmentStatusCreated = this.enrollmentStatusExisted = false;
+		this.visit = null;
+		this.visitCreated = this.visitExisted = false;
+		this.instrument = null;
+		this.instrCreated = this.instrExisted = this.instrExistedWithData = false;
+	}
 
 	public String getRevisedProjName() {
 		return revisedProjName;
