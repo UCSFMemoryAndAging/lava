@@ -32,7 +32,7 @@
 			<composite-element class="edu.ucsf.lava.core.importer.model.ImportLog$ImportLogMessage">
 				<property name="type" column="msg_type" type="string" length="10"/>
 				<property name="lineNum" column="line_num" type="integer"/>
-				<property name="message" column="message" type="string" length="255"/>
+				<property name="message" column="message" type="string" length="5000"/>
    			</composite-element>
    		</list>
 		
