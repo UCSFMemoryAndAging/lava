@@ -31,18 +31,21 @@ public class ImportLogHandler extends BaseEntityComponentHandler {
 		setHandledEntity("importLog", ImportLog.class);
 		this.setSupportsAttachedFiles(true);
 	}
+	
+	
 
-	public Map addReferenceData(RequestContext context, Object command, BindingResult errors, Map model)
-	{
+	@Override
+	public Map getBackingObjects(RequestContext context, Map components) {
+		Map backingObjects = super.getBackingObjects(context, components);
 		// put individual log messages in a component for the view to display
-	 	ImportLog importLog = (ImportLog) ((ComponentCommand)command).getComponents().get("importLog");
+	 	ImportLog importLog = (ImportLog) backingObjects.get("importLog");
 		ScrollablePagedListHolder logMessagesListHolder = new ScrollablePagedListHolder();
 		logMessagesListHolder.setPageSize(250);
 		logMessagesListHolder.setSourceFromEntityList(importLog.getMessages());
-		((ComponentCommand)command).getComponents().put("importLogMessages", logMessagesListHolder);
-
-		return model;
+		backingObjects.put("importLogMessages", logMessagesListHolder);
+		return backingObjects;
 	}
+
 
 	/**
 	 * Override so that the download event downloads the importLog data file.
