@@ -13,10 +13,11 @@ import edu.ucsf.lava.core.model.EntityManager;
 public class ImportLog extends EntityBase {
 	public static EntityManager MANAGER = new EntityBase.Manager(ImportLog.class);
 	
-	public static String DEBUG_MSG = "DEBUG";
 	public static String ERROR_MSG = "ERROR";
 	public static String WARNING_MSG = "WARNING";
 	public static String INFO_MSG = "INFO";
+	public static String DEBUG_MSG = "DEBUG";
+	public static String CREATED_MSG = "CREATED";
 	
 	private Timestamp importTimestamp;
 	private String importedBy;
@@ -48,6 +49,10 @@ public class ImportLog extends EntityBase {
 		this.errors = 0;
 		this.warnings = 0;
 		this.importTimestamp = new Timestamp(new Date().getTime());
+	}
+	
+	public Object[] getAssociationsToInitialize(String method) {
+		return new Object[]{this.definition};
 	}
 	
 	public Timestamp getImportTimestamp() {
@@ -165,6 +170,10 @@ public class ImportLog extends EntityBase {
 
 	public void addInfoMessage(Integer lineNum, String msg) {
 		this.addMessage(INFO_MSG, lineNum, msg);
+	}
+	
+	public void addCreatedMessage(Integer lineNum, String msg) {
+		this.addMessage(CREATED_MSG, lineNum, msg);
 	}
 	
 	public void incTotalRecords() {
