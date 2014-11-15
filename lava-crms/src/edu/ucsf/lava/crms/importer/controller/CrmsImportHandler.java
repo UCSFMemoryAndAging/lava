@@ -21,7 +21,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
@@ -175,17 +175,23 @@ public class CrmsImportHandler extends ImportHandler {
 						
 				// skip over the data file column headers line (it has already been read into the importSetup
 				// dataCols by the superclass)
+//TODO:  for startLine prob just change to if (lineNum < startLine)				
 				if (lineNum == 1) {
 					continue;
 				}
 				
-				initEntityFlags(importSetup);
+				importSetup.reset(); // reset created/existed flags to false, entities that are retrieved or created to null
 				
-				importLog.incTotalRecords(); // includes records that cannot be exported due to some error
-
 				// note that indices of data array items in data file match up with indices of column and 
 				// property array items in import definition mapping file
 				importSetup.setDataValues(nextLine);
+
+				// skip over blank lines. check first couple cols
+				if (!StringUtils.hasText(importSetup.getDataValues()[0]) && !StringUtils.hasText(importSetup.getDataValues()[1]) && !StringUtils.hasText(importSetup.getDataValues()[2])) {
+					continue;
+				}
+
+				importLog.incTotalRecords(); // includes records that cannot be exported due to some error
 
 				// allow subclasses to custom generate revisedProjName (e.g. append unit/site to projName), which
 				// is used everywhere a projName is needed in the import
@@ -337,7 +343,7 @@ public class CrmsImportHandler extends ImportHandler {
 // importLogContent / crmsImportLogContent format log summary results in a table
 // importLog/crmsImportLog needs to get rid of Edit button
 // crmsAllImportLogs needs a Filter
-// add creation of entities as importLog info messages (test with WESChecklist)
+// X-add creation of entities as importLog CREATED messages
 // ?? create preview mode, at least for development, that does not do anything to db				
 
 // X-call calculate on save (or is it done automatically?)
@@ -398,10 +404,13 @@ public class CrmsImportHandler extends ImportHandler {
 					importLog.incErrors();
 					continue;
 				}
-					
-				if ((handlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					importLog.incErrors();
-					continue;
+				
+				// if definition has flag set that this is a caregiver instrument, set the caregiver on the instrument
+				if (importDefinition.getInstrCaregiver() != null && importDefinition.getInstrCaregiver().equals(1)) {
+					if ((handlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+						importLog.incErrors();
+						continue;
+					}
 				}
 
 				
@@ -571,31 +580,6 @@ public class CrmsImportHandler extends ImportHandler {
 	}
 	
 
-	/**
-	 * The created and existed flags are used by the logic involved in processing each import
-	 * record, as well as for updating the importLog counts.
-	 */
-	protected void initEntityFlags(CrmsImportSetup importSetup) {
-		importSetup.setPatientCreated(false);
-		importSetup.setPatientExisted(false);
-		importSetup.setContactInfoCreated(false);
-		importSetup.setContactInfoExisted(false);
-		importSetup.setCaregiverCreated(false);
-		importSetup.setCaregiverExisted(false);
-		importSetup.setCaregiverContactInfoCreated(false);
-		importSetup.setCaregiver2Created(false);
-		importSetup.setCaregiver2Existed(false);
-		importSetup.setCaregiver2ContactInfoCreated(false);
-		importSetup.setEnrollmentStatusCreated(false);
-		importSetup.setEnrollmentStatusExisted(false);
-		importSetup.setVisitCreated(false);
-		importSetup.setVisitExisted(false);
-		importSetup.setInstrCreated(false);
-		importSetup.setInstrExisted(false);
-		importSetup.setInstrExistedWithData(false);
-	}
-
-	
 	
 	/**
 	 * Subclasses should override to generate custom projName
@@ -1064,6 +1048,8 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 		}
 		
+		String importEsStatus = importSetup.getIndexEsStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexEsStatus()] : importDefinition.getEsStatus();
+		
 		if (es == null) {
 			if (importDefinition.getEsExistRule().equals(MUST_EXIST)) {
 				importLog.addErrorMessage(lineNum, "Patient Enrollment does not exist for Project:" + importSetup.getRevisedProjName() + 
@@ -1076,6 +1062,9 @@ public class CrmsImportHandler extends ImportHandler {
 				// note if 'patientOnlyImport' flag set in importDefinition there will not be a date to use 
 				Date esDate = null;
 				if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport()) {
+					// note that for a patientOnlyImport, unless there is an enrollment date in the data, there will not be an enrollment
+					// date to assign to the new enrollmentStatus. this means that the enrollmentStatus latestDesc / latestDate will not be set
+					// because date is null
 					dateOrTimeAsString = importSetup.getIndexEsStatusDate() != -1 ? importSetup.getDataValues()[importSetup.getIndexEsStatusDate()] : importSetup.getDataValues()[importSetup.getIndexVisitDate()];
 					formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
 					formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
@@ -1103,8 +1092,7 @@ public class CrmsImportHandler extends ImportHandler {
 					importLog.addWarningMessage(lineNum, "Enrollment Status Date unknown for 'Patient Only Import' for:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()));
 				}
 					
-				String esStatus = importSetup.getIndexEsStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexEsStatus()] : importDefinition.getEsStatus();
-				if (!StringUtils.hasText(esStatus)) {
+				if (!StringUtils.hasText(importEsStatus)) {
 					if (importSetup.getIndexEsStatus() != -1) {
 						importLog.addErrorMessage(lineNum, "Cannot create Enrollment Status. Status field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexEsStatus()] + ") has no value");
 					}
@@ -1121,7 +1109,10 @@ public class CrmsImportHandler extends ImportHandler {
 				es = createEnrollmentStatus(importDefinition, importSetup);
 				es.setPatient(importSetup.getPatient());
 				es.setProjName(importSetup.getRevisedProjName());
-				es.setStatus(esStatus, esDate);
+				es.setStatus(importEsStatus, esDate);
+				// note that for a patientOnlyImport, unless there is an enrollment date in the data, there will not be an enrollment
+				// date to assign to the new enrollmentStatus (i.e. no visit date to use). updateLatestStatusValues will not set 
+				// enrollmentStatus latestDesc / latestDate if the date is null
 				es.updateLatestStatusValues();
 
 				importSetup.setEnrollmentStatusCreated(true);
@@ -1129,6 +1120,18 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 		}
 		else { // EnrollmentStatus already exists
+			// warning if current status is not the same as the status defined in the import definition. 
+			// e.g. if an existing EnrollmentStatus is matched with latestDesc="EXCLUDED" then user should definitely
+			// be warned that data is being imported for a project from which the patient is excluded. could make
+			// this an error, but there are many more common situations which do not warrant an error, e.g. lastestDesc
+			// is ELIGIBLE instead of ENROLLED because perhaps a coordinator forgot to update the status
+			if (es.getLatestDesc() == null) {
+				importLog.addWarningMessage(lineNum, "Patient:" + importSetup.getPatient().getFullName() + " does not have a current Enrollment Status and Date for Project:" + importSetup.getRevisedProjName() + ", possibly because there is no Enrollment Status Date to import");
+			}
+			else if (!es.getLatestDesc().equals(importEsStatus)) {
+				importLog.addWarningMessage(lineNum, "Patient:" + importSetup.getPatient().getFullName() + " has an Enrollment Status of: " + es.getLatestDesc() + " for Project:" + importSetup.getRevisedProjName() + ", not:" + importEsStatus);
+			}
+			
 			importSetup.setEnrollmentStatusExisted(true);
 			importSetup.setEnrollmentStatus(es);
 			if (importDefinition.getEsExistRule().equals(MUST_NOT_EXIST)) {
@@ -1137,7 +1140,7 @@ public class CrmsImportHandler extends ImportHandler {
 				// and the script re-imported, at which point there will be these errors for all Enrollment 
 				// Statuses that were created on first run, so record will be skipped and Enrollment Status
 				// will correctly not be created again
-						
+								
 				// note: this differs from MAY_OR_MAY_NOT_EXIST where import of the record will continue if
 				// the Enrollment Status exists (as well as if Enrollment Status does not exist as it will be 
 				// created above)
@@ -1219,6 +1222,7 @@ public class CrmsImportHandler extends ImportHandler {
 		// either supplied in the data file, or more likely, specified in the import definition (assuming it
 		// is accurate to assign the same visitType to every visit created within the same import)
 		visitType = importSetup.getIndexVisitType() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitType()] : importDefinition.getVisitType();
+
 		
 		// if enrollmentStatus was just created (whether patient just created or patient already existed) then 
 		// know that the Visit could not exist yet. otherwise, check to see if Visit exists or not.
@@ -1235,7 +1239,7 @@ public class CrmsImportHandler extends ImportHandler {
 
 				// currently do not handle existing columns that have date and time in same column. not sure if this will
 				// be encountered
-				
+
 				filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate));
 				if (importSetup.getIndexVisitTime() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitTime()])) {
 					filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime));
@@ -1283,7 +1287,7 @@ public class CrmsImportHandler extends ImportHandler {
 		
 		if (v == null) {
 			if (importDefinition.getVisitExistRule().equals(MUST_EXIST)) {
-				importLog.addErrorMessage(lineNum, "Visit does not exist for Patient:" + importSetup.getPatient().getFullNameRevWithId() + " Project:" + importSetup.getRevisedProjName() + " violating MUST_NOT_EXIST flag");
+				importLog.addErrorMessage(lineNum, "Visit does not exist for Patient:" + importSetup.getPatient().getFullNameRev() + " Project:" + importSetup.getRevisedProjName() + " violating MUST_NOT_EXIST flag");
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}else {
 				// for either MUST_NOT_EXIST or MAY_OR_MAY_NOT_EXIST instantiate the Enrollment Status
@@ -1875,6 +1879,9 @@ public class CrmsImportHandler extends ImportHandler {
 //				BeanUtils.setProperty(importSetup.getInstrument(), importSetup.getMappingProps()[((CrmsImportSetup)importSetup).getIndexInstrCaregiverId()], ((CrmsImportSetup)importSetup).getCaregiver().getId());
 				importSetup.getInstrument().setCaregiver(importSetup.getCaregiver());
 			}
+			else {
+				importLog.addWarningMessage(lineNum, "No Caregiver found or created to assign to instrument:" + importDefinition.getInstrType() + " for patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()));
+			}
 		}
 				
 		return returnEvent;
@@ -1979,32 +1986,48 @@ public class CrmsImportHandler extends ImportHandler {
 		try {
 			if (importSetup.isPatientCreated()) {
 				importSetup.getPatient().save();
+				importLog.addCreatedMessage(lineNum, "PATIENT CREATED:" + importSetup.getPatient().getFullName());
 			}
 			if (importSetup.isContactInfoCreated()) {
 				importSetup.getContactInfo().save();
+				importLog.addCreatedMessage(lineNum, "CONTACT INFO CREATED, Patient:" + importSetup.getPatient().getFullName());
 			}
 			if (importSetup.isCaregiverCreated()) {
 				importSetup.getCaregiver().save();
+				importLog.addCreatedMessage(lineNum, "CAREGIVER CREATED, Patient:" + importSetup.getPatient().getFullName() +
+					" Caregiver:" + importSetup.getCaregiver().getFullName());
 			}
 			if (importSetup.isCaregiverContactInfoCreated()) {
 				importSetup.getCaregiverContactInfo().save();
+				importLog.addCreatedMessage(lineNum, "CAREGIVER CONTACT INFO CREATED, Patient:" + importSetup.getPatient().getFullName() +
+					" Caregiver:" + importSetup.getCaregiver().getFullName());
 			}
 			if (importSetup.isCaregiver2Created()) {
 				importSetup.getCaregiver2().save();
+				importLog.addCreatedMessage(lineNum, "CAREGIVER CREATED, Patient:" + importSetup.getPatient().getFullName() +
+					" Caregiver:" + importSetup.getCaregiver2().getFullName());
 			}
 			if (importSetup.isCaregiver2ContactInfoCreated()) {
 				importSetup.getCaregiver2ContactInfo().save();
+				importLog.addCreatedMessage(lineNum, "CAREGIVER CONTACT INFO CREATED, Patient:" + importSetup.getPatient().getFullName() +
+					" Caregiver:" + importSetup.getCaregiver2().getFullName());
 			}
 			if (importSetup.isEnrollmentStatusCreated()) {
 				importSetup.getEnrollmentStatus().save();
+				importLog.addCreatedMessage(lineNum, "ENROLLMENTSTATUS CREATED, Patient:" + importSetup.getPatient().getFullName() +
+					" Project:" + importSetup.getRevisedProjName());
 			}
 			if (importSetup.isVisitCreated()) {
 				importSetup.getVisit().save();
+				importLog.addCreatedMessage(lineNum, "VISIT CREATED, Patient:" + importSetup.getPatient().getFullName() +
+					" VisitDate:" + importSetup.getVisit().getVisitDate() + " VisitType:" + importSetup.getVisit().getVisitType());
 			}
 			// allowInstrUpdate is used to determine whether an already existing instrument which has already
 			// been data entered can be updated
 			if (importSetup.isInstrCreated() || importDefinition.getAllowInstrUpdate()) {
 				importSetup.getInstrument().save();
+				importLog.addCreatedMessage(lineNum, "INSTRUMENT CREATED, Patient:" + importSetup.getPatient().getFullName() +
+						" Instrument:" + importDefinition.getInstrType());
 			}
 		}
 		catch (Exception e) {
@@ -2023,10 +2046,8 @@ public class CrmsImportHandler extends ImportHandler {
 			
 			importLog.addErrorMessage(lineNum, "Exception on save. Could be incomplete import of this record." +
 					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
-					" ExMessage:" + e.getMessage() +
-					" ExCause:" + e.getCause() +
-					" ExStackTrace" + e.getStackTrace()
-					);
+					"<br>Message:" + e.getMessage() +
+					"<br>RootCause:" + ExceptionUtils.getRootCauseMessage(e));
 			
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
