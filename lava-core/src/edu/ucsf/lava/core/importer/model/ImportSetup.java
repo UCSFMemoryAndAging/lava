@@ -32,6 +32,8 @@ import edu.ucsf.lava.core.file.model.LavaFile;
 
 	public ImportSetup() {}
 	
+	public void reset(){};
+	
 	public Long getDefinitionId() {
 		return definitionId;
 	}
