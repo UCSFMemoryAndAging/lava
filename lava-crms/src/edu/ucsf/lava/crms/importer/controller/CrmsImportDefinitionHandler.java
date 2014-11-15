@@ -126,42 +126,41 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 		
 		if (crmsImportDefinition.getEsExistRule().equals(MAY_OR_MAY_NOT_EXIST) || crmsImportDefinition.getEsExistRule().equals(MUST_NOT_EXIST)) {
 			if (crmsImportDefinition.getEsStatus() == null) {
-				LavaComponentFormAction.createCommandError(errors, "importDefinition.esStatusField.required", null);
-				return new Event(this,ERROR_FLOW_EVENT_ID);
+				LavaComponentFormAction.createRequiredFieldError(errors, "esStatus", getDefaultObjectName());
 			}
 		}
 
 		if (!crmsImportDefinition.getPatientOnlyImport()) {
 			
 			if (crmsImportDefinition.getVisitExistRule() == null) {
-				LavaComponentFormAction.createCommandError(errors, "importDefinition.visitExistRule.required", null);
-				return new Event(this,ERROR_FLOW_EVENT_ID);
+				LavaComponentFormAction.createRequiredFieldError(errors, "visitExistRule", getDefaultObjectName());
 			}
 			
 			// note that visitWith is not a required Visit property so not checking for that
 			if (crmsImportDefinition.getVisitExistRule().equals(MAY_OR_MAY_NOT_EXIST) || crmsImportDefinition.getVisitExistRule().equals(MUST_NOT_EXIST)) {
 				if (crmsImportDefinition.getVisitType() == null || crmsImportDefinition.getVisitLoc() == null || crmsImportDefinition.getVisitStatus() == null) {
 					LavaComponentFormAction.createCommandError(errors, "importDefinition.visitFields.required", null);
-					return new Event(this,ERROR_FLOW_EVENT_ID);
 				}
 			}
 
 			if (crmsImportDefinition.getInstrExistRule() == null) {
-				LavaComponentFormAction.createCommandError(errors, "importDefinition.instrExistRule.required", null);
-				return new Event(this,ERROR_FLOW_EVENT_ID);
+				LavaComponentFormAction.createRequiredFieldError(errors, "instrExistRule", getDefaultObjectName());
 			}
 			
 			if (crmsImportDefinition.getInstrType() == null) {
-				LavaComponentFormAction.createCommandError(errors, "importDefinition.instrType.required", null);
-				return new Event(this,ERROR_FLOW_EVENT_ID);
+				LavaComponentFormAction.createRequiredFieldError(errors, "instrType", getDefaultObjectName());
 			}
 			
 			if (crmsImportDefinition.getInstrExistRule().equals(MAY_OR_MAY_NOT_EXIST) || crmsImportDefinition.getInstrExistRule().equals(MUST_NOT_EXIST)) {
 				if (crmsImportDefinition.getInstrDcStatus() == null) {
-					LavaComponentFormAction.createCommandError(errors, "importDefinition.instrDcStatusField.required", null);
-					return new Event(this,ERROR_FLOW_EVENT_ID);
+					LavaComponentFormAction.createRequiredFieldError(errors, "instrDcStatus", getDefaultObjectName());
 				}
 			}
+		}
+		
+		if (errors.hasFieldErrors()) {
+			LavaComponentFormAction.createCommandErrorsForFieldErrors(errors);
+			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
 		
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
