@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 import org.springframework.validation.ObjectError;
@@ -744,7 +745,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 	}
 
 	
-	//DELETE FILE
+	//DELETE FILE from the file system
 	public Event handleDeleteFileEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
 			return this.doDeleteFile(context, command, errors);
 		}
@@ -782,13 +783,13 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 		try {
 			returnEvent = (Event) fileOperationCallback.invoke(this, new Object[]{context, command, errors});
 		} catch (AlreadyExistsFileAccessException e){
-			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.fileExistsException"}, null, ""));
+			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.fileExistsException"}, new Object[]{ExceptionUtils.getRootCauseMessage(e)}, ""));
 			return new Event(this,ERROR_FLOW_EVENT_ID);	
 		} catch (FileAccessException e){
-			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.genericException"}, null, ""));
+			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.fileAccessException"}, new Object[]{ExceptionUtils.getRootCauseMessage(e)}, ""));
 			return new Event(this,ERROR_FLOW_EVENT_ID);			
 		} catch (Exception e){
-			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.genericException"}, null, ""));
+			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.genericException"},  new Object[]{ExceptionUtils.getRootCauseMessage(e)}, ""));
 			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
 		
