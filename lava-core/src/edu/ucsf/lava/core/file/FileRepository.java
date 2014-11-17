@@ -1,11 +1,9 @@
 package edu.ucsf.lava.core.file;
 
-import java.io.File;
 import java.util.List;
 
 import edu.ucsf.lava.core.file.exception.FileAccessException;
 import edu.ucsf.lava.core.file.model.LavaFile;
-import edu.ucsf.lava.core.model.EntityBase;
 
 public interface FileRepository {
 	/**
