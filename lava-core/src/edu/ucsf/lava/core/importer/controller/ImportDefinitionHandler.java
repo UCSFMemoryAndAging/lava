@@ -118,7 +118,7 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 			// user has chosen to upload a mapping file to replace the current mappingFile so delete the current
 			// file (deleteFile will archive the file in addition to deleting)
 			// note: want same behavior even if user uploads same file as current file, because contents of file
-			// could and probably are different
+			// have presumably changed which is why it is being re-uploaded
 			
 			// using callback method to use core file operations exception handling 
 			// have to use getDeclaredMethod instead of getMethod for non-public methods
@@ -144,7 +144,7 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 
 		// editing a definition where user is changing the mapping file
 
-//TODO: deleteFile should clear out the LavaFile status* properties as well				
+				
 		mappingFile.deleteFile();
 
 		// getUploadFile will populate the mappingFile property due to getLavaBackingFileObject override
@@ -160,9 +160,17 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	}
 	
 	
-
-//TODO: handle delete event to delete the mappingFile from the repository
-//UPDATE: how does user delete the mapping file?? seems like they can just replace the one that is there	
+	/**
+	 * Override to delete the mapping file if the definition is deleted.
+	 */
+	protected Event doConfirmDelete(RequestContext context, Object command, BindingResult errors) throws Exception{
+		ImportDefinition importDefinition = (ImportDefinition) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
+		Event returnEvent = super.doConfirmDelete(context, command, errors);
+		if (returnEvent.getId().equals(SUCCESS_FLOW_EVENT_ID)) {
+			returnEvent = super.doDeleteFile(context, command, errors);
+		}
+		return returnEvent;
+	}
 	
 	
 }
