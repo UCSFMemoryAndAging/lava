@@ -521,7 +521,7 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
 	protected Transition buildListNavigationTransitions(String viewState) {
 		return transition(on(new String("${lastEvent.id.endsWith('__prevPage') || lastEvent.id.endsWith('__nextPage') ||" +
 				" lastEvent.id.endsWith('__recordNav') || lastEvent.id.endsWith('__pageSize') || lastEvent.id.contains('__sort_') || lastEvent.id.endsWith('__clearSort') ||" +
-				" lastEvent.id.endsWith('__clearFilter') || lastEvent.id.endsWith('__toggleFilter') || lastEvent.id.endsWith('__applyFilter')}")),
+				" lastEvent.id.endsWith('__clearFilter') || lastEvent.id.endsWith('__toggleFilter') || lastEvent.id.endsWith('__applyFilter') || lastEvent.id.endsWith('__applyQuickFilter')}")),
 				to(viewState), 
       		ifReturnedSuccess(new Action[]{
         			invoke("bind", formAction), 
