@@ -338,11 +338,11 @@ public class CrmsImportHandler extends ImportHandler {
 //  MappingData File since the project refresh removes mapping file selection)				
 //  (why does Browse button have _ in it?)				
 //   help text: (maybe) if mapping file changes, have to re-upload
-    				
-
 // importLogContent / crmsImportLogContent format log summary results in a table
 // importLog/crmsImportLog needs to get rid of Edit button
-// crmsAllImportLogs needs a Filter
+// crmsAllImportLogs needs a QuickFilter
+// make sure give Warning on Caregiver instrs when no Caregiver
+// test that deleting import definition deletes the mapping file
 // X-add creation of entities as importLog CREATED messages
 // ?? create preview mode, at least for development, that does not do anything to db				
 
@@ -1224,65 +1224,81 @@ public class CrmsImportHandler extends ImportHandler {
 		visitType = importSetup.getIndexVisitType() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitType()] : importDefinition.getVisitType();
 
 		
-		// if enrollmentStatus was just created (whether patient just created or patient already existed) then 
-		// know that the Visit could not exist yet. otherwise, check to see if Visit exists or not.
-		if (!importSetup.isEnrollmentStatusCreated()) {
-			filter.clearDaoParams();
-			filter.setAlias("patient", "patient");
-			filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
-			filter.addDaoParam(filter.daoEqualityParam("projName", importSetup.getRevisedProjName()));
-			if (StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitDate()])) {
+		// regardless of whether enrollmentStatus was created or not, search for a matching visit, i.e. even if the
+		// enrollmentStatus was just created, there could be an existing visit for the patient that matches on date
+		// that could be for a different project than what is specified in the import definition or the data file. this
+		// reflects the fact that patients are often co-enrolled in multiple projects and if assessment data is to be
+		// imported under some Project X for a Visit Date, need to check that the same assessment data does not exist 
+		// for the Visit Date under any Project, not just Project X
+		// so the DaoParam on projName is commented out below, to illustrate this point
+		
+		// this handles this scenario. Patient AB comes in and has a Sensory Profile - Child assessment done under
+		// Project Pedi Evo Training in 2009. In 2010 the same patient has a Sensory Profile - Child which is done
+		// for Project SPD WES. The export data file for Sensory Profile - Child is cumulative over time such that
+		// it now contains Sensory Profile - Child two records for Patient AB im 2009 and 2010. When importing the
+		// data file in 2010 under Project SPD WES, if the Visit match included a check for Project, it would not 
+		// find the Visit for SPD WES and properly create the Visit and then the Sensory Profile - Child in the Visit.
+		// However, it would not find an SPD WES Visit in 2009 since that was a Pedi Evo Training Visit and it will
+		// therefore erroneously create an SPD WES Visit in 2009 and import the 2009 Sensory Profile - Child data
+		// which already is imported and exists under a Pedi Evo Training Visit in 2009 (on the exact same date as
+		// the SPD WES Visit). By removing the Visit match on Project, this will not happen. Ignoringn Project, the 
+		// system will match a Visit for patient AB in 2009 that has a Sensory Profile - Child and therefore will
+		// not import data that has already been imported.
+		filter.clearDaoParams();
+		filter.setAlias("patient", "patient");
+		filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
+		// filter.addDaoParam(filter.daoEqualityParam("projName", importSetup.getRevisedProjName()));
+		if (StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitDate()])) {
 
-				// do not have a flag for whether both date and time must match. just assume that whichever is provided should
-				// match. if only date can just do a full date comparison, i.e. should not need datepart because the date in
-				// the Visit is just the datepart and the date in the data file will just be a date
+			// do not have a flag for whether both date and time must match. just assume that whichever is provided should
+			// match. if only date can just do a full date comparison, i.e. should not need datepart because the date in
+			// the Visit is just the datepart and the date in the data file will just be a date
 
-				// currently do not handle existing columns that have date and time in same column. not sure if this will
-				// be encountered
+			// currently do not handle existing columns that have date and time in same column. not sure if this will
+			// be encountered
 
-				filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate));
-				if (importSetup.getIndexVisitTime() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitTime()])) {
-					filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime));
-				}
-				// note: could also use daoDateAndTimeEqualityParam
-				
-				// visitType is optional for the search; it typically is not in generated data files, and if the import
-				// is such that new Visits will not be created then it need not be specified in the definition.
-				// however, without visitType, could match multiple visits. see more on this below 
-				if (visitType != null) {
-					if (StringUtils.hasText(visitType)) {
-						filter.addDaoParam(filter.daoEqualityParam("visitType", visitType));
-					}
-				}
-				
-				filter.addDaoParam(filter.daoNot(filter.daoEqualityParam("visitStatus", "Cancelled")));
-				
-				try {
-					v = (Visit) Visit.MANAGER.getOne(filter);
-				}
-				// assuming visitType is supplied, this should never happen. if re-running import of a data file, should just be one instance
-				// of a given visitType on a given date
-				// however, if no visitType supplied in import definition, could match multiple visits on same date, in which case
-				// would not know which one to use. so user should then modify import definition to include visitType
-				//TODO: when start using Visit Window for Kate, figure out what to do if matches multiple visits
-				catch (IncorrectResultSizeDataAccessException ex) {
-					if (visitType != null) {
-						importLog.addErrorMessage(lineNum, "Duplicate Visit records for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
-								" and Visit Date:" + dateOrTimeAsString + " and Visit Type:" + visitType);
-					}
-					else {
-						importLog.addErrorMessage(lineNum, "Duplicate Visit records for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
-								" and Visit Date:" + dateOrTimeAsString + ". Specify Visit Type in Import Definition to match on single Visit");
-					}
-					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate));
+			if (importSetup.getIndexVisitTime() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitTime()])) {
+				filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime));
+			}
+			// note: could also use daoDateAndTimeEqualityParam
+			
+			// visitType is optional for the search; it typically is not in generated data files, and if the import
+			// is such that new Visits will not be created then it need not be specified in the definition.
+			// however, without visitType, could match multiple visits. see more on this below 
+			if (visitType != null) {
+				if (StringUtils.hasText(visitType)) {
+					filter.addDaoParam(filter.daoEqualityParam("visitType", visitType));
 				}
 			}
-			else {
-				// this is not the same as Visit does not exist because do not have fields to check that the
-				// Visit does or does not exist
-				importLog.addErrorMessage(lineNum, "Cannot determine if Visit exists or not. Column:" + importSetup.getDataCols()[importSetup.getIndexVisitDate()] + " has no data");
+			
+			filter.addDaoParam(filter.daoNot(filter.daoEqualityParam("visitStatus", "Cancelled")));
+			
+			try {
+				v = (Visit) Visit.MANAGER.getOne(filter);
+			}
+			// assuming visitType is supplied, this should never happen. if re-running import of a data file, should just be one instance
+			// of a given visitType on a given date
+			// however, if no visitType supplied in import definition, could match multiple visits on same date, in which case
+			// would not know which one to use. so user should then modify import definition to include visitType
+			//TODO: when start using Visit Window for Kate, figure out what to do if matches multiple visits
+			catch (IncorrectResultSizeDataAccessException ex) {
+				if (visitType != null) {
+					importLog.addErrorMessage(lineNum, "Duplicate Visit records for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
+							" and Visit Date:" + dateOrTimeAsString + " and Visit Type:" + visitType);
+				}
+				else {
+					importLog.addErrorMessage(lineNum, "Duplicate Visit records for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
+							" and Visit Date:" + dateOrTimeAsString + ". Specify Visit Type in Import Definition to match on single Visit");
+				}
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
+		}
+		else {
+			// this is not the same as Visit does not exist because do not have fields to check that the
+			// Visit does or does not exist
+			importLog.addErrorMessage(lineNum, "Cannot determine if Visit exists or not. Column:" + importSetup.getDataCols()[importSetup.getIndexVisitDate()] + " has no data");
+			return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 		}
 		
 		if (v == null) {
