@@ -15,7 +15,12 @@
   <page:param name="listTitle">Individual Record Errors / Warnings / Info</page:param>
   <page:param name="isSecondary">true</page:param>
   
-<%-- TODO: quickFilter on message type --%>  
+<content tag="listQuickFilter">
+Show: or Message Type:	
+<tags:singleSelect property="command.components[${pageName}].activeQuickFilter" fieldId="activeQuickFilter" 
+		list="${lists['importLog.quickFilter']}" attributesText="onChange=&quot;document.${empty pageName ? component : pageName}.action='#${component}';submitForm(document.${empty pageName ? component : pageName},'${component}__applyQuickFilter')&quot; "/>
+<br>
+</content>
   
 <content tag="listColumns">
 <tags:listRow>
