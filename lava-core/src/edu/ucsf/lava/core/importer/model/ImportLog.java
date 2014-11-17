@@ -37,6 +37,8 @@ public class ImportLog extends EntityBase {
 	private Integer warnings; 
 	private String notes; // entered by user when doing the import
 	private List<ImportLogMessage> messages = new ArrayList<ImportLogMessage>(); // warnings, errors
+	// this is a non-persistent field for binding the quick filter selection
+	private String activeQuickFilter;
 	
 	public ImportLog(){
 		super();
@@ -151,6 +153,14 @@ public class ImportLog extends EntityBase {
 		this.messages = messages;
 	}
 	
+	public String getActiveQuickFilter() {
+		return activeQuickFilter;
+	}
+
+	public void setActiveQuickFilter(String activeQuickFilter) {
+		this.activeQuickFilter = activeQuickFilter;
+	}
+
 	public void addMessage(String type, Integer lineNum, String msg) {
 		ImportLogMessage logMessage = new ImportLogMessage(type, lineNum, msg);
 		this.messages.add(logMessage);
