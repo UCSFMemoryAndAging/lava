@@ -155,7 +155,12 @@ public class LocalFileSystemRepositoryStrategy extends AbstractFileRepositoryStr
 			if (fsFile.exists() && fsFile.isFile()) {
 				fsFile.delete();
 				lavaFile.setFileId(null);
+				lavaFile.setName(null);
 				lavaFile.setLocation(null);
+				lavaFile.setFileStatus(null);
+				lavaFile.setFileStatusBy(null);
+				lavaFile.setFileStatusDate(null);
+				lavaFile.setFileType(null);
 			}else{
 				this.logRepositoryError("Warning: attempt to delete non-existent file", lavaFile);
 				return; 
