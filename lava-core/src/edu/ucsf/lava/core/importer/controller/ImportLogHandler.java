@@ -1,9 +1,14 @@
 package edu.ucsf.lava.core.importer.controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -14,6 +19,8 @@ import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.file.model.ImportFile;
 import edu.ucsf.lava.core.file.model.LavaFile;
 import edu.ucsf.lava.core.importer.model.ImportLog;
+import edu.ucsf.lava.core.importer.model.ImportLog.ImportLogMessage;
+ 
 
 /**
  * ImportLogHandler
@@ -37,11 +44,21 @@ public class ImportLogHandler extends BaseEntityComponentHandler {
 	@Override
 	public Map getBackingObjects(RequestContext context, Map components) {
 		Map backingObjects = super.getBackingObjects(context, components);
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		
+		// handling log message detail list in this handler. 
+		
+		// note: could instead have the list as a secondary list component. see doApplyQuickFilter comments
+		
 		// put individual log messages in a component for the view to display
 	 	ImportLog importLog = (ImportLog) backingObjects.get("importLog");
 		ScrollablePagedListHolder logMessagesListHolder = new ScrollablePagedListHolder();
 		logMessagesListHolder.setPageSize(250);
-		logMessagesListHolder.setSourceFromEntityList(importLog.getMessages());
+		
+		// default quick filter to Errors/Warning
+		importLog.setActiveQuickFilter("Errors / Warnings");
+		logMessagesListHolder.setSourceFromEntityList(this.filterLogMessages(importLog.getMessages(), importLog.getActiveQuickFilter()));
+		
 		backingObjects.put("importLogMessages", logMessagesListHolder);
 		return backingObjects;
 	}
@@ -61,7 +78,8 @@ public class ImportLogHandler extends BaseEntityComponentHandler {
 	protected void setDefaultHandledEvents(String defaultObjectName){
 		super.setDefaultHandledEvents(defaultObjectName);
 		
-		// add special handling 
+		// add special handling
+		this.handledEvents.add("importLogMessages__applyQuickFilter");
 		this.handledEvents.add("importLogMessages__prevPage");
 		this.handledEvents.add("importLogMessages__nextPage");
 		this.handledEvents.add("importLogMessages__recordNav");
@@ -83,6 +101,9 @@ public class ImportLogHandler extends BaseEntityComponentHandler {
 		}
 		else if(event.equals("pageSize")){
 			return this.handlePageSizeEvent(context,command,errors,eventComponent);
+		}
+		else if(event.equals("applyQuickFilter")){
+			return this.handleApplyQuickFilterEvent(context,command,errors);
 		}
 
 		errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"flowEventNotHandled.command"}, new Object[] {event}, ""));
@@ -131,7 +152,7 @@ public class ImportLogHandler extends BaseEntityComponentHandler {
 			return doRecordNav(context,command,errors,component);
 		}
 								
-		//The default record navigationnext page action
+		//The default record navigation next page action
 		protected Event doRecordNav(RequestContext context, Object command, BindingResult errors, String component) throws Exception{
 			ComponentCommand componentCommand = (ComponentCommand) command;
 			ScrollablePagedListHolder plh = (ScrollablePagedListHolder) componentCommand.getComponents().get(component);
@@ -161,6 +182,66 @@ public class ImportLogHandler extends BaseEntityComponentHandler {
 			plh.setPageHolder(plh.getPage());
 			
 			return new Event(this,SUCCESS_FLOW_EVENT_ID);
+		}
+		
+		public Event handleApplyQuickFilterEvent(RequestContext context, Object command, BindingResult errors) throws Exception{
+			return doApplyQuickFilter(context,command,errors);
+		}
+		
+		//The default apply quick filter action 
+		protected Event doApplyQuickFilter(RequestContext context, Object command, BindingResult errors) throws Exception{
+			ImportLog importLog = (ImportLog) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
+			ScrollablePagedListHolder logMessagesListHolder = (ScrollablePagedListHolder) ((ComponentCommand)command).getComponents().get("importLogMessages");
+			
+			// note: could instead have the list as a secondary list component, which would allow doing the
+			// list filtering (quickFilter) and sorting by the database, but would have to re-map the messages
+			// as via an association mapping instead of a component mapping because with component mapping the
+			// foreign key (log_id) is not available as a property to use in the list handler to source the 
+			// list. don't need sorting as the quick filter is essentially a sort by just showing e.g. all
+			// messages of type ERROR.  the mapping is more naturally a component mapping so just left it 
+			// to this handler to handle the messages list, and doing the filtering "manually"
+
+			// user quick filter setting binds to activeQuickFilter property
+			logMessagesListHolder.setSourceFromEntityList(this.filterLogMessages(importLog.getMessages(), importLog.getActiveQuickFilter()));
+			
+			return new Event(this,SUCCESS_FLOW_EVENT_ID);
+		}
+	
+		
+		List<ImportLogMessage> filterLogMessages(List<ImportLogMessage> allMessages, String quickFilter) {
+			List<ImportLogMessage> filteredMessages = new ArrayList<ImportLogMessage>();
+			if (quickFilter.equals("All Messages")) {
+				return allMessages;
+			}
+
+			for (ImportLogMessage message : allMessages) {
+				if (quickFilter.equals("Errors / Warnings")) {
+					if (message.getType().equals(ImportLog.ERROR_MSG) || message.getType().equals(ImportLog.WARNING_MSG)) {
+						filteredMessages.add(message);
+					}
+				}
+				else if (quickFilter.equals("Errors")) {
+					if (message.getType().equals(ImportLog.ERROR_MSG)) {
+						filteredMessages.add(message);
+					}
+				}
+				else if (quickFilter.equals("Warnings")) {
+					if (message.getType().equals(ImportLog.WARNING_MSG)) {
+						filteredMessages.add(message);
+					}
+				}
+				else if (quickFilter.equals("Created")) {
+					if (message.getType().equals(ImportLog.CREATED_MSG)) {
+						filteredMessages.add(message);
+					}
+				}
+				else if (quickFilter.equals("Debug")) {
+					if (message.getType().equals(ImportLog.DEBUG_MSG)) {
+						filteredMessages.add(message);
+					}
+				}
+			}
+			return filteredMessages;
 		}
 
 }
