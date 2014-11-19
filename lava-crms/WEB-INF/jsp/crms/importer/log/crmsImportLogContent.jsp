@@ -21,11 +21,7 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 		pass parameters to createField for the action and create action button within createField --%>
   	<tags:createField property="dataFile.name" component="${component}" inline="true"/>
 	<%-- the handler is written to handle download event as meaning to download the data file, so do not need to identify what property to download --%>
-	<%-- do not show the download button in the import action as entering the import download subflow would call getBackingObject which
-		initializes a new importLog because it is just designed to prep for the import. this new importLog instance does not contain dataFile --%>
-	<c:if test="${fn:endsWith(pageName, 'Log')}">
-		<tags:listActionURLButton buttonImage="download" actionId="lava.core.importer.log.importLog" eventId="importLog__download" parameters="param,importLog"/>
-	</c:if>	
+	<tags:listActionURLButton buttonImage="download" actionId="lava.core.importer.log.importLog" eventId="importLog__download" parameters="param,importLog"/>
 	<%-- div required following inline createField --%>
 	<div class="verticalSpace10">&nbsp;</div>
 	<tags:createField property="projName" component="${component}"/>
