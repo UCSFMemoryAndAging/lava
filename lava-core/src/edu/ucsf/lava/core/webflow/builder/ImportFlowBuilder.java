@@ -40,7 +40,7 @@ public class ImportFlowBuilder extends BaseFlowBuilder {
                        	ifReturnedSuccess(new Action[]{
                        		invoke("customBind", formAction),
                        		invoke("handleFlowEvent", formAction)})),
-                    transition(on(objectName + "__import"), to("result"), 
+                    transition(on(objectName + "__import"), to("importLog"), 
                        	ifReturnedSuccess(new Action[]{
                        		invoke("customBind", formAction),
                        		invoke("handleFlowEvent", formAction)})),
@@ -50,18 +50,7 @@ public class ImportFlowBuilder extends BaseFlowBuilder {
                     buildListNavigationTransitions("edit")},
           		null,null,null);
     	
-    	addViewState("result", 
-    			null, formAction.getCustomViewSelector(), 
-    			new Action[]{invoke("prepareToRender",formAction)},
-    			new Transition[] { 
-    				transition(on("importDefinition__view"), to("importDefinition__view")),   		
-// on close event prob. either need to clear out the importSetup properties or redirect to this flow to 
-// restart it as a root flow which will start with a fresh command object
-                    transition(on(objectName + "__close"), to("edit"), 
-                       	ifReturnedSuccess(invoke("handleFlowEvent", formAction))),
-                    // support a list secondary component for nav events only, since just a reference list
-                    buildListNavigationTransitions("result")},
-    			null,null,null);
+    	addViewState("importLog", "flowRedirect:lava.core.importer.log.importLog.view?id=${flowScope.importLogId}", new Transition[]{}); 
     	
     	buildDefaultActionEndState();
     }
