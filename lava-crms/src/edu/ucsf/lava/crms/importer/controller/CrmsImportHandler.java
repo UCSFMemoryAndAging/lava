@@ -208,7 +208,7 @@ public class CrmsImportHandler extends ImportHandler {
 				// new Patient record was created or an existing Patient record was found (and given no errors, this 
 				// means that all import definition flags were successfully met such that the record can be imported
 				// with either a new or existing Patient)
-				// (this goes for EnrollmentStatus, Visit and instrument as well)
+				// (this goes for Status, Visit and instrument as well)
 
 				// if Patient MUST_EXIST then importing assessment data, so do not deal with creating ContactInfo
 				if (!importDefinition.getPatientExistRule().equals(MUST_EXIST)) {
@@ -406,7 +406,7 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 				
 				// if definition has flag set that this is a caregiver instrument, set the caregiver on the instrument
-				if (importDefinition.getInstrCaregiver() != null && importDefinition.getInstrCaregiver().equals(1)) {
+				if (importDefinition.getInstrCaregiver() != null && importDefinition.getInstrCaregiver().equals(Short.valueOf((short)1))) {
 					if ((handlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 						importLog.incErrors();
 						continue;
@@ -1111,10 +1111,17 @@ public class CrmsImportHandler extends ImportHandler {
 				es.setPatient(importSetup.getPatient());
 				es.setProjName(importSetup.getRevisedProjName());
 				es.setStatus(importEsStatus, esDate);
+				es.updateLatestStatusValues();
 				// note that for a patientOnlyImport, unless there is an enrollment date in the data, there will not be an enrollment
 				// date to assign to the new enrollmentStatus (i.e. no visit date to use). updateLatestStatusValues will not set 
-				// enrollmentStatus latestDesc / latestDate if the date is null
-				es.updateLatestStatusValues();
+				// enrollmentStatus latestDesc / latestDate if the date is null, so set it explicitly here. what will happen is that
+				// on save EnrollmentStatus updateCalculatedFields will call updateLatestStatusValues which will set the latest status
+				// back to null. but, if overriding the EnrollmentStatus the subclass can override updateLatestStatusValues and save
+				// the status values in a local var, call the superclass updateLatestStatusValues, and if statuses are still null,
+				// restore them to the saved values
+				if (es.getLatestDesc() == null) {
+					es.setLatestDesc(importEsStatus);
+				}
 
 				importSetup.setEnrollmentStatusCreated(true);
 				importSetup.setEnrollmentStatus(es);
