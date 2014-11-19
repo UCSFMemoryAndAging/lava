@@ -456,6 +456,7 @@ public class CrmsImportHandler extends ImportHandler {
 		// object errors to be displayed
 		if (returnEvent.getId().equals(SUCCESS_FLOW_EVENT_ID)) {
 			importLog.save();
+			context.getFlowScope().put("importLogId", importLog.getId());
 		}
 		
 		return returnEvent;
