@@ -308,7 +308,7 @@ public class CrmsImportHandler extends ImportHandler {
 // X-change mapping file format to 3 rows: row 2 is entity type, row 3 is property name (if
 //  both are blank then defaults to 1st instrument and prop name == column name (row 1))				
 
-// pedi new patient history import (data file with all columns, not cut off at 256 cols)
+// X-pedi new patient history import (data file with all columns, not cut off at 256 cols)
 // X-should only create caregiver and caregiver contactInfo records if data exists
 // X-log totals do not reflect caregivers and contactInfo records (but they could. not bothering with
 //   caregiverContactInfo totals since that is tightly bound with caregiver)
@@ -319,15 +319,15 @@ public class CrmsImportHandler extends ImportHandler {
 // need separate definitions for old and current versions because var names from old
 //  need to map to current, e.g. field5 old maps to field6 current, whereas for current
 //  field5 maps to field5		
-// get rid of import section, default to imports section (make sure regular import fails
-//  on SPDC history import				
 				
-// X-open csv				
+// X-use opencsv				
 	
 // OT: Add Patient skip logic on Community Dx should disable following field unless "6 - other"			
 				
 // pertinent TODOs in code, config, Hibernate mapping, jsp, etc.
-	
+
+// make sure give Warning on Caregiver instrs when no Caregiver
+
 // X-make mapping definition name longer (50?)				
 // import definition UI cleanup (for now move Project near top, ahead of selection of Import
 //  skip logic:
@@ -335,13 +335,17 @@ public class CrmsImportHandler extends ImportHandler {
 //      if Patient Must Not Exist rule is selected then other exist rules should be disabled and
 //         set to Must Not Exist
 //  make import definition bigger				
-//  MappingData File since the project refresh removes mapping file selection)				
-//  (why does Browse button have _ in it?)				
-//   help text: (maybe) if mapping file changes, have to re-upload
+// get rid of import section, default to imports section (make sure regular import fails
+//  on SPDC history import				
+// make the mapping data file bind with Spring so on refresh it is not lost, e.g. when a required
+//  field error on anohter field. keep in mind that tried this already using the Spring facility to bind
+//  an uploaded file but ran into problems integrating that into our implementation of uploading files
+//  so this is not a minor item
+// why does Browse button have _ in it?)				
+// help text: (maybe) if mapping file changes, have to re-upload
 // importLogContent / crmsImportLogContent format log summary results in a table
 // importLog/crmsImportLog needs to get rid of Edit button
-// crmsAllImportLogs needs a QuickFilter
-// make sure give Warning on Caregiver instrs when no Caregiver
+// X-crmsAllImportLogs needs a QuickFilter
 // test that deleting import definition deletes the mapping file
 // X-add creation of entities as importLog CREATED messages
 // ?? create preview mode, at least for development, that does not do anything to db				
@@ -352,19 +356,17 @@ public class CrmsImportHandler extends ImportHandler {
 // 2000 are imported correctly				
 				
 				
-// truncation solution: add import def flag: Truncate to fit field length, then retry, create warning?  
-//   or  abort this record, create error, continue w next record	
-// UPDATE: custom, hard-coded truncation for certain pediLAVA imports, e.g. Sensory Profile Child	
-// UPDATE: also in setProperty future plan is to consult the metadata for each property and in conjunction
-//         with an importDefinition flag determine how to handle when data length exceeds metadata length
+// X-custom, hard-coded truncation for certain pediLAVA imports, e.g. Sensory Profile Child
+// future plan is to use importDefinition truncate flag (already added to schema) to either truncate or 
+// abort record on error if database truncation exception thrown. to truncate will consult the metadata
+// for each property to find the maxLength
 				
 // other majors:
-// BASC import
-// FileMaker patient import
-// FileMaker Sensory Profile Child import
-// REDCap Sensory Profile Child import
-// for REDCap assessment imports, test patient firstName against nickname if match against firstName failed
-				
+// X-FileMaker patient import
+// X-FileMaker Sensory Profile Child import
+// X-REDCap Sensory Profile Child import
+// X-for REDCap assessment imports, test patient firstName against nickname if match against firstName failed
+// BASC import			
 				
 // Rankin TODOs:
 //   migrate to MAC LAVA
