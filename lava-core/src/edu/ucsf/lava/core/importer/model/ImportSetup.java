@@ -2,8 +2,6 @@ package edu.ucsf.lava.core.importer.model;
 
 import java.io.Serializable;
 
-import edu.ucsf.lava.core.file.model.LavaFile;
-
 /**
  * This class contains properties used during the import of a data file. Note that this
  * is not a persisted class; it just facilitates the import process. 
