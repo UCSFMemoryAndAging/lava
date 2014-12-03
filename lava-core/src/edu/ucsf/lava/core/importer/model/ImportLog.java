@@ -172,10 +172,12 @@ public class ImportLog extends EntityBase {
 	
 	public void addErrorMessage(Integer lineNum, String msg) {
 		this.addMessage(ERROR_MSG, lineNum, msg);
+		this.incErrors();
 	}
 
 	public void addWarningMessage(Integer lineNum, String msg) {
 		this.addMessage(WARNING_MSG, lineNum, msg);
+		this.incWarnings();
 	}
 
 	public void addInfoMessage(Integer lineNum, String msg) {
