@@ -48,6 +48,7 @@
   			<tags:createField property="instrType" component="${component}"/>
   			<tags:createField property="instrVer" component="${component}"/>
   			<tags:createField property="instrCaregiver" component="${component}"/>
+  			<tags:createField property="instrCaregiverExistRule" component="${component}"/>
   			<tags:createField property="instrDcStatus" component="${component}"/>
  		</page:applyDecorator>
 	
