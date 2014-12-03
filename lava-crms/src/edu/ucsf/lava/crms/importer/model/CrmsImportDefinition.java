@@ -74,7 +74,8 @@ public class CrmsImportDefinition extends ImportDefinition {
 	private String instrType;
 	private String instrVer;
 	// is this a caregiver instrument, such that an instance of a Caregiver should be set on the instrument
-	private Short instrCaregiver;
+	private Boolean instrCaregiver;
+	private Short instrCaregiverExistRule; // support MAY_OR_MAY_NOT_EXIST and MUST_EXIST (single rule suffices if multiple instruments)	
 	private String instrDcStatus;
 	
 	public CrmsImportDefinition(){
@@ -229,12 +230,20 @@ public class CrmsImportDefinition extends ImportDefinition {
 		this.instrVer = instrVer;
 	}
 
-	public Short getInstrCaregiver() {
+	public Boolean getInstrCaregiver() {
 		return instrCaregiver;
 	}
 
-	public void setInstrCaregiver(Short instrCaregiver) {
+	public void setInstrCaregiver(Boolean instrCaregiver) {
 		this.instrCaregiver = instrCaregiver;
+	}
+
+	public Short getInstrCaregiverExistRule() {
+		return instrCaregiverExistRule;
+	}
+
+	public void setInstrCaregiverExistRule(Short instrCaregiverExistRule) {
+		this.instrCaregiverExistRule = instrCaregiverExistRule;
 	}
 
 	public String getInstrDcStatus() {

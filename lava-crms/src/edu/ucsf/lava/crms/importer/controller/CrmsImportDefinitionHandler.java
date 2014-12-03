@@ -153,6 +153,12 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 					LavaComponentFormAction.createRequiredFieldError(errors, "instrDcStatus", getDefaultObjectName());
 				}
 			}
+			
+			if (crmsImportDefinition.getInstrCaregiver()) {
+				if (crmsImportDefinition.getInstrCaregiverExistRule() == null) {
+					LavaComponentFormAction.createRequiredFieldError(errors, "instrCaregiverExistRule", getDefaultObjectName());
+				}
+			}
 		}
 		
 		if (errors.hasFieldErrors()) {

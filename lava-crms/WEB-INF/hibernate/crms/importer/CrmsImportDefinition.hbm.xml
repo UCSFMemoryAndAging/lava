@@ -25,7 +25,8 @@
 		<property name="allowInstrUpdate" column="instr_update" type="boolean"/>
 		<property name="instrType" column="instr_type" type="string" length="25"/>
 		<property name="instrVer" column="instr_ver" type="string" length="25"/>
-		<property name="instrCaregiver" column="instr_caregiver" type="short"/>
+		<property name="instrCaregiver" column="instr_caregiver" type="boolean"/>
+		<property name="instrCaregiverExistRule" column="instr_caregiver_exist_rule" type="short"/>
 		<property name="instrDcStatus" column="instr_dc_status" type="string" length="25"/>
 	</joined-subclass>
 </hibernate-mapping>
