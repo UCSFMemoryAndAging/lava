@@ -25,7 +25,18 @@ VALUES('*.importDefinition.instrCaregiver9','en','lava','crms',NULL,'importDefin
 INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) 
 VALUES('*.importDefinition.instrCaregiver10','en','lava','crms',NULL,'importDefinition','instrCaregiver10',NULL,'i','toggle',NULL,'Caregiver instrument?',NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,'Is this instrument collected from a caregiver?', '2014-11-12 16:33:13');
 
+INSERT INTO viewproperty
+(`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,
+`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,
+`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`)
+VALUES('*.importDefinition.instrCaregiverExistRule','en','lava','crms',NULL,
+'importDefinition','instrCaregiverExistRule',NULL,'i','scale',NULL,
+'Instrument Caregiver Exists Rule',NULL,NULL,NULL,0,NULL,
+'importDefinition.existRules2',NULL,NULL,'Instrument Caregiver Exists Rule','2014-11-30 16:15:01');
+
+
+
 DELETE FROM versionhistory WHERE module='lava-crms-data' AND version='3.5.1';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-VALUES ('lava-crms-data','3.5.1','2014-11-05',3,5,1,0);
+VALUES ('lava-crms-data','3.5.1','2014-12-03',3,5,1,0);
 

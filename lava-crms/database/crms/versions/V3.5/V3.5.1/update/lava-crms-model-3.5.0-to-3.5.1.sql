@@ -42,7 +42,12 @@ ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver8 BOOLEAN NULL DEFA
 ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver9 BOOLEAN NULL DEFAULT NULL AFTER instr_ver9;
 ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver10 BOOLEAN NULL DEFAULT NULL AFTER instr_ver10;
 
+-- add caregiver instrument exist rule to allow importing caregiver instruments where the caregiver does
+-- not yet exist in the database
+ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver_exist_rule SMALLINT NULL DEFAULT NULL AFTER instr_caregiver10;
+
+
 DELETE FROM versionhistory WHERE module='lava-crms-model' AND version='3.5.1';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-VALUES ('lava-crms-model','3.5.1','2014-11-05',3,5,1,0);
+VALUES ('lava-crms-model','3.5.1','2014-12-03',3,5,1,0);
 
