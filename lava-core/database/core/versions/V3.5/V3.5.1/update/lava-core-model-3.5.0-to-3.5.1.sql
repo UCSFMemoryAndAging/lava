@@ -9,6 +9,6 @@ ALTER TABLE `import_log_message` MODIFY `message` VARCHAR(5000);
 
 DELETE FROM versionhistory WHERE module='lava-core-model' AND version='3.5.1';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-VALUES ('lava-core-model','3.5.1','2014-11-05',3,5,1,0);
+VALUES ('lava-core-model','3.5.1','2014-12-03',3,5,1,0);
 
 
