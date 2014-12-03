@@ -4,6 +4,7 @@ import static edu.ucsf.lava.core.importer.model.ImportDefinition.CSV_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.DEFAULT_DATE_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.DEFAULT_TIME_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.TAB_FORMAT;
+import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MAY_OR_MAY_NOT_EXIST;
 import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MUST_EXIST;
 import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MUST_NOT_EXIST;
 
@@ -175,8 +176,9 @@ public class CrmsImportHandler extends ImportHandler {
 						
 				// skip over the data file column headers line (it has already been read into the importSetup
 				// dataCols by the superclass)
-//TODO:  for startLine prob just change to if (lineNum < startLine)				
-				if (lineNum == 1) {
+//TODO: need to test this		
+				int startLine = importDefinition.getStartDataRow() != null ? importDefinition.getStartDataRow() : 2;
+				if (lineNum < startLine) {
 					continue;
 				}
 				
@@ -200,7 +202,6 @@ public class CrmsImportHandler extends ImportHandler {
 	
 				// find existing Patient. possibly create new Patient
 				if ((handlingEvent = patientExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					importLog.incErrors();
 					continue;
 				}
 
@@ -213,7 +214,6 @@ public class CrmsImportHandler extends ImportHandler {
 				// if Patient MUST_EXIST then importing assessment data, so do not deal with creating ContactInfo
 				if (!importDefinition.getPatientExistRule().equals(MUST_EXIST)) {
 					if ((handlingEvent = contactInfoExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-						importLog.incErrors();
 						continue;
 					}
 				}
@@ -232,7 +232,6 @@ public class CrmsImportHandler extends ImportHandler {
 						importSetup.getIndexCaregiverContactInfoState(), importSetup.getIndexCaregiverContactInfoZip(),
 						importSetup.getIndexCaregiverContactInfoPhone1(), importSetup.getIndexCaregiverContactInfoEmail(),
 						lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					importLog.incErrors();
 					continue;
 				}
 				importSetup.setCaregiverCreated((Boolean) handlingEvent.getAttributes().get("caregiverCreated"));
@@ -252,7 +251,6 @@ public class CrmsImportHandler extends ImportHandler {
 						importSetup.getIndexCaregiver2ContactInfoState(), importSetup.getIndexCaregiver2ContactInfoZip(),
 						importSetup.getIndexCaregiver2ContactInfoPhone1(), importSetup.getIndexCaregiver2ContactInfoEmail(),
 						lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					importLog.incErrors();
 					continue;
 				}
 				importSetup.setCaregiver2Created((Boolean) handlingEvent.getAttributes().get("caregiverCreated"));
@@ -267,7 +265,6 @@ public class CrmsImportHandler extends ImportHandler {
 
 				// determine if Patient is Enrolled in Project. possibly create new EnrollmentStatus
 				if ((handlingEvent = enrollmentStatusExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					importLog.incErrors();
 					continue;
 				}
 						
@@ -277,7 +274,6 @@ public class CrmsImportHandler extends ImportHandler {
 			
 					// find matching Visit. possibly create new Visit
 					if ((handlingEvent = visitExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-						importLog.incErrors();
 						continue;
 					}
 
@@ -289,7 +285,6 @@ public class CrmsImportHandler extends ImportHandler {
 							importLog.incAlreadyExist();
 						}
 						else {
-							importLog.incErrors();
 						}
 						continue;
 					}
@@ -297,10 +292,6 @@ public class CrmsImportHandler extends ImportHandler {
 
 
 //RIGHT HERE
-// create a link from the importLog to the importDefinition so user can quickly see what definition was used
-// to support this, definition needs to be a subflow of log
-// UPDATE: did something on this. have to check. maybe works in View import log but not Edit import log?				
-				
 // X-do pedi attachments (consents) when working in the following with LavaFile stuff				
 //   download definition mapping file
 //	 download data file				
@@ -314,7 +305,7 @@ public class CrmsImportHandler extends ImportHandler {
 //   caregiverContactInfo totals since that is tightly bound with caregiver)
 // X-SPDC History Form 2 metadata populated, e.g. marco_lab...history_timestamp (which will be used for versioning)				
 // X-SPDC History Form 2 only showing when run server in non-debug mode - KNOWN ISSUE				
-// confirm that data is being loaded correctly (incl. caregiver livesWithPatient, ContactInfo is
+// X-confirm that data is being loaded correctly (incl. caregiver livesWithPatient, ContactInfo is
 //   for caregiver)
 // need separate definitions for old and current versions because var names from old
 //  need to map to current, e.g. field5 old maps to field6 current, whereas for current
@@ -334,10 +325,10 @@ public class CrmsImportHandler extends ImportHandler {
 //      if Only Import Patients then disable Visit and Instrument fields
 //      if Patient Must Not Exist rule is selected then other exist rules should be disabled and
 //         set to Must Not Exist
-//  make import definition bigger				
+//      if Caregiver Instrument then enable Caregiver Instrument Exist Rule
 // get rid of import section, default to imports section (make sure regular import fails
 //  on SPDC history import				
-// make the mapping data file bind with Spring so on refresh it is not lost, e.g. when a required
+// TODO: make the mapping data file bind with Spring so on refresh it is not lost, e.g. when a required
 //  field error on anohter field. keep in mind that tried this already using the Spring facility to bind
 //  an uploaded file but ran into problems integrating that into our implementation of uploading files
 //  so this is not a minor item
@@ -350,11 +341,17 @@ public class CrmsImportHandler extends ImportHandler {
 // X-add creation of entities as importLog CREATED messages
 // ?? create preview mode, at least for development, that does not do anything to db				
 
+// default import definition field values in PediImportDefinitionHandler to the common case of 
+// importing instrument data. is caregiver instrument the common case?
+				
 // X-call calculate on save (or is it done automatically?)
 				
 // REDCap form exports have 2 digit dates. 4 digit dates always better. make sure 2 digit dates before
 // 2000 are imported correctly				
-				
+								
+// all Pedi new patient should be enrolled in CND Registry if that is not the project in which they were enrolled
+// might want a post-import message stating in what projects new patients were enrolled or put this in the 
+// summary body				
 				
 // X-custom, hard-coded truncation for certain pediLAVA imports, e.g. Sensory Profile Child
 // future plan is to use importDefinition truncate flag (already added to schema) to either truncate or 
@@ -396,21 +393,18 @@ public class CrmsImportHandler extends ImportHandler {
 // 3.0 import detail data files, e.g. Freesurfer 5.1 data				
 				
 				if ((handlingEvent = otherExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					importLog.incErrors();
 					continue;
 				}
 				
 				// iterate thru the values of the current import record, setting each value on the property of an entity, as 
 				// determined by the importDefinition mapping file
 				if ((handlingEvent = setPropertyHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					importLog.incErrors();
 					continue;
 				}
 				
 				// if definition has flag set that this is a caregiver instrument, set the caregiver on the instrument
 				if (importDefinition.getInstrCaregiver() != null && importDefinition.getInstrCaregiver().equals(Short.valueOf((short)1))) {
 					if ((handlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-						importLog.incErrors();
 						continue;
 					}
 				}
@@ -427,7 +421,6 @@ public class CrmsImportHandler extends ImportHandler {
 				// (could fool around with CRUD editing and take out refresh on cancel just to see if changes 
 				// are persisted without explicit call to save)
 				if ((handlingEvent = saveImportRecord(importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					importLog.incErrors();
 					continue;
 				}
 				
@@ -472,36 +465,6 @@ public class CrmsImportHandler extends ImportHandler {
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 				
-		// caregiver instruments have special handling to set their caregiver ID property, which involves putting an "instrumentCaregiverId" 
-		// column in the mapping file even though there is no such column in the data file (the data does presumably have caregiver first and
-		// last names from which an existing Caregiver is matched or a new Caregiver is created)
-////		crmsImportSetup.setIndexInstrCaregiverId(ArrayUtils.indexOf(importSetup.getMappingCols(), "instrumentCaregiverId"));
-		
-		// validate the mapping file data columns against the import file data columns as they should be
-		// identical (mapping file is created by pasting data column headers into row 1)
-////		if ((crmsImportSetup.getIndexInstrCaregiverId() == -1 ? importSetup.getMappingCols().length : importSetup.getMappingCols().length-1) != importSetup.getDataCols().length) {
-	//TODO: go back to using the base class which does this
-	/**	
-		if (importSetup.getMappingCols().length != importSetup.getDataCols().length) {
-			LavaComponentFormAction.createCommandError(errors, "Cannot import. Mismatch in number of columns in mapping file vs data file");
-			return new Event(this,ERROR_FLOW_EVENT_ID);
-		}
-	**/	
-		
-		//TODO: go back to using the base class which does this
-	/**	
-	////	// the "instrumentCaregiverId" column, if used, must be put at the end of the mapping file, for this validation to pass 
-		for (int i=0; i < importSetup.getMappingCols().length; i++) {
-	////		if (importSetup.getMappingCols()[i].equals("instrumentCaregiverId")) {
-	////			break;
-	////		}
-			if (!importSetup.getMappingCols()[i].equals(importSetup.getDataCols()[i])) {
-				LavaComponentFormAction.createCommandError(errors, "Cannot import. Mapping file column name " + importSetup.getMappingCols()[i] + " does not exactly match column header in data file");
-				return new Event(this,ERROR_FLOW_EVENT_ID);
-			}
-		}
-	**/
-		
 		// set indices here as this only needs to be done once for the entire data file
 		
 		// ** the import definition mapping file second row must have entity string and third row must have 
@@ -561,6 +524,9 @@ public class CrmsImportHandler extends ImportHandler {
 		setDataFilePropertyIndex(importSetup, "indexVisitWith", "visit", "visitWith");
 		setDataFilePropertyIndex(importSetup, "indexVisitLoc", "visit", "visitLoc");
 		setDataFilePropertyIndex(importSetup, "indexVisitStatus", "visit", "visitStatus");
+		
+		//TODO: when support multiple instruments for a single import, need separate instrDcDate and instrDcStatus properties, in
+		// conjunction with how handling and setting properties on multiple instruments will be done in general				
 		setDataFilePropertyIndex(importSetup, "indexInstrDcDate", "instrument", "dcDate");
 		setDataFilePropertyIndex(importSetup, "indexInstrDcStatus", "instrument", "dcStatus");
 
@@ -839,7 +805,7 @@ public class CrmsImportHandler extends ImportHandler {
 					contactInfo.setCity(importSetup.getDataValues()[importSetup.getIndexContactInfoCity()]);
 				}
 				if (importSetup.getIndexContactInfoState() != -1) {
-					contactInfo.setState(importSetup.getDataValues()[importSetup.getIndexContactInfoState()]);
+					contactInfo.setState(this.convertStateCode(importSetup.getDataValues()[importSetup.getIndexContactInfoState()], importLog, lineNum));
 				}
 				if (importSetup.getIndexContactInfoZip() != -1) {
 					contactInfo.setZip(importSetup.getDataValues()[importSetup.getIndexContactInfoZip()]);
@@ -915,8 +881,13 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 			}
 			
-			// if Patient MUST_EXIST then importing assessment data, so do not deal with creating Caregivers / ContactInfo
-			if (!importDefinition.getPatientExistRule().equals(MUST_EXIST)) { 
+			// logic to determine whether a Caregiver should be created if there is no match, so cover the conditions where a 
+			// Caregiver could be imported:
+			// if this is a patient only import then yes
+			// if this is an assessment import and it is a caregiver instrument and existRule is MAY_OR_MAY_NOT_EXIST then yes (as 
+			//   opposed to MUST_EXIST)
+			if (importDefinition.getPatientOnlyImport() || 
+					(importDefinition.getInstrCaregiver() && importDefinition.getInstrCaregiverExistRule().equals(MAY_OR_MAY_NOT_EXIST))) { 
 				if (caregiver == null) {
 					caregiverExisted = false;
 					
@@ -959,7 +930,7 @@ public class CrmsImportHandler extends ImportHandler {
 								caregiverContactInfo.setCity(importSetup.getDataValues()[indexContactInfoCity]);
 							}
 							if (indexContactInfoState != -1) {
-								caregiverContactInfo.setState(importSetup.getDataValues()[indexContactInfoState]);
+								caregiverContactInfo.setState(this.convertStateCode(importSetup.getDataValues()[indexContactInfoState], importLog, lineNum));
 							}
 							if (indexContactInfoZip != -1) {
 								caregiverContactInfo.setZip(importSetup.getDataValues()[indexContactInfoZip]);
@@ -1872,9 +1843,19 @@ public class CrmsImportHandler extends ImportHandler {
 	/**
 	 * setInstrumentCaregiver
 	 *
-	 * If the instrument has a caregiver (informant) property, set a caregiver on the property if the
-	 * data file contains a caregiver (i.e. first and last name). The first and last name of the caregiver
-	 * would either match an existing caregiver or populate a new caregiver.
+	 * If the instrument has a caregiver (informant) property, set a caregiver on the property if the data file contains
+	 * a caregiver (i.e. first and last name). The first and last name of the caregiver would either match an existing 
+	 * caregiver or populate a new caregiver.
+	 * 
+	 * The instrument caregiver property must be named "caregiver" and must be of type Caregiver. Caregiver instruments
+	 * that currently only have a caregiver id property must be refactored to also include a Caregiver property (this does
+	 * not require any change to the database schema. Hibernate mapping must change to an association, Java code must have
+	 * a Caregiver property and special setter code, handler must support changing Caregiver). 
+	 * The reason this is required rather than just setting the caregiver id property is because if a new Caregiver has
+	 * just been created by this import, the new Caregiver does has not been persisted and thus does not have a caregiver
+	 * id to set on the instrument. By setting the Caregiver instead of an id, Hibernate will take care of setting 
+	 * the caregiver id on the instrument when the transaction to save all of the entities created for all of the import
+	 * records is committed to the database.
 	 * 
 	 * @param context
 	 * @param errors
@@ -1888,28 +1869,18 @@ public class CrmsImportHandler extends ImportHandler {
 			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum) throws Exception {
 		Event returnEvent = new Event(this, SUCCESS_FLOW_EVENT_ID);
 
-//NOW THAT HAVE CHANGED to Caregiver association, just need an importdefintion flag for Caregiver instrument, and
-// if set then try to set the caregiver here		
-		// special handling for instruments that have a Caregiver
-		// add "instrumentCaregiverId" as the last column of the mapping file even though there is no caregiver ID column in the data file 
-		// This pseudo column should be mapped to the instrument property that stores caregiver ID, as defined in the mapping file
-
-		if (importDefinition.getInstrCaregiver().equals(1)) {
-//		if (importSetup.getIndexInstrCaregiverId() != -1) {
-			if (importSetup.isCaregiverCreated() || importSetup.isCaregiverExisted()) {
-				//TODO:when support multiple instruments in a single import, each caregiver instrument could have an "instrumentCaregiverId" column mapping where the
-				//entity would map it for a specific instrument, so would then need to check mappingEntities for which instrument to set (can assume that the Caregiver
-				//is the same for all instruments on the same row of data).
-				//PROBLEM is then need a separate indexInstrCaregiverId for each instrument, so that needs to be figure out in conjunction with how handling and setting
-				//properties on multiple instruments will be done in general (e.g. also need separate instrDcDate, instrDcStatus properties for each instrument)				
-//				BeanUtils.setProperty(importSetup.getInstrument(), importSetup.getMappingProps()[((CrmsImportSetup)importSetup).getIndexInstrCaregiverId()], ((CrmsImportSetup)importSetup).getCaregiver().getId());
-				importSetup.getInstrument().setCaregiver(importSetup.getCaregiver());
-			}
-			else {
-				importLog.addWarningMessage(lineNum, "No Caregiver found or created to assign to instrument:" + importDefinition.getInstrType() + " for patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()));
-			}
+		if (importSetup.isCaregiverCreated() || importSetup.isCaregiverExisted()) {
+			//TODO:when support multiple instruments in a single import, each caregiver instrument will set its caregiver property to the
+			//same Caregiver, i.e. the Cargiver that was either created or matched based on a caregiver first and last name in the data file
+			
+			//note: if for some reason encounter a caregiver instrument where the name of the Caregiver property is not "caregiver" then 
+			//could add a caregiver property name to CrmsImportDefinition
+			importSetup.getInstrument().setCaregiver(importSetup.getCaregiver());
 		}
-				
+		else {
+			importLog.addWarningMessage(lineNum, "No Caregiver found or created to assign to instrument:" + importDefinition.getInstrType() + " for patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()));
+		}
+			
 		return returnEvent;
 	}
 	
@@ -1922,7 +1893,7 @@ public class CrmsImportHandler extends ImportHandler {
 	 * @param importSetup
 	 * @param entity
 	 * @param propName
-	 * @param i
+	 * @param i 
 	 * @throws Exception
 	 */
 	protected Event setProperty(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup,	CrmsImportLog importLog, LavaEntity entity, String propName, int i, int lineNum) throws Exception {
@@ -2146,6 +2117,21 @@ public class CrmsImportHandler extends ImportHandler {
 			importLog.incExistingInstruments();
 		}
 	}
+	
+	
+	/**
+	 * Subclasses should override if the state property of a ContactInfo record is coded and needs to be converted
+	 * to a standard two character state abbreviation.
+	 * 
+	 * @param stateCodeAsString
+	 * @param importLog
+	 * @param lineNum
+	 * @return
+	 */
+	protected String convertStateCode(String stateCodeAsString, CrmsImportLog importLog, int lineNum) {
+		return stateCodeAsString;
+	}
+
 	
 	
 	@Override
