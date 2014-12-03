@@ -8,6 +8,9 @@ VALUES('*.importDefinition.truncate','en','lava','crms',NULL,'importDefinition',
 INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,`propOrder`,`quickHelp`,`modified`) 
 VALUES('*.importLog.activeQuickFilter','en','lava','app-pedi','','importLog','activeQuickFilter','','i','range','No','Message Quick Filter',NULL,25,NULL,0,NULL,'importLog.quickFilter',NULL,NULL,'Import Log Messages Quick Filter','2014-11-16 10:02:41'); 
 
+UPDATE viewproperty SET size = 40 WHERE messageCode = '*.importDefinition.name';
+UPDATE viewproperty SET size = 40 WHERE messageCode = '*.import.definitionId';
+
 DELETE FROM versionhistory WHERE module='lava-core-data' AND version='3.5.1';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-VALUES ('lava-core-data','3.5.1','2014-11-05',3,5,1,0);
+VALUES ('lava-core-data','3.5.1','2014-12-03',3,5,1,0);
