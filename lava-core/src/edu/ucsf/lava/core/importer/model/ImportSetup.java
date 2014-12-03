@@ -9,7 +9,9 @@ import java.io.Serializable;
  * @author ctoohey
  *
  */public class ImportSetup implements Serializable {
-	private Long definitionId;
+	// storing the ID instead of definition name because the handler must load the ImportDefinition from the 
+	// database to process the import
+	private Long definitionId; 
 	private String notes; // for importLog
 
 	// these are made class properties to facilitate sharing with subclasses
