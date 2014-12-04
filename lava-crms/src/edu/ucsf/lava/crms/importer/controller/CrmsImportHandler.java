@@ -317,8 +317,6 @@ public class CrmsImportHandler extends ImportHandler {
 				
 // pertinent TODOs in code, config, Hibernate mapping, jsp, etc.
 
-// make sure give Warning on Caregiver instrs when no Caregiver
-
 // X-make mapping definition name longer (50?)				
 // import definition UI cleanup (for now move Project near top, ahead of selection of Import
 //  skip logic:
@@ -345,13 +343,6 @@ public class CrmsImportHandler extends ImportHandler {
 // importing instrument data. is caregiver instrument the common case?
 				
 // X-call calculate on save (or is it done automatically?)
-				
-// REDCap form exports have 2 digit dates. 4 digit dates always better. make sure 2 digit dates before
-// 2000 are imported correctly				
-								
-// all Pedi new patient should be enrolled in CND Registry if that is not the project in which they were enrolled
-// might want a post-import message stating in what projects new patients were enrolled or put this in the 
-// summary body				
 				
 // X-custom, hard-coded truncation for certain pediLAVA imports, e.g. Sensory Profile Child
 // future plan is to use importDefinition truncate flag (already added to schema) to either truncate or 
