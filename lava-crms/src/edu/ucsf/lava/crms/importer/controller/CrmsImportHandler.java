@@ -403,7 +403,7 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 				
 				// if definition has flag set that this is a caregiver instrument, set the caregiver on the instrument
-				if (importDefinition.getInstrCaregiver() != null && importDefinition.getInstrCaregiver().equals(Short.valueOf((short)1))) {
+				if (importDefinition.getInstrCaregiver() != null && importDefinition.getInstrCaregiver()) {
 					if ((handlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 						continue;
 					}
