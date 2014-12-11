@@ -1,10 +1,6 @@
 <%@ include file="/WEB-INF/jsp/includes/include.jsp" %>
 
-<%-- this is included by both the import action (for results of an import execution) and the
-importLog action for just reviewing import logs.
-
-when used by the import action note the primary component is 'import' but the log data is in
-'importLog' component
+<%-- this is included by the importLog action for just reviewing import logs.
 
 This content is only displayed in view mode, i.e. there is no concept of editing log content  --%>
 
@@ -16,7 +12,7 @@ This content is only displayed in view mode, i.e. there is no concept of editing
   <page:param name="sectionNameKey">importLog.info.section</page:param>
 	<tags:createField property="importTimestamp" component="${component}"/>
 	<tags:createField property="importedBy" component="${component}"/>
-	<%-- TODO: because of the horizontal alignemnt issue where value is slightly lower than label, and
+	<%-- TODO: because of the horizontal alignment issue where value is slightly lower than label, and
 		because of the following div required (unless it is the last field), redo the inline concept to 
 		pass parameters to createField for the action and create action button within createField --%>
   	<tags:createField property="dataFile.name" component="${component}" inline="true"/>
