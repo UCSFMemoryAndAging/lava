@@ -598,7 +598,7 @@ public class CrmsImportHandler extends ImportHandler {
 			int lineNum) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter = EntityBase.newFilterInstance();
-		SimpleDateFormat formatter;
+		SimpleDateFormat formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
 		String dateOrTimeAsString = null;
 		Date birthDate = null;
 
@@ -622,7 +622,6 @@ public class CrmsImportHandler extends ImportHandler {
 			// birthDate is optional for search as it is often not part of data files
 			if (importSetup.getIndexPatientBirthDate() != -1) {
 				dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexPatientBirthDate()];
-				formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
 				formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
 				try {
 					birthDate = formatter.parse(dateOrTimeAsString);
@@ -693,7 +692,8 @@ public class CrmsImportHandler extends ImportHandler {
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
 				if (p != null) {
-					importLog.addErrorMessage(lineNum, "Patient birth date may be incorrect in either data file or LAVA. Patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
+					importLog.addErrorMessage(lineNum, "Patient birth date may be incorrect in either data file (" + dateOrTimeAsString + ") or LAVA (" + 
+							formatter.format(p.getBirthDate()) + "). Patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
 							" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()] + " birthDate:" + dateOrTimeAsString);
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
@@ -745,9 +745,8 @@ public class CrmsImportHandler extends ImportHandler {
 				p.updateCalculatedFields(); // so can use full name in log messages
 				// if the birthDate conversion was not done yet, i.e. PIDN was supplied such that a PIDN match was done (and failed)
 				if (birthDate == null) {
-//look at making this date conversion into a small helper method									
+					//TODO: look at making this date conversion into a small helper method									
 					dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexPatientBirthDate()];
-					formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
 					formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
 					try {
 						birthDate = formatter.parse(dateOrTimeAsString);
@@ -1069,7 +1068,7 @@ public class CrmsImportHandler extends ImportHandler {
 		if (es == null) {
 			if (importDefinition.getEsExistRule().equals(MUST_EXIST)) {
 				importLog.addErrorMessage(lineNum, "Patient Enrollment does not exist for Project:" + importSetup.getRevisedProjName() + 
-						" violating MUST_NOT_EXIST flag. Patient:" + importSetup.getPatient().getFullNameRevWithId());
+						" violating MUST_EXIST flag. Patient:" + importSetup.getPatient().getFullNameRevWithId());
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}else {
 				// for either MUST_NOT_EXIST or MAY_OR_MAY_NOT_EXIST instantiate the Enrollment Status
@@ -1326,7 +1325,7 @@ public class CrmsImportHandler extends ImportHandler {
 		
 		if (v == null) {
 			if (importDefinition.getVisitExistRule().equals(MUST_EXIST)) {
-				importLog.addErrorMessage(lineNum, "Visit does not exist for Patient:" + importSetup.getPatient().getFullNameRev() + " Project:" + importSetup.getRevisedProjName() + " violating MUST_NOT_EXIST flag");
+				importLog.addErrorMessage(lineNum, "Visit does not exist for Patient:" + importSetup.getPatient().getFullNameRev() + " Project:" + importSetup.getRevisedProjName() + " violating MUST_EXIST flag");
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}else {
 				// for either MUST_NOT_EXIST or MAY_OR_MAY_NOT_EXIST instantiate the Enrollment Status
@@ -1487,7 +1486,7 @@ public class CrmsImportHandler extends ImportHandler {
 		
 		if (instr == null) {
 			if (importDefinition.getInstrExistRule().equals(MUST_EXIST)) {
-				importLog.addErrorMessage(lineNum, "Instrument does not exist. Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
+				importLog.addErrorMessage(lineNum, "Instrument does not exist violating MUST_EXIST flag. Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
 						+ " Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}else {
