@@ -587,7 +587,7 @@ public class CrmsImportHandler extends ImportHandler {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter = EntityBase.newFilterInstance();
 		SimpleDateFormat formatter;
-		String dateOrTimeAsString;
+		String dateOrTimeAsString = null;
 		Date birthDate = null;
 
 		// search for existing patient
@@ -647,15 +647,54 @@ public class CrmsImportHandler extends ImportHandler {
 						" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]); 
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
+			
+			// if Patient not found, then determine if it is because of a mismatch in birthDate. if this is the case then return
+			// an ERROR rather than continuing to create a new Patient, because most often in the case where the first and last
+			// name match a Patient but there is no match when the birthDate is also considered it is because of a data entry 
+			// error on the birthDate (either in the data file or in LAVA).
+			
+			// so in this case where the names match without considering the birthDate it is better to return an ERROR rather
+			// than create a new Patient because it is likely that the new Patient will be a duplicate of an existing Patient
+			// it is pain to remove a duplicate Patient with data and either merge that data with the pre-existing Patient
+			// or remove it. better process is that the user will see the error on import, the record will not be imported,
+			
+			// the user will fix the birthDate in the data file or in LAVA, import the data file again, and the data will 
+			// correctly be imported to the pre-existing Patient
+			
+			// the only exception to this would be if there are in fact two patients with the same name, but in this case, the
+			// query here would detect dups and return a Duplicate Patients error, and then the user would need to fix 
+			// the data to accommodate that (most likely by fixing the birthDate in the data file or in LAVA, but possibly
+			// by modifying patient first or last name if that made sense)
+			
+			// only do this if there is a birthDate in the date file because otherwise the match will have already been
+			// done on first and last name without considering birthDate
+			if (importSetup.getIndexPatientBirthDate() != -1) {
+				filter.clearDaoParams();
+				setPatientNameMatchFilter(filter, importSetup);
+				try {
+					p = (Patient) Patient.MANAGER.getOne(filter);
+				}
+				// this should never happen. if re-running import of a data file, should just be one 
+				catch (IncorrectResultSizeDataAccessException ex) {
+					importLog.addErrorMessage(lineNum, "Duplicate Patient records for patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
+							" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]); 
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+				if (p != null) {
+					importLog.addErrorMessage(lineNum, "Patient birth date may be incorrect in either data file or LAVA. Patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
+							" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()] + " birthDate:" + dateOrTimeAsString);
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+			}
 		}
 			
 		if (p == null) {
 			if (importDefinition.getPatientExistRule().equals(MUST_EXIST)) {
 				if (importSetup.getIndexPatientPIDN() != -1) {
-					importLog.addErrorMessage(lineNum, "Patient does not exist violating MUST_NOT_EXIST flag. PIDN:" + importSetup.getDataValues()[importSetup.getIndexPatientPIDN()]); 
+					importLog.addErrorMessage(lineNum, "Patient does not exist violating MUST_EXIST flag. PIDN:" + importSetup.getDataValues()[importSetup.getIndexPatientPIDN()]); 
 				}
 				else {
-					importLog.addErrorMessage(lineNum, "Patient does not exist violating MUST_NOT_EXIST flag.Line:" +  
+					importLog.addErrorMessage(lineNum, "Patient does not exist violating MUST_EXIST flag.Line:" +  
 						" First Name:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] + " Last Name:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]);
 				}
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
