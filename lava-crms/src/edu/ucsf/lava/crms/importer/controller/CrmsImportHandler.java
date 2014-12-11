@@ -202,6 +202,7 @@ public class CrmsImportHandler extends ImportHandler {
 	
 				// find existing Patient. possibly create new Patient
 				if ((handlingEvent = patientExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					this.updateEntityCounts(importSetup, importLog);
 					continue;
 				}
 
@@ -214,6 +215,7 @@ public class CrmsImportHandler extends ImportHandler {
 				// if Patient MUST_EXIST then importing assessment data, so do not deal with creating ContactInfo
 				if (!importDefinition.getPatientExistRule().equals(MUST_EXIST)) {
 					if ((handlingEvent = contactInfoExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+						this.updateEntityCounts(importSetup, importLog);
 						continue;
 					}
 				}
@@ -232,6 +234,7 @@ public class CrmsImportHandler extends ImportHandler {
 						importSetup.getIndexCaregiverContactInfoState(), importSetup.getIndexCaregiverContactInfoZip(),
 						importSetup.getIndexCaregiverContactInfoPhone1(), importSetup.getIndexCaregiverContactInfoEmail(),
 						lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					this.updateEntityCounts(importSetup, importLog);
 					continue;
 				}
 				importSetup.setCaregiverCreated((Boolean) handlingEvent.getAttributes().get("caregiverCreated"));
@@ -251,6 +254,7 @@ public class CrmsImportHandler extends ImportHandler {
 						importSetup.getIndexCaregiver2ContactInfoState(), importSetup.getIndexCaregiver2ContactInfoZip(),
 						importSetup.getIndexCaregiver2ContactInfoPhone1(), importSetup.getIndexCaregiver2ContactInfoEmail(),
 						lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					this.updateEntityCounts(importSetup, importLog);
 					continue;
 				}
 				importSetup.setCaregiver2Created((Boolean) handlingEvent.getAttributes().get("caregiverCreated"));
@@ -265,6 +269,7 @@ public class CrmsImportHandler extends ImportHandler {
 
 				// determine if Patient is Enrolled in Project. possibly create new EnrollmentStatus
 				if ((handlingEvent = enrollmentStatusExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					this.updateEntityCounts(importSetup, importLog);
 					continue;
 				}
 						
@@ -274,6 +279,7 @@ public class CrmsImportHandler extends ImportHandler {
 			
 					// find matching Visit. possibly create new Visit
 					if ((handlingEvent = visitExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+						this.updateEntityCounts(importSetup, importLog);
 						continue;
 					}
 
@@ -281,11 +287,13 @@ public class CrmsImportHandler extends ImportHandler {
 					// importDefinition
 					if ((instrHandlingEvent = instrumentExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 						// it is simply enough to check for the existence of the "alreadyExists" attribute, i.e. do not need to check its value
+						// note: if instrument exists but not data entered it is not considered as already existing because data is imported
+						// into the instrument since it is not overwriting anything, and already existing refers to the existence of data such
+						// that the import record should not be imported because it already exists
 						if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("alreadyExists") != null) {
 							importLog.incAlreadyExist();
 						}
-						else {
-						}
+						this.updateEntityCounts(importSetup, importLog);
 						continue;
 					}
 				}
@@ -384,6 +392,7 @@ public class CrmsImportHandler extends ImportHandler {
 // 3.0 import detail data files, e.g. Freesurfer 5.1 data				
 				
 				if ((handlingEvent = otherExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					this.updateEntityCounts(importSetup, importLog);
 					continue;
 				}
 				
@@ -431,7 +440,10 @@ public class CrmsImportHandler extends ImportHandler {
 					importLog.incImported();
 				}
 				
-				// these counts apply to specific entities within an import record
+				// these counts apply to specific entities within an import record. note that if processing was aborted for an import 
+				// record the entity counts are still updated because want to know what entities already existed, etc. this is done
+				// above where this method is called before every "continue" statement that follows a handling method that matches
+				// an existing entity or creates a new entity
 				updateEntityCounts(importSetup, importLog);
 			}
 		}
@@ -1191,8 +1203,8 @@ public class CrmsImportHandler extends ImportHandler {
 		}
 		
 		// visitType is a required field, not null in the database, so if new Visit will be created it must be
-		// either supplied in the data file, or more likely, specified in the import definition (assuming it
-		// is accurate to assign the same visitType to every visit created within the same import)
+		// either supplied in the data file or specified in the import definition (if it is accurate to assign
+		// the same visitType to every visit created within the same import)
 		visitType = importSetup.getIndexVisitType() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitType()] : importDefinition.getVisitType();
 
 		
@@ -1207,13 +1219,13 @@ public class CrmsImportHandler extends ImportHandler {
 		// this handles this scenario. Patient AB comes in and has a Sensory Profile - Child assessment done under
 		// Project Pedi Evo Training in 2009. In 2010 the same patient has a Sensory Profile - Child which is done
 		// for Project SPD WES. The export data file for Sensory Profile - Child is cumulative over time such that
-		// it now contains Sensory Profile - Child two records for Patient AB im 2009 and 2010. When importing the
+		// it now contains two Sensory Profile - Child records for Patient AB: in 2009 and 2010. When importing the
 		// data file in 2010 under Project SPD WES, if the Visit match included a check for Project, it would not 
 		// find the Visit for SPD WES and properly create the Visit and then the Sensory Profile - Child in the Visit.
 		// However, it would not find an SPD WES Visit in 2009 since that was a Pedi Evo Training Visit and it will
 		// therefore erroneously create an SPD WES Visit in 2009 and import the 2009 Sensory Profile - Child data
 		// which already is imported and exists under a Pedi Evo Training Visit in 2009 (on the exact same date as
-		// the SPD WES Visit). By removing the Visit match on Project, this will not happen. Ignoringn Project, the 
+		// the SPD WES Visit). By removing the Visit match on Project, this will not happen. Ignoring Project, the 
 		// system will match a Visit for patient AB in 2009 that has a Sensory Profile - Child and therefore will
 		// not import data that has already been imported.
 		filter.clearDaoParams();
@@ -1499,9 +1511,13 @@ public class CrmsImportHandler extends ImportHandler {
 				// using deDate to determine if instrument has been data entered. not looking for a specific deStatus
 				// such as 'Complete' since data entry could have any number of deStatus values
 				if (instr.getDeDate() == null) {
+					// in this case since the instrument has not had any data entered it is ok to use the existing instrument
+					// for the import
 					importSetup.setInstrExisted(true);
 				}
 				else {
+					// CURRENTLY NOT ENABLED, i.e. user cannot set this flag in the import definition yet. waiting for
+					// import to be thoroughly tested for new data before get into updating existing data
 					if (importDefinition.getAllowInstrUpdate()) {
 						importSetup.setInstrExistedWithData(true);
 						// set an attribute on the return event so the caller can distinguish between an error and the
@@ -2100,7 +2116,6 @@ public class CrmsImportHandler extends ImportHandler {
 		if (importSetup.isInstrCreated()) {
 			importLog.incNewInstruments();
 		}
-		// both instrument existed flags will be set but "WithData" takes precedence
 		if (importSetup.isInstrExistedWithData()) {
 			importLog.incExistingInstrumentsWithData();
 		}
