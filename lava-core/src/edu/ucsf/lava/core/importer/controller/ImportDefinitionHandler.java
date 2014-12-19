@@ -31,7 +31,7 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	public ImportDefinitionHandler() {
 		super();
 		setHandledEntity("importDefinition", ImportDefinition.class);
-		this.setRequiredFields(new String[]{"name", "dataFileFormat"});
+		this.setRequiredFields(new String[]{"name", "dataFileFormat", "startDataRow"});
 		this.setSupportsAttachedFiles(true);
 	}
 	
