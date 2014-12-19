@@ -29,6 +29,7 @@ public class ImportDefinition extends EntityBase {
 
 	public ImportDefinition(){
 		super();
+		this.startDataRow = 2; // default
 		this.setAuditEntityType("ImportDefinition");
 	}
 
