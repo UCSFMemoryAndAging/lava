@@ -18,10 +18,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.util.StringUtils;
@@ -679,23 +681,25 @@ public class CrmsImportHandler extends ImportHandler {
 			
 			// only do this if there is a birthDate in the date file because otherwise the match will have already been
 			// done on first and last name without considering birthDate
-			if (importSetup.getIndexPatientBirthDate() != -1) {
-				filter.clearDaoParams();
-				setPatientNameMatchFilter(filter, importSetup);
-				try {
-					p = (Patient) Patient.MANAGER.getOne(filter);
-				}
-				// this should never happen. if re-running import of a data file, should just be one 
-				catch (IncorrectResultSizeDataAccessException ex) {
-					importLog.addErrorMessage(lineNum, "Duplicate Patient records for patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
-							" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]); 
-					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
-				}
-				if (p != null) {
-					importLog.addErrorMessage(lineNum, "Patient birth date may be incorrect in either data file (" + dateOrTimeAsString + ") or LAVA (" + 
-							formatter.format(p.getBirthDate()) + "). Patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
-							" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()] + " birthDate:" + dateOrTimeAsString);
-					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			if (p == null) {
+				if (importSetup.getIndexPatientBirthDate() != -1) {
+					filter.clearDaoParams();
+					setPatientNameMatchFilter(filter, importSetup);
+					try {
+						p = (Patient) Patient.MANAGER.getOne(filter);
+					}
+					// this should never happen. if re-running import of a data file, should just be one 
+					catch (IncorrectResultSizeDataAccessException ex) {
+						importLog.addErrorMessage(lineNum, "Duplicate Patient records for patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
+								" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]); 
+						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+					}
+					if (p != null) {
+						importLog.addErrorMessage(lineNum, "Patient birth date may be incorrect in either data file (" + dateOrTimeAsString + ") or LAVA (" + 
+								formatter.format(p.getBirthDate()) + "). Patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
+								" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()] + " birthDate:" + dateOrTimeAsString);
+						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+					}
 				}
 			}
 		}
@@ -1711,6 +1715,33 @@ public class CrmsImportHandler extends ImportHandler {
 			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum) throws Exception {
 		Event returnEvent = new Event(this, SUCCESS_FLOW_EVENT_ID);
 		String definitionColName, definitionPropName, definitionEntityName;
+		// for error messaging
+		String visitDateAsString = ((CrmsImportDefinition)importDefinition).getPatientOnlyImport() ? "" : "Visit Date:" + importSetup.getVisit().getVisitDate(); 
+		
+		// the primary part of an assessment import is importing the instrument variables. to make the end users job easier support
+		// ignoring case on the instrument property names in the import definition mapping file. part of the implementation for that 
+		// involves acquiring the set of all correct instrument property names, and that would be expensive to retrieve when processing
+		// each property, so instead just retrieve it once here and pass it into setProperty for each instrument property
+		Map<String,Object> instrPropNamesMap = new HashMap<String,Object>();
+		try {
+			instrPropNamesMap = PropertyUtils.describe(importSetup.getInstrument());
+		}
+		catch (InvocationTargetException ex2) {
+			importLog.addErrorMessage(lineNum, "[InvocationTargetException] Error on PropertyUtils.describe. Patient:" + 
+					(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
+		catch (IllegalAccessException ex2) {
+			importLog.addErrorMessage(lineNum, "[IllegalAccessException] Error on PropertyUtils.describe. Patient:" + 
+					(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
+		catch (NoSuchMethodException ex2) {
+			importLog.addErrorMessage(lineNum, "[NoSuchException] Error on PropertyUtils.describe. Patient:" + 
+					(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
+
 		for (int i = 0; i < importSetup.getDataValues().length; i++) {
 			returnEvent = new Event(this, SUCCESS_FLOW_EVENT_ID);
 			
@@ -1781,7 +1812,7 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 				
 				// set property on the first instrument specified in importDefinition
-				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument(), propName, i, lineNum);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument(), propName, i, instrPropNamesMap.keySet(), lineNum);
 			}
 			//Patient properties
 			else if (definitionEntityName.equalsIgnoreCase("patient")) {
@@ -1798,7 +1829,7 @@ public class CrmsImportHandler extends ImportHandler {
 					// don't need to set properties already set when Patient was created
 					if (!definitionPropName.equalsIgnoreCase("firstName") && !definitionPropName.equalsIgnoreCase("lastName") && !definitionPropName.equalsIgnoreCase("birthDate")
 							&& !definitionPropName.equalsIgnoreCase("gender")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getPatient(), definitionPropName, i, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getPatient(), definitionPropName, i, null, lineNum);
 					}
 				}
 			}
@@ -1809,7 +1840,7 @@ public class CrmsImportHandler extends ImportHandler {
 					if (!definitionPropName.equalsIgnoreCase("address") && !definitionPropName.equalsIgnoreCase("city") &&
 							!definitionPropName.equalsIgnoreCase("state") && !definitionPropName.equalsIgnoreCase("zip") &&
 							!definitionPropName.equalsIgnoreCase("phone1") && !definitionPropName.equalsIgnoreCase("email")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getContactInfo(), definitionPropName, i, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getContactInfo(), definitionPropName, i, null, lineNum);
 					}
 				}
 			}
@@ -1818,7 +1849,7 @@ public class CrmsImportHandler extends ImportHandler {
 				if (importSetup.isCaregiverCreated()) {
 					// don't need to set properties already set when Caregiver was created
 					if (!definitionPropName.equalsIgnoreCase("firstName") && !definitionPropName.equalsIgnoreCase("lastName")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiver(), definitionPropName, i, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiver(), definitionPropName, i, null, lineNum);
 					}
 				}
 			}
@@ -1829,7 +1860,7 @@ public class CrmsImportHandler extends ImportHandler {
 					if (!definitionPropName.equalsIgnoreCase("address") && !definitionPropName.equalsIgnoreCase("city") &&
 							!definitionPropName.equalsIgnoreCase("state") && !definitionPropName.equalsIgnoreCase("zip") &&
 							!definitionPropName.equalsIgnoreCase("phone1") && !definitionPropName.equalsIgnoreCase("email")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiverContactInfo(), definitionPropName, i, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiverContactInfo(), definitionPropName, i, null, lineNum);
 					}
 				}
 			}
@@ -1838,7 +1869,7 @@ public class CrmsImportHandler extends ImportHandler {
 				if (importSetup.isCaregiver2Created()) {
 					// don't need to set properties already set when Caregiver2 was created
 					if (!definitionPropName.equalsIgnoreCase("firstName") && !definitionPropName.equalsIgnoreCase("lastName")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiver2(), definitionPropName, i, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiver2(), definitionPropName, i, null, lineNum);
 					}
 				}
 			}
@@ -1849,14 +1880,14 @@ public class CrmsImportHandler extends ImportHandler {
 					if (!definitionPropName.equalsIgnoreCase("address") && !definitionPropName.equalsIgnoreCase("city") &&
 							!definitionPropName.equalsIgnoreCase("state") && !definitionPropName.equalsIgnoreCase("zip") &&
 							!definitionPropName.equalsIgnoreCase("phone1") && !definitionPropName.equalsIgnoreCase("email")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiver2ContactInfo(), definitionPropName, i, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiver2ContactInfo(), definitionPropName, i, null, lineNum);
 					}
 				}
 			}
 			//EnrollmentStatus properties
 			else if (definitionEntityName.equalsIgnoreCase("enrollmentStatus")) {
 				if (importSetup.isEnrollmentStatusCreated()) {
-					returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getEnrollmentStatus(), definitionPropName, i, lineNum);
+					returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getEnrollmentStatus(), definitionPropName, i, null, lineNum);
 				}
 			}
 			//Visit properties
@@ -1865,13 +1896,13 @@ public class CrmsImportHandler extends ImportHandler {
 					// don't need to set properties already set when Visit was created
 					if (!definitionPropName.equalsIgnoreCase("visitDate") && !definitionPropName.equalsIgnoreCase("visitType") && !definitionPropName.equalsIgnoreCase("visitLocation")
 							&& !definitionPropName.equalsIgnoreCase("visitWith") && !definitionPropName.equalsIgnoreCase("visitStatus")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getVisit(), definitionPropName, i, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getVisit(), definitionPropName, i, null, lineNum);
 					}
 				}
 			}
 			else {
 				// allow subclasses to set entity properties for any custom behavior
-				returnEvent = setOtherPropertyHandling(importDefinition, importSetup, importLog, i, lineNum);
+				returnEvent = setOtherPropertyHandling(importDefinition, importSetup, importLog, i, instrPropNamesMap.keySet(), lineNum);
 			}
 			
 			// abort import of the current record if there was an error setting the imported value on the property
@@ -1941,7 +1972,9 @@ public class CrmsImportHandler extends ImportHandler {
 	 * @param i 
 	 * @throws Exception
 	 */
-	protected Event setProperty(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup,	CrmsImportLog importLog, LavaEntity entity, String propName, int i, int lineNum) throws Exception {
+	protected Event setProperty(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup,	CrmsImportLog importLog, LavaEntity entity, String propName, int i, Set<String> propNamesSet, int lineNum) throws Exception {
+		String entityPropName = propName; // if there is a case mismatch the entityPropName will be reset to the correct case
+		boolean propIgnoreCaseMatch = false;
 		// default BeanUtils converter will set empty values to a default which is not null, so change the
 		// behavior so property is set to null
 		// note: could just skip null values since property value is already null on new instrument, but if
@@ -1961,29 +1994,78 @@ public class CrmsImportHandler extends ImportHandler {
 			// -1 - array types defaulted to null
 			this.getConvertUtilsBean().register(false, true, -1);
 		}
+
+		logger.info("setting propName="+propName+" to value="+importSetup.getDataValues()[i]);
+		// for error messaging 
+		String visitDateAsString = ((CrmsImportDefinition)importDefinition).getPatientOnlyImport() ? "" : "Visit Date:" + importSetup.getVisit().getVisitDate(); 
+
+		try {
+			// do a getSimpleProperty to determine if the mapped property name matches a property. if it does not
+			// then this method will throw NoSuchMethodException. have to do this separately from setProperty because
+			// BeanUtils.setProperty does not throw that exception and does not indicated anything if the property 
+			// does not exist (PropertyUtils.setProperty does, but using BeanUtils.setProperty because it does
+			// automatic type conversion without having to explicitly specify the type)
+			Object propValue = PropertyUtils.getSimpleProperty(entity, propName);
+		}
+		catch (NoSuchMethodException ex) {
+			// if will not be checking if there is a match when ignoring case then this is an error
+			if (propNamesSet == null) {
+				importLog.addErrorMessage(lineNum, "Property name in import definition mapping file does not exist. Check spelling of property name. Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
+						" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			else {
+				// if the set of property names for the entity was passed in then faciliate ignoring case when matching the property name as
+				// specified in the import definition mapping file against the real property name. this is primariy for instruments since in
+				// most cases the bulk of the import will be instrument variable data, and makes it easier on those creating import definition
+				// mapping files so they don't have to be concerned with an exact match on case
+				
+				// if the mapped property name does not exist, before returning an error, see if it is just a case
+				// mismatch and if so use the correct property name. 
+				// the describe method returns the entire set of properties for which the bean provides a read method
+				for (String beanPropName : propNamesSet){
+					if (propName.equalsIgnoreCase(beanPropName)) {
+						entityPropName = beanPropName;
+						propIgnoreCaseMatch = true;
+						break;
+					}
+				}
+
+				if (!propIgnoreCaseMatch) {
+					importLog.addErrorMessage(lineNum, "Property name in import definition mapping file does not exist in database. Check spelling of property name. Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
+						" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+					return new Event(this, ERROR_FLOW_EVENT_ID);
+				}
+				else {
+					// only report warnings on the first data record because every data record uses the same mapping property names and will have
+					// the same warnings
+					if (importDefinition.getStartDataRow().equals((short)lineNum)) {
+						importLog.addWarningMessage(lineNum, "Value was imported, but there was a case mismatch between property name in import definition mapping file:" + propName + " and real property name:" + entityPropName + " for all rows");
+					}
+				}
+			}
+		}
+
 		try {
 			// use Apache Commons BeanUtils rather than PropertyUtils as BeanUtils will convert the data value
 			// from String to its correct type
 			
 			logger.info("setting propName="+propName+" to value="+importSetup.getDataValues()[i]);
 			
-			BeanUtils.setProperty(entity, propName, importSetup.getDataValues()[i]);
+			BeanUtils.setProperty(entity, entityPropName, importSetup.getDataValues()[i]);
 		}
 		catch (InvocationTargetException ex) {
-			String visitDateAsString = ((CrmsImportDefinition)importDefinition).getPatientOnlyImport() ? "" : "Visit Date:" + importSetup.getVisit().getVisitDate(); 
-			importLog.addErrorMessage(lineNum, "[InvocationTargetException] Error setting property: Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
+			importLog.addErrorMessage(lineNum, "[InvocationTargetException] Error setting property: Property:" + entityPropName + " Value:" + importSetup.getDataValues()[i] +  
 					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		catch (IllegalAccessException ex) {
-			String visitDateAsString = ((CrmsImportDefinition)importDefinition).getPatientOnlyImport() ? "" : "Visit Date:" + importSetup.getVisit().getVisitDate(); 
-			importLog.addErrorMessage(lineNum, "[IllegalAccessException] Error setting property: Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
+			importLog.addErrorMessage(lineNum, "[IllegalAccessException] Error setting property: Property:" + entityPropName + " Value:" + importSetup.getDataValues()[i] +  
 					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		catch (Exception ex) {
-			String visitDateAsString = ((CrmsImportDefinition)importDefinition).getPatientOnlyImport() ? "" : "Visit Date:" + importSetup.getVisit().getVisitDate(); 
-			importLog.addErrorMessage(lineNum, "[Exception] Error setting property: Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
+			importLog.addErrorMessage(lineNum, "[Exception] Error setting property: Property:" + entityPropName + " Value:" + importSetup.getDataValues()[i] +  
 					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
@@ -2004,7 +2086,7 @@ public class CrmsImportHandler extends ImportHandler {
 	 * @throws Exception
 	 */
 	protected Event setOtherPropertyHandling(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, 
-			CrmsImportLog importLog, int i, int lineNum) throws Exception {
+			CrmsImportLog importLog, int i, Set<String> propNamesSet, int lineNum) throws Exception {
 		// if property was not set in setPropertyHandling then it is likely that there is a mapping problem, or it is
 		// a custom property that a subclass should handle in an overridden setOtherPropertyHandling
 		importLog.addErrorMessage(lineNum, "Property not set: Mapping column:" + importSetup.getMappingCols()[i] + " Mapping entity:" + importSetup.getMappingEntities()[i] + " Mapping property:" + importSetup.getMappingProps()[i]);
@@ -2021,6 +2103,7 @@ public class CrmsImportHandler extends ImportHandler {
 	 * Caregiver, or for other custom handling. Make sure they call this superclass method. 
 	 */
 	protected Event saveImportRecord(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum) {
+		SimpleDateFormat formatter, msgDateFormatter = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
 		// for new entities must explicitly save since not associated with a Hibernate session. for
 		// updates, entity was retrieved and thus attached to a session and Hibernate dirty checking should
 		// implicitly update the entity
@@ -2032,44 +2115,51 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 			if (importSetup.isContactInfoCreated()) {
 				importSetup.getContactInfo().save();
-				importLog.addCreatedMessage(lineNum, "CONTACT INFO CREATED, Patient:" + importSetup.getPatient().getFullName());
+				importLog.addCreatedMessage(lineNum, "CONTACT INFO CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()));
 			}
 			if (importSetup.isCaregiverCreated()) {
 				importSetup.getCaregiver().save();
-				importLog.addCreatedMessage(lineNum, "CAREGIVER CREATED, Patient:" + importSetup.getPatient().getFullName() +
+				importLog.addCreatedMessage(lineNum, "CAREGIVER CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
 					" Caregiver:" + importSetup.getCaregiver().getFullName());
 			}
 			if (importSetup.isCaregiverContactInfoCreated()) {
 				importSetup.getCaregiverContactInfo().save();
-				importLog.addCreatedMessage(lineNum, "CAREGIVER CONTACT INFO CREATED, Patient:" + importSetup.getPatient().getFullName() +
+				importLog.addCreatedMessage(lineNum, "CAREGIVER CONTACT INFO CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
 					" Caregiver:" + importSetup.getCaregiver().getFullName());
 			}
 			if (importSetup.isCaregiver2Created()) {
 				importSetup.getCaregiver2().save();
-				importLog.addCreatedMessage(lineNum, "CAREGIVER CREATED, Patient:" + importSetup.getPatient().getFullName() +
+				importLog.addCreatedMessage(lineNum, "CAREGIVER CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
 					" Caregiver:" + importSetup.getCaregiver2().getFullName());
 			}
 			if (importSetup.isCaregiver2ContactInfoCreated()) {
 				importSetup.getCaregiver2ContactInfo().save();
-				importLog.addCreatedMessage(lineNum, "CAREGIVER CONTACT INFO CREATED, Patient:" + importSetup.getPatient().getFullName() +
+				importLog.addCreatedMessage(lineNum, "CAREGIVER CONTACT INFO CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
 					" Caregiver:" + importSetup.getCaregiver2().getFullName());
 			}
 			if (importSetup.isEnrollmentStatusCreated()) {
 				importSetup.getEnrollmentStatus().save();
-				importLog.addCreatedMessage(lineNum, "ENROLLMENTSTATUS CREATED, Patient:" + importSetup.getPatient().getFullName() +
+				importLog.addCreatedMessage(lineNum, "ENROLLMENTSTATUS CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
 					" Project:" + importSetup.getRevisedProjName());
 			}
 			if (importSetup.isVisitCreated()) {
 				importSetup.getVisit().save();
-				importLog.addCreatedMessage(lineNum, "VISIT CREATED, Patient:" + importSetup.getPatient().getFullName() +
-					" VisitDate:" + importSetup.getVisit().getVisitDate() + " VisitType:" + importSetup.getVisit().getVisitType());
+				importLog.addCreatedMessage(lineNum, "VISIT CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
+					" VisitDate:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()) + " VisitType:" + importSetup.getVisit().getVisitType());
 			}
+			//TODO: when ready to allow users to overwrite data, also test on importDefinition.getAllowInstrUpdate()
 			// allowInstrUpdate is used to determine whether an already existing instrument which has already
 			// been data entered can be updated
-			if (importSetup.isInstrCreated() || importDefinition.getAllowInstrUpdate()) {
+			if (importSetup.isInstrCreated() || importSetup.isInstrExisted()) {
 				importSetup.getInstrument().save();
-				importLog.addCreatedMessage(lineNum, "INSTRUMENT CREATED, Patient:" + importSetup.getPatient().getFullName() +
+				if (importSetup.isInstrCreated()) {
+					importLog.addCreatedMessage(lineNum, "INSTRUMENT CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
 						" Instrument:" + importDefinition.getInstrType());
+				}
+				if (importSetup.isInstrExisted()) {
+					importLog.addCreatedMessage(lineNum, "EXISTING INSTRUMENT WITH NO DATA USED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
+							" Instrument:" + importDefinition.getInstrType());
+				}
 			}
 		}
 		catch (Exception e) {
