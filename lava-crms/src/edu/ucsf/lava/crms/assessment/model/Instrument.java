@@ -522,7 +522,9 @@ public class Instrument extends CrmsEntity {
 	@Override
 	public boolean getLocked() {
 		// an instrument is considered locked if its parent visit is locked
-		if (getVisit() == null) return super.getLocked();
+		// getVisit().getId() could be null in import when a new instrument references a new Visit
+		// which does not have an id yet
+		if (getVisit() == null || getVisit().getId() == null) return super.getLocked();
 		
 		// this instrument is likely holding proxy values, 
 		//   so cannot do a direct lookup; grab visit from id
@@ -667,8 +669,8 @@ public class Instrument extends CrmsEntity {
 		LavaDaoFilter filter = Instrument.MANAGER.newFilterInstance();
 		filter.addDaoParam(filter.daoEqualityParam("id",this.getId()));
 		instrument = (Instrument) Instrument.MANAGER.getOne(instrClass, filter);
-		
-		return !instrument.hasMissingOrIncompleteFields();
+
+		return (instrument == null ? false : !instrument.hasMissingOrIncompleteFields());
 
 	}
 	
