@@ -34,7 +34,7 @@ VALUES('*.importDefinition.instrCaregiverExistRule','en','lava','crms',NULL,
 'Instrument Caregiver Exists Rule',NULL,NULL,NULL,0,NULL,
 'importDefinition.existRules2',NULL,NULL,'Instrument Caregiver Exists Rule','2014-11-30 16:15:01');
 
-UPDATE viewproperty SET label='Already Existing Instrumens with no data (so can import)',quickHelp='Already Existing Instrumens with no data (so can import)'
+UPDATE viewproperty SET label='Already Existing Instruments with no data (so can import)',quickHelp='Already Existing Instruments with no data (so can import)'
 WHERE messageCode = '*.importLog.existingInstruments';
 
 DELETE FROM versionhistory WHERE module='lava-crms-data' AND version='3.5.1';
