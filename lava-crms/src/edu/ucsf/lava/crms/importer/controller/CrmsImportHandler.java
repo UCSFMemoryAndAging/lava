@@ -326,6 +326,13 @@ public class CrmsImportHandler extends ImportHandler {
 // OT: Add Patient skip logic on Community Dx should disable following field unless "6 - other"			
 				
 // pertinent TODOs in code, config, Hibernate mapping, jsp, etc.
+				
+// validation check: compare DOB to form data collection date
+				
+// instrument property case mismatch mapping vs. reality: this is not a record level warning so
+//   how to report as do not want to repeat for each record of data file. only report these warnings
+//   for the first import record, and do not incWarnings; instead add a new summary counter to 
+//   propCaseMismatchCount to CrmsImportLog 				
 
 // X-make mapping definition name longer (50?)				
 // import definition UI cleanup (for now move Project near top, ahead of selection of Import
@@ -334,8 +341,8 @@ public class CrmsImportHandler extends ImportHandler {
 //      if Patient Must Not Exist rule is selected then other exist rules should be disabled and
 //         set to Must Not Exist
 //      if Caregiver Instrument then enable Caregiver Instrument Exist Rule
-// get rid of import section, default to imports section (make sure regular import fails
-//  on SPDC history import				
+// X-get rid of import section, default to imports section (make sure regular import fails
+//  on SPDC history import)				
 // TODO: make the mapping data file bind with Spring so on refresh it is not lost, e.g. when a required
 //  field error on anohter field. keep in mind that tried this already using the Spring facility to bind
 //  an uploaded file but ran into problems integrating that into our implementation of uploading files
@@ -403,6 +410,17 @@ public class CrmsImportHandler extends ImportHandler {
 				if ((handlingEvent = setPropertyHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 					continue;
 				}
+
+				// if patient only import and nothing was created then nothing to persist
+				if (importDefinition.getPatientOnlyImport()) {
+					if (!importSetup.isPatientCreated() && !importSetup.isContactInfoCreated() && !importSetup.isCaregiverCreated() 
+							&& !importSetup.isCaregiver2Created() && !importSetup.isEnrollmentStatusCreated()) {
+						importLog.incAlreadyExist();
+						this.updateEntityCounts(importSetup, importLog);
+						continue;
+					}
+				}
+				
 				
 				// if definition has flag set that this is a caregiver instrument, set the caregiver on the instrument
 				if (importDefinition.getInstrCaregiver() != null && importDefinition.getInstrCaregiver()) {
@@ -411,6 +429,7 @@ public class CrmsImportHandler extends ImportHandler {
 					}
 				}
 
+				
 				
 				// at this point all values of the import record have been successfully set on entity properties
 
@@ -439,6 +458,8 @@ public class CrmsImportHandler extends ImportHandler {
 					}
 				}
 				else {
+					// before saving already handled situation where nothing created for patient only import, so
+					// know if got this far that something was created, thus increment the import count
 					importLog.incImported();
 				}
 				
@@ -1724,7 +1745,9 @@ public class CrmsImportHandler extends ImportHandler {
 		// each property, so instead just retrieve it once here and pass it into setProperty for each instrument property
 		Map<String,Object> instrPropNamesMap = new HashMap<String,Object>();
 		try {
-			instrPropNamesMap = PropertyUtils.describe(importSetup.getInstrument());
+			if (!importDefinition.getPatientOnlyImport()) {
+				instrPropNamesMap = PropertyUtils.describe(importSetup.getInstrument());
+			}
 		}
 		catch (InvocationTargetException ex2) {
 			importLog.addErrorMessage(lineNum, "[InvocationTargetException] Error on PropertyUtils.describe. Patient:" + 
@@ -1969,7 +1992,12 @@ public class CrmsImportHandler extends ImportHandler {
 	 * @param importSetup
 	 * @param entity
 	 * @param propName
-	 * @param i 
+	 * @param i
+ 	 * @param propNamesSet	populated in setPropertyHandling and any other methods that call setProperty. contains 
+ 	 * 						all of the property names of the entity to which propName belongs to facilitate 
+ 	 * 						ignoring case when matching propName to property on entity. this is only populated for 
+ 	 * 						instrument properties and is empty when setting a property for a non instrument entity
+ 	 * @param lineNum
 	 * @throws Exception
 	 */
 	protected Event setProperty(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup,	CrmsImportLog importLog, LavaEntity entity, String propName, int i, Set<String> propNamesSet, int lineNum) throws Exception {
@@ -2002,27 +2030,34 @@ public class CrmsImportHandler extends ImportHandler {
 		try {
 			// do a getSimpleProperty to determine if the mapped property name matches a property. if it does not
 			// then this method will throw NoSuchMethodException. have to do this separately from setProperty because
-			// BeanUtils.setProperty does not throw that exception and does not indicated anything if the property 
+			// BeanUtils.setProperty does not throw that exception and does not indicate anything if the property 
 			// does not exist (PropertyUtils.setProperty does, but using BeanUtils.setProperty because it does
 			// automatic type conversion without having to explicitly specify the type)
 			Object propValue = PropertyUtils.getSimpleProperty(entity, propName);
 		}
 		catch (NoSuchMethodException ex) {
-			// if will not be checking if there is a match when ignoring case then this is an error
+			// currently propNamesSet is an empty set, rather than null, when case insensitive matching should be used,
+			// so this clause will never be met and will always go to the else clause
 			if (propNamesSet == null) {
+				// property does not exist so this is an error - and since propNamesSet not supplied not checking whether 
+				// the property exists when ignoring case. this would be the case for all non-instrument properties since 
+				// only doing match ignoring case for instrument properties
 				importLog.addErrorMessage(lineNum, "Property name in import definition mapping file does not exist. Check spelling of property name. Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
 						" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
 				return new Event(this, ERROR_FLOW_EVENT_ID);
 			}
 			else {
-				// if the set of property names for the entity was passed in then faciliate ignoring case when matching the property name as
-				// specified in the import definition mapping file against the real property name. this is primariy for instruments since in
-				// most cases the bulk of the import will be instrument variable data, and makes it easier on those creating import definition
-				// mapping files so they don't have to be concerned with an exact match on case
+				// if the set of property names for the entity was populated then faciliate ignoring case when matching the 
+				// property name as specified in the import definition mapping file against the real property name. this is 
+				// primariy for instruments since in most cases the bulk of the import will be instrument variable data, and 
+				// makes it easier on those creating import definition mapping files so they don't have to be concerned with 
+				// an exact match on case
 				
 				// if the mapped property name does not exist, before returning an error, see if it is just a case
-				// mismatch and if so use the correct property name. 
-				// the describe method returns the entire set of properties for which the bean provides a read method
+				// mismatch and if so use the correct property name.
+				
+				// non-instrument entities will not populate propNamesSet so it will be empty and the following loop will 
+				// not iterate and there will be an error
 				for (String beanPropName : propNamesSet){
 					if (propName.equalsIgnoreCase(beanPropName)) {
 						entityPropName = beanPropName;
@@ -2082,7 +2117,10 @@ public class CrmsImportHandler extends ImportHandler {
 	 * 
 	 * @param importDefinition
 	 * @param importSetup
+	 * @param importLog
 	 * @param i
+	 * @param propNamesSet
+	 * @param lineNum
 	 * @throws Exception
 	 */
 	protected Event setOtherPropertyHandling(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, 
