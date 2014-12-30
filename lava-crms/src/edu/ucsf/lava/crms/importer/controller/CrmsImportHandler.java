@@ -933,16 +933,16 @@ public class CrmsImportHandler extends ImportHandler {
 				filter.clearDaoParams();
 				filter.setAlias("patient", "patient");
 				filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
-				filter.addDaoParam(filter.daoEqualityParam("firstName", importSetup.getDataValues()[importSetup.getIndexCaregiverFirstName()]));
-				filter.addDaoParam(filter.daoEqualityParam("lastName", importSetup.getDataValues()[importSetup.getIndexCaregiverLastName()]));
+				filter.addDaoParam(filter.daoEqualityParam("firstName", importSetup.getDataValues()[indexFirstName]));
+				filter.addDaoParam(filter.daoEqualityParam("lastName", importSetup.getDataValues()[indexLastName]));
 				try {
 					caregiver = (Caregiver) Caregiver.MANAGER.getOne(filter);
 				}
 				// this should never happen. if re-running import of a data file, should just be one 
 				catch (IncorrectResultSizeDataAccessException ex) {
 					importLog.addErrorMessage(lineNum, "Duplicate Caregiver records for patient " + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
-							" and Caregiver firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] 
-							+ " lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]);
+							" and Caregiver firstName:" + importSetup.getDataValues()[indexFirstName] 
+							+ " lastName:" + importSetup.getDataValues()[indexLastName]);
 					return new Event(this, "error"); // to abort processing this import record
 				}
 			}
