@@ -56,6 +56,7 @@
 		<property name="familyStudy" column="FamilyStudy" type="string" length="50"/>
 		<property name="relationToProband" column="RelationToProband" type="string" length="25"/>
 		<property name="probandCandidate" column="ProbandCandidate" type="short"/>
+		<property name="twin" column="twin" type="short"/>
 		<property name="twinZygosity" column="twinZygosity" type="short"/>
 		<property name="twinId" column="TwinID" type="string" length="2"/>
 		<property name="relationNotes" column="RelationNotes" type="string" length="100"/>

@@ -63,6 +63,7 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 	private String familyStudy;
 	private String relationToProband;
 	private Short probandCandidate;
+	private Short twin;
 	private Short twinZygosity;
 	private String twinId;
 	private String relationNotes;
@@ -287,6 +288,14 @@ public static final String DEIDENTIFIED = "DE-IDENTIFIED";
 
 	public void setProbandCandidate(Short probandCandidate) {
 		this.probandCandidate = probandCandidate;
+	}
+	
+	public Short getTwin() {
+		return twin;
+	}
+
+	public void setTwin(Short twin) {
+		this.twin = twin;
 	}
 
 	public Short getTwinZygosity() {
