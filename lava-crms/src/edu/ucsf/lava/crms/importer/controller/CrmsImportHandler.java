@@ -178,7 +178,7 @@ public class CrmsImportHandler extends ImportHandler {
 						
 				// skip over the data file column headers line (it has already been read into the importSetup
 				// dataCols by the superclass)
-//TODO: need to test this		
+//TODO: need to test this (believe that BASC export file has 2 header rows so that would be a good test)		
 				int startLine = importDefinition.getStartDataRow() != null ? importDefinition.getStartDataRow() : 2;
 				if (lineNum < startLine) {
 					continue;
@@ -327,7 +327,7 @@ public class CrmsImportHandler extends ImportHandler {
 				
 // pertinent TODOs in code, config, Hibernate mapping, jsp, etc.
 				
-// validation check: compare DOB to form data collection date
+// validation check: compare DOB to form data collection date, as sometimes user enters current date for DOB
 				
 // instrument property case mismatch mapping vs. reality: this is not a record level warning so
 //   how to report as do not want to repeat for each record of data file. only report these warnings
@@ -351,6 +351,7 @@ public class CrmsImportHandler extends ImportHandler {
 // help text: (maybe) if mapping file changes, have to re-upload
 // importLogContent / crmsImportLogContent format log summary results in a table
 // importLog/crmsImportLog needs to get rid of Edit button
+// allow Edit of import log where only the Notes field can be edited so can put in notes about things that happened in import				
 // X-crmsAllImportLogs needs a QuickFilter
 // test that deleting import definition deletes the mapping file
 // X-add creation of entities as importLog CREATED messages
