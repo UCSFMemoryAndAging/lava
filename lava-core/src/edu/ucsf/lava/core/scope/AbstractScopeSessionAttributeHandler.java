@@ -10,8 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.ucsf.lava.core.list.model.LabelValueBean;
-
 /**
  * A base class that implements the core functionality and interface of a ScopeSessionAttributeHanlder
  * 
@@ -24,7 +22,7 @@ public abstract class AbstractScopeSessionAttributeHandler implements Comparable
 	protected ScopeSessionAttributeHandlers attributeHandlers;
 	protected String handledScope;
 	protected Long order;
-    protected Set handledAttributes = new HashSet<String>();
+    protected Set<String> handledAttributes = new HashSet<String>();
     /** Logger for this class and subclasses */
     protected final Log logger = LogFactory.getLog(getClass());
 
@@ -37,7 +35,7 @@ public abstract class AbstractScopeSessionAttributeHandler implements Comparable
      */
 	public List<String> getHandledAttributes() {
 		
-		return new ArrayList(handledAttributes);
+		return new ArrayList<String>(handledAttributes);
 	}
 	
 	
