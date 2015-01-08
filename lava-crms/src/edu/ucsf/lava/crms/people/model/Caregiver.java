@@ -337,18 +337,18 @@ public class Caregiver extends CrmsEntity {
 	}
 
 	
-	
-
 	public boolean afterUpdate() {
 		boolean resave = super.afterUpdate();
 		List<ContactInfo> contactInfos = ContactInfo.getForCaregiver(this);
 		for(ContactInfo contactInfo:contactInfos){
-			contactInfo.save(); //this ensures that the caregiver name is correct on the contact info records
+			// this ensures that the caregiver name is correct on the contact info records because ContactInfo
+			// calls updateContactNameRev on save
+			contactInfo.save(); 
 		}
 		return resave;
 	}
 
-
+	
 	public void updateCalculatedFields(){
 		super.updateCalculatedFields();
 		updateFullName();

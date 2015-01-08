@@ -36,5 +36,8 @@ may be needed using the authorizationService to ensure that the user has permiss
 <filter-def name="patient">
     <filter-param name="patientId" type="long"/>
 </filter-def>
+<filter-def name="caregiver">
+    <filter-param name="caregiverId" type="long"/>
+</filter-def>
 
 </hibernate-mapping>

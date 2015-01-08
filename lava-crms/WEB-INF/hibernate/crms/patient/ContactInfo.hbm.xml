@@ -48,6 +48,8 @@
 	<filter name="validPatient"/>  
 	<filter name="projectContext" condition="PIDN IN (select p.PIDN from enrollmentstatus p where PIDN=p.PIDN and  p.projName=:projectContext)"/>
 	<filter name="patient" condition=":patientId=PIDN"/>	
+	<!-- to retrieve all ContactInfo records for a Caregiver -->
+    <filter name="caregiver" condition=":caregiverId=CareID"/>	
 </class>
 
 

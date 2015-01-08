@@ -463,7 +463,7 @@ public class ContactInfo extends CrmsEntity {
 	public static List<ContactInfo> getForCaregiver(Caregiver caregiver){
 		if(caregiver!=null && caregiver.getId()!=null){
 			LavaDaoFilter filter = MANAGER.newFilterInstance(); 
-			filter.addDaoParam(filter.daoEqualityParam("caregiverId",caregiver.getId()));
+			filter.setContextFilter("caregiver", "caregiverId", caregiver.getId());
 			return MANAGER.get(filter);
 		}
 		return new ArrayList<ContactInfo>();
