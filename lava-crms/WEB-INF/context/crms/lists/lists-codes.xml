@@ -36,19 +36,19 @@
 	
 	<bean id="list.ref.totalErrorCode" parent="list.dataOnly">
 		<property name="data"><list>
-			<bean parent="list.data"><constructor-arg value="Cannot Total"/><constructor-arg value="-5"/><constructor-arg value="-4"/></bean>
+			<bean parent="list.data"><constructor-arg value="Cannot Total"/><constructor-arg value="-5"/><constructor-arg value="-4" type="java.lang.Integer"/></bean>
 		</list></property>
 	</bean>
 	
 	<bean id="list.ref.logicalSkipErrorCode" parent="list.dataOnly">
 		<property name="data"><list>
-			<bean parent="list.data"><constructor-arg value="Logical Skip"/><constructor-arg value="-6"/><constructor-arg value="-3"/></bean>
+			<bean parent="list.data"><constructor-arg value="Logical Skip"/><constructor-arg value="-6"/><constructor-arg value="-3" type="java.lang.Integer"/></bean>
 		</list></property>
 	</bean>	
 	
 	<bean id="list.ref.totalErrorCodeDecimal" parent="list.dataOnly">
 		<property name="data"><list>
-			<bean parent="list.data"><constructor-arg value="Cannot Total"/><constructor-arg value="-5.0"/><constructor-arg value="-4"/></bean>
+			<bean parent="list.data"><constructor-arg value="Cannot Total"/><constructor-arg value="-5.0"/><constructor-arg value="-4" type="java.lang.Integer"/></bean>
 		</list></property>
 	</bean>	
 					

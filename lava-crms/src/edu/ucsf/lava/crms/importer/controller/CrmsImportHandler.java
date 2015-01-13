@@ -2075,9 +2075,10 @@ public class CrmsImportHandler extends ImportHandler {
 				else {
 					// only report warnings on the first data record because every data record uses the same mapping property names and will have
 					// the same warnings
-					if (importDefinition.getStartDataRow().equals((short)lineNum)) {
-						importLog.addWarningMessage(lineNum, "Value was imported, but there was a case mismatch between property name in import definition mapping file:" + propName + " and real property name:" + entityPropName + " for all rows");
-					}
+					// update: not much point in giving this warning. could potentially be many needless warning messages so commenting out for now
+					//if (importDefinition.getStartDataRow().equals((short)lineNum)) {
+					//	importLog.addWarningMessage(lineNum, "Value was imported, but there was a case mismatch between property name in import definition mapping file:" + propName + " and real property name:" + entityPropName + " for all rows");
+					//}
 				}
 			}
 		}
