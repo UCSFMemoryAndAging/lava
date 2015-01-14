@@ -53,6 +53,16 @@ public class LavaDaoHibernateImpl extends HibernateDaoSupport implements LavaDao
 	protected void saveLavaEntity(LavaEntity entity){
 		entity.beforeCreate();
 		getHibernateTemplate().saveOrUpdate(entity);
+		// the following refresh was required when encountering an inexplicable StaleObjectStateException which
+		// occurred on prodction but not on dev even with dev pointing to production db. the fact that an update
+		// was being done following an insert triggered this exception, but doing a refresh here prevents the
+		// exception
+//TODO: while this fixed problem with attachments (e.g. Consent attachments) LavaFile afterCreate, it breaks
+//saving importLog messages so comment out and will need to handle the LavaFile afterCreate another way, possibly
+//using custom save code. can't remember exactly when it happened on production, on save? see dev-gotchas.txt for
+//a few more details. it also causes the importLog definition association to change to a proxy resulting in exception
+//in the view when trying to display definition.name		
+//		getHibernateTemplate().refresh(entity);			
 		boolean resave = entity.afterCreate();
 		if(resave){
 			getHibernateTemplate().saveOrUpdate(entity);

@@ -8,10 +8,6 @@ import edu.ucsf.lava.core.model.EntityManager;
 import edu.ucsf.lava.crms.model.CrmsEntity;
 import edu.ucsf.lava.crms.people.model.Patient;
 
-// TODO: add audit properties/audit stored procs for the PatientDetails EnrollmentStatus classes.
-// there is currently a hack in the DAO save/delete methods to audit the EnrollmentStatus class without
-// auditing these subclasses
-
 public class EnrollmentStatus extends CrmsEntity {
 	public static EntityManager MANAGER = new EntityBase.Manager(EnrollmentStatus.class);
 	

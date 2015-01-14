@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- this is the standard crms import without any specific instrument or other customization. it will
+		handle import records with Patient, Enrollment Status, Visit and instrument fields (where there
+		is not custom behavior needed, such as an importing a data file into two related instruments) -->
+	<!--  note that the way to do scope overrides of core scope actions is to use customizedFlow, in which
+		case the action inherits the configuration of the core action it is customizing, i.e. flowTypeBuilder,
+		parentFlows -->
+	<bean id="crmsImportAction" abstract="true" parent="crmsAction">
+ 		<property name="flowTypeBuilder"><ref bean="coreImportFlowTypeBuilder"/></property>
+ 	</bean>
+		
+ 	<bean id="lava.crms.importer.import.crmsImport" parent="crmsImportAction">
+     	<property name="customizedFlow" value="lava.core.importer.import.import"/>
+ 	</bean>
+
+ 	<bean id="lava.crms.importer.launcher.crmsImportLaunch" parent="crmsAction">
+ 		<property name="flowTypeBuilder"><ref bean="coreStaticPageFlowTypeBuilder"/></property>
+     	<property name="customizedFlow" value="lava.core.importer.launcher.importLaunch"/>
+	</bean> 	
+
+	<bean id="lava.crms.importer.log.crmsAllImportLogs" parent="crmsSectionListAction">
+     	<property name="customizedFlow" value="lava.core.importer.log.allImportLogs"/>
+ 	</bean>
+				
+	<!-- user can view import log which will have details (info, warning alert msgs), but there
+		is no add/edit/delete (log entries are added in by the importing action)  -->
+	<!-- note that a customizing flow inherits that parentFlows of the action it customizes, so
+		in this case the crms importLog action has the same parentFlows as the core importLog 
+		action, core allImportLogs, which is itself customized by the above crsm allImportLogs 
+		action --> 	
+	<bean id="lava.crms.importer.log.crmsImportLog" parent="crmsEntityFlowAction">
+     	<property name="customizedFlow" value="lava.core.importer.log.importLog"/>
+	</bean>	
+
+	<bean id="lava.crms.importer.definition.crmsAllImportDefinitions" parent="crmsSectionListAction">
+     	<property name="customizedFlow" value="lava.core.importer.definition.allImportDefinitions"/>
+ 	</bean>
+				
+ 	<bean id="lava.crms.importer.definition.crmsImportDefinition" parent="crmsEntityFlowAction">
+     	<property name="customizedFlow" value="lava.core.importer.definition.importDefinition"/>
+	</bean>
+
+	<!-- form action definitions -->
+	
+	<bean id="crmsImportFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsImportHandler" parent="crmsHandler"/>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsAllImportLogsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+   
+	<bean id="crmsImportLaunchFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.controller.CrmsStaticPageHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+   
+	<bean id="crmsAllImportLogsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsAllImportLogsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	   
+
+	<bean id="crmsImportLogFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsImportLogHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+   
+	<bean id="crmsAllImportDefinitionsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsAllImportDefinitionsHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>  	   
+ 
+ 	<bean id="crmsImportDefinitionFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsImportDefinitionHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+ 
+</beans>

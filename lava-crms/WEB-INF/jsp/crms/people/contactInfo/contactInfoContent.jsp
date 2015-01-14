@@ -36,12 +36,16 @@
   <page:param name="sectionId">phoneEmail</page:param>
   <page:param name="sectionNameKey">contactInfo.phoneEmail.section</page:param>
   <page:param name="quicklinkPosition">top</page:param>
+		<tags:createField property="preferredContactMethod" component="${component}"/>
 		<tags:createField property="phone1" component="${component}"/>
 		<tags:createField property="phoneType1" component="${component}"/>
+		<tags:createField property="bestTimePhone1" component="${component}"/>
 		<tags:createField property="phone2" component="${component}"/>
 		<tags:createField property="phoneType2" component="${component}"/>
+		<tags:createField property="bestTimePhone2" component="${component}"/>
 		<tags:createField property="phone3" component="${component}"/>
 		<tags:createField property="phoneType3" component="${component}"/>
+		<tags:createField property="bestTimePhone3" component="${component}"/>
 		<tags:createField property="email" component="${component}"/>
 </page:applyDecorator>   
 

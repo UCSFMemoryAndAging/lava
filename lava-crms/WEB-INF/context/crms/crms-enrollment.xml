@@ -43,16 +43,8 @@
 	</bean>
 	
 	<bean id="lava.crms.enrollment.status.patientEnrollmentStatus" parent="crmsPatientModuleListAction"/>
-	
 	<bean id="lava.crms.enrollment.status.projectEnrollmentStatus" parent="crmsModuleListAction"/>
 
-	<bean id="lava.crms.enrollment.consent.consent" parent="crmsEntityFlowAction">
-		<property name="parentFlows"><list>
-			<value>lava.crms.enrollment.consent.patientConsents</value>
-			<value>lava.crms.enrollment.consent.projectConsents</value>
-		</list></property>
-	</bean>
-	
 	<bean id="lava.crms.enrollment.attachments.enrollmentAttachments" parent="crmsPatientSectionListAction"/>
 	<bean id="lava.crms.enrollment.attachments.projectEnrollmentAttachments" parent="crmsSectionListAction"/>
 				
@@ -60,13 +52,30 @@
 			<property name="parentFlows"><list>
 				<value>lava.crms.enrollment.attachments.enrollmentAttachments</value>
 				<value>lava.crms.enrollment.attachments.projectEnrollmentAttachments</value>
+				<value>lava.crms.enrollment.status.enrollmentStatus</value>
 			</list></property>
 	</bean>	
 		
+	<bean id="lava.crms.enrollment.consent.consent" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.enrollment.consent.patientConsents</value>
+			<value>lava.crms.enrollment.consent.projectConsents</value>
+		</list></property>
+	</bean>
 	
 	<bean id="lava.crms.enrollment.consent.patientConsents" parent="crmsPatientSectionListAction"/>
-	
 	<bean id="lava.crms.enrollment.consent.projectConsents" parent="crmsSectionListAction"/>
+
+	<!-- consentAttachment only exists for a specific Consent so there are no patient/project lists
+	of Consent attachments like there are for EnrollmentStatus (which may or may not be used but
+	the preference for attachments is to display a list on a specific entity instead of displaying
+	lists of attachments across all entities of a specific type -->
+	<bean id="lava.crms.enrollment.attachments.consentAttachment" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.enrollment.consent.consent</value>
+		</list></property>
+	</bean>	
+		
 	
 <!-- form action definitions -->
 	<bean id="enrollmentStatusFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
@@ -109,6 +118,9 @@
 	<bean id="projectConsentsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.enrollment.controller.ProjectConsentsHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  
-		
-			
+	
+	<bean id="consentAttachmentFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.enrollment.controller.ConsentAttachmentHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+    
 </beans>

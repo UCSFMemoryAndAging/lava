@@ -13,8 +13,9 @@ import edu.ucsf.lava.crms.model.CrmsEntity;
 public class ContactInfo extends CrmsEntity {
 	public static EntityManager MANAGER = new EntityBase.Manager(ContactInfo.class);
 	private edu.ucsf.lava.crms.people.model.Patient patient;
-	private Boolean isCaregiver;
+	private Boolean isCaregiver; // non-persistent property calculated in ContactInfoHandler getBackingObjects
 	private Long caregiverId;
+	private Caregiver caregiver;
 	private Short contactPatient;
 	private Short isPatientResidence;
 	private Short optOutMac;
@@ -26,12 +27,16 @@ public class ContactInfo extends CrmsEntity {
 	private String state;
 	private String zip;
 	private String country;
+	private String preferredContactMethod;
 	private String phone1;
 	private String phoneType1;
+	private String bestTimePhone1;
 	private String phone2;
 	private String phoneType2;
+	private String bestTimePhone2;
 	private String phone3;
 	private String phoneType3;
+	private String bestTimePhone3;
 	private String email;
 	private String notes;
 	private String contactNameRev;
@@ -46,7 +51,7 @@ public class ContactInfo extends CrmsEntity {
 		
 	}
 	public Object[] getAssociationsToInitialize(String method) {
-		return new Object[]{this.patient};
+		return new Object[]{this.patient, this.caregiver};
 	}
 	
 	
@@ -137,25 +142,28 @@ public class ContactInfo extends CrmsEntity {
 		this.address2 = address2;
 	}
 
+	public Caregiver getCaregiver() {
+		return caregiver;
+	}
 
+	public void setCaregiver(Caregiver caregiver) {
+		this.caregiver = caregiver;
+		if(this.caregiver!=null){
+			this.caregiverId = this.caregiver.getId();
+		}
+	}
 
 	public Long getCaregiverId() {
 		return caregiverId;
 	}
-
-
-
+	
 	public void setCaregiverId(Long caregiverId) {
 		this.caregiverId = caregiverId;
 	}
 
-
-
 	public String getCity() {
 		return city;
 	}
-
-
 
 	public void setCity(String city) {
 		this.city = city;
@@ -354,9 +362,32 @@ public class ContactInfo extends CrmsEntity {
 	public void setPhoneType3(String phoneType3) {
 		this.phoneType3 = phoneType3;
 	}
+	
 
-
-
+	public String getPreferredContactMethod() {
+		return preferredContactMethod;
+	}
+	public void setPreferredContactMethod(String preferredContactMethod) {
+		this.preferredContactMethod = preferredContactMethod;
+	}
+	public String getBestTimePhone1() {
+		return bestTimePhone1;
+	}
+	public void setBestTimePhone1(String bestTimePhone1) {
+		this.bestTimePhone1 = bestTimePhone1;
+	}
+	public String getBestTimePhone2() {
+		return bestTimePhone2;
+	}
+	public void setBestTimePhone2(String bestTimePhone2) {
+		this.bestTimePhone2 = bestTimePhone2;
+	}
+	public String getBestTimePhone3() {
+		return bestTimePhone3;
+	}
+	public void setBestTimePhone3(String bestTimePhone3) {
+		this.bestTimePhone3 = bestTimePhone3;
+	}
 	public String getState() {
 		return state;
 	}
@@ -400,13 +431,10 @@ public class ContactInfo extends CrmsEntity {
 
 	
 	public void updateContactNameRev(){
-		if(getPatient()!=null && getCaregiverId()==null){
+		if(getPatient()!=null && getCaregiver()==null){
 			setContactNameRev(getPatient().getFullNameRev());
-		}else if(getCaregiverId()!=null){
-			Caregiver c = (Caregiver)Caregiver.MANAGER.getById(getCaregiverId(),newFilterInstance());
-			if(c!=null){
-				setContactNameRev(c.getFullNameRev());
-			}
+		}else if(getCaregiver()!=null){
+			setContactNameRev(getCaregiver().getFullNameRev());
 		}else{
 			setContactNameRev(null);
 		}
@@ -414,7 +442,7 @@ public class ContactInfo extends CrmsEntity {
 	}
 	
 	public void updateContactDesc(){
-		if(getCaregiverId()==null){
+		if(getCaregiver()==null){
 			StringBuffer buffer = new StringBuffer();
 			if(getContactPatient() != null && getContactPatient()==(short)1){
 				buffer.append("Patient is contact");
@@ -426,10 +454,7 @@ public class ContactInfo extends CrmsEntity {
 			}
 			setContactDesc(buffer.toString());
 		}else{
-			Caregiver c = (Caregiver)Caregiver.MANAGER.getById(getCaregiverId(),newFilterInstance());
-			if(c!=null){
-				setContactDesc(c.getContactDesc());
-			}		
+			setContactDesc(getCaregiver().getContactDesc());
 		}
 	}
 	
@@ -438,7 +463,7 @@ public class ContactInfo extends CrmsEntity {
 	public static List<ContactInfo> getForCaregiver(Caregiver caregiver){
 		if(caregiver!=null && caregiver.getId()!=null){
 			LavaDaoFilter filter = MANAGER.newFilterInstance(); 
-			filter.addDaoParam(filter.daoEqualityParam("caregiverId",caregiver.getId()));
+			filter.setContextFilter("caregiver", "caregiverId", caregiver.getId());
 			return MANAGER.get(filter);
 		}
 		return new ArrayList<ContactInfo>();

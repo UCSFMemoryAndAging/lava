@@ -74,7 +74,7 @@ public class CrmsAuthorizationDelegate extends
 		
 		//Check project or patient-->projects of the entity for authorization
 		
-		if(crmsAuthEntity.getProjectAuth() && crmsAuthEntity.getProjName()!=null){
+		if(crmsAuthEntity.getProjectAuth() && (crmsAuthEntity.getProjName()!=null && crmsAuthEntity.getProjName().length() > 0)){
 			//if project authorized and projName is set, use this for auth check.
 			return this.isAuthorized(roleCache, user, action, newAuthorizationContext(crmsAuthEntity.getProjName()));
 			

@@ -6,99 +6,108 @@
    <!-- Patient/Project context handlers -->
 
 	<!--  actions -->
-		<bean id="lava.crms.people.patient.patient" parent="crmsEntityFlowAction">
-  					<property name="patientModuleDefault" value="true"/>
-  					<property name="patientSectionDefault" value="true"/>
-  					<property name="moduleDefault" value="false"/>
-  					<property name="sectionDefault" value="false"/>
-  					<property name="parentFlows"><list>
-  						<value>lava.crms.people.patient.projectPatients</value>
-  						<value>lava.crms.enrollment.status.projectEnrollmentStatus</value>
-  					</list></property>
-  				</bean>
+	<bean id="lava.crms.people.patient.patient" parent="crmsEntityFlowAction">
+		<property name="patientModuleDefault" value="true"/>
+		<property name="patientSectionDefault" value="true"/>
+		<property name="moduleDefault" value="false"/>
+		<property name="sectionDefault" value="false"/>
+		<property name="parentFlows"><list>
+			<value>lava.crms.people.patient.projectPatients</value>
+			<value>lava.crms.enrollment.status.projectEnrollmentStatus</value>
+		</list></property>
+ 	</bean>
   				
-  				<!-- note that because this is an entity flow, all of the CRUD flows are built but only the .add flow is used,
-  					and correspondingly, the .add flow for lava.crms.people.patient.patient is never used -->
-		 		<bean id="lava.crms.people.patient.addPatient" parent="crmsEntityFlowAction">
-  			    	<property name="parentFlows"><list>
-  						<value>lava.crms.people.patient.projectPatients</value>
-  						<value>lava.crms.enrollment.status.projectEnrollmentStatus</value>
-  					</list></property>
-  				</bean>
-  				
-				<bean id="lava.crms.people.patient.projectPatients" parent="crmsSectionListAction"/>
+	<!-- note that because this is an entity flow, all of the CRUD flows are built but only the .add flow is used,
+		and correspondingly, the .add flow for lava.crms.people.patient.patient is never used -->
+ 	<bean id="lava.crms.people.patient.addPatient" parent="crmsEntityFlowAction">
+	   	<property name="parentFlows"><list>
+			<value>lava.crms.people.patient.projectPatients</value>
+			<value>lava.crms.enrollment.status.projectEnrollmentStatus</value>
+		</list></property>
+	</bean>
 				
-				
-				<bean id="lava.crms.people.findPatient.findPatient" parent="crmsModuleListAction">
-					<property name="patientSectionDefault" value="true"/>
-					<property name="subFlows"><list>
-						<value>lava.crms.people.patient.patient</value>
-					</list></property>	
-				</bean>
-				
-				
-				<bean id="lava.crms.people.attachments.patientAttachments" parent="crmsPatientSectionListAction"/>
-				<bean id="lava.crms.people.attachments.projectPatientAttachments" parent="crmsSectionListAction"/>
-				
-				<bean id="lava.crms.people.attachments.patientAttachment" parent="crmsEntityFlowAction">
-					<property name="parentFlows"><list>
-						<value>lava.crms.people.attachments.patientAttachments</value>
-						<value>lava.crms.people.attachments.projectPatientAttachments</value>
-					</list></property>
-				</bean>	
-				
-				<bean id="lava.crms.people.contactLog.contactLog" parent="crmsEntityFlowAction">
-					<property name="parentFlows"><list>
-						<value>lava.crms.people.contactLog.patientContactLog</value>
-						<value>lava.crms.people.contactLog.projectContactLog</value>
-					</list></property>
-				</bean>	
-				<bean id="lava.crms.people.contactLog.patientContactLog" parent="crmsPatientSectionListAction"/>
-				<bean id="lava.crms.people.contactLog.projectContactLog" parent="crmsSectionListAction"/>
-	
-				<bean id="lava.crms.people.contactInfo.contactInfo" parent="crmsEntityFlowAction">
-					<property name="parentFlows"><list>
-						<value>lava.crms.people.contactInfo.patientContactInfo</value>
-						<value>lava.crms.people.contactInfo.projectContactInfo</value>
-					</list></property>
-				</bean>	
-				<bean id="lava.crms.people.contactInfo.patientContactInfo" parent="crmsPatientSectionListAction"/>
-				<bean id="lava.crms.people.contactInfo.projectContactInfo" parent="crmsSectionListAction"/>	
-			
-				<bean id="lava.crms.people.doctor.doctor" parent="crmsEntityFlowAction">
-					<property name="parentFlows"><list>
-						<value>lava.crms.people.doctor.allDoctors</value>
-					</list></property>
-				</bean>
-				<bean id="lava.crms.people.doctor.patientDoctor" parent="crmsEntityFlowAction">
-					<property name="parentFlows"><list>
-						<value>lava.crms.people.doctor.patientDoctors</value>
-					</list></property>
-				</bean>		
-				<bean id="lava.crms.people.doctor.patientDoctors" parent="crmsPatientSectionListAction"/>
-				<bean id="lava.crms.people.doctor.allDoctors" parent="crmsSectionListAction"/>
-				<!-- this is the patient doctor relationship, not a list -->
-				
-				<bean id="lava.crms.people.caregiver.caregiver" parent="crmsEntityFlowAction">
-					<property name="parentFlows"><list>
-						<value>lava.crms.people.caregiver.patientCaregivers</value>
-						<value>lava.crms.people.caregiver.projectCaregivers</value>
-					</list></property>
-				</bean>	
-				<bean id="lava.crms.people.caregiver.patientCaregivers" parent="crmsPatientSectionListAction"/>
-				<bean id="lava.crms.people.caregiver.projectCaregivers" parent="crmsSectionListAction"/>
-				
-				<bean id="lava.crms.people.task.task" parent="crmsEntityFlowAction">
-					<property name="parentFlows"><list>
-						<value>lava.crms.people.task.patientTasks</value>
-						<value>lava.crms.people.task.projectTasks</value>
-					</list></property>
-				</bean>	
-				<bean id="lava.crms.people.task.patientTasks" parent="crmsPatientSectionListAction"/>
-				<bean id="lava.crms.people.task.projectTasks" parent="crmsSectionListAction"/>
-
+	<bean id="lava.crms.people.patient.projectPatients" parent="crmsSectionListAction"/>
 		
-			
+	<bean id="lava.crms.people.findPatient.findPatient" parent="crmsModuleListAction">
+		<property name="patientSectionDefault" value="true"/>
+		<property name="subFlows"><list>
+			<value>lava.crms.people.patient.patient</value>
+		</list></property>	
+	</bean>
+				
+				
+	<bean id="lava.crms.people.attachments.patientAttachments" parent="crmsPatientSectionListAction"/>
+	<bean id="lava.crms.people.attachments.projectPatientAttachments" parent="crmsSectionListAction"/>
+		
+	<bean id="lava.crms.people.attachments.patientAttachment" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.people.attachments.patientAttachments</value>
+			<value>lava.crms.people.attachments.projectPatientAttachments</value>
+		</list></property>
+	</bean>	
+				
+	<bean id="lava.crms.people.contactLog.contactLog" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.people.contactLog.patientContactLog</value>
+			<value>lava.crms.people.contactLog.projectContactLog</value>
+		</list></property>
+	</bean>	
+	<bean id="lava.crms.people.contactLog.patientContactLog" parent="crmsPatientSectionListAction"/>
+	<bean id="lava.crms.people.contactLog.projectContactLog" parent="crmsSectionListAction"/>
+
+	<bean id="lava.crms.people.contactInfo.contactInfo" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.people.contactInfo.patientContactInfo</value>
+			<value>lava.crms.people.contactInfo.projectContactInfo</value>
+		</list></property>
+	</bean>	
+	<bean id="lava.crms.people.contactInfo.patientContactInfo" parent="crmsPatientSectionListAction"/>
+	<bean id="lava.crms.people.contactInfo.projectContactInfo" parent="crmsSectionListAction"/>	
+	
+	<bean id="lava.crms.people.doctor.doctor" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.people.doctor.allDoctors</value>
+		</list></property>
+	</bean>
+	<bean id="lava.crms.people.doctor.patientDoctor" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.people.doctor.patientDoctors</value>
+		</list></property>
+	</bean>		
+	<bean id="lava.crms.people.doctor.patientDoctors" parent="crmsPatientSectionListAction"/>
+	<bean id="lava.crms.people.doctor.allDoctors" parent="crmsSectionListAction"/>
+	<!-- this is the patient doctor relationship, not a list -->
+				
+	<bean id="lava.crms.people.caregiver.caregiver" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.people.caregiver.patientCaregivers</value>
+			<value>lava.crms.people.caregiver.projectCaregivers</value>
+		</list></property>
+	</bean>	
+	<bean id="lava.crms.people.caregiver.patientCaregivers" parent="crmsPatientSectionListAction"/>
+	<bean id="lava.crms.people.caregiver.projectCaregivers" parent="crmsSectionListAction"/>
+				
+	<bean id="lava.crms.people.task.task" parent="crmsEntityFlowAction">
+		<property name="parentFlows"><list>
+			<value>lava.crms.people.task.patientTasks</value>
+			<value>lava.crms.people.task.projectTasks</value>
+		</list></property>
+	</bean>	
+	<bean id="lava.crms.people.task.patientTasks" parent="crmsPatientSectionListAction"/>
+	<bean id="lava.crms.people.task.projectTasks" parent="crmsSectionListAction"/>
+
+	<bean id="lava.crms.people.family.projectFamilies" parent="crmsSectionListAction">
+		<property name="subFlows"><list>
+			<value>lava.crms.people.family.familyMembers</value>
+		</list></property>
+	</bean>
+
+	<bean id="lava.crms.people.family.familyMembers" parent="crmsListFlowAction"/>
+	
+	<bean id="lava.crms.people.family.familyPatient" parent="crmsEntityFlowAction">
+		<property name="patientSectionDefault" value="true"/>
+	</bean>
+
 
 	<!-- form action definitions -->
 	
@@ -198,5 +207,17 @@
 		<bean class="edu.ucsf.lava.crms.people.controller.ProjectTasksHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  	 
         
+    <bean id="projectFamiliesFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+    	<bean class="edu.ucsf.lava.crms.people.controller.ProjectFamiliesHandler" parent="crmsHandler"/>
+    </list></constructor-arg></bean>  				
+
+	<bean id="familyMembersFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.crms.people.controller.FamilyMembersHandler" parent="crmsHandler"/>
+    </list></constructor-arg></bean>  	
+   
+    <bean id="familyPatientFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+   		<bean class="edu.ucsf.lava.crms.people.controller.FamilyPatientHandler" parent="crmsHandler"/>
+   		<bean class="edu.ucsf.lava.crms.people.controller.FamilyMembersHandler" parent="crmsHandler"/>
+   	</list></constructor-arg></bean>
    
 </beans>

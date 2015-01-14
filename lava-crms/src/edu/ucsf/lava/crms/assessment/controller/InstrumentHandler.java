@@ -38,6 +38,7 @@ import edu.ucsf.lava.crms.assessment.model.InstrumentConfig;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.auth.CrmsAuthUtils;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
+import edu.ucsf.lava.crms.people.model.Caregiver;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
@@ -1111,6 +1112,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		imputeEnterStatusValues(context, instrument);
 		
 		// save takes place at every state in the flow
+		this.handleCaregiverChange(context,command, errors);
 		return this.doSave(context,command,errors);
 	}
 
@@ -1160,6 +1162,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		imputeEnterStatusValues(context, instrument);
 		
 		// save data entry
+		this.handleCaregiverChange(context,command, errors);
 		return this.doSave(context,command,errors);
 	}
 	
@@ -1175,6 +1178,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		// set verification status and proceed to status
 		//TODO: add verification to task list of user or some kind of reminder
 		instrument.setDvStatus(STATUS_VERIFY_DEFER);
+		this.handleCaregiverChange(context,command, errors);
 		return this.doSave(context,command,errors);
 	}	
 
@@ -1303,6 +1307,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 				instrument.setDvStatus(STATUS_VERIFIED_DOUBLE_ENTRY);
 			}
 			
+			this.handleCaregiverChange(context,command, errors);
 			return this.doSave(context,command,errors);
 		}
 	}
@@ -1344,6 +1349,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		
 		
 		// save takes place at every state in the flow
+		this.handleCaregiverChange(context,command, errors);
 		return this.doSave(context,command, errors);
 	}
 	
@@ -1466,6 +1472,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 			if (instrument.getDeDate()==null) instrument.setDeDate(new Date());
 			if (instrument.getDeStatus()==null) instrument.setDeStatus(STATUS_COMPLETE);
 
+			this.handleCaregiverChange(context,command, errors);
 			returnEvent = this.doSave(context,command,errors);
 		}
 		return returnEvent;
@@ -1535,6 +1542,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		if (instrument.getDvDate() == null) instrument.setDvDate(new Date());
 		if (instrument.getDvStatus() == null) instrument.setDvStatus(STATUS_VERIFIED_REVIEW);
 		
+		this.handleCaregiverChange(context,command, errors);
 		return this.doSave(context,command,errors);
 	}
 
@@ -1684,5 +1692,34 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
+	
+
+	/**
+	 * For Caregiver instruments, handle the user changing the Caregiver. This method utilizes some
+	 * methods defined on Instrument (getCaregiver, setCaregiver, getCareId) even though those properties
+	 * do not exist on Instrument, only in the subclasses. This is so that the handleCaregiverChange
+	 * method can exist here, rather than having to subclass InstrumentHandler for every Caregiver
+	 * instrument.
+	 * 
+	 * NOTE: Instruments must name the properties "caregiver" and "careId"
+	 * 
+	 * @param context
+	 * @param command
+	 * @param errors
+	 */
+	protected void handleCaregiverChange(RequestContext context, Object command, BindingResult errors){
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		Instrument instrument = (Instrument)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
+		if(doesIdDifferFromEntityId(instrument.getCareId(),instrument.getCaregiver())){
+			if(instrument.getCareId()==null){
+				instrument.setCaregiver(null); 	//clear the association
+			}else{
+				Caregiver caregiver = (Caregiver) Caregiver.MANAGER.getOne(getFilterWithId(request, instrument.getCareId()));
+				instrument.setCaregiver(caregiver);
+			}
+		}
+	}
+
+
 
 }

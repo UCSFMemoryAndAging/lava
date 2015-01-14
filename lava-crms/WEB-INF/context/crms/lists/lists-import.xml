@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	
+	<bean id="list.importDefinition.existRules" parent="list.dataOnly">
+		<property name="defaultSort" value="valueNumeric"/>	
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="May or May Not Exist"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Must Exist"/><constructor-arg value="2"/></bean>
+			<bean parent="list.data"><constructor-arg value="Must Not Exist"/><constructor-arg value="3"/></bean>
+		</list></property>	
+ 	</bean>
+
+	<bean id="list.importDefinition.existRules2" parent="list.dataOnly">
+		<property name="defaultSort" value="valueNumeric"/>	
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="May or May Not Exist"/><constructor-arg value="1"/></bean>
+			<bean parent="list.data"><constructor-arg value="Must Exist"/><constructor-arg value="2"/></bean>
+		</list></property>	
+ 	</bean>
+
+	<bean id="list.importDefinition.visitMatchRange" parent="list.numericRange">
+		<property name="defaultMinValue" value="0"/>	
+		<property name="defaultMaxValue" value="100"/>
+	</bean>
+
+	<bean id="list.importDefinition.visitWindow" abstract="true" parent="list.numericRange">
+		<property name="defaultMinValue" value="0"/>	
+		<property name="defaultMaxValue" value="200"/>
+	</bean>
+
+
+</beans>

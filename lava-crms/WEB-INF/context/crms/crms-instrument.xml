@@ -54,6 +54,9 @@
 		a non-UDS app gives error messages in the log file on startup but no runtime damage -->	
 	<bean id="baseInstrumentFlowAction" abstract="true" parent="crmsAction">
 		<property name="flowTypeBuilder"><ref bean="crmsInstrumentFlowTypeBuilder"/></property>
+		<property name="subFlows"><list>
+			<value>lava.crms.assessment.attachments.assessmentAttachment</value>
+		</list></property>	
 		<property name="parentFlows"><list>
 			<value>lava.crms.assessment.instrument.instrumentGroup</value>
 			<value>lava.crms.assessment.summary.patientInstruments</value>

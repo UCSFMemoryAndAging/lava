@@ -25,7 +25,12 @@
    		<property name="projectContextHandler">
     		<ref bean="projectContextHandler"/>
    		</property>   	
+   		<!-- support the ability to add attachments to an entity via a secondary list handler -->
+   		<property name="attachmentsListHandler">
+   			<ref bean="crmsAttachmentsListHandler"/>
+   		</property>	
 	</bean>
+	
 	<bean id="crmsListComponentFormAction" abstract="true" parent="lavaListComponentFormAction"
 		class="edu.ucsf.lava.crms.controller.CrmsComponentFormAction">
 		<property name="patientContextHandler">
@@ -50,7 +55,7 @@
 	<bean id="patientContextHandler" class="edu.ucsf.lava.crms.ui.controller.PatientContextHandler" parent="crmsHandler"/>
 	<bean id="projectContextHandler" class="edu.ucsf.lava.crms.ui.controller.ProjectContextHandler" parent="crmsHandler"/>
 
-	
-
+	<!-- Attachments list handler -->
+	<bean id="crmsAttachmentsListHandler" class="edu.ucsf.lava.crms.file.controller.CrmsAttachmentsListHandler" parent="crmsHandler"/>
 
 </beans>

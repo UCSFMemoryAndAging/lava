@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean id="list.importDefinition.definitions" parent="list.dynamic">
+		<property name="query" value="list.importDefinition.definitions"/>
+	</bean>
+
+	<bean id="list.importDefinition.dataFileFormat" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="CSV"/><constructor-arg value="CSV"/></bean>
+			<bean parent="list.data"><constructor-arg value="TAB"/><constructor-arg value="TAB"/></bean>
+		</list></property>	
+	</bean>
+	
+	<!-- this is a suggest list --> 	
+	<bean id="list.importDefinition.dateFormat" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="MM/dd/yyyy"/><constructor-arg value="MM/dd/yyyy"/></bean>
+		</list></property>	
+	</bean>
+
+	<!-- this is a suggest list --> 	
+	<bean id="list.importDefinition.timeFormat" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="hh:mm a"/><constructor-arg value="hh:mm a"/></bean>
+		</list></property>	
+	</bean>
+	
+	<bean id="list.importLog.quickFilter" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="All Messages"/><constructor-arg value="All Messages"/></bean>
+			<bean parent="list.data"><constructor-arg value="Errors / Warnings"/><constructor-arg value="Errors / Warnings"/></bean>
+			<bean parent="list.data"><constructor-arg value="Errors"/><constructor-arg value="Errors"/></bean>
+			<bean parent="list.data"><constructor-arg value="Warnings"/><constructor-arg value="Warnings"/></bean>
+			<bean parent="list.data"><constructor-arg value="Created"/><constructor-arg value="Created"/></bean>
+			<bean parent="list.data"><constructor-arg value="Debug"/><constructor-arg value="Debug"/></bean>
+		</list></property>
+	</bean>
+	
+			
+</beans>

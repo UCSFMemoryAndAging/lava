@@ -94,6 +94,10 @@ public class LavaFile extends EntityBase {
 	 */
 	protected boolean contentLoaded = false;
 	
+	/**
+	 * Notes about the file
+	 */
+	private String notes;
 	
 	
 	public String getRepositoryId() {
@@ -203,8 +207,12 @@ public class LavaFile extends EntityBase {
 		this.location = location;
 	}
 	
-
-	
+	public String getNotes() {
+		return notes;
+	}
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
 	/**
 	 * Delete any file in the repository for this deleted FileEntity.
 	 */
@@ -212,10 +220,18 @@ public class LavaFile extends EntityBase {
 	public void afterDelete() {
 		MANAGER.deleteFile(this);
 	}
+	
+	
 	/**
-	 * Save the file contents if they exist, and then resave the 
-	 * FileEntity (the file contents save will update properties 
-	 * of the FileEntity such as location in the repository). 
+	 * Persist the file contents, if they exist, to the file system repository.
+	 * The file contents saveFile will update properties of the LavaFile entity
+	 * such as fileId and location (in the repository).
+	 * 
+	 * This is done in afterCreate because the LavaFile id could be used as the
+	 * fileId property in the scheme used to generate the location and filename for
+	 * the file in the file system repository.
+	 * 
+	 * Return true so that the new LavaFile entity is updated.
 	 */
 	@Override
 	public boolean afterCreate() {
@@ -225,7 +241,19 @@ public class LavaFile extends EntityBase {
 		}
 		return false;
 	}
+
 	
+	public LavaFile saveFile() {
+		return MANAGER.saveFile(this);
+	}
+	
+	public LavaFile saveOrUpdateFile() {
+		return MANAGER.saveOrUpdateFile(this);
+	}
+	
+	public void deleteFile() {
+		MANAGER.deleteFile(this);
+	}
 	
 	/**
 	 * Save or delete the file contents if needed, and then resave the 
@@ -323,5 +351,9 @@ public class LavaFile extends EntityBase {
 			return fileManager.saveFile(file);
 		}
 
+		
+		public LavaFile saveOrUpdateFile(LavaFile file) throws FileAccessException {
+			return fileManager.saveOrUpdateFile(file);
+		}
 	}
 }

@@ -29,6 +29,8 @@ DELETE from query_objects where instance='lava' and scope='crms' and module='que
 INSERT INTO query_objects(instance,scope,module,section,target,short_desc,standard,primary_link,secondary_link) 
   VALUES('lava','crms','query','patient','demographics','Demographics',1,0,1);
 INSERT INTO query_objects(instance,scope,module,section,target,short_desc,standard,primary_link,secondary_link) 
+  VALUES('lava','crms','query','patient','family','Family',1,0,1);
+INSERT INTO query_objects(instance,scope,module,section,target,short_desc,standard,primary_link,secondary_link) 
   VALUES('lava','crms','query','enrollment','status','Enrollment Status',1,0,0);
 INSERT INTO query_objects(instance,scope,module,section,target,short_desc,standard,primary_link,secondary_link) 
   VALUES('lava','crms','query','scheduling','visits','Visits',1,0,0);
@@ -365,6 +367,11 @@ DELIMITER ;
 CREATE TABLE IF NOT EXISTS `lq_view_demographics` (`PIDN_demographics` INT, `DOB` INT, `AGE` INT, `Gender` INT, `Hand` INT, `Deceased` INT, `DOD` INT, `PrimaryLanguage` INT, `TestingLanguage` INT, `TransNeeded` INT, `TransLanguage` INT);
 
 -- -----------------------------------------------------
+-- Placeholder table for view `lq_view_family
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `lq_view_family` (`PIDN_Family` INT, `FamilyID` INT, `FamilyStatus` INT, `FamilyStudy` INT, `RelationToProband` INT, `Twin` INT, `TwinZygosity` INT, `TwinID` INT, `RelationNotes` INT);
+
+-- -----------------------------------------------------
 -- Placeholder table for view `lq_view_enrollment`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `lq_view_enrollment` (`EnrollStatID` INT, `PIDN_Enrollment` INT, `ProjName` INT, `SubjectStudyID` INT, `ReferralSource` INT, `LatestDesc` INT, `LatestDate` INT, `LatestNote` INT, `ReferredDesc` INT, `ReferredDate` INT, `ReferredNote` INT, `DeferredDesc` INT, `DeferredDate` INT, `DeferredNote` INT, `EligibleDesc` INT, `EligibleDate` INT, `EligibleNote` INT, `IneligibleDesc` INT, `IneligibleDate` INT, `IneligibleNote` INT, `DeclinedDesc` INT, `DeclinedDate` INT, `DeclinedNote` INT, `EnrolledDesc` INT, `EnrolledDate` INT, `EnrolledNote` INT, `ExcludedDesc` INT, `ExcludedDate` INT, `ExcludedNote` INT, `WithdrewDesc` INT, `WithdrewDate` INT, `WithdrewNote` INT, `InactiveDesc` INT, `InactiveDate` INT, `InactiveNote` INT, `DeceasedDesc` INT, `DeceasedDate` INT, `DeceasedNote` INT, `AutopsyDesc` INT, `AutopsyDate` INT, `AutopsyNote` INT, `ClosedDesc` INT, `ClosedDate` INT, `ClosedNote` INT, `EnrollmentNotes` INT, `modified` INT);
@@ -407,6 +414,31 @@ END IF;
 END $$
 DELIMITER ;
 
+
+DROP PROCEDURE IF EXISTS `lq_get_patient_family`;
+DELIMITER $$
+-- -----------------------------------------------------
+-- procedure lq_get_patient_demographics
+-- -----------------------------------------------------
+CREATE PROCEDURE `lq_get_patient_family`(user_name varchar(50), host_name varchar(25),query_type varchar(25), query_subtype VARCHAR(25), query_days INTEGER)
+BEGIN
+
+CALL lq_audit_event(user_name,host_name,'crms.patient.family',query_type);
+	
+IF query_type = 'Simple' THEN
+	SELECT p.PIDN, d.* FROM lq_view_family d 
+		INNER JOIN temp_pidn p ON (p.PIDN = d.PIDN_Family) 
+      ORDER BY p.pidn;
+ELSEIF query_type = 'SimpleAllPatients' THEN
+	SELECT p.PIDN, d.* FROM lq_view_family d  
+		 RIGHT OUTER JOIN temp_pidn p ON (p.PIDN = d.PIDN_Family) 
+      ORDER BY p.pidn;
+ELSEIF query_type IN ('SecondaryAll','SecondaryClosest') THEN
+ 	 SELECT l.PIDN, l.link_date, l.link_id, d.*  
+	 FROM temp_linkdata l INNER JOIN lq_view_family d ON (d.PIDN_Family=l.PIDN);
+END IF;
+END $$
+DELIMITER ;
 
 
 DROP PROCEDURE IF EXISTS `lq_get_enrollment_status`;
@@ -495,6 +527,13 @@ DROP TABLE IF EXISTS `lq_view_demographics`;
 
 CREATE VIEW `lq_view_demographics` AS select `patient`.`PIDN` AS `PIDN_demographics`,`patient`.`DOB` AS `DOB`,`patient_age`.`AGE` AS `AGE`,`patient`.`Gender` AS `Gender`,`patient`.`Hand` AS `Hand`,`patient`.`Deceased` AS `Deceased`,`patient_dod`.`DOD` AS `DOD`,`patient`.`PrimaryLanguage` AS `PrimaryLanguage`,`patient`.`TestingLanguage` AS `TestingLanguage`,`patient`.`TransNeeded` AS `TransNeeded`,`patient`.`TransLanguage` AS `TransLanguage` from (`patient` join `patient_age` on((`patient`.`PIDN` = `patient_age`.`PIDN`)) join `patient_dod` on (`patient`.`PIDN` = `patient_dod`.`PIDN`)) where (`patient`.`PIDN` > 0);
 
+-- -----------------------------------------------------
+-- View `lq_view_family`
+-- -----------------------------------------------------
+DROP VIEW IF EXISTS `lq_view_family` ;
+DROP TABLE IF EXISTS `lq_view_family`;
+
+CREATE VIEW `lq_view_family` AS select `patient`.`PIDN` AS `PIDN_Family`,`patient`.`FamilyID` AS `FamilyID`,`patient`.`FamilyStatus` AS `FamilyStatus`,`patient`.`FamilyStudy` AS `FamilyStudy`,`patient`.`RelationToProband` AS `RelationToProband`,`patient`.`Twin` AS `Twin`,`patient`.`TwinZygosity` AS `TwinZygosity`,`patient`.`TwinID` AS `TwinID`,`patient`.`RelationNotes` AS `RelationNotes` from ((`patient` join `patient_age` on((`patient`.`PIDN` = `patient_age`.`PIDN`))) join `patient_dod` on((`patient`.`PIDN` = `patient_dod`.`PIDN`))) where (`patient`.`PIDN` > 0);
 
 -- -----------------------------------------------------
 -- View `lq_view_enrollment`

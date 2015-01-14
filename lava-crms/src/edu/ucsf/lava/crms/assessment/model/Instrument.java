@@ -1,7 +1,5 @@
 package edu.ucsf.lava.crms.assessment.model;
 
-import static edu.ucsf.lava.crms.assessment.controller.InstrumentComponentFormAction.INSTRUMENT;
-
 import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -17,10 +15,10 @@ import org.apache.commons.lang.StringUtils;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
-
 import edu.ucsf.lava.crms.logiccheck.model.InstrumentLogicCheck;
 import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
 import edu.ucsf.lava.crms.model.CrmsEntity;
+import edu.ucsf.lava.crms.people.model.Caregiver;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
 
@@ -151,6 +149,14 @@ public class Instrument extends CrmsEntity {
 	
 	public String getInstrTypeEncoded(){
 		return this.getEntityNameEncoded(true);
+	}
+
+	public static String getInstrTypeEncoded(String instrType, String instrVersion) {
+		return EntityBase.getEntityNameEncoded(instrType, instrVersion);
+	}
+
+	public static String getInstrTypeEncoded(String instrType) {
+		return EntityBase.getEntityNameEncoded(instrType, null);
 	}
 	
 		
@@ -516,7 +522,9 @@ public class Instrument extends CrmsEntity {
 	@Override
 	public boolean getLocked() {
 		// an instrument is considered locked if its parent visit is locked
-		if (getVisit() == null) return super.getLocked();
+		// getVisit().getId() could be null in import when a new instrument references a new Visit
+		// which does not have an id yet
+		if (getVisit() == null || getVisit().getId() == null) return super.getLocked();
 		
 		// this instrument is likely holding proxy values, 
 		//   so cannot do a direct lookup; grab visit from id
@@ -661,9 +669,39 @@ public class Instrument extends CrmsEntity {
 		LavaDaoFilter filter = Instrument.MANAGER.newFilterInstance();
 		filter.addDaoParam(filter.daoEqualityParam("id",this.getId()));
 		instrument = (Instrument) Instrument.MANAGER.getOne(instrClass, filter);
-		
-		return !instrument.hasMissingOrIncompleteFields();
 
+		return (instrument == null ? false : !instrument.hasMissingOrIncompleteFields());
+
+	}
+	
+	
+	/**
+	 * This method is to support the InstrumentHandler in handling caregiver changes on
+	 * caregiver instruments, so do not have to create a handler subclass for each caregiver
+	 * instrument just for the purpose of handling caregiver changes.  
+	 * @return
+	 */
+	public Caregiver getCaregiver()  {
+		return null;
+	}
+
+	/**
+	 * This method is to support the InstrumentHandler in handling caregiver changes on
+	 * caregiver instruments, so do not have to create a handler subclass for each caregiver
+	 * instrument just for the purpose of handling caregiver changes.  
+	 * @return
+	 */
+	public void setCaregiver(Caregiver caregiver)  {
+	}
+	
+	/**
+	 * This method is to support the InstrumentHandler in handling caregiver changes on
+	 * caregiver instruments, so do not have to create a handler subclass for each caregiver
+	 * instrument just for the purpose of handling caregiver changes.  
+	 * @return
+	 */
+	public Long getCareId()  {
+		return null;
 	}
 	
 }

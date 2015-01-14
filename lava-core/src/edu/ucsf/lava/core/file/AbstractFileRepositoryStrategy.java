@@ -10,7 +10,6 @@ import edu.ucsf.lava.core.file.exception.FileAccessException;
 import edu.ucsf.lava.core.file.model.LavaFile;
 
 public abstract class AbstractFileRepositoryStrategy implements FileRepositoryStrategy {
-
 	protected final Log logger = LogFactory.getLog(getClass());
 	protected FileRepository repository;
 
@@ -25,14 +24,6 @@ public abstract class AbstractFileRepositoryStrategy implements FileRepositorySt
 	abstract public void deleteFile(LavaFile file) throws FileAccessException;
 	abstract public LavaFile saveFile(LavaFile file) throws FileAccessException;
 	abstract public LavaFile saveOrUpdateFile(LavaFile file) throws FileAccessException;
-
-	public void setRepository(FileRepository repository) {
-		this.repository = repository;
-	}
-
-	public FileRepository getRepository() {
-		return this.repository;
-	}
 
 	/**
 	 * Do a save, get and delete using the testFile

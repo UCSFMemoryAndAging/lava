@@ -298,7 +298,7 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 		
 		HttpServletResponse response = ((ServletExternalContext)context.getExternalContext()).getResponse();
 		response.setHeader("Content-Disposition","inline;filename=\""+ file.getName()+"\"");
-		response.setContentType(file.getContentType());
+		response.setContentType(file.getFileType());
 		response.setContentLength(file.getContentLength());
 		FileCopyUtils.copy(file.getContent(),response.getOutputStream());
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);

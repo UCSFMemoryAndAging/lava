@@ -42,7 +42,7 @@
 		<property name="data"><list>
 			<bean parent="list.data"><constructor-arg value="NONE, DATA ARE VALID"/>
 									<constructor-arg value="NONE, DATA ARE VALID"/>
-									<constructor-arg value="1"/>
+									<constructor-arg value="1" type="java.lang.Integer"/>
 			</bean>
 		</list></property>
 			
@@ -70,7 +70,7 @@
 		<property name="data"><list>
 		<bean parent="list.data"><constructor-arg value="00000 - clear selection|00000 - clear selection|00000"/>
 									<constructor-arg value="0"/>
-									<constructor-arg value="0"/>
+									<constructor-arg value="0" type="java.lang.Integer"/>
 			</bean>
 		</list></property>
 	</bean>

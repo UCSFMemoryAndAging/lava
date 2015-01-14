@@ -88,11 +88,15 @@
 	<property name="defaultFormat" value="valueIsLabel"/>
 </bean>
 
-
+<!-- properties are defaultMinValue and defaultMaxValue -->
 <bean id="list.numericRange" abstract="true" parent="list.base" class="edu.ucsf.lava.core.list.model.NumericRangeListConfig">
 	<property name="defaultSort" value="valueNumeric"/>
 </bean>
 
+<!-- properties are defaultMinValue and defaultMaxValue. defaults to one decimal place intervals. for
+two decimal place intervals use 
+	<property name="defaultFormat" value="twoDecimalPlaces"/>
+-->	
 <bean id="list.decimalRange" abstract="true" parent="list.base" class="edu.ucsf.lava.core.list.model.DecimalRangeListConfig">
 	<property name="defaultSort" value="valueDecimal"/>
 </bean>
@@ -105,5 +109,6 @@
 <import resource="lists/lists-common.xml"/>
 <import resource="lists/lists-file.xml"/>
 <import resource="lists/lists-home.xml"/>
+<import resource="lists/lists-import.xml"/>
 <import resource="lists/lists-session.xml"/>
 </beans>

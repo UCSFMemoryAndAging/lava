@@ -10,6 +10,8 @@
               description="the action that the tab links to" %>
 <%@ attribute name="idParam" required="false"  
               description="optional id param for the action" %>
+<%@ attribute name="startMode" required="false"
+              description="flow Mode, defaults to 'view'"%>
 <%@ attribute name="selected" required="true"  
               description="indicates that the tab is the currently selected tab" %>
 <%@ attribute name="disabled" required="false"  
@@ -24,7 +26,7 @@
   	</c:when>
   	<c:otherwise>
   		<c:set var="actionUrl">
-  			<tags:actionURL actionId="${actionId}" idParam="${idParam}"/>
+  			<tags:actionURL actionId="${actionId}" idParam="${idParam}" startMode="${startMode}"/>
   		</c:set>
   		<li class="${selected == true ? 'selected' : 'enabled'}">
   			<a href="${actionUrl}">${text}</a>

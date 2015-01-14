@@ -232,7 +232,7 @@ ${customActions}
 	<c:if test="${command.components[component].lastPage != true}">
 		<tags:eventLink linkText="Next" action="nextPage" component="${component}" pageName="${pageName}" className="listControlBarPageAction"/>
 	</c:if>		
-	<tags:singleSelectNoBind property="bottomRecordNav" propertyValue="${command.components[component].pageHolder}" fieldId="bottomRecordNav" list="${command.components[component].recordNavigation}" attributesText="onChange=&quot;document.${pageName}.action='${onChangeUrl}';submitForm(document.${pageName},'${component}__pageSize','',bottomRecordNavSetPage)&quot;" styleClass="listControlBarPageSelector"/> 
+	<tags:singleSelectNoBind property="bottomRecordNav" propertyValue="${command.components[component].pageHolder}" fieldId="bottomRecordNav" list="${command.components[component].recordNavigation}" attributesText="onChange=&quot;document.${pageName}.action='${onChangeUrl}';submitForm(document.${pageName},'${component}__recordNav','',bottomRecordNavSetPage)&quot;" styleClass="listControlBarPageSelector"/> 
 	<c:if test="${command.components[component].firstPage != true}">		
 		<tags:eventLink linkText="Previous" action="prevPage" component="${component}" pageName="${pageName}" className="listControlBarPageAction"/>
 	</c:if>	

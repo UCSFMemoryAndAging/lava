@@ -39,6 +39,9 @@ public class EntityFlowTypeBuilder extends BaseFlowTypeBuilder {
 			registry.registerFlowDefinition(assemble(actionId + ".edit", 
 						new EntityEditFlowBuilder(registry,actionId)));
 
+			// the download flow must be built before the "view" flow since it is a subflow of 
+			// the "view" flow (download is a subflow which basically has a view state with no 
+			// view so that the byte stream of the downloaded file is displayed by the browser)
 			registry.registerFlowDefinition(assemble(actionId + ".download", 
 						new EntityDownloadFlowBuilder(registry,actionId)));
 		
@@ -61,7 +64,8 @@ public class EntityFlowTypeBuilder extends BaseFlowTypeBuilder {
 	public List<FlowInfo> getSubFlowInfo(String actionId, String flowType, String subFlowActionId, Map actions) {
 		List<FlowInfo> subFlowInfo = super.getSubFlowInfo(actionId, flowType, subFlowActionId,	actions);
 		
-		if(flowType.equals("list")||flowType.equals("instrumentList")||flowType.equals("instrument")||flowType.equals("entity")){
+		if(flowType.equals("list")||flowType.equals("instrumentList")||flowType.equals("instrument")||flowType.equals("entity")
+				||flowType.equals("import")){
 			
 			String target = ActionUtils.getTarget(subFlowActionId);
 			subFlowInfo.add(new FlowInfo(subFlowActionId,"add"));

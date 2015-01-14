@@ -12,6 +12,8 @@
               description="the default target identifier to use for the default module action" %>
 <%@ attribute name="idParam" required="false"  
               description="optional id param for the action" %>
+<%@ attribute name="startMode" required="false"
+			  description="flow Mode, defaults to 'view'"%>
 <%@ attribute name="disabled" required="false"  
               description="indicates that the tab should be disabled (e.g. modal state)" %>
 
@@ -25,4 +27,4 @@
 	<c:set var="idParam" value="${not empty currentPatient ? currentPatient.id : ''}"/>
 </c:if>
 				  
-<tags:coreNavTab text="${text}" module="${module}" defaultTargetIdentifier="${defaultTargetIdentifier}" idParam="${idParam}" disabled="${disabled}"/>
+<tags:coreNavTab text="${text}" module="${module}" defaultTargetIdentifier="${defaultTargetIdentifier}" startMode="${startMode}" idParam="${idParam}" disabled="${disabled}"/>

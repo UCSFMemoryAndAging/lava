@@ -23,6 +23,7 @@ import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 
 public class PatientHandler extends CrmsEntityComponentHandler {
 	protected static final String DELETE_PATIENT_WITH_VISITS_ERROR_CODE = "patient.deleteHasVisits.command";
+	protected static final String DELETE_PROBAND_WITH_FAMILY_MEMBERS_ERROR_CODE="patient.deleteWithFamilyMembers.command";
 
 	public PatientHandler() {
 		this.setHandledEntity("patient", Patient.class);
@@ -105,6 +106,11 @@ public class PatientHandler extends CrmsEntityComponentHandler {
 		
 		if(patient.hasVisits()){
 			CoreSessionUtils.addFormError(sessionManager,request, new String[]{DELETE_PATIENT_WITH_VISITS_ERROR_CODE}, null);
+			 return new Event(this,ERROR_FLOW_EVENT_ID);
+		}
+		
+		if(patient.patientIsProbandWithFamilyMembers()){
+			CoreSessionUtils.addFormError(sessionManager,request, new String[]{DELETE_PROBAND_WITH_FAMILY_MEMBERS_ERROR_CODE}, null);
 			 return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
 		

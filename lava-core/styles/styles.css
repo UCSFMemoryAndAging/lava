@@ -1073,6 +1073,14 @@ form div.field {
 	margin-bottom: 10px;
 }
 
+form span.field {
+	/* this is to support inline fields, where following content should be on the same line */
+	/* note: this is not a floating solution so do not need margin-left. this is only supported for
+	   left labels so the margin-left of the label, as specified in form span label.left, adjusts
+	   the horizontal position of the field itself (i.e. the value) */
+	margin-bottom: 10px;
+}
+
 form div.fieldComboRadioSelectInList {
 	/* special case of the above when using comboRadioSelect inside of a list cell. the dropdown
 		does not work because of the float for some reason, so just take out the float:left */
@@ -1349,6 +1357,11 @@ form div label.left,form div.cr p.left,form div label.longLeft {
 	text-align: left;
 	margin-right: 10px;
 	/* this is the gap between label and data element */
+}
+
+/* support for createField inline="true" */
+form span label.left, form span label.longLeft {
+	margin-left: 10px;
 }
 
 /* for 'standard' labels */

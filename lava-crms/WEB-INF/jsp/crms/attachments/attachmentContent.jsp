@@ -5,19 +5,6 @@
 <c:set var="componentView" value="${requestScope[viewString]}"/>
 
 
-<c:if test="${componentView == 'view'}">
-
-<tags:ifComponentPropertyNotEmpty property="location" component="${component}">
-	<content tag="customActions">
-		<tags:eventButton buttonText="Download" action="download" component="${component}" pageName="${component}" className="pageLevelLeftmostButton" target="download"/>
-	</content>
-</tags:ifComponentPropertyNotEmpty>
-
-</c:if>
-
-
-<tags:contentColumn columnClass="colLeft2Col5050">
-
 <page:applyDecorator name="component.entity.section">
   	<page:param name="sectionNameKey">attachment.linking.section</page:param>
 	
@@ -35,7 +22,6 @@
 </page:applyDecorator>  
 
 <c:if test="${componentView != 'view' && componentView != 'delete'}">
-
 <tags:ifComponentPropertyEmpty property="location" component="${component}">
 	<page:applyDecorator name="component.entity.section">
   		<page:param name="sectionNameKey">lavaFile.upload.section</page:param>
@@ -44,43 +30,9 @@
 </tags:ifComponentPropertyEmpty>
 </c:if>
 
-</tags:contentColumn>
-
-
-<tags:contentColumn columnClass="colRight2Col5050">
-<page:applyDecorator name="component.entity.section">
-  <page:param name="sectionNameKey">lavaFile.fileInfo.section</page:param>
-  <page:param name="quicklinkPosition">none</page:param>
-<tags:createField property="name" entityType="lavaFile" component="${component}"/>
-<tags:createField property="fileType" entityType="lavaFile" component="${component}"/>
-<tags:createField property="contentType" entityType="crmsFile" component="${component}"/>
-<tags:createField property="checksum" entityType="lavaFile" component="${component}"/>
-
-</page:applyDecorator>   
-
-<page:applyDecorator name="component.entity.section">
-  <page:param name="sectionNameKey">lavaFile.repositoryInfo.section</page:param>
-  <page:param name="quicklinkPosition">none</page:param>
-<tags:createField property="repositoryId" entityType="lavaFile" component="${component}"/>
-<tags:createField property="fileId" entityType="lavaFile" component="${component}"/>
-<tags:createField property="location" entityType="lavaFile" component="${component}"/>
-
-</page:applyDecorator>   
-
-
-
-
-
-<page:applyDecorator name="component.entity.section">
-  <page:param name="sectionNameKey">lavaFile.status.section</page:param>
-<tags:createField property="fileStatusBy" entityType="lavaFile"  component="${component}"/>
-<tags:createField property="fileStatusDate" entityType="lavaFile"  component="${component}"/>
-<tags:createField property="fileStatus" entityType="lavaFile" component="${component}"/>
-</page:applyDecorator>
-
-
-</tags:contentColumn>
-
+<c:import url="/WEB-INF/jsp/crms/attachments/attachmentCommonContent.jsp">
+	<c:param name="component">${component}</c:param>
+</c:import>
 
 
 <c:if test="${componentView != 'view' && componentView != 'delete'}">

@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.ucsf.lava.core.file.model.LavaFile;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.auth.model.CrmsAuthEntity;
+import edu.ucsf.lava.crms.enrollment.model.Consent;
 import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
@@ -20,11 +21,13 @@ public class CrmsFile extends LavaFile implements CrmsAuthEntity{
 	private Patient patient;
 	private Visit visit;
 	private EnrollmentStatus enrollmentStatus;
+	private Consent consent;
 	private InstrumentTracking instrumentTracking;
 	private Long visitId;
 	private Long pidn;
 	private Long instrId;
 	private Long enrollStatId;
+	private Long consentId;
 	
 	protected boolean patientAuth;
 	protected boolean projectAuth;
@@ -63,6 +66,12 @@ public class CrmsFile extends LavaFile implements CrmsAuthEntity{
 	public void setEnrollmentStatus(EnrollmentStatus enrollmentStatus) {
 		this.enrollmentStatus = enrollmentStatus;
 	}
+	public Consent getConsent() {
+		return consent;
+	}
+	public void setConsent(Consent consent) {
+		this.consent = consent;
+	}
 	public InstrumentTracking getInstrumentTracking() {
 		return instrumentTracking;
 	}
@@ -93,8 +102,12 @@ public class CrmsFile extends LavaFile implements CrmsAuthEntity{
 	public void setEnrollStatId(Long enrollStatId) {
 		this.enrollStatId = enrollStatId;
 	}
-	
-
+	public Long getConsentId() {
+		return consentId;
+	}
+	public void setConsentId(Long consentId) {
+		this.consentId = consentId;
+	}
 
 	public boolean getPatientAuth() {
 		return patientAuth;

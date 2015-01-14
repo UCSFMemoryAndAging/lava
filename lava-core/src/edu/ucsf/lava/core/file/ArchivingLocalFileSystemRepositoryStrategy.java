@@ -33,6 +33,7 @@ public class ArchivingLocalFileSystemRepositoryStrategy extends LocalFileSystemR
 			
 			File archiveFile = getArchiveFileSystemObject(file);
 			if(archiveFile.exists()){
+				// this should not happen since a timestamp is appended to archive filenames
 				this.logRepositoryError("Error archiving file, archive file already exists.", file);
 				throw new FileAccessException("Error archiving file, archive file already exists.",file);
 			}
@@ -43,8 +44,8 @@ public class ArchivingLocalFileSystemRepositoryStrategy extends LocalFileSystemR
 			FileCopyUtils.copy(fsFile, archiveFile);
 			
 		}catch(Exception e){
-			this.logRepositoryError("Error archiving file, archive file already exists.", file);
-			throw new FileAccessException("Error archiving file, archive file already exists.",file,e);
+			this.logRepositoryError("Error saving archiving file", file);
+			throw new FileAccessException("Error saving archive file",file,e);
 		}
 	}
 	
@@ -74,7 +75,9 @@ public class ArchivingLocalFileSystemRepositoryStrategy extends LocalFileSystemR
 	
 	
 	public LavaFile saveOrUpdateFile(LavaFile file) throws FileAccessException {
-		this.archiveFile(file);
+		if (this.fileExists(file)) {
+			this.archiveFile(file);
+		}
 		return super.saveOrUpdateFile(file);
 	}
 

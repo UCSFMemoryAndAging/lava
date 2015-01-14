@@ -23,4 +23,5 @@
 		<property name="fileId" column="file_id" type="string" length="100"/>
 		<property name="location" column="location" type="string" length="1000"/>
 		<property name="checksum" column="checksum" type="string" length="100"/>
+		<property name="notes" column="notes" type="string" length="255"/>
 		

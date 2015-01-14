@@ -158,6 +158,16 @@
        description="[optional] CSS style to use for div block. this is not an override, it is used
                     together with the standard 'field' style (assuming it has the same specificity as
                     the 'field' rule in the stylesheet)."%>
+<%@ attribute name="inline" type="java.lang.Boolean" required="false"
+              description="[optional] defaults to 'false'
+              		if true the field is not created within a div block so that following
+              		content can be placed on the same line. This only applies to 'c' and 'i' context fields where
+              		the label is to the left of the data, and this is intended for use when a button or link should
+              		follow the data value, e.g. a view button to view an associated entity or a download button to
+              		download a file. 
+              		When this is 'true' labelAlignment should not be specified. Also, in the stylesheet this is
+              		currently only implemented for left and longLeft labels but not including indented labels
+              		and fields within multiple columns" %>              
 <%@ attribute name="labelAlignment"
        description="[optional] override the computed label alignment. valid values:'left' 'top' 'right'
         			for anything beyond these, use labelStyle"%>
@@ -235,7 +245,13 @@
 	<% List allErrorMessages = new ArrayList();
 	   jspContext.setAttribute("allErrorMessages", allErrorMessages, PageContext.PAGE_SCOPE); %>
 
-
+	<c:if test="${empty inline}">
+		<c:set var="inline" value="false"/>
+	</c:if>	  			
+	<c:if test="${inline}">
+		<c:set var="inlineReadonlyData" value="true"/>
+	</c:if> 
+	                     
 
 	<%-- begin outputting HTML --%>
 	<%-- note that with the exception of instrument double enter compare, and when multiple properties
@@ -539,8 +555,11 @@
 			     on the HTML used for block and label output) --%>
 			<c:if test="${status.first && propertyStatus.first}">
 	
-				<%-- output div field block --%>
+				<%-- output div field block, unless the inline flag is set --%>
 			    <c:choose>
+					<c:when test="${inline}">
+			            <span class="field ${not empty fieldStyle ? fieldStyle : ''} ${indentLevel == 1 ? 'indentField' : ''}">
+					</c:when>
 					<%-- note that if multiple class styles are used, and their rules in the stylesheet have the same specificity,
 					     the latter takes precendence --%>
 					<%-- if making the field invisible via 'invisible' fieldStyle, must use 'invisible' class by itself because
@@ -708,6 +727,10 @@
 	</c:if>
 
 <%-- end of div field block --%>
-</div>
-
+<c:if test="${!inline}">
+	</div>
+</c:if>
+<c:if test="${inline}">
+	</span>
+</c:if>	
     		
