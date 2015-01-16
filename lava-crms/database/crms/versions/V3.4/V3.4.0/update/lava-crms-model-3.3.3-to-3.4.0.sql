@@ -67,4 +67,4 @@ CREATE TABLE `instrument_reference` (
 -- ************************************************************
 
 insert into versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-	VALUES ('lava-crms-model','3.4.0',NOW(),3,4,0,0);
+	VALUES ('lava-crms-model','3.4.0','2013-10-24',3,4,0,0);
