@@ -1,7 +1,3 @@
--- until the lava-crms V3.3.0 release is ready, all developers creating metadata changes that will be
--- part of lava-crms V3.3.0 should update this script (i.e. the latest version of this script so
--- that you do not overwrite other developers changes)
-
 -- EMORY: part of patient/caregiver changes
 LOCK TABLES `viewproperty` WRITE;
 /*!40000 ALTER TABLE `viewproperty` DISABLE KEYS */;
