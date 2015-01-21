@@ -355,7 +355,10 @@ public class CrmsImportHandler extends ImportHandler {
 // X-crmsAllImportLogs needs a QuickFilter
 // test that deleting import definition deletes the mapping file
 // X-add creation of entities as importLog CREATED messages
-// ?? create preview mode, at least for development, that does not do anything to db				
+// ?? create preview mode, at least for development, that does not do anything to db
+				
+// pedi New Patient History Clinic import needs to instantiate ClinicEnrollmentStatus			
+// also, in PediImportHandler/enrollmentStatusExistsHandling override, if "Clinic" project name changed, change comparison in that code
 
 // default import definition field values in PediImportDefinitionHandler to the common case of 
 // importing instrument data. is caregiver instrument the common case?
