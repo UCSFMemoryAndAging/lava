@@ -1,7 +1,3 @@
--- until the lava-core V3.3.0 release is ready, all developers creating schema changes that will be
--- part of lava-core V3.3.0 should update this script (i.e. the latest version of this script so
--- that you do not overwrite other developers changes)
-
 -- ************************************************************
 -- EMORY: start logiccheck changes
 -- ************************************************************
@@ -65,5 +61,5 @@ CREATE TABLE `logicchecksummary` (
 -- ************************************************************
 
 insert into versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-	VALUES ('lava-core-model','3.4.0',NOW(),3,4,0,0);
+	VALUES ('lava-core-model','3.4.0','2013-10-24',3,4,0,0);
 

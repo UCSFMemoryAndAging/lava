@@ -109,9 +109,11 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
         if (this.formActionName !=null){
         	this.formAction = (LavaComponentFormAction) getFlowServiceLocator().getAction(this.formActionName + "FormAction");
         }else if (localFormActionName != null) {
+        	// e.g. msc.crms.people.patient.patient uses mscPatientFormAction
         	this.formAction = (LavaComponentFormAction) getFlowServiceLocator().getAction(localFormActionName + "FormAction");
         } else {
-        	// use the default FormAction bean (all instruments will share a flow be instrumentFormAction)
+        	// use the default FormAction bean 
+        	// e.g. lava.crms.scheduling.visit.visit uses visitFormAction
        		this.formAction = (LavaComponentFormAction) getFlowServiceLocator().getAction(actions.get(actionId).getTarget() + "FormAction");
        	}
 	}
@@ -242,7 +244,7 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
     		// what this is doing is that if the flow has a customizing flow, that customizing
     		// flow will be given the opportunity to handle the flow, where handling the flow
     		// means a) the customizing flow handler will be used, and b) the current action will
-    		// be set for the customizing flow which will in turn result in using the view (jsp)
+    		// be set to the customizing flow which will in turn result in using the view (jsp)
     		// corresponding to the customizing flow 
     		// note: to handle the flow, the customizing flow handler must override and return the 
     		// success event from preSetupFlowDirector and the continue event from postSetupFlowDirector
@@ -271,6 +273,10 @@ public abstract class BaseFlowBuilder extends AbstractFlowBuilder {
     	// where no customizing flow handles it. 
     	// since there are relatively few customizing flows, this was not done initially and the performance hit 
     	// has not been large
+    	// update: returning "continue" from preSetupFlowDirector has the effect of skipping these method and
+    	// transitioning to the customizing flow. note that this can only be done in cases where the command object
+    	// is not needed to determine whether the customizing flow should handle the action because the command object
+    	// is not available until postSetupFlowDirector
     	
     	addActionState("flowSetupState", null,
        			new Action[]{

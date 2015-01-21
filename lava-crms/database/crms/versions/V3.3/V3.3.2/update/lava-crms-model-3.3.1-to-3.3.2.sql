@@ -43,4 +43,4 @@ UPDATE viewproperty
 
   
 insert into versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-	VALUES ('lava-crms-model','3.3.2',NOW(),3,3,2,0);
+	VALUES ('lava-crms-model','3.3.2','2013-08-12',3,3,2,0);
