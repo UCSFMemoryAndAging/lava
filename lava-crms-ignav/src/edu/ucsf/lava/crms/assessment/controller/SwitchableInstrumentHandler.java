@@ -2,7 +2,7 @@ package edu.ucsf.lava.crms.assessment.controller;
 
 import java.util.Map;
 
-import edu.ucsf.lava.crms.assessment.controller.cbt.FileLoader;
+import edu.ucsf.lava.crms.assessment.controller.upload.FileLoader;
 
 public class SwitchableInstrumentHandler extends InstrumentHandler {
 
