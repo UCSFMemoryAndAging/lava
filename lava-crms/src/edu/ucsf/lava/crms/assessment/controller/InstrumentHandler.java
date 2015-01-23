@@ -32,7 +32,7 @@ import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentFormAction;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
-import edu.ucsf.lava.crms.assessment.controller.cbt.FileLoader;
+import edu.ucsf.lava.crms.assessment.controller.upload.FileLoader;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentConfig;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;

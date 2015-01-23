@@ -1,4 +1,4 @@
-package edu.ucsf.lava.crms.assessment.controller.cbt;
+package edu.ucsf.lava.crms.assessment.controller.upload;
 
 import java.util.Map;
 
