@@ -60,10 +60,6 @@ public class Instrument extends CrmsEntity {
 	// InstrumentSummary table
 	private String summary;
 	
-	// UploadedFiles table (store just the most recent uploaded file for this instrument)
-	private String filename;
-	private String fileContents;
-
 	
 	/* this constructor is used to instantiate a new Instrument object as a placeholder for add until
 	 * the type of instrument is known. ALL instrument subclasses must implement this constructor
