@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.execution.RequestContext;
 
+import edu.ucsf.lava.core.controller.BaseListComponentHandler;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.dao.LavaDateRangeParamHandler;
@@ -73,7 +74,7 @@ public class FindPatientHandler extends CrmsListComponentHandler {
 
 	
 	public static class FindPatientSourceProvider extends CrmsListComponentHandler.BaseListSourceProvider {
-    	public FindPatientSourceProvider(CrmsListComponentHandler listHandler) {
+    	public FindPatientSourceProvider(BaseListComponentHandler listHandler) {
     		super(listHandler);
     	}
     
