@@ -45,6 +45,17 @@ public class CalcUtils {
 		return add(nums);
 	}
 	
+	// uncalculable are numbers that if encountered should return ERROR_CODE_CANNOT_CALCULATE
+	// ignores specified numbers in calculating a sum. useful for values that should obviously ignored like "-6" (logical skip) values or "9" (n/a) values
+	public static Double add(Number[] nums, Number[] uncalculable, Number[] ignore) {
+		for (int i=0; i<nums.length; i++) {
+			for (int j=0; j<uncalculable.length; j++) {
+				if (nums[i]==null || nums[i].doubleValue()==uncalculable[j].doubleValue()) return new Double(ERROR_CODE_CANNOT_CALCULATE);
+			}
+		}
+		return addWithIgnore(nums, ignore);
+	}
+	
 	// ignores specified numbers in calculating a sum. useful for values that should obviously ignored like "-6" (logical skip) values or "9" (n/a) values
 	public static Double addWithIgnore(Number[] nums, Number[] ignore) {
 		Double sum = new Double(0);
