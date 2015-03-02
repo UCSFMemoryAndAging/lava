@@ -1040,6 +1040,16 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 	}
 
 	
+	protected Event doSave(RequestContext context, Object command, BindingResult errors) throws Exception{
+		Instrument instrument = (Instrument) ((ComponentCommand)command).getComponents().get(INSTRUMENT);
+		// some instruments have unused fields that are determined dynamically, e.g. UDS instruments have packet types of
+		// followup vs. initial, where on add instrument it is not known which packet type it will be. so just calling
+		// markUnusedFields at instrument creation doesn't cut it.
+		instrument.markUnusedFields();
+		return super.doSave(context, command, errors);
+	}
+
+	
 // "enter" FLOW EVENT HANDLERS
 	/**
 	 * "enter" flow, "enter" state. save the data entry and if there will be an automatic verify, set flag to transition
