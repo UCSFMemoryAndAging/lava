@@ -317,15 +317,13 @@ public class CrmsImportHandler extends ImportHandler {
 // X-SPDC History Form 2 only showing when run server in non-debug mode - KNOWN ISSUE				
 // X-confirm that data is being loaded correctly (incl. caregiver livesWithPatient, ContactInfo is
 //   for caregiver)
-// need separate definitions for old and current versions because var names from old
+// X-need separate definitions for old and current versions because var names from old
 //  need to map to current, e.g. field5 old maps to field6 current, whereas for current
 //  field5 maps to field5		
 				
 // X-use opencsv				
 	
-// OT: Add Patient skip logic on Community Dx should disable following field unless "6 - other"			
-				
-// pertinent TODOs in code, config, Hibernate mapping, jsp, etc.
+// any remaining TODOs in import-related code, config, Hibernate mapping, jsp, etc.?
 				
 // validation check: compare DOB to form data collection date, as sometimes user enters current date for DOB
 				
@@ -375,7 +373,7 @@ public class CrmsImportHandler extends ImportHandler {
 // X-FileMaker Sensory Profile Child import
 // X-REDCap Sensory Profile Child import
 // X-for REDCap assessment imports, test patient firstName against nickname if match against firstName failed
-// BASC import			
+// X-BASC import			
 				
 // Rankin TODOs:
 //   migrate to MAC LAVA
