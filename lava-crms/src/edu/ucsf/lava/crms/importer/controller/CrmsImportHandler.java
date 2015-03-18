@@ -151,7 +151,6 @@ public class CrmsImportHandler extends ImportHandler {
 			importLog.setNotes(importSetup.getNotes());
 
 			// read data file
-// NOTE: remember to review jfesenko data load script		
 			ImportFile dataFile = importLog.getDataFile();
 			int lineNum = 0;
 			InputStream dataFileContent = new ByteArrayInputStream(dataFile.getContent());
