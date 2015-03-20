@@ -829,3 +829,160 @@ END
 
 $$
 DELIMITER ;
+
+
+
+
+-- --------------------------------------------------------------------------------
+-- util_CreateListMetadataInsertStatements
+-- --------------------------------------------------------------------------------
+
+DROP PROCEDURE IF EXISTS `util_CreateListMetadataInsertStatements`;
+
+DELIMITER $$
+
+
+CREATE PROCEDURE `util_CreateListMetadataInsertStatements`(InstanceMask varchar(50), ScopeMask varchar(50))
+BEGIN
+
+IF InstanceMask IS NULL THEN
+  SET InstanceMask = 'lava';
+END IF;
+
+IF ScopeMask IS NULL THEN
+  SET ScopeMask = '%';
+END IF;
+
+SELECT CONCAT('INSERT INTO `listvalues` (`ListID`,`instance`,`scope`,`ValueKey`,`ValueDesc`,`OrderID`,`modified`)',
+			' SELECT `ListID`,',
+             CASE WHEN lv.`instance` IS NULL THEN 'NULL,' ELSE CONCAT('''',lv.`instance`,''',') END,
+        	  CASE WHEN lv.`scope` IS NULL THEN 'NULL,' ELSE CONCAT('''',lv.`scope`,''',') END,
+             CASE WHEN lv.`ValueKey` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(lv.`ValueKey`,'''','\\'''),''',') END,
+        	  CASE WHEN lv.`ValueDesc` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(lv.`ValueDesc`,'''','\\'''),''',') END,
+				  CASE WHEN lv.`OrderID` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(lv.`OrderID` as char),',') END,
+              CASE WHEN lv.`modified` IS NULL THEN 'NULL' ELSE CONCAT('''',CAST(lv.`modified` as char),'''') END,
+            ' FROM `list` where `ListName`=''',l.`ListName`,''';')
+            FROM `listvalues` lv INNER JOIN `list` l on l.`ListId`=lv.`ListID` WHERE  lv.`instance` like InstanceMask and lv.`scope` like ScopeMask
+            ORDER BY l.`ListName`, lv.ORDERID, lv.ValueKey;
+
+END
+
+$$
+DELIMITER ;
+
+
+
+
+
+-- --------------------------------------------------------------------------------
+-- util_CreateEntityMetadataInsertStatements
+-- --------------------------------------------------------------------------------
+
+DROP PROCEDURE IF EXISTS `util_CreateEntityMetadataInsertStatements`;
+
+DELIMITER $$
+
+
+CREATE DEFINER=`lava_demo`@`localhost` PROCEDURE `util_CreateEntityMetadataInsertStatements`(InstanceMask varchar(50), ScopeMask varchar(50), EntityMask varchar (50))
+BEGIN
+
+IF InstanceMask IS NULL THEN
+  SET InstanceMask = 'lava';
+END IF;
+
+IF ScopeMask IS NULL THEN
+  SET ScopeMask = '%';
+END IF;
+
+IF EntityMask IS NULL THEN
+  SET EntityMask = '%';
+END IF;
+
+SELECT CONCAT('INSERT INTO datadictionary (`instance`,`scope`,`entity`,`prop_order`,`prop_name`,`prop_description`,`data_values`,`data_calculation`,',
+	'`required`,`db_table`,`db_column`,`db_order`,`db_datatype`,`db_datalength`,`db_nullable`,`db_default`,`notes`,`legacy_column`,`modified`) VALUES(',
+	CASE WHEN `instance` IS NULL THEN 'NULL,' ELSE CONCAT('''',`instance`,''',') END,
+	CASE WHEN `scope` IS NULL THEN 'NULL,' ELSE CONCAT('''',`scope`,''',') END,
+	CASE WHEN `entity` IS NULL THEN 'NULL,' ELSE CONCAT('''',`entity`,''',') END,
+	CASE WHEN `prop_order` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`prop_order` as char),',') END,
+	CASE WHEN `prop_name` IS NULL THEN 'NULL,' ELSE CONCAT('''',`prop_name`,''',') END,
+	CASE WHEN `prop_description` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`prop_description`,'''','\\'''),''',') END,
+	CASE WHEN `data_values` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`data_values`,'''','\\'''),''',') END,
+	CASE WHEN `data_calculation` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`data_calculation`,'''','\\'''),''',') END,
+	CASE WHEN `required` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`required` as char),',') END,
+	CASE WHEN `db_table` IS NULL THEN 'NULL,' ELSE CONCAT('''',`db_table`,''',') END,
+	CASE WHEN `db_column` IS NULL THEN 'NULL,' ELSE CONCAT('''',`db_column`,''',') END,
+	CASE WHEN `db_order` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`db_order` as char),',') END,
+	CASE WHEN `db_datatype` IS NULL THEN 'NULL,' ELSE CONCAT('''',`db_datatype`,''',') END,
+	CASE WHEN `db_datalength` IS NULL THEN 'NULL,' ELSE CONCAT('''',`db_datalength`,''',') END,
+	CASE WHEN `db_nullable` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`db_nullable` as char),',') END,
+	CASE WHEN `db_default` IS NULL THEN 'NULL,' ELSE CONCAT('''',`db_default`,''',') END,
+	CASE WHEN `notes` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`notes`,'''','\\'''),''',') END,
+	CASE WHEN `legacy_column` IS NULL THEN 'NULL,' ELSE CONCAT('''',`legacy_column`,''',') END,
+	CASE WHEN `modified` IS NULL THEN 'NULL' ELSE CONCAT('''',CAST(`modified` as char),'''') END,
+	');')	
+	FROM `datadictionary` WHERE `entity` Like EntityMask and `instance` like InstanceMask and `scope` like ScopeMask
+	ORDER BY `scope`, `entity`, `prop_order`;
+
+SELECT CONCAT('INSERT INTO viewproperty (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,',
+            '`context`,`style`,`required`,`label`,`label2`,`maxLength`,`size`,`indentLevel`,`attributes`,`list`,`listAttributes`,',
+            '`propOrder`,`quickHelp`,`modified`) VALUES(',
+        	  CASE WHEN `messageCode` IS NULL THEN 'NULL,' ELSE CONCAT('''',`messageCode`,''',') END,
+	          CASE WHEN `locale` IS NULL THEN 'NULL,' ELSE CONCAT('''',`locale`,''',') END,
+	          CASE WHEN `instance` IS NULL THEN 'NULL,' ELSE CONCAT('''',`instance`,''',') END,
+        	  CASE WHEN `scope` IS NULL THEN 'NULL,' ELSE CONCAT('''',`scope`,''',') END,
+        	  CASE WHEN `prefix` IS NULL THEN 'NULL,' ELSE CONCAT('''',`prefix`,''',') END,
+        	  CASE WHEN `entity` IS NULL THEN 'NULL,' ELSE CONCAT('''',`entity`,''',') END,
+        	  CASE WHEN `property` IS NULL THEN 'NULL,' ELSE CONCAT('''',`property`,''',') END,
+            CASE WHEN `section` IS NULL THEN 'NULL,' ELSE CONCAT('''',`section`,''',') END,
+            CASE WHEN `context` IS NULL THEN 'NULL,' ELSE CONCAT('''',`context`,''',') END,
+            CASE WHEN `style` IS NULL THEN 'NULL,' ELSE CONCAT('''',`style`,''',') END,
+            CASE WHEN `required` IS NULL THEN 'NULL,' ELSE CONCAT('''',`required`,''',') END,
+            CASE WHEN `label` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`label`,'''','\\'''),''',') END,
+            CASE WHEN `label2` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`label2`,'''','\\'''),''',') END,            
+            CASE WHEN `maxLength` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`maxLength` as char),',') END,
+            CASE WHEN `size` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`size` as char),',') END,
+            CASE WHEN `indentLevel` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`indentLevel` as char),',') END,
+            CASE WHEN `attributes` IS NULL THEN 'NULL,' ELSE CONCAT('''',`attributes`,''',') END,
+            CASE WHEN `list` IS NULL THEN 'NULL,' ELSE CONCAT('''',`list`,''',') END,
+            CASE WHEN `listAttributes` IS NULL THEN 'NULL,' ELSE CONCAT('''',`listAttributes`,''',') END,
+            CASE WHEN `propOrder` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`propOrder` as char),',') END,
+            CASE WHEN `quickHelp` IS NULL THEN 'NULL,' ELSE CONCAT('''',REPLACE(`quickHelp`,'''','\\'''),''',') END,
+           CASE WHEN `modified` IS NULL THEN 'NULL' ELSE CONCAT('''',CAST(`modified` as char),'''') END,
+            ');')
+            FROM `viewproperty` WHERE `entity` Like EntityMask and
+                                    `instance` like InstanceMask and
+                                    `scope` like ScopeMask
+            ORDER BY `entity`, `propOrder`;
+
+SELECT CONCAT('INSERT INTO hibernateproperty (`instance`,`scope`,`entity`,`property`,`dbTable`,`dbColumn`,`dbType`,',
+              '`dbLength`,`dbPrecision`,`dbScale`,`dbOrder`,`hibernateProperty`,`hibernateType`,`hibernateClass`,',
+              '`hibernateNotNull`,`modified`) VALUES(',
+        	  CASE WHEN `instance` IS NULL THEN 'NULL,' ELSE CONCAT('''',`instance`,''',') END,
+        	  CASE WHEN `scope` IS NULL THEN 'NULL,' ELSE CONCAT('''',`scope`,''',') END,
+        	  CASE WHEN `entity` IS NULL THEN 'NULL,' ELSE CONCAT('''',`entity`,''',') END,
+        	  CASE WHEN `property` IS NULL THEN 'NULL,' ELSE CONCAT('''',`property`,''',') END,
+            CASE WHEN `dbTable` IS NULL THEN 'NULL,' ELSE CONCAT('''',`dbTable`,''',') END,
+            CASE WHEN `dbColumn` IS NULL THEN 'NULL,' ELSE CONCAT('''',`dbColumn`,''',') END,
+            CASE WHEN `dbType` IS NULL THEN 'NULL,' ELSE CONCAT('''',`dbType`,''',') END,
+            CASE WHEN `dbLength` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`dbLength` as char),',') END,
+            CASE WHEN `dbPrecision` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`dbPrecision` as char),',') END,
+            CASE WHEN `dbScale` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`dbScale` as char),',') END,
+            CASE WHEN `dbOrder` IS NULL THEN 'NULL,' ELSE CONCAT(CAST(`dbOrder` as char),',') END,
+            CASE WHEN `hibernateProperty` IS NULL THEN 'NULL,' ELSE CONCAT('''',`hibernateProperty`,''',') END,
+            CASE WHEN `hibernateType` IS NULL THEN 'NULL,' ELSE CONCAT('''',`hibernateType`,''',') END,
+            CASE WHEN `hibernateClass` IS NULL THEN 'NULL,' ELSE CONCAT('''',`hibernateClass`,''',') END,
+            CASE WHEN `hibernateNotNull` IS NULL THEN 'NULL,' ELSE CONCAT('''',`hibernateNotNull`,''',') END,
+            CASE WHEN `modified` IS NULL THEN 'NULL' ELSE CONCAT('''',CAST(`modified` as char),'''') END,
+            ');')
+            FROM `hibernateproperty` WHERE `entity` Like EntityMask and
+                                    `instance` like InstanceMask and
+                                    `scope` like ScopeMask
+            ORDER BY `entity`, `dbOrder`;
+
+END
+
+$$
+DELIMITER ;
+
+
+
