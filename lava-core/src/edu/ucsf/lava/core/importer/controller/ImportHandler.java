@@ -8,12 +8,14 @@ import static edu.ucsf.lava.core.importer.model.ImportDefinition.TAB_FORMAT;
 import static edu.ucsf.lava.core.webflow.builder.ImportFlowTypeBuilder.IMPORT_EVENTS;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -29,6 +31,8 @@ import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.definition.StateDefinition;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
+
+import au.com.bytecode.opencsv.CSVReader;
 
 import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.action.model.Action;
@@ -251,20 +255,27 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		// for clarity and guidance in creating the definition mapping file. plus it provides a validation step to compare the data
 		// file column names with the definition mapping file column names to make sure that the import is as intended
 		
-		Scanner fileScanner = new Scanner(new ByteArrayInputStream(mappingFile.getContent()), "UTF-8");
-		String currentLine; 
+		InputStream mappingFileContent = new ByteArrayInputStream(mappingFile.getContent());		
+		CSVReader reader = null;
+		if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
+			reader = new CSVReader(new InputStreamReader(mappingFileContent));
+		}
+		//TODO: tab delimited has not been tested
+		else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
+			reader = new CSVReader(new InputStreamReader(mappingFileContent), '\t');
+		}
+		// nextLine[] is an array of values from the line
+		String [] nextLine;
+	
 		// line 1 is columns, line 2 is entities, line 3 is properties
 		
 		// mapping file columns
-		if (fileScanner.hasNextLine()) {
-			currentLine = fileScanner.nextLine().trim();
-			if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
-				importSetup.setMappingCols(StringUtils.commaDelimitedListToStringArray(currentLine));
-			}
-			else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
-				//TODO: tab delimited has not been tested
-				importSetup.setMappingCols(StringUtils.delimitedListToStringArray(currentLine, "\t"));
-			}
+		//opencsv readNext parses the record into a String array
+		if ((nextLine = reader.readNext()) != null) {
+			// call trimTrailingCommas in case there are extra blank columns at the end of the row (which coordinators setting up mapping
+			// files often cannot detect because they cannot see them when viewing csv in Excel. would have to open the csv in a text
+			// editor to see one or more consecutive commas at the end of the row)
+			importSetup.setMappingCols(trimTrailingCommas(nextLine));
 		}
 		else {
 			LavaComponentFormAction.createCommandError(errors, "Cannot import. Definition mapping file does not contain the first row of column names");
@@ -272,15 +283,8 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		}
 		
 		// mapping file entities
-		if (fileScanner.hasNextLine()) {
-			currentLine = fileScanner.nextLine().trim();
-			if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
-				importSetup.setMappingEntities(StringUtils.commaDelimitedListToStringArray(currentLine));
-			}
-			else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
-				//TODO: tab delimited has not been tested
-				importSetup.setMappingEntities(StringUtils.delimitedListToStringArray(currentLine, "\t"));
-			}
+		if ((nextLine = reader.readNext()) != null) {
+			importSetup.setMappingEntities(nextLine);
 		}
 		else {
 			LavaComponentFormAction.createCommandError(errors, "Cannot import. Definition mapping file does not contain the second row of entity names");
@@ -288,15 +292,8 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		}
 
 		// mapping file properties
-		if (fileScanner.hasNextLine()) {
-			currentLine = fileScanner.nextLine().trim();
-			if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
-				importSetup.setMappingProps(StringUtils.commaDelimitedListToStringArray(currentLine));
-			}
-			else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
-				//TODO: tab delimited has not been tested
-				importSetup.setMappingProps(StringUtils.delimitedListToStringArray(currentLine, "\t"));
-			}
+		if ((nextLine = reader.readNext()) != null) {
+			importSetup.setMappingProps(nextLine);
 		}
 		else {
 			LavaComponentFormAction.createCommandError(errors, "Cannot import. Definition mapping file does not contain the third row of property names");
@@ -309,22 +306,22 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		// with encoding as necessary
 		dataFile.setDefinitionName(importLog.getDefinition().getName());
 		importLog.setDataFile(dataFile);
-		fileScanner = new Scanner(new ByteArrayInputStream(dataFile.getContent()), "UTF-8");
-		if (fileScanner.hasNextLine()) {
-			currentLine = fileScanner.nextLine().trim();
-			// should not need opencsv for column names, entity names, property names, just for data, but could use for everything
-			if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
-				//importSetup.setDataCols(currentLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
-				importSetup.setDataCols(StringUtils.commaDelimitedListToStringArray(currentLine));
-			}
-			else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
-				//TODO: tab delimited files have not been tested
-				//importSetup.setDataCols(currentLine.split("\t(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
-				importSetup.setDataCols(StringUtils.delimitedListToStringArray(currentLine, "\t"));
-			}
+		
+		InputStream dataFileContent = new ByteArrayInputStream(dataFile.getContent());		
+		reader = null;
+		if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
+			reader = new CSVReader(new InputStreamReader(dataFileContent));
+		}
+		else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
+			reader = new CSVReader(new InputStreamReader(dataFileContent), '\t');
+		}
+		if ((nextLine = reader.readNext()) != null) {
+			// call trimTrailingCommas in case there are extra blank columns at the end of the row. this should not happen
+			// for the first row of column headers, but in case it does. this should NOT be done for the data rows because
+			// data rows could very well have blank/empty/null values
+			importSetup.setDataCols(trimTrailingCommas(nextLine));
 		}
 		if (validateDataFile(errors, importSetup.getImportDefinition(), importSetup).getId().equals(ERROR_FLOW_EVENT_ID)) {
-
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		
@@ -427,6 +424,31 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	}
 
 	
+	/*
+	 * This is a utility method that accommodates for the fact that mapping files and data files may inadvertently or
+	 * for whatever reason have some trailing commas which should not be considered data elements. i.e. any string of
+	 * consecutive commas at the end of the line should not represent blank elements. This method is used when parsing
+	 * the header row of mapping files and data files, i.e. the column headers, and there should not be any blank
+	 * column headers at the end of a row.
+	 * 
+	 * It should not be used for mappingEntities or mappingProps because those rows may have empty data elements by 
+	 * design (if mappingEntities entry is blank it defaults to the instrument being imported. if mappingProps is blank
+	 * the property name defaults to the column name).
+	 * 
+	 * It should not be used for data rows, where there could definitely be blank data elements.
+	 */
+	protected String[] trimTrailingCommas(String[] line) {
+		List<String> trimmedLine = new ArrayList(Arrays.asList(line));
+		for (int i = line.length-1; i >= 0; i--) {
+			if (StringUtils.hasText(line[i])) {
+				break;
+			}
+			else {
+				trimmedLine.remove(i);
+			}
+		}
+		return trimmedLine.toArray(new String[trimmedLine.size()]); 
+	}
 
 	
 }
