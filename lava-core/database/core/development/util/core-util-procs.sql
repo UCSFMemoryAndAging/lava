@@ -517,7 +517,7 @@ INSERT INTO `viewproperty` (`messageCode`,`locale`,`instance`,`scope`,`entity`,`
         CASE WHEN `required`='1' THEN 'Yes' ELSE 'No' END,
         CASE WHEN `db_datalength`='' THEN NULL WHEN `db_datalength` < 10000 THEN `db_datalength` ELSE NULL END, `prop_order`,
 		LEFT(data_values,50)        
-	FROM `datadictionary` WHERE `entity`=EntityIn AND `scope`=ScopeIn AND prop_name<>'instr_id' order by `prop_order`;
+	FROM `datadictionary` WHERE `entity`=EntityIn AND `scope`=ScopeIn AND prop_name<>'InstrID' order by `prop_order`;
 END
 
 $$
@@ -562,7 +562,7 @@ INSERT INTO `hibernateproperty` (`scope`,`entity`,`property`,`dbTable`,`dbColumn
 			ELSE 'UNMAPPED TYPE' END,
 		NULL, CASE WHEN `IS_NULLABLE`='No' THEN 'Yes' ELSE 'No' END
 	FROM `INFORMATION_SCHEMA`.`COLUMNS` c INNER JOIN datadictionary d on c.TABLE_NAME=d.db_table and c.COLUMN_NAME=d.db_column
-  WHERE c.TABLE_SCHEMA=schema() AND d.entity=EntityIn AND COLUMN_NAME<>'instr_id' AND TABLE_NAME<>'instrumenttracking'
+  WHERE c.TABLE_SCHEMA=schema() AND d.entity=EntityIn AND COLUMN_NAME<>'InstrID' AND TABLE_NAME<>'instrumenttracking'
   ORDER BY `ORDINAL_POSITION`;
 
 END
@@ -584,7 +584,7 @@ BEGIN
 select CONCAT('DROP TABLE IF EXISTS `',db_table, '`;') from datadictionary where entity=EntityIn and scope=ScopeIn group by db_table order by db_table;
 
 select CONCAT('CREATE TABLE IF NOT EXISTS `', db_table, '` (
-  `instr_id` INT NOT NULL ,')
+  `InstrID` INT NOT NULL ,')
 from datadictionary where entity=EntityIn and scope=ScopeIn group by db_table order by db_table;
 
 select CONCAT('  `', db_column, '` ', db_datatype,
@@ -595,7 +595,7 @@ select CONCAT('  `', db_column, '` ', db_datatype,
 ) from datadictionary where entity=EntityIn and scope=ScopeIn group by db_table, db_order order by db_table, db_order;
 
 
-select '  PRIMARY KEY (`instr_id`) )
+select '  PRIMARY KEY (`InstrID`) )
 ENGINE = InnoDB;';
 END
 
@@ -613,11 +613,11 @@ DELIMITER $$
 CREATE PROCEDURE `util_TableKeysAdd`(EntityIn varchar (50), ScopeIn varchar(25))
 BEGIN
 
-select CONCAT('ALTER TABLE `', db_table, '` ADD CONSTRAINT `', db_table, '__instr_id`
- FOREIGN KEY (`instr_id` )
+select CONCAT('ALTER TABLE `', db_table, '` ADD CONSTRAINT `', db_table, '__InstrID`
+ FOREIGN KEY (`InstrID` )
  REFERENCES `instrumenttracking` (`InstrID`)
  ON DELETE NO ACTION
- ON UPDATE NO ACTION, ADD INDEX `', db_table, '__instr_id` (`instr_id` ASC);')
+ ON UPDATE NO ACTION, ADD INDEX `', db_table, '__InstrID` (`InstrID` ASC);')
 from datadictionary where entity=EntityIn and scope=ScopeIn group by db_table order by db_table;
 
 END
@@ -635,8 +635,8 @@ DELIMITER $$
 CREATE PROCEDURE `util_TableKeysDrop`(EntityIn varchar (50), ScopeIn varchar(25))
 BEGIN
 
-select CONCAT('ALTER TABLE `', db_table, '` DROP FOREIGN KEY `', db_table, '__instr_id`;
-ALTER TABLE `', db_table, '` DROP INDEX `', db_table, '__instr_id`;')
+select CONCAT('ALTER TABLE `', db_table, '` DROP FOREIGN KEY `', db_table, '__InstrID`;
+ALTER TABLE `', db_table, '` DROP INDEX `', db_table, '__InstrID`;')
 from datadictionary where entity=EntityIn and scope=ScopeIn group by db_table order by db_table;
 
 END
@@ -667,7 +667,7 @@ SELECT CONCAT('\n',
 'IF query_type = \'Simple\' THEN\n',
 '	SELECT p.PIDN, it.InstrType, it.DCDate, v.VType, it.DCStatus, it.AgeAtDC, i.* FROM instrumenttracking it \n',
 '	    INNER JOIN visit v ON (it.VID = v.VID) \n',
-'		INNER JOIN ', DataSource, ' i ON (it.InstrID = i.instr_id) \n',
+'		INNER JOIN ', DataSource, ' i ON (it.InstrID = i.InstrID) \n',
 '		INNER JOIN temp_pidn p ON (p.PIDN = it.PIDN) \n',
 '	WHERE it.InstrType = \'', Instrument, '\' or it.InstrType is null \n',
 '	ORDER BY p.pidn, it.DCDate;\n',
@@ -675,7 +675,7 @@ SELECT CONCAT('\n',
 'ELSEIF query_type = \'SimpleAllPatients\' THEN\n',
 '	SELECT p.PIDN, it.InstrType, it.DCDate, v.VType, it.DCStatus, it.AgeAtDC, i.* FROM instrumenttracking it  \n',
 '	    INNER JOIN visit v ON (it.VID = v.VID) \n',
-'		INNER JOIN ', DataSource, ' i ON (it.InstrID = i.instr_id)  \n',
+'		INNER JOIN ', DataSource, ' i ON (it.InstrID = i.InstrID)  \n',
 '		RIGHT OUTER JOIN temp_pidn p ON (p.PIDN = it.PIDN)  \n',
 '	WHERE it.InstrType =  \'', Instrument, '\' or it.InstrType is null \n',
 '	ORDER BY P.pidn, it.DCDate;\n',
@@ -683,7 +683,7 @@ SELECT CONCAT('\n',
 'ELSEIF query_type = \'VisitGrouping\' THEN\n',
 '    SELECT l.PIDN, l.link_date, l.link_id, v.VType, i.InstrType, i.DCDate, i.DCStatus, i.AgeAtDC, d.*\n',
 '    FROM temp_linkdata l LEFT OUTER JOIN (visit v, instrumenttracking i, ', DataSource, ' d)\n',
-'      ON (l.link_id=v.vid AND v.vid=i.vid AND i.InstrID=d.instr_id AND\n',
+'      ON (l.link_id=v.vid AND v.vid=i.vid AND i.InstrID=d.InstrID AND\n',
 '          NOT i.DCStatus = \'Scheduled\' AND NOT i.DCStatus like \'Canceled%\')\n',
 '    ORDER BY l.PIDN, l.link_date, l.link_id;\n',
 '	\n',    
@@ -691,7 +691,7 @@ SELECT CONCAT('\n',
 '	CREATE TEMPORARY TABLE temp_linkdata as \n',
 '		SELECT p.PIDN,i.DCDate as link_date, i.InstrID as link_id, i.InstrType, i.DCDate, i.DCStatus, i.AgeAtDC, d.*  \n',
 '		FROM temp_pidn p INNER JOIN instrumenttracking i ON (p.PIDN=i.PIDN)  \n',
-'			INNER JOIN ', DataSource, ' d ON (i.InstrID=d.instr_id) \n',
+'			INNER JOIN ', DataSource, ' d ON (i.InstrID=d.InstrID) \n',
 '		WHERE NOT i.DCStatus = \'Scheduled\' AND NOT i.DCStatus like \'Canceled%\' \n',
 '		ORDER BY p.pidn, i.DCDate, i.InstrID ;\n',
 '	ALTER TABLE temp_linkdata ADD INDEX(pidn,link_date,link_id);	\n',
@@ -701,7 +701,7 @@ SELECT CONCAT('\n',
 '	CREATE TEMPORARY TABLE temp_linkdata as \n',
 '		SELECT p.PIDN, i.DCDate as link_date, i.InstrID as link_id, i.InstrType, i.DCDate, i.DCStatus, i.AgeAtDC, d.*  \n',
 '		FROM temp_pidn p INNER JOIN instrumenttracking i ON (p.PIDN=i.PIDN)  \n',
-'			INNER JOIN ', DataSource, ' d ON (i.InstrID=d.instr_id) \n',
+'			INNER JOIN ', DataSource, ' d ON (i.InstrID=d.InstrID) \n',
 '		WHERE i.DCDate = (SELECT MAX(i2.DCDate) from instrumenttracking i2 WHERE i2.PIDN=p.PIDN AND  \n',
 '			i2.InstrType = \'', Instrument, '\' AND NOT i2.DCStatus = \'Scheduled\' AND NOT i2.DCStatus like \'Canceled%\') \n',
 '		ORDER BY p.pidn, i.DCDate, i.InstrID;\n',
@@ -712,7 +712,7 @@ SELECT CONCAT('\n',
 '	CREATE TEMPORARY TABLE temp_linkdata as \n',
 '		SELECT p.PIDN,i.DCDate as link_date, i.InstrID as link_id, i.InstrType, i.DCDate, i.DCStatus, i.AgeAtDC, d.* \n',
 '		FROM temp_pidn p INNER JOIN instrumenttracking i ON (p.PIDN=i.PIDN) \n',
-'			INNER JOIN ', DataSource, ' d ON (i.InstrID=d.instr_id)\n',
+'			INNER JOIN ', DataSource, ' d ON (i.InstrID=d.InstrID)\n',
 '		WHERE i.DCDate = (SELECT MIN(i2.DCDate) from instrumenttracking i2 WHERE i2.PIDN=p.PIDN AND \n',
 '			i2.InstrType = \'', Instrument, '\' AND NOT i2.DCStatus = \'Scheduled\' AND NOT i2.DCStatus like \'Canceled%\')\n',
 '		ORDER BY p.pidn, i.InstrID;\n',
@@ -755,7 +755,7 @@ SELECT CONCAT('\n',
 '		LEFT OUTER JOIN temp_secondary_candidates ON (l.pidn=temp_secondary_candidates.pidn and l.link_date = temp_secondary_candidates.link_date and l.link_id=temp_secondary_candidates.link_id) \n',
 '		LEFT JOIN instrumenttracking i ON (temp_secondary_candidates.InstrID=i.InstrID)\n',
 '		LEFT JOIN visit v ON (i.VID = v.VID)\n',
-'		LEFT JOIN ', DataSource, ' d ON (i.InstrID=d.instr_id) ORDER BY l.pidn, l.link_date, l.link_id;\n',
+'		LEFT JOIN ', DataSource, ' d ON (i.InstrID=d.InstrID) ORDER BY l.pidn, l.link_date, l.link_id;\n',
 '\n',
 '	DROP TABLE temp_secondary_candidates;\n',
 '\n',
@@ -819,7 +819,7 @@ SET selectColumns = LEFT(selectColumns, length(selectColumns)-2);
 SET sqlText = CONCAT(
 sqlText,
 selectColumns,
-'\nFROM `instrumenttracking` `t1` inner join `', TableName, '` `t2` on (`t1`.`InstrID` = `t2`.`instr_id`)\n',
+'\nFROM `instrumenttracking` `t1` inner join `', TableName, '` `t2` on (`t1`.`InstrID` = `t2`.`InstrID`)\n',
 'WHERE `t1`.`InstrType` = \'', Instrument, '\';\n'
 );
 
