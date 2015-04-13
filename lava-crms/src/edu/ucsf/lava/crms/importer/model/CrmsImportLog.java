@@ -21,9 +21,6 @@ public class CrmsImportLog extends ImportLog {
 	private Integer newCaregivers; 
 	private Integer existingCaregivers;
 	private Integer newCaregiversContactInfo;
-	// currently not maintaining this count since not checking for existing ContactInfo for a Caregiver and
-	// instead just counting existing Caregivers. since caregiver and caregiverContactInfo are tightly
-	// bound that is enough
 	private Integer existingCaregiversContactInfo;
 	private Integer newEnrollmentStatuses;
 	private Integer existingEnrollmentStatuses;
@@ -42,6 +39,7 @@ public class CrmsImportLog extends ImportLog {
 		this.newCaregivers = 0;
 		this.existingCaregivers = 0;
 		this.newCaregiversContactInfo = 0;
+		this.existingCaregiversContactInfo = 0;
 		this.newEnrollmentStatuses = 0;
 		this.existingEnrollmentStatuses = 0;
 		this.newVisits = 0;
@@ -221,6 +219,10 @@ public class CrmsImportLog extends ImportLog {
 
 	public void incNewCaregiverContactInfo() {
 		this.newCaregiversContactInfo++;
+	}
+	
+	public void incExistingCaregiverContactInfo() {
+		this.existingCaregiversContactInfo++;
 	}
 	
 	public void incNewEnrollmentStatuses() {
