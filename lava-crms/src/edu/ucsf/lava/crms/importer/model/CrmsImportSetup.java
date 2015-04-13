@@ -52,6 +52,7 @@ public class CrmsImportSetup extends ImportSetup {
 	private int indexContactInfoState;
 	private int indexContactInfoZip;
 	private int indexContactInfoPhone1;
+	private int indexContactInfoPhone2; // ContactInfo could just be a phone2 cell phone without phone1 data
 	private int indexContactInfoEmail;
 	private ContactInfo contactInfo;
 	private boolean contactInfoCreated;
@@ -63,19 +64,17 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean caregiverCreated;
 	private boolean caregiverExisted;
 
-	// caregiver contactInfo is created automatically when caregiver is created, if there is ContactInfo data in the
-	// import data file for the caregiver. if caregiver already exists, there is not a check to see if caregiver contactInfo
-	// exists as decided not to extend import to that level, i.e. there are basically no use cases for importing
-	// an existing Caregiver's ContactInfo. so do not need flag whether Caregiver ContactInfo existed
 	// see comments for ContactInfo index fields above
 	private int indexCaregiverContactInfoAddress;
 	private int indexCaregiverContactInfoCity;
 	private int indexCaregiverContactInfoState;
 	private int indexCaregiverContactInfoZip;
 	private int indexCaregiverContactInfoPhone1;
+	private int indexCaregiverContactInfoPhone2;
 	private int indexCaregiverContactInfoEmail;
 	private ContactInfo caregiverContactInfo;
 	private boolean caregiverContactInfoCreated;
+	private boolean caregiverContactInfoExisted;
 	
 	private int indexCaregiver2FirstName;
 	private int indexCaregiver2LastName;
@@ -89,9 +88,11 @@ public class CrmsImportSetup extends ImportSetup {
 	private int indexCaregiver2ContactInfoState;
 	private int indexCaregiver2ContactInfoZip;
 	private int indexCaregiver2ContactInfoPhone1;
+	private int indexCaregiver2ContactInfoPhone2;
 	private int indexCaregiver2ContactInfoEmail;
 	private ContactInfo caregiver2ContactInfo;
 	private boolean caregiver2ContactInfoCreated;
+	private boolean caregiver2ContactInfoExisted;
 	
 	
 	private int indexEsStatusDate;
@@ -136,11 +137,11 @@ public class CrmsImportSetup extends ImportSetup {
 		this.caregiver = null;
 		this.caregiverCreated = this.caregiverExisted = false;
 		this.caregiverContactInfo = null;
-		this.caregiverContactInfoCreated = false;
+		this.caregiverContactInfoCreated = this.caregiverContactInfoExisted = false;
 		this.caregiver2 = null;
 		this.caregiver2Created = this.caregiver2Existed = false;
 		this.caregiver2ContactInfo = null;
-		this.caregiver2ContactInfoCreated = false;
+		this.caregiver2ContactInfoCreated = this.caregiver2ContactInfoExisted = false;
 		this.enrollmentStatus = null;
 		this.enrollmentStatusCreated = this.enrollmentStatusExisted = false;
 		this.visit = null;
@@ -255,6 +256,14 @@ public class CrmsImportSetup extends ImportSetup {
 
 	public int getIndexContactInfoPhone1() {
 		return indexContactInfoPhone1;
+	}
+	
+	public int getIndexContactInfoPhone2() {
+		return indexContactInfoPhone2;
+	}
+
+	public void setIndexContactInfoPhone2(int indexContactInfoPhone2) {
+		this.indexContactInfoPhone2 = indexContactInfoPhone2;
 	}
 
 	public void setIndexContactInfoPhone1(int indexContactInfoPhone1) {
@@ -564,6 +573,14 @@ public class CrmsImportSetup extends ImportSetup {
 	public void setCaregiverContactInfoCreated(boolean caregiverContactInfoCreated) {
 		this.caregiverContactInfoCreated = caregiverContactInfoCreated;
 	}
+	
+	public boolean isCaregiverContactInfoExisted() {
+		return caregiverContactInfoExisted;
+	}
+
+	public void setCaregiverContactInfoExisted(boolean caregiverContactInfoExisted) {
+		this.caregiverContactInfoExisted = caregiverContactInfoExisted;
+	}
 
 	public boolean isCaregiver2ContactInfoCreated() {
 		return caregiver2ContactInfoCreated;
@@ -571,6 +588,14 @@ public class CrmsImportSetup extends ImportSetup {
 
 	public void setCaregiver2ContactInfoCreated(boolean caregiver2ContactInfoCreated) {
 		this.caregiver2ContactInfoCreated = caregiver2ContactInfoCreated;
+	}
+	
+	public boolean isCaregiver2ContactInfoExisted() {
+		return caregiver2ContactInfoExisted;
+	}
+
+	public void setCaregiver2ContactInfoExisted(boolean caregiver2ContactInfoExisted) {
+		this.caregiver2ContactInfoExisted = caregiver2ContactInfoExisted;
 	}
 
 	public int getIndexCaregiverContactInfoAddress() {
@@ -613,6 +638,15 @@ public class CrmsImportSetup extends ImportSetup {
 	public void setIndexCaregiverContactInfoPhone1(
 			int indexCaregiverContactInfoPhone1) {
 		this.indexCaregiverContactInfoPhone1 = indexCaregiverContactInfoPhone1;
+	}
+	
+	public int getIndexCaregiverContactInfoPhone2() {
+		return indexCaregiverContactInfoPhone2;
+	}
+
+	public void setIndexCaregiverContactInfoPhone2(
+			int indexCaregiverContactInfoPhone2) {
+		this.indexCaregiverContactInfoPhone2 = indexCaregiverContactInfoPhone2;
 	}
 
 	public int getIndexCaregiverContactInfoEmail() {
@@ -664,6 +698,15 @@ public class CrmsImportSetup extends ImportSetup {
 	public void setIndexCaregiver2ContactInfoPhone1(
 			int indexCaregiver2ContactInfoPhone1) {
 		this.indexCaregiver2ContactInfoPhone1 = indexCaregiver2ContactInfoPhone1;
+	}
+	
+	public int getIndexCaregiver2ContactInfoPhone2() {
+		return indexCaregiver2ContactInfoPhone2;
+	}
+
+	public void setIndexCaregiver2ContactInfoPhone2(
+			int indexCaregiver2ContactInfoPhone2) {
+		this.indexCaregiver2ContactInfoPhone2 = indexCaregiver2ContactInfoPhone2;
 	}
 
 	public int getIndexCaregiver2ContactInfoEmail() {
