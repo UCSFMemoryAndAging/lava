@@ -223,19 +223,27 @@ public class LavaFile extends EntityBase {
 	
 	
 	/**
-	 * Persist the file contents, if they exist, to the file system repository.
-	 * The file contents saveFile will update properties of the LavaFile entity
-	 * such as fileId and location (in the repository).
+	 * Persist the file contents, if they exist, to the file system repository. The saveFile method
+	 * saves the file contents to the file repository. In this process, it sets some properties of the
+	 * new, already persisted LavaFile, such as fileId and location in the repository. Thus, LavaFile
+	 * must be persisted again (updated) to persist these updates. 
 	 * 
-	 * This is done in afterCreate because the LavaFile id could be used as the
-	 * fileId property in the scheme used to generate the location and filename for
-	 * the file in the file system repository.
+	 * This is done in afterCreate because the LavaFile id could be used as the fileId property in the 
+	 * scheme used to generate the location and filename for the file in the file system repository, 
+	 * and LavaFile id obviously is not available until after the new LavaFile is persisted.
 	 * 
 	 * Return true so that the new LavaFile entity is updated.
 	 */
 	@Override
 	public boolean afterCreate() {
 		if(this.getChecksum()!=null){
+			// inserting new object followed by updating object (by returning true from this method) results in
+			// Hibernate StaleObjectStateException. This seems like it would be a problem in general with 
+			// afterCreate returning true. 
+			// solution is to call refresh after the insert but before the update. would be better to incorporate
+			// the refresh into the DAO layer, but turns out that doing a refresh when there will not be a subsequent
+			// update can cause other issues 
+			this.refresh();
 			MANAGER.saveFile(this);
 			return true;
 		}

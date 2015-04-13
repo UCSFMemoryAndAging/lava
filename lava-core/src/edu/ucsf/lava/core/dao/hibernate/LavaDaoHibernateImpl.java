@@ -53,18 +53,17 @@ public class LavaDaoHibernateImpl extends HibernateDaoSupport implements LavaDao
 	protected void saveLavaEntity(LavaEntity entity){
 		entity.beforeCreate();
 		getHibernateTemplate().saveOrUpdate(entity);
-		// the following refresh was required when encountering an inexplicable StaleObjectStateException which
-		// occurred on prodction but not on dev even with dev pointing to production db. the fact that an update
-		// was being done following an insert triggered this exception, but doing a refresh here prevents the
-		// exception
-//TODO: while this fixed problem with attachments (e.g. Consent attachments) LavaFile afterCreate, it breaks
-//saving importLog messages so comment out and will need to handle the LavaFile afterCreate another way, possibly
-//using custom save code. can't remember exactly when it happened on production, on save? see dev-gotchas.txt for
-//a few more details. it also causes the importLog definition association to change to a proxy resulting in exception
-//in the view when trying to display definition.name		
-//		getHibernateTemplate().refresh(entity);			
 		boolean resave = entity.afterCreate();
 		if(resave){
+			// not clear yet whether this works. e.g. entity is inserted and then updated in the same transaction
+			// so Hibernate generates StaleObjectStateException on this save. solution is to do a refresh after the
+			// insert but before this update. however, cannot put refresh in this method before afterCreate because
+			// it can create problems for entities that do not need an afterCreate resave (e.g. breaks saving importLog
+			// messages. e.g. causes importLog definition association to change to a proxy resulting in exception
+			// in the view when trying to display definition name
+			
+			// note: this StaleObjectStateException was not thrown on earlier versions of the MySQL JDBC connection
+			// e.g. mysql-connector-java-5.1.8-bin.jar does not throw it while mysql-connector-java-5.1.28-bin.jar does
 			getHibernateTemplate().saveOrUpdate(entity);
 		}
 		getHibernateTemplate().flush();
