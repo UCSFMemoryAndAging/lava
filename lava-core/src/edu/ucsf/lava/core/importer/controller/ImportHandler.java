@@ -373,6 +373,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	/**
 	 * Find the index of a specified entity property in the data file, i.e. the column index of that property in the data file.
 	 * Set the resulting index on that entity property's index property in ImportSetup (or subclass).
+	 * Set the index to -1 if the property is not found in the mapping file so that there will be no attempt to import the property.
 	 * 
 	 * @param importSetup
 	 * @param indexProperty
