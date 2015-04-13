@@ -48,12 +48,8 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 	<tags:createField property="newCaregivers" component="${component}" labelStyle="longLeft"/>
 	<tags:createField property="existingCaregivers" component="${component}" labelStyle="longLeft"/>
 
-	<tags:createField property="newCaregiversContactInfo" component="${component}" labelStyle="longLeft"/>
-	<%-- currently not counting existing Caregivers ContactInfo, just existing Caregivers, as not searching
-		for existing ContactInfo of Caregivers. since Caregivers and their ContactInfo are tightly bound in 
-		the import process, just counting existing Caregivers is enough
+	<tags:createField property="newCaregiversContactInfo" component="${component}" labelStyle="longLeft"/>	
 	<tags:createField property="existingCaregiversContactInfo" component="${component}" labelStyle="longLeft"/>
-	--%>
 
 	<tags:createField property="newEnrollmentStatuses" component="${component}" labelStyle="longLeft"/>
 	<tags:createField property="existingEnrollmentStatuses" component="${component}" labelStyle="longLeft"/>
@@ -67,7 +63,8 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 	<tags:createField property="existingInstruments" component="${component}" labelStyle="longLeft"/>
 <%-- TODO: info text to clarify this number vs. prior (the following is essentially an update) --%>	
 	<tags:createField property="existingInstrumentsWithData" component="${component}" labelStyle="longLeft"/>
-<%-- decide if notes is needed. must be part of the importSetup that gets transferred over?? --%>	
+<%-- decide if notes is needed. must be part of the importSetup that gets transferred over?? 
+     update: actually would be useful to have an editable notes field in the importLog --%>	
 	<tags:createField property="notes" component="${component}" labelStyle="longLeft"/>
 </page:applyDecorator>
 
