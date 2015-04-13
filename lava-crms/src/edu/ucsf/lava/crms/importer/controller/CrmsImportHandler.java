@@ -225,16 +225,15 @@ public class CrmsImportHandler extends ImportHandler {
 				// directly set entities on importSetup like other existsHandling methods; instead it passes flags and instantiated entities back 
 				// via the returned Event, which has attributes, and the values of these attributes are then use to set the Caregiver.
 				
-				// note that Caregiver and Caregiver ContactInfo are tightly bound such that both are handled together since there
-				// is an assumption that Caregiver ContactInfo would never be imported without importing Caregiver data (i.e. would 
-				// never import new ContactInfo record for an existing Caregiver). so if a Caregiver is created a Caregiver ContactInfo
-				// might also be created (if there is data in the import data file)
-				if ((handlingEvent = caregiverExistsHandling(context, errors, importDefinition, importSetup, importLog, 
+				// note that Caregiver and Caregiver ContactInfo are tightly bound such that both are handled together since a ContactInfo
+				// record for a Caregiver has an association to that Caregiver. so import of both Caregiver and their ContactInfo data
+				// are handled in the same method
+				if ((handlingEvent = caregiverAndContactInfoExistsHandling(context, errors, importDefinition, importSetup, importLog, 
 						importSetup.getIndexCaregiverFirstName(), importSetup.getIndexCaregiverLastName(), 
 						importSetup.getIndexCaregiverContactInfoAddress(), importSetup.getIndexCaregiverContactInfoCity(),
 						importSetup.getIndexCaregiverContactInfoState(), importSetup.getIndexCaregiverContactInfoZip(),
-						importSetup.getIndexCaregiverContactInfoPhone1(), importSetup.getIndexCaregiverContactInfoEmail(),
-						lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+						importSetup.getIndexCaregiverContactInfoPhone1(), importSetup.getIndexCaregiverContactInfoPhone2(),
+						importSetup.getIndexCaregiverContactInfoEmail(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 					this.updateEntityCounts(importSetup, importLog);
 					continue;
 				}
@@ -243,18 +242,19 @@ public class CrmsImportHandler extends ImportHandler {
 				if (importSetup.isCaregiverCreated() || importSetup.isCaregiverExisted()) {
 					importSetup.setCaregiver((Caregiver) handlingEvent.getAttributes().get("caregiver"));
 					importSetup.setCaregiverContactInfoCreated((Boolean) handlingEvent.getAttributes().get("caregiverContactInfoCreated"));
-					if (importSetup.isCaregiverContactInfoCreated()) {
+					importSetup.setCaregiverContactInfoExisted((Boolean) handlingEvent.getAttributes().get("caregiverContactInfoExisted"));
+					if (importSetup.isCaregiverContactInfoCreated() || importSetup.isCaregiverContactInfoExisted()) {
 						importSetup.setCaregiverContactInfo((ContactInfo) handlingEvent.getAttributes().get("caregiverContactInfo"));
 					}
 				}
 				
 				// support importing two caregivers (e.g. Mother and Father for child patients)				
-				if ((handlingEvent = caregiverExistsHandling(context, errors, importDefinition, importSetup, importLog, 
+				if ((handlingEvent = caregiverAndContactInfoExistsHandling(context, errors, importDefinition, importSetup, importLog, 
 						importSetup.getIndexCaregiver2FirstName(), importSetup.getIndexCaregiver2LastName(), 
 						importSetup.getIndexCaregiver2ContactInfoAddress(), importSetup.getIndexCaregiver2ContactInfoCity(),
 						importSetup.getIndexCaregiver2ContactInfoState(), importSetup.getIndexCaregiver2ContactInfoZip(),
-						importSetup.getIndexCaregiver2ContactInfoPhone1(), importSetup.getIndexCaregiver2ContactInfoEmail(),
-						lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+						importSetup.getIndexCaregiver2ContactInfoPhone1(), importSetup.getIndexCaregiver2ContactInfoPhone2(), 
+						importSetup.getIndexCaregiver2ContactInfoEmail(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 					this.updateEntityCounts(importSetup, importLog);
 					continue;
 				}
@@ -263,7 +263,8 @@ public class CrmsImportHandler extends ImportHandler {
 				if (importSetup.isCaregiver2Created() || importSetup.isCaregiver2Existed()) {
 					importSetup.setCaregiver2((Caregiver) handlingEvent.getAttributes().get("caregiver"));
 					importSetup.setCaregiver2ContactInfoCreated((Boolean) handlingEvent.getAttributes().get("caregiverContactInfoCreated"));
-					if (importSetup.isCaregiver2ContactInfoCreated()) {
+					importSetup.setCaregiver2ContactInfoExisted((Boolean) handlingEvent.getAttributes().get("caregiverContactInfoExisted"));
+					if (importSetup.isCaregiver2ContactInfoCreated() || importSetup.isCaregiver2ContactInfoExisted()) {
 						importSetup.setCaregiver2ContactInfo((ContactInfo) handlingEvent.getAttributes().get("caregiverContactInfo"));
 					}
 				}
@@ -522,6 +523,7 @@ public class CrmsImportHandler extends ImportHandler {
 		setDataFilePropertyIndex(importSetup, "indexContactInfoState", "contactInfo", "state");
 		setDataFilePropertyIndex(importSetup, "indexContactInfoZip", "contactInfo", "zip");
 		setDataFilePropertyIndex(importSetup, "indexContactInfoPhone1", "contactInfo", "phone1");
+		setDataFilePropertyIndex(importSetup, "indexContactInfoPhone2", "contactInfo", "phone2");
 		setDataFilePropertyIndex(importSetup, "indexContactInfoEmail", "contactInfo", "email");
 
 		setDataFilePropertyIndex(importSetup, "indexCaregiverFirstName", "caregiver", "firstName");
@@ -531,6 +533,7 @@ public class CrmsImportHandler extends ImportHandler {
 		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoState", "caregiverContactInfo", "state");
 		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoZip", "caregiverContactInfo", "zip");
 		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoPhone1", "caregiverContactInfo", "phone1");
+		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoPhone2", "caregiverContactInfo", "phone2");
 		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoEmail", "caregiverContactInfo", "email");
 		
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2FirstName", "caregiver2", "firstName");
@@ -540,6 +543,7 @@ public class CrmsImportHandler extends ImportHandler {
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoState", "caregiver2ContactInfo", "state");
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoZip", "caregiver2ContactInfo", "zip");
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoPhone1", "caregiver2ContactInfo", "phone1");
+		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoPhone2", "caregiver2ContactInfo", "phone2");
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoEmail", "caregiver2ContactInfo", "email");
 		
 		
@@ -853,6 +857,8 @@ public class CrmsImportHandler extends ImportHandler {
 		// the assumption is that ContactInfo is only imported as part of a new Patient import, so if a new Patient was created
 		// and any ContactInfo properties are mapped and have data then create a new ContactInfo record.
 		// because currently not a use case for importing new ContactInfo for already existing Patients
+		// NOTE: if such a use case exists, see SpdcHistoryFormImportHandler override of this method which does search for
+		// existing ContactInfo record
 		if (importSetup.isPatientCreated()) {
 			// check that at least one of what are considered the key ContactInfo properties has data
 			if ((importSetup.getIndexContactInfoAddress() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexContactInfoAddress()])) || 
@@ -860,6 +866,7 @@ public class CrmsImportHandler extends ImportHandler {
 					(importSetup.getIndexContactInfoState() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexContactInfoState()])) || 
 					(importSetup.getIndexContactInfoZip() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexContactInfoZip()])) ||
 					(importSetup.getIndexContactInfoPhone1() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexContactInfoPhone1()])) || 
+					(importSetup.getIndexContactInfoPhone2() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexContactInfoPhone2()])) || 
 					(importSetup.getIndexContactInfoEmail() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexContactInfoEmail()]))) {
 				ContactInfo contactInfo = createContactInfo(importDefinition, importSetup);
 				contactInfo.setPatient(importSetup.getPatient());
@@ -880,6 +887,9 @@ public class CrmsImportHandler extends ImportHandler {
 				if (importSetup.getIndexContactInfoPhone1() != -1) {
 					contactInfo.setPhone1(importSetup.getDataValues()[importSetup.getIndexContactInfoPhone1()]);
 				}
+				if (importSetup.getIndexContactInfoPhone2() != -1) {
+					contactInfo.setPhone2(importSetup.getDataValues()[importSetup.getIndexContactInfoPhone2()]);
+				}
 				if (importSetup.getIndexContactInfoEmail() != -1) {
 					contactInfo.setEmail(importSetup.getDataValues()[importSetup.getIndexContactInfoEmail()]);
 				}
@@ -892,11 +902,20 @@ public class CrmsImportHandler extends ImportHandler {
 	}
 
 	
+	
 	/**
-	 * caregiverExistsHandling
+	 * caregiverAndContactInfoExistsHandling
 	 * 
-	 * Determine whether Caregiver exists or not and create if it does not. Can assume an exists setting
-	 * of MAY_OR_MAY_NOT_EXIST where nothing is updated if the Caregiver already exists.
+	 * Determine whether Caregiver and their ContactInfo exists or not and create if them if not. Can assume 
+	 * an exists setting of MAY_OR_MAY_NOT_EXIST where nothing is updated if the Caregiver already exists.
+	 * 
+	 * Caregiver and ContactInfo are handled together in the same method because ContactInfo has an association 
+	 * to Caregiver, so have to find exisiting Caregiver or create a new Caregiver in order to set the 
+	 * ContactInfo for a Caregiver.
+	 * 
+	 * A data file containing multiple caregivers ContactInfo could be imported so unlike other Handling
+	 * methods, this method takes arguments for the data indices of which properties to use, and it utilizes 
+	 * the Event attributes structure to return a new or existing Caregiver ContactInfo object and flags.
 	 * 
 	 * @param context
 	 * @param errors
@@ -905,19 +924,20 @@ public class CrmsImportHandler extends ImportHandler {
 	 * @param lineNum
 	 * @return SUCCESS Event if no import errors with current record; ERROR EVENT if errors
 	 */
-	protected Event caregiverExistsHandling(RequestContext context, BindingResult errors, 
+	protected Event caregiverAndContactInfoExistsHandling(RequestContext context, BindingResult errors, 
 			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog,
-			int indexFirstName, int indexLastName, int indexContactInfoAddress, int indexContactInfoCity,
-			int indexContactInfoState, int indexContactInfoZip, int indexContactInfoPhone1, int indexContactInfoEmail,
+			int indexFirstName, int indexLastName, int indexContactInfoAddress, int indexContactInfoCity, 
+			int indexContactInfoState, int indexContactInfoZip, int indexContactInfoPhone1, int indexContactInfoPhone2, int indexContactInfoEmail,
 			int lineNum) {
 		LavaDaoFilter filter = EntityBase.newFilterInstance();
 
-		// search for existing Caregiver
+		// search for existing ContactInfo for the Caregiver
 		Caregiver caregiver = null;
 		Boolean caregiverCreated = null;
 		Boolean caregiverExisted = null;
 		ContactInfo caregiverContactInfo = null;
 		Boolean caregiverContactInfoCreated = null;
+		Boolean caregiverContactInfoExisted = null;
 
 		if (indexFirstName == -1 || !StringUtils.hasText(importSetup.getDataValues()[indexFirstName]) 
 			|| indexLastName == -1 || !StringUtils.hasText(importSetup.getDataValues()[indexLastName])) {
@@ -926,6 +946,7 @@ public class CrmsImportHandler extends ImportHandler {
 			caregiverCreated = false;
 			caregiverExisted = false;
 			caregiverContactInfoCreated = false;
+			caregiverContactInfoExisted = false;
 		}
 		else {
 			
@@ -948,14 +969,18 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 			}
 			
-			// logic to determine whether a Caregiver should be created if there is no match, so cover the conditions where a 
-			// Caregiver could be imported:
-			// if this is a patient only import then yes
-			// if this is an assessment import and it is a caregiver instrument and existRule is MAY_OR_MAY_NOT_EXIST then yes (as 
-			//   opposed to MUST_EXIST)
-			if (importDefinition.getPatientOnlyImport() || 
+			if (caregiver != null) {
+				caregiverExisted = true;
+				caregiverCreated = false;
+			}
+			else {
+				// logic to determine whether a Caregiver should be created if there is no match, so cover the conditions where a 
+				// Caregiver could be imported:
+				// if this is a patient only import then yes
+				// if this is an assessment import and it is a caregiver instrument and existRule is MAY_OR_MAY_NOT_EXIST then yes (as 
+				//   opposed to MUST_EXIST)
+				if (importDefinition.getPatientOnlyImport() || 
 					(importDefinition.getInstrCaregiver() && importDefinition.getInstrCaregiverExistRule().equals(MAY_OR_MAY_NOT_EXIST))) { 
-				if (caregiver == null) {
 					caregiverExisted = false;
 					
 					// at this point either Patient was just created in which case there cannot be a Caregiver yet, or Patient
@@ -971,64 +996,108 @@ public class CrmsImportHandler extends ImportHandler {
 						// any other (non required) caregiver fields will be assigned in setProperty as they are encountered 
 						// in the import record
 						caregiverCreated = true;
-					
-						// if a new Caregiver is created, create a new ContactInfo record for that Caregiver if there is
-						// ContactInfo data in the import data file
-						// caregiverContactInfo properties are set in setPropertyHandling
-						if ((indexContactInfoAddress != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoAddress])) || 
-							(indexContactInfoCity != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoCity])) ||  
-							(indexContactInfoState != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoState])) || 
-							(indexContactInfoZip != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoZip])) ||
-							(indexContactInfoPhone1 != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoPhone1])) || 
-							(indexContactInfoEmail != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoEmail]))) {
-					
-							caregiverContactInfo = createContactInfo(importDefinition, importSetup);
-							caregiverContactInfo.setPatient(importSetup.getPatient());
-							caregiverContactInfo.setIsCaregiver(true);
-							// NOTE: had to refactor lava-crms ContactInfo to map Caregiver as an association rather than mapping caregiverId 
-							// property since do not know caregiverId at this point given that new Caregiver has not been persisted. ORM will
-							// take care of assigning caregiverId to ContactInfo at persistence
-							caregiverContactInfo.setCaregiver(caregiver);
-							caregiverContactInfo.setActive((short)1);
-							if (indexContactInfoAddress != -1) {
-								caregiverContactInfo.setAddress(importSetup.getDataValues()[indexContactInfoAddress]);
-							}
-							if (indexContactInfoCity != -1) {
-								caregiverContactInfo.setCity(importSetup.getDataValues()[indexContactInfoCity]);
-							}
-							if (indexContactInfoState != -1) {
-								caregiverContactInfo.setState(this.convertStateCode(importSetup.getDataValues()[indexContactInfoState], importLog, lineNum));
-							}
-							if (indexContactInfoZip != -1) {
-								caregiverContactInfo.setZip(importSetup.getDataValues()[indexContactInfoZip]);
-							}
-							if (indexContactInfoPhone1 != -1) {
-								caregiverContactInfo.setPhone1(importSetup.getDataValues()[indexContactInfoPhone1]);
-							}
-							if (indexContactInfoEmail != -1) {
-								caregiverContactInfo.setEmail(importSetup.getDataValues()[indexContactInfoEmail]);
-							}
-							caregiverContactInfoCreated = true;
-						}
-						else {
-							caregiverContactInfoCreated = false;
-						}
 					}
-					else { 
+					else {
 						caregiverCreated = false;
-						caregiverContactInfoCreated = false;
 					}
-				}
-				else { 
-					caregiverExisted = true;
-					caregiverCreated = false;
-					caregiverContactInfoCreated = false;
 				}
 			}
-			else {
-				caregiverExisted = false;
-				caregiverCreated = false;
-				caregiverContactInfoCreated = false;
+				
+			// if there is ContactInfo data in the import data file:
+			// for a new Caregiver, create a ContactInfo record since know it could not have existed already
+			// for an existing Caregiver, search for the ContactInfo record and if not found, create a ContactInfo record
+			// that is associated with the Caregiver
+			if ((indexContactInfoAddress != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoAddress])) || 
+				(indexContactInfoCity != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoCity])) ||  
+				(indexContactInfoState != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoState])) || 
+				(indexContactInfoZip != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoZip])) ||
+				(indexContactInfoPhone1 != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoPhone1])) || 
+				(indexContactInfoPhone2 != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoPhone2])) || 
+				(indexContactInfoEmail != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoEmail]))) {
+				
+				if (caregiverExisted) {
+					// search for ContactInfo
+					
+					filter.clearDaoParams();
+					filter.setAlias("patient", "patient");
+					filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
+					filter.setAlias("caregiver", "caregiver");
+					filter.addDaoParam(filter.daoEqualityParam("caregiver.id", caregiver.getId()));
+					if (indexContactInfoAddress != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoAddress])) {
+						filter.addDaoParam(filter.daoEqualityParam("address", importSetup.getDataValues()[indexContactInfoAddress]));
+					}
+					if (indexContactInfoCity != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoCity])) {
+						filter.addDaoParam(filter.daoEqualityParam("city", importSetup.getDataValues()[indexContactInfoCity]));
+					}
+					if (indexContactInfoState != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoState])) {
+						filter.addDaoParam(filter.daoEqualityParam("state", this.convertStateCode(importSetup.getDataValues()[indexContactInfoState], importLog, lineNum)));
+					}
+					if (indexContactInfoZip != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoZip])) {
+						filter.addDaoParam(filter.daoEqualityParam("zip", importSetup.getDataValues()[indexContactInfoZip]));
+					}
+					if (indexContactInfoPhone1 != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoPhone1])) {
+						filter.addDaoParam(filter.daoEqualityParam("phone1", importSetup.getDataValues()[indexContactInfoPhone1]));
+					}
+					if (indexContactInfoPhone2 != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoPhone2])) {
+						filter.addDaoParam(filter.daoEqualityParam("phone2", importSetup.getDataValues()[indexContactInfoPhone2]));
+					}
+					if (indexContactInfoEmail != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoEmail])) {
+						filter.addDaoParam(filter.daoEqualityParam("email", importSetup.getDataValues()[indexContactInfoEmail]));
+					}
+					try {
+						caregiverContactInfo = (ContactInfo) ContactInfo.MANAGER.getOne(filter);
+					}
+					catch (IncorrectResultSizeDataAccessException ex) {
+						importLog.addErrorMessage(lineNum,  "Duplicate Existing ContactInfo records for Caregiver:" + caregiver.getFullName() +  
+								" and Patient:" + importSetup.getPatient().getFullNameWithId() + 
+								(indexContactInfoAddress != -1 ? " and ContactInfo Address:" + importSetup.getDataValues()[indexContactInfoAddress] : "") + 
+								(indexContactInfoCity != -1 ? " and City:" + importSetup.getDataValues()[indexContactInfoCity] : "") + 
+								(indexContactInfoState != -1 ? " and State:" + importSetup.getDataValues()[indexContactInfoState] : "") + 
+								(indexContactInfoZip != -1 ? " and Zip:" + importSetup.getDataValues()[indexContactInfoZip] : "") +
+								(indexContactInfoPhone1 != -1 ? " and Phone1:" + importSetup.getDataValues()[indexContactInfoPhone1] : "") +
+								(indexContactInfoPhone2 != -1 ? " and Phone2:" + importSetup.getDataValues()[indexContactInfoPhone2] : "") +
+								(indexContactInfoEmail != -1 ? " and Email:" + importSetup.getDataValues()[indexContactInfoEmail] : ""));
+						return new Event(this, "error"); // to abort processing this import record
+					}
+				}
+				
+				if (caregiverContactInfo != null) {
+					caregiverContactInfoExisted = true;
+					caregiverContactInfoCreated = false;
+				}
+				else {
+					caregiverContactInfoExisted = false;
+					caregiverContactInfoCreated = true;
+					caregiverContactInfo = createContactInfo(importDefinition, importSetup);
+					caregiverContactInfo.setPatient(importSetup.getPatient());
+					caregiverContactInfo.setIsCaregiver(true);
+					// NOTE: had to refactor lava-crms ContactInfo to map Caregiver as an association rather than mapping caregiverId 
+					// property since do not know caregiverId at this point given that new Caregiver has not been persisted. ORM will
+					// take care of assigning caregiverId to ContactInfo at persistence
+					caregiverContactInfo.setCaregiver(caregiver);
+					caregiverContactInfo.setActive((short)1);
+					if (indexContactInfoAddress != -1) {
+						caregiverContactInfo.setAddress(importSetup.getDataValues()[indexContactInfoAddress]);
+					}
+					if (indexContactInfoCity != -1) {
+						caregiverContactInfo.setCity(importSetup.getDataValues()[indexContactInfoCity]);
+					}
+					if (indexContactInfoState != -1) {
+						caregiverContactInfo.setState(this.convertStateCode(importSetup.getDataValues()[indexContactInfoState], importLog, lineNum));
+					}	
+					if (indexContactInfoZip != -1) {
+						caregiverContactInfo.setZip(importSetup.getDataValues()[indexContactInfoZip]);
+					}
+					if (indexContactInfoPhone1 != -1) {
+						caregiverContactInfo.setPhone1(importSetup.getDataValues()[indexContactInfoPhone1]);
+					}
+					if (indexContactInfoPhone2 != -1) {
+						caregiverContactInfo.setPhone2(importSetup.getDataValues()[indexContactInfoPhone2]);
+					}
+					if (indexContactInfoEmail != -1) {
+						caregiverContactInfo.setEmail(importSetup.getDataValues()[indexContactInfoEmail]);
+					}
+				}
 			}
 		}
 	
@@ -1038,6 +1107,7 @@ public class CrmsImportHandler extends ImportHandler {
 		eventAttrMap.put("caregiverExisted", caregiverExisted);
 		eventAttrMap.put("caregiverContactInfo", caregiverContactInfo);
 		eventAttrMap.put("caregiverContactInfoCreated", caregiverContactInfoCreated);
+		eventAttrMap.put("caregiverContactInfoExisted", caregiverContactInfoExisted);
 		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
 		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
 	}
@@ -1440,7 +1510,7 @@ public class CrmsImportHandler extends ImportHandler {
 
 	
 	/**
-	 * insrtumentExistsHandling
+	 * instrumentExistsHandling
 	 * 
 	 * Determine whether instrument exists or not and act accordingly based on the importDefinition
 	 * settings. 
@@ -1863,7 +1933,8 @@ public class CrmsImportHandler extends ImportHandler {
 					// don't need to set properties already set when ContactInfo was created
 					if (!definitionPropName.equalsIgnoreCase("address") && !definitionPropName.equalsIgnoreCase("city") &&
 							!definitionPropName.equalsIgnoreCase("state") && !definitionPropName.equalsIgnoreCase("zip") &&
-							!definitionPropName.equalsIgnoreCase("phone1") && !definitionPropName.equalsIgnoreCase("email")) {
+							!definitionPropName.equalsIgnoreCase("phone1") && !definitionPropName.equalsIgnoreCase("phone2") && 
+							!definitionPropName.equalsIgnoreCase("email")) {
 						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getContactInfo(), definitionPropName, i, null, lineNum);
 					}
 				}
@@ -1883,7 +1954,8 @@ public class CrmsImportHandler extends ImportHandler {
 					// don't need to set properties already set when Caregiver ContactInfo was created
 					if (!definitionPropName.equalsIgnoreCase("address") && !definitionPropName.equalsIgnoreCase("city") &&
 							!definitionPropName.equalsIgnoreCase("state") && !definitionPropName.equalsIgnoreCase("zip") &&
-							!definitionPropName.equalsIgnoreCase("phone1") && !definitionPropName.equalsIgnoreCase("email")) {
+							!definitionPropName.equalsIgnoreCase("phone1") && !definitionPropName.equalsIgnoreCase("phone2") &&
+							!definitionPropName.equalsIgnoreCase("email")) {
 						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiverContactInfo(), definitionPropName, i, null, lineNum);
 					}
 				}
@@ -1903,7 +1975,8 @@ public class CrmsImportHandler extends ImportHandler {
 					// don't need to set properties already set when Caregiver2 ContactInfo was created
 					if (!definitionPropName.equalsIgnoreCase("address") && !definitionPropName.equalsIgnoreCase("city") &&
 							!definitionPropName.equalsIgnoreCase("state") && !definitionPropName.equalsIgnoreCase("zip") &&
-							!definitionPropName.equalsIgnoreCase("phone1") && !definitionPropName.equalsIgnoreCase("email")) {
+							!definitionPropName.equalsIgnoreCase("phone1") && !definitionPropName.equalsIgnoreCase("phone2") &&
+							!definitionPropName.equalsIgnoreCase("email")) {
 						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiver2ContactInfo(), definitionPropName, i, null, lineNum);
 					}
 				}
@@ -2252,11 +2325,11 @@ public class CrmsImportHandler extends ImportHandler {
 		if (importSetup.isCaregiverExisted()) {
 			importLog.incExistingCaregivers();
 		}
-		// note: do not keep a count of "existing" for Caregiver ContactInfo since don't check for that, i.e. Caregiver
-		// ContactInfo is tightly bound to Caregiver so if Caregiver exists there is no check to see if ContactInfo exists.
-		// Caregiver ContactInfo is only created when Caregiver created and there is ContactInfo data in the data file
 		if (importSetup.isCaregiverContactInfoCreated()) {
 			importLog.incNewCaregiverContactInfo();
+		}
+		if (importSetup.isCaregiverContactInfoExisted()) {
+			importLog.incExistingCaregiverContactInfo();
 		}
 		// note that caregiver2 and caregiver both count together for NewCaregivers, ExistingCaregivers and NewCaregiverContactInfo
 		if (importSetup.isCaregiver2Created()) {
@@ -2265,9 +2338,11 @@ public class CrmsImportHandler extends ImportHandler {
 		if (importSetup.isCaregiver2Existed()) {
 			importLog.incExistingCaregivers();
 		}
-		// see comments for caregiverContactInfo above
 		if (importSetup.isCaregiver2ContactInfoCreated()) {
 			importLog.incNewCaregiverContactInfo();
+		}
+		if (importSetup.isCaregiver2ContactInfoExisted()) {
+			importLog.incExistingCaregiverContactInfo();
 		}
 		if (importSetup.isEnrollmentStatusCreated()) {
 			importLog.incNewEnrollmentStatuses();
