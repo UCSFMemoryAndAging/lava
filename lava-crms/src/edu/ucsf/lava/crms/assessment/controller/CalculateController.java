@@ -17,6 +17,7 @@ import edu.ucsf.lava.crms.assessment.InstrumentManager;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
+import edu.ucsf.lava.crms.people.model.Caregiver;
 
 /** 
  * 
@@ -42,6 +43,7 @@ public class CalculateController extends AbstractController {
 	// TWO parameters are possible:
 	//    1) instrTypeEncoded=INSTR_TYPE_ENCODED, where INSTR_TYPE_ENCODED has no spaces and is all lowercase, e.g.
 	//       if this parameters is used, ALL instruments for this instrument type will be saved/calculated.
+	//    1a) instrTypeEncoded=caregiver will recalculate all Caregiver records
 	//	  2) instrIdsArray=INSTR_IDS, where INSTR_IDS are the instrIds (in typical array format, i.e. [123,234,345])
 	//		 of the instruments you want to save/calculate. the nice thing is that they do not have to all be of a certain
 	//		 instrument type. this is useful if you only want to call save on certain records, regardless of instrType
@@ -51,6 +53,9 @@ public class CalculateController extends AbstractController {
 	// https://mac.ucsf.edu/mac/crms/assessment/instrument/calc.lava?instrTypeEncoded=setshifting
 	// https://mac.ucsf.edu/mac/crms/assessment/instrument/calc.lava?instrIdsArray=[12345,12346,12347,12348]
 	// https://mac.ucsf.edu/mac/crms/assessment/instrument/calc.lava?instrIdsArray=[12345] (for a single record)
+	// usage for non-instruments:
+	// calculate all caregivers
+	// https://mac.ucsf.edu/mac/crms/assessment/instrument/calc.lava?instrTypeEncoded=caregiver
 	
 	// if the calculations are resulting in a database transaction timeout (e.g. if the instrument is a computer
 	// based testing instrument with master/detail structure and many details rows), change the transaction propagation 
@@ -99,12 +104,37 @@ public class CalculateController extends AbstractController {
 		if (instrIdsArrayParam != null) {
 			calculateByIds(request, instrIdsArrayParam);
 		} else if (instrTypeEncodedParam != null) {
-			calculateByType(request, instrTypeEncodedParam);
+			if (instrTypeEncodedParam.equals("caregiver")) {
+				calcCaregivers(request);	
+			}
+			else {
+				calculateByType(request, instrTypeEncodedParam);
+			}
 		} else {
 			logger.info("calculate failed. no valid parameters: instrTypeEncoded, instrIdsArray");
 		}
 		
 		return new ModelAndView("/info");
+	}
+	
+	
+	public void calcCaregivers(HttpServletRequest request) throws Exception {
+		// use instrIdList for ids even though these are Caregiver IDs
+		this.clazz = Caregiver.class;
+		this.instrIdList = Caregiver.MANAGER.getIds(this.filter);
+		int counter = 0;
+		int total = this.instrIdList.size();
+		for (Long careId : this.instrIdList) {
+			counter++;
+			logger.info("calling save/calculate for Caregiver object id=" + careId + " (" + counter + " of " + total + ")");
+			this.filter.addIdDaoEqualityParam(careId);
+			Caregiver caregiver = (Caregiver) Caregiver.MANAGER.getOne(this.clazz, this.filter);
+			caregiver.save();
+			this.filter.clearDaoParams();
+		}
+		logger.info("calculate complete. calculated " + counter + "/" + this.instrIdList.size() + " objects");
+		request.setAttribute("infoMessage", "Calculate complete. Calculated " + counter + "/" + this.instrIdList.size() + " objects.");
+		
 	}
 		
 
