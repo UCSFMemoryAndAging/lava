@@ -481,9 +481,14 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 		    }
 			model.put("missingCodesMapAutoFill", mapAutoFill);			
 
-			// this is only need for informant instruments 
+			// these only need for informant instruments 
 			dynamicLists.put("instrument.informants", 
 					listManager.getDynamicList("instrument.informants", 
+					"patientId", instrument.getPatient().getId(),Long.class));
+			// if there is a foreign key constraint from the caregiver instrument to the caregiver table,
+			// cannot have codes in the caregiver instrument, so use this list
+			dynamicLists.put("instrument.informantsNoCodes", 
+					listManager.getDynamicList("instrument.informantsNoCodes", 
 					"patientId", instrument.getPatient().getId(),Long.class));
 		}
 
