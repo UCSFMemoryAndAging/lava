@@ -6,9 +6,11 @@
 
 	<bean id="list.instrument.informants" parent="list.dynamicSortValue">
 		<property name="query" value="patient.caregivers"/>
-<!--		
 		<property name="defaultCodes"><ref bean="list.ref.stdErrorCodes"/></property>
--->		
+	</bean>
+		
+	<bean id="list.instrument.informantsNoCodes" parent="list.dynamicSortValue">
+		<property name="query" value="patient.caregivers"/>
 	</bean>
 		
 	<bean id="list.instrument.versions" parent="list.dynamic">
