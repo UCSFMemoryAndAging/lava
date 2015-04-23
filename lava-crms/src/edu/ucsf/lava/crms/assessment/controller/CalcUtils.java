@@ -83,6 +83,11 @@ public class CalcUtils {
 			count++;
 			sum += nums[i].doubleValue();
 		}
+		
+		if (count == 0) {
+			return new Double(ERROR_CODE_CANNOT_CALCULATE);
+		}
+		
 		return sum/count;
 	}
 	
@@ -94,6 +99,11 @@ public class CalcUtils {
 			count++;
 			sum += nums[i].doubleValue();
 		}
+		
+		if (count == 0) {
+			return new Double(ERROR_CODE_CANNOT_CALCULATE);
+		}
+		
 		return sum/count;
 	}	
 	
