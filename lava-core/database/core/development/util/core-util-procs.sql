@@ -883,7 +883,7 @@ DROP PROCEDURE IF EXISTS `util_CreateEntityMetadataInsertStatements`;
 DELIMITER $$
 
 
-CREATE DEFINER=`lava_demo`@`localhost` PROCEDURE `util_CreateEntityMetadataInsertStatements`(InstanceMask varchar(50), ScopeMask varchar(50), EntityMask varchar (50))
+CREATE PROCEDURE `util_CreateEntityMetadataInsertStatements`(InstanceMask varchar(50), ScopeMask varchar(50), EntityMask varchar (50))
 BEGIN
 
 IF InstanceMask IS NULL THEN
