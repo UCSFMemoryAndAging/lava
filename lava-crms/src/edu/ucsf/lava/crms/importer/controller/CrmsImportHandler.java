@@ -373,7 +373,10 @@ public class CrmsImportHandler extends ImportHandler {
 // X-FileMaker Sensory Profile Child import
 // X-REDCap Sensory Profile Child import
 // X-for REDCap assessment imports, test patient firstName against nickname if match against firstName failed
-// X-BASC import			
+// X-BASC import
+				
+// subject importDefinitions and importLogs lists to Project filtering. also consider useful Filter, sorts
+// e.g. add instrument to Filter and compare to any of 10 instruments allowed per data file				
 				
 // Rankin TODOs:
 //   migrate to MAC LAVA
