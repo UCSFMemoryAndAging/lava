@@ -239,21 +239,15 @@ public class ImportHandler extends BaseEntityComponentHandler {
 //TODO: add import event to audit events (persisted import data file in combination with importLog will essentially be the 
 // import data audit log)		
 		
-		// definition mapping and data arrays
-//TODO: redo these comments with a definition for each String array:
-// String mappingCols[];
-// String mappingProps[];
-// String dataCols[];
-// String dataValues[];
-		
-		// dataColumns are the column headers in the data file so are specific to the data file and can be anything. the same column
-		// headers are in the definition mapping file and these are stored in columns array. the properties array is mapped to columns
-		// in the definition mapping file and the values are class property names that can be set via reflection
-	
-		// note that the data file column headers match up with the definition mapping file property names, in terms of array indices,
-		// so that do not actually need the data file column headers in the mapping file for import purposes, but they are there
-		// for clarity and guidance in creating the definition mapping file. plus it provides a validation step to compare the data
-		// file column names with the definition mapping file column names to make sure that the import is as intended
+		// definition mapping and data arrays are defined as members of ImportSetup which is the (primary) command
+		// object used in the import. the import definition mapping file is read into the mapping arrays and the data file
+		// is read into the data arrays, and the import process then works with these arrays
+
+		// note that the data file variable name column headers match up with the definition mapping file variable name column
+		// headers, in terms of array indices, so that do not actually need the variable name column headers in the mapping file 
+		// for import purposes, but they are there for clarity and guidance in creating the definition mapping file. plus it 
+		// provides a validation step to compare the data file variable name column headers with the definition mapping file
+		// variable name column headers to make sure that the import is as intended
 		
 		InputStream mappingFileContent = new ByteArrayInputStream(mappingFile.getContent());		
 		CSVReader reader = null;
