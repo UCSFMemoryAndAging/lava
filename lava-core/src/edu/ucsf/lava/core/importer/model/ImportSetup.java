@@ -23,12 +23,26 @@ import java.io.Serializable;
 	public void setImportDefinition(ImportDefinition importDefinition) {
 		this.importDefinition = importDefinition;
 	}
+	
+	// The mapping file of the import definition maps the variable names that are used as column headers in 
+	// the data file to LAVA entity property names, where the variable names are specified on row 1, and below
+	// each variable name on rows 2 and 3 are the entity name and property name, respectively.
 
-	private String mappingCols[]; // array of the mapping file column names (i.e. column names in the data file); row 1 of the mapping file
-	private String mappingEntities[]; // array of the mapping file entity names; row 2 of the mapping file
-	private String mappingProps[]; // array of the mapping file property names; row 3 of the mapping file
-	private String dataCols[]; // array of the data file variable names, i.e. column names in the data file; row 1 of the data file
-	private String dataValues[]; // array of the data file variable values; row 3 of the data file 
+	// The entity name denotes the type of object and is used to find an existing entity of that type or create
+	// a new entity of that type. The entity name can be interpreted in various ways during an import by 
+	// subclasses of the ImportHandler, in order to map it to a specific LAVA entity type.
+
+	// row 1 of the mapping file
+	private String mappingCols[]; // array of the mapping file variable names (i.e. equivalent to data file variable name column headers)
+	// row 2 of the mapping file
+	private String mappingEntities[]; // array of the mapping file entity names (for instruments this is the instrument name 
+									  // and must match the name in the Instrument table)
+	// row 3 of the mapping file
+	private String mappingProps[]; // array of the mapping file Java property names (case insensitive)
+	// row 1 of the data file
+	private String dataCols[]; // array of the data file variable names, i.e. column names in the data file
+	// row 3 of the data file
+	private String dataValues[]; // array of the data file variable values 
 
 	public ImportSetup() {}
 	
