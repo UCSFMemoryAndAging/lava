@@ -63,8 +63,6 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 	<tags:createField property="existingInstruments" component="${component}" labelStyle="longLeft"/>
 <%-- TODO: info text to clarify this number vs. prior (the following is essentially an update) --%>	
 	<tags:createField property="existingInstrumentsWithData" component="${component}" labelStyle="longLeft"/>
-<%-- decide if notes is needed. must be part of the importSetup that gets transferred over?? 
-     update: actually would be useful to have an editable notes field in the importLog --%>	
 	<tags:createField property="notes" component="${component}" labelStyle="longLeft"/>
 </page:applyDecorator>
 

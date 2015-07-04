@@ -46,7 +46,6 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 	<tags:createField property="alreadyExist" component="${component}"/>
 	<tags:createField property="errors" component="${component}"/>
 	<tags:createField property="warnings" component="${component}"/>
-<%-- decide if notes is needed. must be part of the importSetup that gets transferred over?? --%>	
 	<tags:createField property="notes" component="${component}"/>
 </page:applyDecorator>
 
