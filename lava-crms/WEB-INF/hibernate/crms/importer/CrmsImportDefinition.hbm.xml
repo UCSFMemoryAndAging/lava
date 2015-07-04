@@ -26,7 +26,35 @@
 		<property name="instrType" column="instr_type" type="string" length="25"/>
 		<property name="instrVer" column="instr_ver" type="string" length="25"/>
 		<property name="instrCaregiver" column="instr_caregiver" type="boolean"/>
+		<property name="instrType2" column="instr_type2" type="string" length="25"/>
+		<property name="instrVer2" column="instr_ver2" type="string" length="25"/>
+		<property name="instrCaregiver2" column="instr_caregiver2" type="boolean"/>
+		<property name="instrType3" column="instr_type3" type="string" length="25"/>
+		<property name="instrVer3" column="instr_ver3" type="string" length="25"/>
+		<property name="instrCaregiver3" column="instr_caregiver3" type="boolean"/>
+		<property name="instrType4" column="instr_type4" type="string" length="25"/>
+		<property name="instrVer4" column="instr_ver4" type="string" length="25"/>
+		<property name="instrCaregiver4" column="instr_caregiver4" type="boolean"/>
+		<property name="instrType5" column="instr_type5" type="string" length="25"/>
+		<property name="instrVer5" column="instr_ver5" type="string" length="25"/>
+		<property name="instrCaregiver5" column="instr_caregiver5" type="boolean"/>
+		<property name="instrType6" column="instr_type6" type="string" length="25"/>
+		<property name="instrVer6" column="instr_ver6" type="string" length="25"/>
+		<property name="instrCaregiver6" column="instr_caregiver6" type="boolean"/>
+		<property name="instrType7" column="instr_type7" type="string" length="25"/>
+		<property name="instrVer7" column="instr_ver7" type="string" length="25"/>
+		<property name="instrCaregiver7" column="instr_caregiver7" type="boolean"/>
+		<property name="instrType8" column="instr_type8" type="string" length="25"/>
+		<property name="instrVer8" column="instr_ver8" type="string" length="25"/>
+		<property name="instrCaregiver8" column="instr_caregiver8" type="boolean"/>
+		<property name="instrType9" column="instr_type9" type="string" length="25"/>
+		<property name="instrVer9" column="instr_ver9" type="string" length="25"/>
+		<property name="instrCaregiver9" column="instr_caregiver9" type="boolean"/>
+		<property name="instrType10" column="instr_type10" type="string" length="25"/>
+		<property name="instrVer10" column="instr_ver10" type="string" length="25"/>
+		<property name="instrCaregiver10" column="instr_caregiver10" type="boolean"/>
 		<property name="instrCaregiverExistRule" column="instr_caregiver_exist_rule" type="short"/>
 		<property name="instrDcStatus" column="instr_dc_status" type="string" length="25"/>
 	</joined-subclass>
+	
 </hibernate-mapping>
