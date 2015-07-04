@@ -29,8 +29,11 @@ public class ImportDefinition extends EntityBase {
 
 	public ImportDefinition(){
 		super();
-		this.startDataRow = 2; // default
 		this.setAuditEntityType("ImportDefinition");
+		this.dataFileFormat = CSV_FORMAT;
+		this.startDataRow = 2; // default
+		this.dateFormat = DEFAULT_DATE_FORMAT;
+		this.timeFormat = DEFAULT_TIME_FORMAT;
 	}
 
 	public String getName() {
