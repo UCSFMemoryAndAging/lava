@@ -1,8 +1,6 @@
 <%@ include file="/WEB-INF/jsp/includes/include.jsp" %>
 
 <c:set var="component" value="importLog"/>
-<c:set var="viewString" value="${component}_view"/>
-<c:set var="componentView" value="${requestScope[viewString]}"/>
 
 <%-- have to convert the java.sql.Timestamp directly from command component because PropertyEditor has
 	been registered by LavaComponentFormAction to convert to String --%> 
