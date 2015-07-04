@@ -6,6 +6,8 @@
 	<page:param name="component">${component}</page:param>
 	<page:param name="pageHeadingArgs"></page:param>
 	
+<tags:outputText textKey="importDefinition.allImportDefinitions.projectContext" inline="false" styleClass="italic"/>	
+	
 <page:applyDecorator name="component.list.content">
 	<page:param name="component">${component}</page:param>
 
@@ -16,9 +18,10 @@
 <content tag="listColumns">
 <tags:listRow>
 	<tags:componentListColumnHeader component="${component}" label="Action" width="8%"/>
-	<tags:componentListColumnHeader component="${component}" label="Name" width="12%" sort="name" />
-	<tags:componentListColumnHeader component="${component}" label="Mapping File" width="30%" sort="mappingFile.name"/>
-	<tags:componentListColumnHeader component="${component}" label="Notes" width="50%"/>
+	<tags:componentListColumnHeader component="${component}" label="Name" width="22%" sort="name" />
+	<tags:componentListColumnHeader component="${component}" label="Mapping File" width="28%" sort="mappingFile.name"/>
+	<tags:componentListColumnHeader component="${component}" label="Project" width="22%" sort="projName" />
+	<tags:componentListColumnHeader component="${component}" label="Notes" width="20%"/>
 </tags:listRow>
 </content>
 
@@ -32,6 +35,9 @@
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="mappingFile.name" component="${component}" listIndex="${iterator.index}" metadataName="lavaFile.name"/>
+		</tags:listCell>
+		<tags:listCell>
+			<tags:listField property="projName" component="${component}" listIndex="${iterator.index}" entityType="importDefinition"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="notes" component="${component}" listIndex="${iterator.index}" entityType="importDefinition"/>
