@@ -21,6 +21,11 @@
 		<property name="timeFormat" column="time_format" type="string" length="20"/>
 		<property name="truncate" column="truncate" type="short"/>
 		<property name="notes" column="notes" type="string" length="500"/>
+
+		<!-- TODO: project references should be in lava-crms not lava-core. in order for the crms subclass of this class to
+			share this mapping, need to refactor this into XML includes so that the lava-crms mapping can add in this
+			projectContext filter -->		
+		<filter name="projectContext" condition="definition_id in (select crms.definition_id from crms_import_definition crms where crms.projName = :projectContext)"/>
 	</class>
 
 	<query name="list.importDefinition.definitions"><![CDATA[
