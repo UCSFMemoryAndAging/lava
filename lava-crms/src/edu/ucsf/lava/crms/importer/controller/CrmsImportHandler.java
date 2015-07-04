@@ -305,10 +305,8 @@ public class CrmsImportHandler extends ImportHandler {
 // X-do pedi attachments (consents) when working in the following with LavaFile stuff				
 //   download definition mapping file
 //	 download data file				
-
 // X-change mapping file format to 3 rows: row 2 is entity type, row 3 is property name (if
 //  both are blank then defaults to 1st instrument and prop name == column name (row 1))				
-
 // X-pedi new patient history import (data file with all columns, not cut off at 256 cols)
 // X-should only create caregiver and caregiver contactInfo records if data exists
 // X-log totals do not reflect caregivers and contactInfo records (but they could. not bothering with
@@ -320,69 +318,62 @@ public class CrmsImportHandler extends ImportHandler {
 // X-need separate definitions for old and current versions because var names from old
 //  need to map to current, e.g. field5 old maps to field6 current, whereas for current
 //  field5 maps to field5		
-				
 // X-use opencsv				
-	
-// any remaining TODOs in import-related code, config, Hibernate mapping, jsp, etc.?
-				
-// validation check: compare DOB to form data collection date, as sometimes user enters current date for DOB
-				
-// instrument property case mismatch mapping vs. reality: this is not a record level warning so
-//   how to report as do not want to repeat for each record of data file. only report these warnings
-//   for the first import record, and do not incWarnings; instead add a new summary counter to 
-//   propCaseMismatchCount to CrmsImportLog 				
-
 // X-make mapping definition name longer (50?)				
-// import definition UI cleanup (for now move Project near top, ahead of selection of Import
-//  skip logic:
-//      if Only Import Patients then disable Visit and Instrument fields
-//      if Patient Must Not Exist rule is selected then other exist rules should be disabled and
+// X-import definition UI cleanup (for now move Project near top, ahead of selection of Import
+//  X-skip logic:
+//      X-if Only Import Patients then disable Visit and Instrument fields
+//      X-if Patient Must Not Exist rule is selected then other exist rules should be disabled and
 //         set to Must Not Exist
-//      if Caregiver Instrument then enable Caregiver Instrument Exist Rule
+//      X-if Caregiver Instrument then enable Caregiver Instrument Exist Rule
+// X-help text all over the import definition (incl. if mapping file changes, have to re-upload)
+// X-put "instructions" on crmsImport.jsp as well stating about log file and saving data file				
+// X-default import definition field values in PediImportDefinitionHandler to the common case of 
+//      importing instrument data
+// X-default pedi specific import definition fields via a PediImportDefinition customization, i.e.
+//      default to caregiver instrument
+
+// X-subject importDefinitions and importLogs lists to Project filtering
+// also consider useful Filter, sorts  e.g. add instrument to Filter and compare to any of 10 instruments allowed per data file
+																
 // X-get rid of import section, default to imports section (make sure regular import fails
 //  on SPDC history import)				
-// TODO: make the mapping data file bind with Spring so on refresh it is not lost, e.g. when a required
-//  field error on anohter field. keep in mind that tried this already using the Spring facility to bind
-//  an uploaded file but ran into problems integrating that into our implementation of uploading files
-//  so this is not a minor item
-// why does Browse button have _ in it?)				
-// help text: (maybe) if mapping file changes, have to re-upload
-// importLogContent / crmsImportLogContent format log summary results in a table
-// importLog/crmsImportLog needs to get rid of Edit button
-// allow Edit of import log where only the Notes field can be edited so can put in notes about things that happened in import				
+// X-allow Edit of import log where only the Notes field can be edited so can put in notes about things that happened in import				
 // X-crmsAllImportLogs needs a QuickFilter
-// test that deleting import definition deletes the mapping file
 // X-add creation of entities as importLog CREATED messages
-// ?? create preview mode, at least for development, that does not do anything to db
-				
-// pedi New Patient History Clinic import needs to instantiate ClinicEnrollmentStatus			
-// also, in PediImportHandler/enrollmentStatusExistsHandling override, if "Clinic" project name changed, change comparison in that code
-
-// default import definition field values in PediImportDefinitionHandler to the common case of 
-// importing instrument data. is caregiver instrument the common case?
-				
-// X-call calculate on save (or is it done automatically?)
-				
+// X-call calculate on save
 // X-custom, hard-coded truncation for certain pediLAVA imports, e.g. Sensory Profile Child
-// future plan is to use importDefinition truncate flag (already added to schema) to either truncate or 
-// abort record on error if database truncation exception thrown. to truncate will consult the metadata
-// for each property to find the maxLength
+// make the mapping data file bind with Spring so on refresh it is not lost, e.g. when a required
+//   field error on anohter field. keep in mind that tried this already using the Spring facility to bind
+//   an uploaded file but ran into problems integrating that into our implementation of uploading files
+//   so this is not a minor item
+// test that deleting import definition deletes the mapping file
+// why does Browse button have _ in it? (is this browser specific?)				
+// importLogContent / crmsImportLogContent format log summary results in a table
+// validation check: compare DOB to form data collection date, as sometimes user enters current date for DOB
+
+// allowInstrUpdate flag has been enabled for SYSTEM_ADMIN role and tested, but need to test what happens
+// on error because modifying a Hibernate persistent instance (attached to the Hibernate session) so wouldn't
+// changes be persisted if there is no rollback? see TODO: in this method below for more comments on this				
 				
+// any remaining TODOs in import-related code, config, Hibernate mapping, jsp, etc.?
+				
+// make sure import events are audited to audit event log
+// implement project authorization for crmsImportDefinition, crmsImport, crmsImportLog
+			
 // other majors:
 // X-FileMaker patient import
 // X-FileMaker Sensory Profile Child import
 // X-REDCap Sensory Profile Child import
 // X-for REDCap assessment imports, test patient firstName against nickname if match against firstName failed
 // X-BASC import
-				
-// subject importDefinitions and importLogs lists to Project filtering. also consider useful Filter, sorts
-// e.g. add instrument to Filter and compare to any of 10 instruments allowed per data file				
+// ?? create preview mode, at least for development, that does not do anything to db
 				
 // Rankin TODOs:
 //   migrate to MAC LAVA
 //				
 //   implement startDataRow (defaults to 2 for all imports done prior to implementation)
-//   UPDATE: believe this is needed for pedi BASC too				
+//   UPDATE: this is implemented but not tested				
 //				
 //   match existing Visit on Visit Type if user sets flag to do so. even if not, Visit Type could still be
 //   used when creating new Visits (default is false)				
@@ -391,17 +382,41 @@ public class CrmsImportHandler extends ImportHandler {
 //   match existing	Visit on user specified time window, in days, around the visitDate in data file. set
 //   to 0 for an exact date match (need info text with this) (0 is the default)				
 //   (columns and metadata to support already added to db)
+//   ?? what to do if multiple visits matched - probably error log				
 //				
 //   expand to work with multiple instruments (crmsImportDefinition will have inputs for up to 10 
 //   instruments, and will have to rework instrumentExistsHandling to go thru each specified instrument,
 //   and use of instrType,instrVer for generateLocation for data files will just have to use that of
 //   the first instrument chosen)
 //   (columns and metadata to support already added to db, i.e. 2 thru 10 instrType/instrVer)
-//				
+//   importDefinition has UI for all 10 instrType/instrVer even though could just use the values in the mapping
+//    file (row 2) to determine what instrument is being imported. but there is clarify in what exactly the import
+//    definition is importing by having user explicitly specify which instruments are being imported, AND had
+//    to put a caregiver flag for each instrument so pretty much had to have user specify instrument types.
+//    and it may facilitate some future things and makes it a bit easier to iterate thru the instruments
+//    to process. For Rankin special case where IAS and Big Five Inventory have two instances in the data file
+//    could even use the version field for distinguishing (version in mapping file appended to instr type in row 2?)				
+//   need to validate mapping file that every row 2 instrType matches an existing instrType (and perhaps that
+//    they match the instruments specified in importDefinition
+//   can use these instrument types to instantiate the instrument instance, but when setting property, will
+//    be matching mapping file instrType to get the correct instr instance, i.e. seems like importSetup will 
+//    need a mapping structure of instrType to instr instance				
+//
+//   IAS and Big Five Inventory have two instances in the same data file, one for pre and one for current,
+//   so will be instantiating two of each so have custom entity name in mapping file to facilitate this
+//   and keep each instance separate, e.g. "ias_pre" and "ias_current". these entity names can also be
+//   be used to populate the timeQuest property to either "PRIOR" (or one of the "TIMEn" options?) or "CURRENT"
+//
+// 2.0 support instrument update with a confirmation flow state showing the user current and new values				
 // 2.0  expand to work with files in folders for special not-exactly-import use cases:
 //      a) for instruments that load individual patient files, e.g. e-prime instruments
 //      b) for PDFs that should be attached to an existing instrument
 // 2.0: validation, i.e. read property metadata to obtain type, list of valid values
+// 3.0: validation on string field lengths. use max length from metadata. use importDefinition truncate
+//      flag (already added to schema) to either truncate or give error.
+//      in case where no max length specified, if database truncation exception thrown, then consult
+//      truncate flag to truncate or give error, but what length to truncate to since do not know
+//      length of database column?				
 // 
 // 3.0 import detail data files, e.g. Freesurfer 5.1 data				
 				
@@ -566,7 +581,7 @@ public class CrmsImportHandler extends ImportHandler {
 
 		setOtherIndices((CrmsImportDefinition)importDefinition, crmsImportSetup);
 
-		//TODO: move these checks to the CrmsImportDefinitionHandler
+		//TODO: move these checks to the CrmsImportDefinitionHandler, check that mapping file has mapping for these variables
 		// error on entire import if either no PIDN or no FirstName/LastName 			
 		if (crmsImportSetup.getIndexPatientPIDN() == -1 && 
 				(crmsImportSetup.getIndexPatientFirstName() == -1 || crmsImportSetup.getIndexPatientLastName() == -1)) {
@@ -1378,15 +1393,18 @@ public class CrmsImportHandler extends ImportHandler {
 			// currently do not handle existing columns that have date and time in same column. not sure if this will
 			// be encountered
 
-			filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate));
+			filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate)); // visitDate validated and instantiated earlier in this method
 			if (importSetup.getIndexVisitTime() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitTime()])) {
-				filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime));
+				filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime)); // visitTime validated and instantiated earlier in this method
 			}
 			// note: could also use daoDateAndTimeEqualityParam
 			
 			// visitType is optional for the search; it typically is not in generated data files, and if the import
 			// is such that new Visits will not be created then it need not be specified in the definition.
-			// however, without visitType, could match multiple visits. see more on this below 
+			// however, without visitType, could match multiple visits. see more on this below
+			//TODO: is there a scenario where just want to match on visitDate, any visitType, but a visitType is supplied
+			//just to use if creating new visits? if so, add a flag on whether to use visitType for matching visits
+			//already havea  matchVisitType column for this in crms_import_definition
 			if (visitType != null) {
 				if (StringUtils.hasText(visitType)) {
 					filter.addDaoParam(filter.daoEqualityParam("visitType", visitType));
@@ -1403,6 +1421,8 @@ public class CrmsImportHandler extends ImportHandler {
 			// however, if no visitType supplied in import definition, could match multiple visits on same date, in which case
 			// would not know which one to use. so user should then modify import definition to include visitType
 			//TODO: when start using Visit Window for Kate, figure out what to do if matches multiple visits
+			//      could be that need separate import definitions for different visit types, where could import the same 
+			//      data file with different import definitions/visit types
 			catch (IncorrectResultSizeDataAccessException ex) {
 				if (visitType != null) {
 					importLog.addErrorMessage(lineNum, "Duplicate Visit records for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
@@ -1427,12 +1447,24 @@ public class CrmsImportHandler extends ImportHandler {
 				importLog.addErrorMessage(lineNum, "Visit does not exist for Patient:" + importSetup.getPatient().getFullNameRev() + " Project:" + importSetup.getRevisedProjName() + " violating MUST_EXIST flag");
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}else {
-				// for either MUST_NOT_EXIST or MAY_OR_MAY_NOT_EXIST instantiate the Enrollment Status
+				// for either MUST_NOT_EXIST or MAY_OR_MAY_NOT_EXIST instantiate the Visit
 
 				// get fields that were not already obtained for querying for existing Visit. note that these fields are
 				// required in LAVA, but they are not required in the import definition, because it may be that a single
 				// visitType / visitLocation / visitWith / visitStatus does not apply to all visits that are created
 				// within a single import file
+				
+				// visitType was included in search to match Visit above if supplied, but visitType may not have been supplied
+				if (!StringUtils.hasText(visitType)) {
+					if (importSetup.getIndexVisitType() != -1) {
+						importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit Type field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexVisitType()] + ") has no value");
+					}
+					else {
+						importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit Type field not supplied in data file and no value specified in definition");									
+					}
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+
 				
 				String visitLoc = importSetup.getIndexVisitLoc() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitLoc()] : importDefinition.getVisitLoc();
 				// note there is a catch-all "Home" entry in the Visit Location list that can be used generically. could add more as needed
@@ -1637,7 +1669,7 @@ public class CrmsImportHandler extends ImportHandler {
 				// if used allow..Update flags for Patient, EnrollmentStatus and Visit, then just their mere existence
 				// would be enough to consider the flag, i.e. not whether they have been data entered or not, because
 				// if they exist they must have been data entered because of required fields validation. instruments
-				// can be exist without being data entered.
+				// can exist without being data entered.
 
 				// note that this is also different than flags for updating Patient,EnrollmentStatus and Visit because 
 				// those would not affect whether the instrument data is imported or not. so while the instrument 
@@ -1653,8 +1685,8 @@ public class CrmsImportHandler extends ImportHandler {
 					importSetup.setInstrExisted(true);
 				}
 				else {
-					// CURRENTLY NOT ENABLED, i.e. user cannot set this flag in the import definition yet. waiting for
-					// import to be thoroughly tested for new data before get into updating existing data
+					// CURRENTLY ONLY ENABLED FOR SYSTEM_ADMIN, i.e. user cannot set this flag in the import definition yet. need
+					// to implement a confirmation flow state showing user existing and new values so they can confirm overwrite
 					if (importDefinition.getAllowInstrUpdate()) {
 						importSetup.setInstrExistedWithData(true);
 						// set an attribute on the return event so the caller can distinguish between an error and the
