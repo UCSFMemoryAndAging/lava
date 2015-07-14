@@ -1,12 +1,18 @@
 package edu.ucsf.lava.crms.file.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.validation.BindingResult;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
+import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
+import edu.ucsf.lava.core.action.ActionUtils;
+import edu.ucsf.lava.core.controller.ComponentCommand;
+import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.dao.LavaEqualityParamHandler;
 import edu.ucsf.lava.core.file.controller.AttachmentsListHandler;
@@ -84,5 +90,26 @@ public class CrmsAttachmentsListHandler extends AttachmentsListHandler {
 
 	public void updateFilterFromContext(LavaDaoFilter filter, RequestContext context, Map components){
 	}
+
+	@Override
+	public Event preEventHandled(RequestContext context, Object command,
+			BindingResult errors) throws Exception {
+		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
+		
+		String eventName = ActionUtils.getEventName(context);
+		if (eventName.equals("confirmDelete")) {
+			// have to delete attachments before deleting entity (CrmsFile has foreign key associations
+			// to Patient/EnrollmentStatus/Consent/Visit/Instrument, so deleting the latter would fail
+			// if any attached CrmsFile still exists)
+			ScrollablePagedListHolder listHolder = (ScrollablePagedListHolder) ((ComponentCommand)command).getComponents().get(getDefaultObjectName());
+			List<CrmsFile> attachments = (List<CrmsFile>) listHolder.getSourceAsEntityList(); 
+			for (CrmsFile file : attachments) {
+				file.delete(); // LavaFile.afterDelete will delete the file from repository
+			}
+		}
+		
+		return super.preEventHandled(context, command, errors);
+	}		
+		
 
 }
