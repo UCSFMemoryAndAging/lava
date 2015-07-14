@@ -87,7 +87,12 @@ of component --%>
 				<tags:listCell rowspan="4">Visit</tags:listCell>
 				<tags:listCell rowspan="4" labelSize="medium">
 					<tags:outputText textKey="importDefinition.visit.visitWindow" styleClass="italic" inline="false"/>
-					<tags:createField property="visitWindow" component="${component}" entity="importDefinition"/>
+					<tags:createField property="visitWindow" component="${component}" entity="importDefinition"/><br/>
+					<tags:ifHasRole roles="SYSTEM ADMIN"> 
+						<div class="verticalSpace30">&nbsp;</div>
+						<tags:outputText textKey="importDefinition.visit.matchVisitTypeFlag" styleClass="italic" inline="false"/>
+						<tags:createField property="matchVisitType" component="${component}" entity="importDefinition"/>
+					</tags:ifHasRole>
 				</tags:listCell>
 	  			<%-- currently not allow existing Visit properties to be overwritten as that is not the
 	  			 	mission of the import functionality
@@ -164,8 +169,8 @@ of component --%>
 					<div class="verticalSpace30">&nbsp;</div>
 					<tags:ifHasRole roles="SYSTEM ADMIN"> 
 	  					<tags:createField property="allowInstrUpdate" component="${component}" entity="importDefinition"/>
+						<div class="verticalSpace30">&nbsp;</div>
 	  				</tags:ifHasRole>	
-					<div class="verticalSpace30">&nbsp;</div>
 					<tags:outputText textKey="importDefinition.instr.caregiverExistsRuleLabel" inline="false"/>
 					<tags:outputText textKey="importDefinition.instr.caregiverExistsRule" styleClass="italic" inline="false"/>
 		  			<tags:createField property="instrCaregiverExistRule" component="${component}" entity="importDefinition" mode="${controlMode}"/>
