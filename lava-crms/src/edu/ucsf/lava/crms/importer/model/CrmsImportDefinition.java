@@ -57,6 +57,7 @@ public class CrmsImportDefinition extends ImportDefinition {
 	// visitDate (and optionally visitTime) must be present in the data file (mapped to either visitDate or
 	// dcDate). the rest of the required fields may not be in the data file so need to be supplied as part of
 	// the definition
+	private Boolean matchVisitType;
 	private String visitType;
 	private String visitWith;
 	private String visitLoc;
@@ -112,6 +113,7 @@ public class CrmsImportDefinition extends ImportDefinition {
 		this.esStatus = "ENROLLED";
 		this.visitExistRule = MAY_OR_MAY_NOT_EXIST;
 		this.visitWindow = 0;
+		this.matchVisitType = Boolean.TRUE;
 		this.visitStatus = "COMPLETE";
 		this.instrExistRule = MAY_OR_MAY_NOT_EXIST;
 		this.allowInstrUpdate = Boolean.FALSE;
@@ -196,6 +198,14 @@ public class CrmsImportDefinition extends ImportDefinition {
 
 	public void setVisitWindow(Short visitWindow) {
 		this.visitWindow = visitWindow;
+	}
+	
+	public Boolean getMatchVisitType() {
+		return matchVisitType;
+	}
+
+	public void setMatchVisitType(Boolean matchVisitType) {
+		this.matchVisitType = matchVisitType;
 	}
 
 	public String getVisitType() {
