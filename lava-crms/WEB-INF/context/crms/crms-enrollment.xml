@@ -78,6 +78,10 @@
 		
 	
 <!-- form action definitions -->
+	<!-- note that crmsEntityComponentFormAction injects CrmsAttachmentsListHandler as attachmentsListHandler
+		so all entity handlers that have crmsEntityComponentFormAction as parent support lists of attachments
+		on the entity -->
+
 	<bean id="enrollmentStatusFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.enrollment.controller.EnrollmentStatusHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  
