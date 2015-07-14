@@ -334,8 +334,6 @@ public class CrmsImportHandler extends ImportHandler {
 //      default to caregiver instrument
 
 // X-subject importDefinitions and importLogs lists to Project filtering
-// also consider useful Filter, sorts  e.g. add instrument to Filter and compare to any of 10 instruments allowed per data file
-																
 // X-get rid of import section, default to imports section (make sure regular import fails
 //  on SPDC history import)				
 // X-allow Edit of import log where only the Notes field can be edited so can put in notes about things that happened in import				
@@ -353,7 +351,12 @@ public class CrmsImportHandler extends ImportHandler {
 // validation check: compare DOB to form data collection date, as sometimes user enters current date for DOB
 
 // allowInstrUpdate flag has been enabled for SYSTEM_ADMIN role and tested, but need to test what happens
-// on error because modifying a Hibernate persistent instance (attached to the Hibernate session) so wouldn't
+//   on error because modifying a Hibernate persistent instance (attached to the Hibernate session) so wouldn't
+
+// add useful Filter (and sorts) to definition and log lists, e.g. add instrument to Filter and compare to any 
+//   of 10 instruments allowed per data file, if the filter specified instrument matches any one of the 10, show 
+//   the import definition, import log
+
 // changes be persisted if there is no rollback? see TODO: in this method below for more comments on this				
 				
 // any remaining TODOs in import-related code, config, Hibernate mapping, jsp, etc.?
@@ -375,9 +378,10 @@ public class CrmsImportHandler extends ImportHandler {
 //   implement startDataRow (defaults to 2 for all imports done prior to implementation)
 //   UPDATE: this is implemented but not tested				
 //				
-//   match existing Visit on Visit Type if user sets flag to do so. even if not, Visit Type could still be
-//   used when creating new Visits (default is false)				
-//   (columns and metadata to support already added to db)
+//   X-match existing Visit on Visit Type if user sets flag to do so. even if not, Visit Type could still be
+//     used when creating new Visits (default is false)				
+//     NOTE: implemented but currently restricted to SYSTEM_ADMIN until decide if it is a good idea to not 
+//           have to match on visitType (match defaults to TRUE)
 //				
 //   match existing	Visit on user specified time window, in days, around the visitDate in data file. set
 //   to 0 for an exact date match (need info text with this) (0 is the default)				
@@ -406,6 +410,10 @@ public class CrmsImportHandler extends ImportHandler {
 //   so will be instantiating two of each so have custom entity name in mapping file to facilitate this
 //   and keep each instance separate, e.g. "ias_pre" and "ias_current". these entity names can also be
 //   be used to populate the timeQuest property to either "PRIOR" (or one of the "TIMEn" options?) or "CURRENT"
+//
+//   PCRS may not be collected at some visits. So if every value for an instrument is null do not create it.
+//
+//   Possibly attempt to determine the value of TimeQuest based on which visit it is. 				
 //
 // 2.0 support instrument update with a confirmation flow state showing the user current and new values				
 // 2.0  expand to work with files in folders for special not-exactly-import use cases:
@@ -1354,11 +1362,24 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 		}
 		
-		// visitType is a required field, not null in the database, so if new Visit will be created it must be
-		// either supplied in the data file or specified in the import definition (if it is accurate to assign
-		// the same visitType to every visit created within the same import)
+		// match on the visitType value from the data file or specified in the import definition
+		// note that this value is also used to populate any visits that are created by the import
+		// if definition is such that not matching on visitType and visits will not be created (i.e. visit MUST_EXIST),
+		// then visitType would not need to be required. the latter is not considered here, but is considered below
+		// if a new visit is to be created
+		//NOTE: setting matchVisitType is currently restricted to SYSTEM_ADMIN because still debating about 
+		//whether this is useful/good idea for users. Downsides exist, e.g. may match incorrect visit and/or multiple
+		//visits and incorreclty associate assessment data. for users match defaults to TRUE so must match on visitType.
 		visitType = importSetup.getIndexVisitType() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitType()] : importDefinition.getVisitType();
-
+		if (importDefinition.getMatchVisitType() && visitType == null) {
+			if (importSetup.getIndexVisitType() != -1) {
+				importLog.addErrorMessage(lineNum, "Cannot match visit. Visit Type field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexVisitType()] + ") has no value");
+			}
+			else {
+				importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit Type field not supplied in data file and no value specified in definition");									
+			}
+			return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+		}
 		
 		// regardless of whether enrollmentStatus was created or not, search for a matching visit, i.e. even if the
 		// enrollmentStatus was just created, there could be an existing visit for the patient that matches on date
@@ -1399,13 +1420,11 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 			// note: could also use daoDateAndTimeEqualityParam
 			
-			// visitType is optional for the search; it typically is not in generated data files, and if the import
-			// is such that new Visits will not be created then it need not be specified in the definition.
-			// however, without visitType, could match multiple visits. see more on this below
-			//TODO: is there a scenario where just want to match on visitDate, any visitType, but a visitType is supplied
-			//just to use if creating new visits? if so, add a flag on whether to use visitType for matching visits
-			//already havea  matchVisitType column for this in crms_import_definition
-			if (visitType != null) {
+			//NOTE: setting matchVisitType is currently restricted to SYSTEM_ADMIN because still debating about 
+			//whether this is useful/good idea for users. Downsides exist, e.g. may match incorrect visit and/or multiple
+			//visits and incorreclty associate assessment data. matchVisitType defaults to TRUE for regular users
+			//so must match on visitType.
+			if (importDefinition.getMatchVisitType() && visitType != null) {
 				if (StringUtils.hasText(visitType)) {
 					filter.addDaoParam(filter.daoEqualityParam("visitType", visitType));
 				}
@@ -1416,10 +1435,11 @@ public class CrmsImportHandler extends ImportHandler {
 			try {
 				v = (Visit) Visit.MANAGER.getOne(filter);
 			}
-			// assuming visitType is supplied, this should never happen. if re-running import of a data file, should just be one instance
-			// of a given visitType on a given date
+			// this should never happen (assuming match on visitType included). if re-running import of a data file, should 
+			// just be one instance of a given visitType on a given date
 			// however, if no visitType supplied in import definition, could match multiple visits on same date, in which case
-			// would not know which one to use. so user should then modify import definition to include visitType
+			// would not know which one to use. this is why the matchVisitType flag defaults to TRUE and is restricted to
+			// SYSTEM_ADMIN until further notice
 			//TODO: when start using Visit Window for Kate, figure out what to do if matches multiple visits
 			//      could be that need separate import definitions for different visit types, where could import the same 
 			//      data file with different import definitions/visit types
@@ -1454,7 +1474,8 @@ public class CrmsImportHandler extends ImportHandler {
 				// visitType / visitLocation / visitWith / visitStatus does not apply to all visits that are created
 				// within a single import file
 				
-				// visitType was included in search to match Visit above if supplied, but visitType may not have been supplied
+				// since the MUST_NOT_EXIST and MAY_OR_MAY_NOT_EXIST flags imply that a visit could be created, visitType must
+				// be required, so must present in the data file or specified in the import definition
 				if (!StringUtils.hasText(visitType)) {
 					if (importSetup.getIndexVisitType() != -1) {
 						importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit Type field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexVisitType()] + ") has no value");
@@ -2295,10 +2316,7 @@ public class CrmsImportHandler extends ImportHandler {
 				importLog.addCreatedMessage(lineNum, "VISIT CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
 					" VisitDate:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()) + " VisitType:" + importSetup.getVisit().getVisitType());
 			}
-			//TODO: when ready to allow users to overwrite data, also test on importDefinition.getAllowInstrUpdate()
-			// allowInstrUpdate is used to determine whether an already existing instrument which has already
-			// been data entered can be updated
-			if (importSetup.isInstrCreated() || importSetup.isInstrExisted()) {
+			if (importSetup.isInstrCreated() || importSetup.isInstrExisted() || importSetup.isInstrExistedWithData()) {
 				importSetup.getInstrument().save();
 				if (importSetup.isInstrCreated()) {
 					importLog.addCreatedMessage(lineNum, "INSTRUMENT CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
@@ -2306,6 +2324,12 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 				if (importSetup.isInstrExisted()) {
 					importLog.addCreatedMessage(lineNum, "EXISTING INSTRUMENT WITH NO DATA USED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
+							" Instrument:" + importDefinition.getInstrType());
+				}
+				//NOTE: currently the allowInstrUpdate flag is only enabled in the UI for SYSTEM_ADMIN until implement a user confirmation that
+				// permits overwriting existing data
+				if (importSetup.isInstrExistedWithData()) {
+					importLog.addCreatedMessage(lineNum, "EXISTING INSTRUMENT WITH DATA UPDATED (OVERWRITTEN), Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
 							" Instrument:" + importDefinition.getInstrType());
 				}
 			}
