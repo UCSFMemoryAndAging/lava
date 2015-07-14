@@ -8,6 +8,10 @@
 </content>
 </c:if>
 
+<content tag="listQuickFilter">
+	<tags:listQuickFilter component="${component}" listItemSource="visit.quickFilter" label="Show:"/>
+</content>
+
 <content tag="listFilters">
 	
 		<!-- Standard calendar filters -->
