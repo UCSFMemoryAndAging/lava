@@ -229,7 +229,7 @@ public class CrmsImportHandler extends ImportHandler {
 				// record for a Caregiver has an association to that Caregiver. so import of both Caregiver and their ContactInfo data
 				// are handled in the same method
 				if ((handlingEvent = caregiverAndContactInfoExistsHandling(context, errors, importDefinition, importSetup, importLog, 
-						importSetup.getIndexCaregiverFirstName(), importSetup.getIndexCaregiverLastName(), 
+						importSetup.getIndexCaregiverFirstName(), importSetup.getIndexCaregiverLastName(), importSetup.getIndexCaregiverRelation(),
 						importSetup.getIndexCaregiverContactInfoAddress(), importSetup.getIndexCaregiverContactInfoCity(),
 						importSetup.getIndexCaregiverContactInfoState(), importSetup.getIndexCaregiverContactInfoZip(),
 						importSetup.getIndexCaregiverContactInfoPhone1(), importSetup.getIndexCaregiverContactInfoPhone2(),
@@ -250,7 +250,7 @@ public class CrmsImportHandler extends ImportHandler {
 				
 				// support importing two caregivers (e.g. Mother and Father for child patients)				
 				if ((handlingEvent = caregiverAndContactInfoExistsHandling(context, errors, importDefinition, importSetup, importLog, 
-						importSetup.getIndexCaregiver2FirstName(), importSetup.getIndexCaregiver2LastName(), 
+						importSetup.getIndexCaregiver2FirstName(), importSetup.getIndexCaregiver2LastName(), importSetup.getIndexCaregiver2Relation(), 
 						importSetup.getIndexCaregiver2ContactInfoAddress(), importSetup.getIndexCaregiver2ContactInfoCity(),
 						importSetup.getIndexCaregiver2ContactInfoState(), importSetup.getIndexCaregiver2ContactInfoZip(),
 						importSetup.getIndexCaregiver2ContactInfoPhone1(), importSetup.getIndexCaregiver2ContactInfoPhone2(), 
@@ -411,6 +411,12 @@ public class CrmsImportHandler extends ImportHandler {
 //   and keep each instance separate, e.g. "ias_pre" and "ias_current". these entity names can also be
 //   be used to populate the timeQuest property to either "PRIOR" (or one of the "TIMEn" options?) or "CURRENT"
 //
+//   UDS instruments that will be submitted to NACC. 
+//   packetType, visitNum, initials will be part of the data file (input by MAC examiner, not caregiver)
+//   formVer will be part of import definition
+//   formId is part of instrument constructor
+//   ADCID hard-coded
+//
 //   PCRS may not be collected at some visits. So if every value for an instrument is null do not create it.
 //
 //   Possibly attempt to determine the value of TimeQuest based on which visit it is. 				
@@ -554,6 +560,7 @@ public class CrmsImportHandler extends ImportHandler {
 
 		setDataFilePropertyIndex(importSetup, "indexCaregiverFirstName", "caregiver", "firstName");
 		setDataFilePropertyIndex(importSetup, "indexCaregiverLastName", "caregiver", "lastName");
+		setDataFilePropertyIndex(importSetup, "indexCaregiverRelation", "caregiver", "relation");
 		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoAddress", "caregiverContactInfo", "address");
 		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoCity", "caregiverContactInfo", "city");
 		setDataFilePropertyIndex(importSetup, "indexCaregiverContactInfoState", "caregiverContactInfo", "state");
@@ -564,6 +571,7 @@ public class CrmsImportHandler extends ImportHandler {
 		
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2FirstName", "caregiver2", "firstName");
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2LastName", "caregiver2", "lastName");
+		setDataFilePropertyIndex(importSetup, "indexCaregiver2Relation", "caregiver2", "relation");
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoAddress", "caregiver2ContactInfo", "address");
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoCity", "caregiver2ContactInfo", "city");
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoState", "caregiver2ContactInfo", "state");
@@ -952,7 +960,7 @@ public class CrmsImportHandler extends ImportHandler {
 	 */
 	protected Event caregiverAndContactInfoExistsHandling(RequestContext context, BindingResult errors, 
 			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog,
-			int indexFirstName, int indexLastName, int indexContactInfoAddress, int indexContactInfoCity, 
+			int indexFirstName, int indexLastName, int indexRelation, int indexContactInfoAddress, int indexContactInfoCity, 
 			int indexContactInfoState, int indexContactInfoZip, int indexContactInfoPhone1, int indexContactInfoPhone2, int indexContactInfoEmail,
 			int lineNum) {
 		LavaDaoFilter filter = EntityBase.newFilterInstance();
@@ -1018,6 +1026,10 @@ public class CrmsImportHandler extends ImportHandler {
 						caregiver.setPatient(importSetup.getPatient());
 						caregiver.setFirstName(importSetup.getDataValues()[indexFirstName]);
 						caregiver.setLastName(importSetup.getDataValues()[indexLastName]);
+						if (indexRelation != -1) {
+							// note that relation is a range, not suggest, so imported value may not match any items in the list
+							caregiver.setRelation(importSetup.getDataValues()[indexRelation]);
+						}
 						caregiver.setActive((short)1);
 						// any other (non required) caregiver fields will be assigned in setProperty as they are encountered 
 						// in the import record
@@ -1129,11 +1141,11 @@ public class CrmsImportHandler extends ImportHandler {
 	
 		Map<String,Object> eventAttrMap = new HashMap<String,Object>();
 		eventAttrMap.put("caregiver", caregiver);
-		eventAttrMap.put("caregiverCreated", caregiverCreated);
-		eventAttrMap.put("caregiverExisted", caregiverExisted);
+		eventAttrMap.put("caregiverCreated", caregiverCreated != null ? caregiverCreated : Boolean.FALSE);
+		eventAttrMap.put("caregiverExisted", caregiverExisted != null ? caregiverExisted : Boolean.FALSE);
 		eventAttrMap.put("caregiverContactInfo", caregiverContactInfo);
-		eventAttrMap.put("caregiverContactInfoCreated", caregiverContactInfoCreated);
-		eventAttrMap.put("caregiverContactInfoExisted", caregiverContactInfoExisted);
+		eventAttrMap.put("caregiverContactInfoCreated", caregiverContactInfoCreated != null ? caregiverContactInfoCreated : Boolean.FALSE);
+		eventAttrMap.put("caregiverContactInfoExisted", caregiverContactInfoExisted != null ? caregiverContactInfoExisted : Boolean.FALSE);
 		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
 		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
 	}
@@ -1371,7 +1383,7 @@ public class CrmsImportHandler extends ImportHandler {
 		//whether this is useful/good idea for users. Downsides exist, e.g. may match incorrect visit and/or multiple
 		//visits and incorreclty associate assessment data. for users match defaults to TRUE so must match on visitType.
 		visitType = importSetup.getIndexVisitType() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitType()] : importDefinition.getVisitType();
-		if (importDefinition.getMatchVisitType() && visitType == null) {
+		if (importDefinition.getMatchVisitType() != null && importDefinition.getMatchVisitType() && visitType == null) {
 			if (importSetup.getIndexVisitType() != -1) {
 				importLog.addErrorMessage(lineNum, "Cannot match visit. Visit Type field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexVisitType()] + ") has no value");
 			}
@@ -1424,7 +1436,7 @@ public class CrmsImportHandler extends ImportHandler {
 			//whether this is useful/good idea for users. Downsides exist, e.g. may match incorrect visit and/or multiple
 			//visits and incorreclty associate assessment data. matchVisitType defaults to TRUE for regular users
 			//so must match on visitType.
-			if (importDefinition.getMatchVisitType() && visitType != null) {
+			if (importDefinition.getMatchVisitType() != null && importDefinition.getMatchVisitType() && visitType != null) {
 				if (StringUtils.hasText(visitType)) {
 					filter.addDaoParam(filter.daoEqualityParam("visitType", visitType));
 				}

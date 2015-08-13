@@ -60,6 +60,7 @@ public class CrmsImportSetup extends ImportSetup {
 
 	private int indexCaregiverFirstName;
 	private int indexCaregiverLastName;
+	private int indexCaregiverRelation;
 	private Caregiver caregiver;
 	private boolean caregiverCreated;
 	private boolean caregiverExisted;
@@ -78,6 +79,7 @@ public class CrmsImportSetup extends ImportSetup {
 	
 	private int indexCaregiver2FirstName;
 	private int indexCaregiver2LastName;
+	private int indexCaregiver2Relation;
 	private Caregiver caregiver2;
 	private boolean caregiver2Created;
 	private boolean caregiver2Existed;
@@ -317,6 +319,14 @@ public class CrmsImportSetup extends ImportSetup {
 	public void setIndexCaregiverLastName(int indexCaregiverLastName) {
 		this.indexCaregiverLastName = indexCaregiverLastName;
 	}
+	
+	public int getIndexCaregiverRelation() {
+		return indexCaregiverRelation;
+	}
+
+	public void setIndexCaregiverRelation(int indexCaregiverRelation) {
+		this.indexCaregiverRelation = indexCaregiverRelation;
+	}
 
 	public Caregiver getCaregiver() {
 		return caregiver;
@@ -364,6 +374,14 @@ public class CrmsImportSetup extends ImportSetup {
 
 	public void setIndexCaregiver2LastName(int indexCaregiver2LastName) {
 		this.indexCaregiver2LastName = indexCaregiver2LastName;
+	}
+
+	public int getIndexCaregiver2Relation() {
+		return indexCaregiver2Relation;
+	}
+
+	public void setIndexCaregiver2Relation(int indexCaregiver2Relation) {
+		this.indexCaregiver2Relation = indexCaregiver2Relation;
 	}
 
 	public Caregiver getCaregiver2() {
