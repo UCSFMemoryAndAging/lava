@@ -167,7 +167,7 @@ of component --%>
 				    implement a confirmation page in the flow that will show user existing and new values.
  			  		--%>
 					<div class="verticalSpace30">&nbsp;</div>
-					<tags:ifHasRole roles="SYSTEM ADMIN"> 
+					<tags:ifHasRole roles="DATA IMPORTER,SYSTEM ADMIN"> 
 	  					<tags:createField property="allowInstrUpdate" component="${component}" entity="importDefinition"/>
 						<div class="verticalSpace30">&nbsp;</div>
 	  				</tags:ifHasRole>	
