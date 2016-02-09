@@ -46,6 +46,11 @@ public class LavaFile extends EntityBase {
 	 * The actual file contents.  Lazily loaded.
 	 */
 	protected byte[] content;
+
+	/**
+	 * Category of attachment (e.g. "Patient","Enrollment", "Consent", "Visit", "Instrument").
+	 */
+	protected String category;
 	
 	/**
 	 * The type of content stored in the file (e.g. "Neuroreport","Consent Form").
@@ -105,6 +110,13 @@ public class LavaFile extends EntityBase {
 	}
 	public void setRepositoryId(String repositoryId) {
 		this.repositoryId = repositoryId;
+	}
+	
+	public String getCategory() {
+		return category;
+	}
+	public void setCategory(String category) {
+		this.category = category;
 	}
 	public String getContentType() {
 		return contentType;
@@ -206,6 +218,18 @@ public class LavaFile extends EntityBase {
 	public void setLocation(String location) {
 		this.location = location;
 	}
+	
+	public String getFilePath() {
+		StringBuffer sb = new StringBuffer();
+		if (this.location != null) {
+			sb.append(this.location);
+			if (this.fileId != null) {
+				sb.append(this.fileId);
+			}
+		}
+		return sb.toString();
+	}
+			
 	
 	public String getNotes() {
 		return notes;
