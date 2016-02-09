@@ -23,22 +23,6 @@
 </tags:ifComponentPropertyNotEmpty>
 
 </c:if>
-
-<page:applyDecorator name="component.entity.section">
-	<page:param name="sectionNameKey">attachment.linking.section</page:param>
-		<tags:createField property="patient.fullNameRevNoSuffix" entityType="crmsFile" component="${component}"/>
-		<tags:createField property="consent.projName" entityType="crmsFile" component="${component}"/>
-</page:applyDecorator>  
-
-<c:if test="${componentView != 'view' && componentView != 'delete'}">
-	<tags:ifComponentPropertyEmpty property="location" component="${component}">
-		<page:applyDecorator name="component.entity.section">
-			<page:param name="sectionNameKey">lavaFile.upload.section</page:param>
-				<tags:fileUpload paramName="uploadFile"  component="${component}"/>
-		</page:applyDecorator>
-	</tags:ifComponentPropertyEmpty>
-</c:if>
-
 <c:import url="/WEB-INF/jsp/crms/attachments/attachmentCommonContent.jsp">
 	<c:param name="component">${component}</c:param>
 </c:import>
