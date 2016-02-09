@@ -30,10 +30,12 @@
 	<%-- associated attachments listing --%>
 	<%-- comment out until ready, i.e. would need to have a repository configured for a specific
 		application for this to be used
-	<c:set var="id"><tags:componentProperty component="${component}" property="id"/></c:set>
-	<c:import url="/WEB-INF/jsp/crms/scheduling/attachments/visitAttachmentListContent.jsp">
-		<c:param name="propertyValues">visitId,${id}</c:param>
-	</c:import>
+	<c:if test="${componentView != 'add' && componentView != 'delete'}">
+		<c:set var="id"><tags:componentProperty component="${component}" property="id"/></c:set>
+		<c:import url="/WEB-INF/jsp/crms/scheduling/attachments/visitAttachmentListContent.jsp">
+			<c:param name="propertyValues">visitId,${id}</c:param>
+		</c:import>
+	</c:if>	
 	 --%>
 	
 </page:applyDecorator>  
