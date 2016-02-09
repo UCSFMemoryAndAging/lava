@@ -23,18 +23,6 @@
 
 </c:if>
 
-<%-- if this is coming from patient/project list of enrollmentStatus attachments then enrollmentStatus
-project is set by the user on Add and should be displayed.  --%>  
-<c:if test="${parentView == 'entityList'}">
-	<c:import url="/WEB-INF/jsp/crms/attachments/attachmentContent.jsp">
-		<c:param name="component">${component}</c:param>
-	</c:import>
-</c:if>
-
-<%-- if this is coming from a specific enrollmentStatus entity then the enrollmentStatus is
-obviously already known so enrollmentStatus project is not editable --%>  
-<c:if test="${parentView == 'specificEntityList'}">
-  
 	<page:applyDecorator name="component.entity.section">
   		<page:param name="sectionNameKey">attachment.linking.section</page:param>
 			<tags:createField property="patient.fullNameRevNoSuffix" entityType="crmsFile" component="${component}"/>
@@ -54,8 +42,6 @@ obviously already known so enrollmentStatus project is not editable --%>
 		<c:param name="component">${component}</c:param>
 	</c:import>
 
-</c:if> <%-- specificEntity content --%>
- 	
 </page:applyDecorator>    
 </page:applyDecorator>	    
 
