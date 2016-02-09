@@ -45,13 +45,8 @@
 	<bean id="lava.crms.enrollment.status.patientEnrollmentStatus" parent="crmsPatientModuleListAction"/>
 	<bean id="lava.crms.enrollment.status.projectEnrollmentStatus" parent="crmsModuleListAction"/>
 
-	<bean id="lava.crms.enrollment.attachments.enrollmentAttachments" parent="crmsPatientSectionListAction"/>
-	<bean id="lava.crms.enrollment.attachments.projectEnrollmentAttachments" parent="crmsSectionListAction"/>
-				
 	<bean id="lava.crms.enrollment.attachments.enrollmentAttachment" parent="crmsEntityFlowAction">
 			<property name="parentFlows"><list>
-				<value>lava.crms.enrollment.attachments.enrollmentAttachments</value>
-				<value>lava.crms.enrollment.attachments.projectEnrollmentAttachments</value>
 				<value>lava.crms.enrollment.status.enrollmentStatus</value>
 			</list></property>
 	</bean>	
@@ -103,14 +98,6 @@
 		<bean class="edu.ucsf.lava.crms.enrollment.controller.EnrollmentAttachmentHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>
     
-	<bean id="enrollmentAttachmentsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.enrollment.controller.EnrollmentAttachmentsHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>  	 
-     
-	<bean id="projectEnrollmentAttachmentsFormAction" parent="crmsListComponentFormAction"><constructor-arg><list>
-		<bean class="edu.ucsf.lava.crms.enrollment.controller.ProjectEnrollmentAttachmentsHandler" parent="crmsHandler"/>
-	</list></constructor-arg></bean>  	 
-	
 	<bean id="consentFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.enrollment.controller.ConsentHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>  
