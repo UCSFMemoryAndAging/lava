@@ -26,7 +26,7 @@
 
 <tags:componentListColumnHeader component="${component}" label="Action" width="12%"/>
 <tags:componentListColumnHeader component="${component}" label="Type (Source)" width="28%" sort="contentType"/>
-<tags:componentListColumnHeader component="${component}" label="Association" width="35%"/>
+<tags:componentListColumnHeader component="${component}" label="Name" width="35%"/>
 <tags:componentListColumnHeader component="${component}" label="File Status" width="25%" sort="fileStatusDate"/>
 
 </tags:listRow>
@@ -48,7 +48,7 @@
 			<tags:listField property="contentType" component="${component}" listIndex="${iterator.index}" entityType="lavaFile"/><br/>
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="associationBlock" component="${component}" listIndex="${iterator.index}" entityType="crmsFile"/>
+			<tags:listField property="name" component="${component}" listIndex="${iterator.index}" entityType="lavaFile"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="statusBlock" component="${component}" listIndex="${iterator.index}" entityType="lavaFile"/>
