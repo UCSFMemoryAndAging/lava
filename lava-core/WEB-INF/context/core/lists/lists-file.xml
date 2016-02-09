@@ -4,14 +4,21 @@
 
 <beans>
 
-	
+	<bean id="list.lavaFile.category" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Other"/><constructor-arg value="Other"/></bean>
+		</list></property>	
+	</bean>
+
 	<bean id="list.lavaFile.contentType" parent="list.dynamic">
 		<property name="query" value="list.lavaFile.contentType"/>
 	</bean>  
 	
-	<bean id="list.lavaFile.status" parent="list.dynamic">
-		<property name="query" value="list.lavaFile.status"/>
-	</bean>  
-	
+	<bean id="list.lavaFile.status" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="No File"/><constructor-arg value="No File"/></bean>
+			<bean parent="list.data"><constructor-arg value="Uploaded"/><constructor-arg value="Uploaded"/></bean>
+		</list></property>	
+	</bean>
 
 </beans>

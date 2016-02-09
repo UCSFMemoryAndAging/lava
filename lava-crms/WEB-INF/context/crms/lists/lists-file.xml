@@ -3,19 +3,16 @@
 
 
 <beans>
-
-
-	<bean id="list.crmsFile.projects" parent="list.dynamic">
-		<property name="query" value="list.crmsFile.projects"/>
+	<bean id="list.crmsFile.category" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Patient"/><constructor-arg value="Patient"/></bean>
+			<bean parent="list.data"><constructor-arg value="Enrollment"/><constructor-arg value="Enrollment"/></bean>
+			<bean parent="list.data"><constructor-arg value="Consent"/><constructor-arg value="Consent"/></bean>
+			<bean parent="list.data"><constructor-arg value="Visit"/><constructor-arg value="Visit"/></bean>
+			<bean parent="list.data"><constructor-arg value="Instrument"/><constructor-arg value="Instrument"/></bean>
+		</list></property>	
 	</bean>
-	
-	<bean id="list.crmsFile.visits" parent="list.dynamic">
-		<property name="query" value="list.crmsFile.visits"/>
-	</bean>
-			
-	<bean id="list.crmsFile.instruments" parent="list.dynamic">
-		<property name="query" value="list.crmsFile.instruments"/>
-	</bean>	
+
 	<bean id="list.crmsFile.contentType" parent="list.dynamic">
 		<property name="query" value="list.crmsFile.contentType"/>
 	</bean>	
