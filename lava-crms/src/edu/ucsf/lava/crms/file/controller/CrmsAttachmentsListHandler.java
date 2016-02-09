@@ -81,6 +81,9 @@ public class CrmsAttachmentsListHandler extends AttachmentsListHandler {
 		} else if (components.containsKey("visit")){
 			filter.addParamHandler(new LavaEqualityParamHandler("visitId"));
 			filter.setParam("visitId", ((Visit)components.get("visit")).getId());
+		} else if (components.containsKey("patient")){
+			filter.addParamHandler(new LavaEqualityParamHandler("pidn"));
+			filter.setParam("pidn", ((Visit)components.get("patient")).getId());
 		} else{
 			filter.setParam("DO_NOT_EXECUTE", true);
 		}
