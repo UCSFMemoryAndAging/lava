@@ -19,6 +19,7 @@ public class CrmsFile extends LavaFile implements CrmsAuthEntity{
 	public static LavaFile.Manager MANAGER = new LavaFile.Manager(CrmsFile.class);
 	
 	private Patient patient;
+	private String projName;
 	private Visit visit;
 	private EnrollmentStatus enrollmentStatus;
 	private Consent consent;
@@ -35,16 +36,8 @@ public class CrmsFile extends LavaFile implements CrmsAuthEntity{
 	public CrmsFile() {
 		super();
 		this.setPatientAuth(true);
-		this.setProjectAuth(true);
-	}
-	
-	public String getProjName(){
-		if(this.enrollmentStatus!=null){
-			return this.enrollmentStatus.getProjName();
-		}else{
-			return new String();
-		}
-		
+		// can have files attached to Patient outside the scope of any Project
+		this.setProjectAuth(false);
 	}
 	
 	public Patient getPatient() {
@@ -54,6 +47,15 @@ public class CrmsFile extends LavaFile implements CrmsAuthEntity{
 	public void setPatient(Patient patient) {
 		this.patient = patient;
 	}
+	
+	public String getProjName() {
+		return projName;
+	}
+
+	public void setProjName(String projName) {
+		this.projName = projName;
+	}
+
 	public Visit getVisit() {
 		return visit;
 	}
@@ -128,7 +130,14 @@ public class CrmsFile extends LavaFile implements CrmsAuthEntity{
 		this.projectAuth = projectAuth;
 	}
 
+	public Object[] getAssociationsToInitialize(String method) {
+		if (this.getInstrumentTracking() != null) {
+			return new Object[]{this.getInstrumentTracking().getVisit()};
+		}
+		return new Object[]{};
+	}	
 
+	
 	public String getAssociationBlock(){
 		StringBuffer buffer = new StringBuffer();
 		DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
