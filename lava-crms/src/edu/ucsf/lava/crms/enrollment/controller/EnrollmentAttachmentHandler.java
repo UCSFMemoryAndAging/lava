@@ -1,11 +1,5 @@
 package edu.ucsf.lava.crms.enrollment.controller;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.validation.BindingResult;
-import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.crms.file.controller.BaseCrmsFileHandler;
@@ -18,16 +12,13 @@ public class EnrollmentAttachmentHandler extends BaseCrmsFileHandler {
 		super();
 		CrmsSessionUtils.setIsPatientContext(this);
 		this.setHandledEntity("enrollmentAttachment", CrmsFile.class);
+		this.setRequiredFields(new String[]{"contentType"});
 	}
-
-	public Map addReferenceData(RequestContext context, Object command, BindingResult errors, Map model)
-	{
-		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		// cannot get request parameter value directly from the request because of post-redirect-get second request. instead. the
-		// flow will pass request parameters with predefined names ("param", "param1", etc.) into flowScope to be accessed
-		String parentView = context.getFlowScope().getString("param");
-		model.put("parentView", parentView);
-		return super.addReferenceData(context, command, errors, model);
+	
+	@Override
+	protected Object initializeNewCommandInstance(RequestContext context, Object command) {
+		((CrmsFile)command).setCategory("Enrollment");
+		return super.initializeNewCommandInstance(context, command);
 	}
 
 }
