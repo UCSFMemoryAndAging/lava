@@ -1,24 +1,21 @@
 package edu.ucsf.lava.crms.file.controller;
 
+import static edu.ucsf.lava.crms.file.CrmsRepositoryStrategy.CRMS_REPOSITORY_ID;
+
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.validation.BindingResult;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
-import org.springframework.webflow.definition.StateDefinition;
-import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.controller.ComponentCommand;
-import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.file.controller.BaseLavaFileComponentHandler;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.core.type.LavaDateUtils;
-import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.auth.CrmsAuthUtils;
 import edu.ucsf.lava.crms.enrollment.model.Consent;
@@ -27,7 +24,6 @@ import edu.ucsf.lava.crms.file.model.CrmsFile;
 import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
-import static edu.ucsf.lava.crms.file.CrmsRepositoryStrategy.CRMS_REPOSITORY_ID;
 
 /**
  * Base class for files that are linked to patients, projects, consents, visits or instruments, i.e.
