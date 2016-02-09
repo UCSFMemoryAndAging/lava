@@ -14,6 +14,7 @@
 		<key column="id"/>	
 		<many-to-one name="patient" column="pidn" class="edu.ucsf.lava.crms.people.model.Patient" insert="false" update="false" lazy="false"/>
 		<property name="pidn" column="pidn" type="long"/>
+		<property name="projName" type="string" column="ProjName"/>
 		<many-to-one name="visit" column="vid" class="edu.ucsf.lava.crms.scheduling.model.Visit" insert="false" update="false" lazy="false"/>
 		<property name="visitId" column="vid" type="long"/>
 		<many-to-one name="instrumentTracking" column="instr_id" class="edu.ucsf.lava.crms.assessment.model.InstrumentTracking" insert="false" update="false" lazy="false"/>
@@ -24,11 +25,11 @@
 		<property name="consentId" column="consent_id" type="long"/>   	
 	</join>
 
-	<filter name="projectAuth" condition="id IN (SELECT cf.id from crms_file cf inner join enrollmentstatus e on e.EnrollStatID=cf.enroll_stat_id where cf.id=id and e.ProjName in (:projectList))"></filter>
 	<filter name="patientAuth" condition="id IN (SELECT cf.id from crms_file cf inner join enrollmentstatus e on cf.pidn=e.PIDN where cf.id=id and e.ProjName in (:projectList))"></filter>
+	<filter name="projectAuth"/> 		
 	<filter name="patient" condition="id IN (SELECT cf.id from crms_file cf where cf.pidn = :patientId)"></filter>
 	<filter name="validPatient" condition="id IN (SELECT cf.id from crms_file cf where cf.id=id and cf.pidn > 0)"></filter>
-	<filter name="projectContext" condition="id IN (SELECT cf.id from crms_file cf inner join enrollmentstatus e on cf.enroll_stat_id = e.EnrollStatId where e.ProjName = :projectContext)"></filter>
+	<filter name="projectContext" condition=":projectContext=ProjName"/>
 </class>
 	
 	
@@ -39,25 +40,6 @@
 		order by p.projName
 	]]></query>
 
-
-	
-	<query name="list.crmsFile.visits"><![CDATA[
-	    select new edu.ucsf.lava.core.list.model.LabelValueBean(trim(str(month(v.visitDate))) || '/' || trim(str(day(v.visitDate))) || '/' || 
-	    	trim(str(year(v.visitDate))) || '-' || v.projName || '-' || v.visitType, v.id)
-		from Visit v 
-		where v.patient.id = :patientId and
-			v.projName = :projectName
-		order by v.visitDate desc
-	]]></query>
-	
-	<query name="list.crmsFile.instruments"><![CDATA[
-	    select new edu.ucsf.lava.core.list.model.LabelValueBean(trim(str(month(i.dcDate))) || '/' || trim(str(day(i.dcDate))) || '/' || 
-	    	trim(str(year(i.dcDate))) || '-' || i.instrType, i.id)		
-	    from InstrumentTracking i 
-		where i.visit.id=:visitId
-		order by i.dcDate desc
-	]]></query>
-	
 	<query name="list.crmsFile.projectContentType"><![CDATA[
 	   	select distinct new edu.ucsf.lava.core.list.model.LabelValueBean(lv.valueDesc, lv.valueDesc, lv.orderIndex)
 		from LavaList list 
