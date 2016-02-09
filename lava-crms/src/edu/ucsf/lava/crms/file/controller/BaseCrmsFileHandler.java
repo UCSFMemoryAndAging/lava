@@ -16,9 +16,11 @@ import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.file.controller.BaseLavaFileComponentHandler;
+import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.core.type.LavaDateUtils;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
+import edu.ucsf.lava.crms.auth.CrmsAuthUtils;
 import edu.ucsf.lava.crms.enrollment.model.Consent;
 import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 import edu.ucsf.lava.crms.file.model.CrmsFile;
@@ -28,7 +30,7 @@ import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 import static edu.ucsf.lava.crms.file.CrmsRepositoryStrategy.CRMS_REPOSITORY_ID;
 
 /**
- * Base class for files that are linked to patients, projects, visits or instruments, i.e.
+ * Base class for files that are linked to patients, projects, consents, visits or instruments, i.e.
  * PatientAttachmentHandler
  * EnrollmentAttachmentHandler
  * ConsentAttachmentHandler
@@ -71,10 +73,6 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 		super();
 		this.setHandledEntity("crmsFile", CrmsFile.class);
 		CrmsSessionUtils.setIsPatientContext(this);
-		//Every file must be linked to a patient and project. Enforcing that the enrollStatId
-		//has a value accomplishes this. 
-		this.extendRequiredFields(new String[]{"enrollStatId"});
-		
 	}
 
 	/**
@@ -97,47 +95,49 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 		// on CrmsFile
 		// when this handler is used by the secondary CrmsAttachmentsListHandler, the "enrollStatId" request param is set, so the
 		// EnrollmentStatus is set on CrmsFile. user need not input an EnrollmentStatus and rerender.
+//NOW WILL ONLY BE DOING THE LATTER OF 2 UI METHODS OF ATTACHING ENTITY SPECIFIC ATTACHMENTS	
 		if (request.getParameterMap().containsKey("enrollStatId")){
-			EnrollmentStatus es = getEnrollmentStatus(Long.valueOf(request.getParameter("enrollStatId")), request);
+			EnrollmentStatus es = (EnrollmentStatus) EnrollmentStatus.MANAGER.getOne(this.getFilterWithId(request,Long.valueOf(request.getParameter("enrollStatId"))));
 			setEnrollmentStatus(crmsFile,es,request);
+			this.setPatient(crmsFile, es.getPatient(), request);
+			crmsFile.setProjName(es.getProjName());
 		}else if (request.getParameterMap().containsKey("consentId")){
 			Consent consent = (Consent) Consent.MANAGER.getOne(this.getFilterWithId(request,Long.valueOf(request.getParameter("consentId"))));
 			crmsFile.setConsentId(consent.getId());
 			crmsFile.setConsent(consent);
 			this.setPatient(crmsFile, consent.getPatient(), request);
+			crmsFile.setProjName(consent.getProjName());
 		}else if (request.getParameterMap().containsKey("visitId")){
 			Visit v = (Visit)Visit.MANAGER.getOne(this.getFilterWithId(request, Long.valueOf(request.getParameter("visitId"))));
 			setVisit(crmsFile,v,request);
+			this.setPatient(crmsFile, v.getPatient(), request);
+			crmsFile.setProjName(v.getProjName());
 		}else if (request.getParameterMap().containsKey("instrId")){
-			setInstrument(crmsFile,Long.valueOf(request.getParameter("instrId")),request);
+			InstrumentTracking instr = (InstrumentTracking)InstrumentTracking.MANAGER.getOne(this.getFilterWithId(request, Long.valueOf(request.getParameter("instrId"))));
+			setInstrument(crmsFile,instr,request);
+			this.setPatient(crmsFile, instr.getPatient(), request);
+			crmsFile.setProjName(instr.getProjName());
 		}else if (request.getParameterMap().containsKey("patientId")){
+//NOTE: this is a patient specific attachment vs. an general attachment, which is attached to the patient
+//in the patient specific attachment list will have to filter on Content Types that should be shown there. the general
+//attachemnt list will show all attachments for the Patient and have Filter on Consent Type(s)
 			Patient p = (Patient)Patient.MANAGER.getOne(this.getFilterWithId(request, Long.valueOf(request.getParameter("patientId"))));
 			setPatient(crmsFile,p,request);
 		}else{
-			//no parameter supplied, so make assumptions based on current context
+//TODO: attaching via the Patient Attachments list so attach to the Patient
 			
-			//note that for Consent a parameter will always be supplied as do not support the patient/project
-			//lists of all Consents, only list of Consents for a specific Consent entity
-			Instrument i = CrmsSessionUtils.getCurrentInstrument(sessionManager, request);
-			Visit v = CrmsSessionUtils.getCurrentVisit(sessionManager, request);
+			// can assume there is a current patient in context. otherwise there will be no Add attachement button
+			// so would never get here
 			Patient p = CrmsSessionUtils.getCurrentPatient(sessionManager, request);
+			setPatient(crmsFile,p,request);
 			
-			if(i!=null){
-				setInstrument(crmsFile,i.getId(),request);
-			}else if(v!=null){
-				setVisit(crmsFile,v,request);
-			}else if(p!=null){
-				setPatient(crmsFile,p,request);
-			}
+			// do not set crmsFile.projName. user can optionally set a Project or not
 
 		}
 			
 		// check for property values in parameters list of action
 		return command;
 	}
-	
-	
-	
 	
 	@Override
 	protected Long getContextIdFromRequest(RequestContext context) {
@@ -147,8 +147,10 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 			if(crmsFile != null){
 				return crmsFile.getPidn();
 			}
-		}else if (request.getParameterMap().containsKey("enrollStatId")){
-			EnrollmentStatus es = getEnrollmentStatus(Long.valueOf(request.getParameter("enrollStatId")), request);
+		}
+// NOT SURE HOW THESE ARE CALLED SINCE THIS METHOD IS ONLY CALLED WHEN THERE IS AN "id" REQUEST PARAM
+		else if (request.getParameterMap().containsKey("enrollStatId")){
+			EnrollmentStatus es = (EnrollmentStatus) EnrollmentStatus.MANAGER.getOne(this.getFilterWithId(request,Long.valueOf(request.getParameter("enrollStatId"))));
 			if(es!=null){
 				return es.getPatient().getId();
 			}
@@ -205,9 +207,8 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 	 */
 	protected void setEnrollmentStatus(CrmsFile crmsFile, EnrollmentStatus es, HttpServletRequest request ){
 		if(crmsFile!=null && es!=null){
-			crmsFile.setEnrollmentStatus(es);
 			crmsFile.setEnrollStatId(es.getId());
-			this.setPatient(crmsFile, es.getPatient(), request);
+			crmsFile.setEnrollmentStatus(es);
 		}
 
 	}
@@ -222,13 +223,6 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 		if(crmsFile!=null && v!=null){
 			crmsFile.setVisitId(v.getId());
 			crmsFile.setVisit(v);
-			EnrollmentStatus es = this.getEnrollmentStatus(crmsFile.getVisit().getPatient(), crmsFile.getVisit().getProjName(), request);
-			if(es!=null){
-				this.setEnrollmentStatus(crmsFile, es, request);
-			}else{
-				//this shouldn't happen but it is easy enough to trap
-				this.setPatient(crmsFile, v.getPatient(), request);
-			}
 		}
 	}
 
@@ -238,20 +232,10 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 	 * @param instrId
 	 * @param request
 	 */
-	protected void setInstrument(CrmsFile crmsFile, Long instrId, HttpServletRequest request ){
-		if(crmsFile!=null && instrId!=null){
-
-			crmsFile.setInstrId(instrId);
-			InstrumentTracking it = (InstrumentTracking)InstrumentTracking.MANAGER
-			.getOne(this.getFilterWithId(request, Long.valueOf(request.getParameter("instrId"))));
-			if(it!=null){
-				crmsFile.setInstrumentTracking(it);
-				this.setVisit(crmsFile, it.getVisit(), request);
-			}else{
-				//this shouldn't happen, but we should at least associated with the current patient
-				Patient p = CrmsSessionUtils.getCurrentPatient(sessionManager, request);
-				setPatient(crmsFile,p,request);
-			}
+	protected void setInstrument(CrmsFile crmsFile, InstrumentTracking instr, HttpServletRequest request ){
+		if(crmsFile!=null && instr!=null){
+			crmsFile.setInstrId(instr.getId());
+			crmsFile.setInstrumentTracking(instr);
 		}
 	}
 
@@ -262,6 +246,7 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 	 * @param request
 	 * @return
 	 */
+/**	NUKE WHEN READY
 	protected EnrollmentStatus getEnrollmentStatus(Patient p, String projName,HttpServletRequest request){
 		LavaDaoFilter filter = EnrollmentStatus.MANAGER.newFilterInstance(CrmsSessionUtils.getCrmsCurrentUser(sessionManager, request));
 		filter.setAlias("patient", "patient");
@@ -271,17 +256,20 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 		EnrollmentStatus es = (EnrollmentStatus) EnrollmentStatus.MANAGER.getOne(filter);
 		return es;
 	}
+**/
+	
 	/**
 	 * Utility method to get the enrollment status when we have the id.
 	 * @param enrollStatId
 	 * @param request
 	 * @return
 	 */
+/**	NUKE WHEN READY
 	protected EnrollmentStatus getEnrollmentStatus(Long enrollStatId,HttpServletRequest request){
 		EnrollmentStatus es = (EnrollmentStatus) EnrollmentStatus.MANAGER.getOne(this.getFilterWithId(request,Long.valueOf(request.getParameter("enrollStatId"))));
 		return es;
 	}
-
+**/
 
 	/**
 	 * Configure the dynamic lists of linked / linkable objects.
@@ -294,168 +282,40 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 		Map<String,Map<String,String>> dynamicLists = getDynamicLists(model);
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 
+	 	//add 'lavaFile' and 'crmsFile' static lists. the component (aka handled entity) in the subclasses of this class
+		//use different names so they can all share this common base class but present separate UI views. so 'crmsFile'
+		//is not used and the lists must be loaded here explicitly
+	 	this.addListsToModel(model, listManager.getStaticListsForEntity("lavaFile"));
+	 	this.addListsToModel(model, listManager.getStaticListsForEntity("crmsFile"));
 
+// DO NOT HAVE Add button IF NO PATIENT IN CONTEXT
+/*		
 		if(crmsFile.getPatient()==null){
 			StateDefinition state = context.getCurrentState();
 			if ((flowMode.equals("edit") && state.getId().equals("edit"))) {
 				dynamicLists.put("crmsFile.patients", listManager.getDynamicList(getCurrentUser(request),"patient.allPatients"));
 			}
 
-		}else {
-			//always setup project list
-			dynamicLists.put("crmsFile.projects", listManager.getDynamicList(getCurrentUser(request), 
-					"crmsFile.projects","patientId",crmsFile.getPidn(),Long.class));
-
-			//setup visit list if project is defined
-			if(crmsFile.getEnrollmentStatus()!=null){
-				dynamicLists.put("crmsFile.visits", listManager.getDynamicList( getCurrentUser(request), 
-						"crmsFile.visits",new String[]{"patientId","projectName"},
-						new Object[]{crmsFile.getPidn(),crmsFile.getEnrollmentStatus().getProjName()},
-						new Class[]{Long.class,String.class}));
-				
-				dynamicLists.put("crmsFile.contentType", listManager.getDynamicList(getCurrentUser(request), 
-						"crmsFile.projectContentType", "projectName",crmsFile.getEnrollmentStatus().getProjName(),String.class));
-			}else{
-				dynamicLists.put("crmsFile.visits",  new HashMap<String, String>());
-				dynamicLists.put("crmsFile.contentType", listManager.getDynamicList(getCurrentUser(request), "crmsFile.contentType"));	
-			}
-
-			//setup instrument list based on visit and or project definition
-			if(crmsFile.getVisit()!=null){
-				dynamicLists.put("crmsFile.instruments", listManager.getDynamicList(getCurrentUser(request), 
-						"crmsFile.instruments","visitId",crmsFile.getVisitId(),Long.class));
-
-			}else {
-				dynamicLists.put("crmsFile.instruments",  new HashMap<String, String>());
-			}
 		}
+*/
+		
+		Map<String,String> projList = listManager.getDynamicList(getCurrentUser(request),
+				"enrollmentStatus.patientProjects",	"patientId", crmsFile.getPatient().getId(),  Long.class);
+		projList = CrmsAuthUtils.filterProjectListByPermission(getCurrentUser(request),
+				CoreSessionUtils.getCurrentAction(sessionManager,request), projList);
+		dynamicLists.put("enrollmentStatus.patientProjects", projList);
+
+		if (crmsFile.getProjName() != null) {
+			dynamicLists.put("crmsFile.contentType", listManager.getDynamicList(getCurrentUser(request), 
+					"crmsFile.projectContentType", "projectName",crmsFile.getProjName(),String.class));
+		}
+		else {
+			dynamicLists.put("crmsFile.contentType", listManager.getDynamicList(getCurrentUser(request), "crmsFile.contentType"));	
+		}
+
+		
 		model.put("dynamicLists", dynamicLists);
 
 		return super.addReferenceData(context, command, errors, model);
-	}
-
-	/**
-	 * Override to handle linked object changes
-	 */
-	@Override
-	public Event handleReRenderEvent(RequestContext context, Object command,
-			BindingResult errors) throws Exception {
-		this.handleEntityLinkChanges(context,command,errors);
-		return super.handleReRenderEvent(context, command, errors);
-	}
-
-	/**
-	 * Override to handle linked object changes
-	 */
-	@Override
-	public Event handleSaveAddEvent(RequestContext context, Object command, BindingResult errors) throws Exception {
-		this.handleEntityLinkChanges(context,command,errors);
-		return super.handleSaveAddEvent(context, command, errors);
-	}
-
-	/**
-	 * Override to handle linked object changes
-	 */
-	@Override
-	protected Event doSave(RequestContext context, Object command,
-			BindingResult errors) throws Exception {
-		this.handleEntityLinkChanges(context,command,errors);
-		return super.doSave(context, command, errors);
-	}
-	
-	/** Consents are not handled here because do not have patient/project lists of Consent
-	 * attachments, only list of Consent attachments for a specific Consent. So Consent attachments
-	 * are not involved in this chaining UI business.
-	 */
-
-
-	/**
-	 * Utility method to gather methods that check for changes to linked objects from the UI
-	 * 
-	 * @param context
-	 * @param command
-	 * @param errors
-	 * @throws Exception
-	 */
-	protected void handleEntityLinkChanges(RequestContext context, Object command, BindingResult errors) throws Exception{
-		this.handlePatientChange(context, command, errors);
-		this.handleEnrollmentStatusChange(context, command, errors);
-		this.handleVisitChange(context, command, errors);
-		this.handleInstrumentChange(context, command, errors);
-	}
-
-	/**
-	 * Handle UI changes to the project linked to the file.
-	 * @param context
-	 * @param command
-	 * @param errors
-	 */
-	protected void handleEnrollmentStatusChange(RequestContext context, Object command, BindingResult errors){
-		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		CrmsFile c = (CrmsFile)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
-		if(doesIdDifferFromEntityId(c.getEnrollStatId(),c.getEnrollmentStatus())){
-			if(c.getEnrollStatId()==null){
-				c.setEnrollmentStatus(null); 	//clear the association
-			}else{
-				EnrollmentStatus es = (EnrollmentStatus)EnrollmentStatus.MANAGER.getOne(this.getFilterWithId(request, c.getEnrollStatId()));
-				c.setEnrollmentStatus(es);
-			}
-		}
-	}
-
-	/**
-	 * Handle UI changes to the visit linked to the file
-	 * @param context
-	 * @param command
-	 * @param errors
-	 */
-	protected void handleVisitChange(RequestContext context, Object command, BindingResult errors){
-		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		CrmsFile c = (CrmsFile)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
-		if(doesIdDifferFromEntityId(c.getVisitId(),c.getVisit())){
-			if(c.getVisitId()==null){
-				c.setVisit(null); 	//clear the association
-			}else{
-				Visit v = (Visit)Visit.MANAGER.getOne(this.getFilterWithId(request, c.getVisitId()));
-				c.setVisit(v);
-			}
-		}
-	}
-	/**
-	 * Handle UI changes to the patient linked to the file.
-	 * @param context
-	 * @param command
-	 * @param errors
-	 */
-	protected void handlePatientChange(RequestContext context, Object command, BindingResult errors){
-		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		CrmsFile c = (CrmsFile)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
-		if(doesIdDifferFromEntityId(c.getPidn(),c.getPatient())){
-			if(c.getPidn()==null){
-				c.setPatient(null); 	//clear the association
-			}else{
-				Patient pat = (Patient)Patient.MANAGER.getOne(this.getFilterWithId(request, c.getPidn()));
-				c.setPatient(pat);
-			}
-		}
-	}
-
-	/**
-	 * Handle UI changes to the instrument linked to the file
-	 * @param context
-	 * @param command
-	 * @param errors
-	 */
-	protected void handleInstrumentChange(RequestContext context, Object command, BindingResult errors){
-		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-		CrmsFile c = (CrmsFile)((ComponentCommand)command).getComponents().get(getDefaultObjectName());
-		if(doesIdDifferFromEntityId(c.getInstrId(),c.getInstrumentTracking())){
-			if(c.getInstrId()==null){
-				c.setInstrumentTracking(null); 	//clear the association
-			}else{
-				InstrumentTracking it = (InstrumentTracking) InstrumentTracking.MANAGER.getOne(this.getFilterWithId(request, c.getInstrId()));
-				c.setInstrumentTracking(it);
-			}
-		}
 	}
 }
