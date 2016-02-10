@@ -43,6 +43,7 @@
 		<property name="parentFlows"><list>
 			<value>lava.crms.people.attachments.patientAttachments</value>
 			<value>lava.crms.people.attachments.projectPatientAttachments</value>
+			<value>lava.crms.people.patient.patient</value>
 		</list></property>
 	</bean>	
 				
