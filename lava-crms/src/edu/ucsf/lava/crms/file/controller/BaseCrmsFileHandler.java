@@ -113,7 +113,7 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 			setInstrument(crmsFile,instr,request);
 			this.setPatient(crmsFile, instr.getPatient(), request);
 			crmsFile.setProjName(instr.getProjName());
-		}else if (request.getParameterMap().containsKey("patientId")){
+		}else if (request.getParameterMap().containsKey("pidn")){
 //NOTE: this is a patient specific attachment vs. an general attachment, which is attached to the patient
 //in the patient specific attachment list will have to filter on Content Types that should be shown there. the general
 //attachemnt list will show all attachments for the Patient and have Filter on Consent Type(s)
@@ -165,7 +165,7 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 			if(it!=null){
 				return it.getPatient().getId();
 			}
-		}else if (request.getParameterMap().containsKey("patientId")){
+		}else if (request.getParameterMap().containsKey("pidn")){
 			Patient p = (Patient)Patient.MANAGER.getOne(this.getFilterWithId(request, Long.valueOf(request.getParameter("patientId"))));
 			if(p!=null){
 				return p.getId();
