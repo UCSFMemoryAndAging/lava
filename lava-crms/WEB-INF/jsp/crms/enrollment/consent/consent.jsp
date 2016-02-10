@@ -20,7 +20,8 @@
 	<c:if test="${componentView != 'add'}">
 		<c:set var="id"><tags:componentProperty component="${component}" property="id"/></c:set>
 		<c:import url="/WEB-INF/jsp/crms/enrollment/attachments/consentAttachmentListContent.jsp">
-			<c:param name="propertyValues">consentId,${id}</c:param>
+			<c:param name="pageName">${component}</c:param>
+			<c:param name="consentId">${id}</c:param>
 		</c:import>
 	</c:if>
 
