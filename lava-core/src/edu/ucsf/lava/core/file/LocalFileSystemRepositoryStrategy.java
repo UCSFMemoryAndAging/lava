@@ -87,8 +87,7 @@ public class LocalFileSystemRepositoryStrategy extends AbstractFileRepositoryStr
 	}
 	
 	/**
-	 * Default implementation is to organize files into levels of folders each with 
-	 * 256 subfolders and 256 files.  
+	 * Default implementation is to organize files into 256 folders
 	 * 
 	 */
 	@Override
