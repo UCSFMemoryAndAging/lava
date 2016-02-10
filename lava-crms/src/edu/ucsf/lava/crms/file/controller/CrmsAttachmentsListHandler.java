@@ -15,11 +15,13 @@ import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.dao.LavaEqualityParamHandler;
+import edu.ucsf.lava.core.dao.LavaNullParamHandler;
 import edu.ucsf.lava.core.file.controller.AttachmentsListHandler;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
 import edu.ucsf.lava.crms.enrollment.model.Consent;
 import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 import edu.ucsf.lava.crms.file.model.CrmsFile;
+import edu.ucsf.lava.crms.people.model.Patient;
 import edu.ucsf.lava.crms.scheduling.model.Visit;
 import edu.ucsf.lava.crms.session.CrmsSessionUtils;
 
@@ -33,11 +35,11 @@ import edu.ucsf.lava.crms.session.CrmsSessionUtils;
  * 
  * 	<c:set var="id"><tags:componentProperty component="${component}" property="id"/></c:set>
  *	<c:import url="/WEB-INF/jsp/crms/enrollment/attachments/enrollmentAttachmentListContent.jsp">
- *		<c:param name="propertyValues">enrollStatId,${id}</c:param>
+ *		<c:param name="pageName">${component}</c:param>
+ *		<c:param name="enrollStatId">${id}</c:param>
  *	</c:import>
  *
- *  enrollmentAttachmentListContent.jsp displays a list (enrollmentAttachmentsContent.jsp) which is
- *  obtained by this controller.
+ *  enrollmentAttachmentListContent.jsp displays a list which is obtained by this controller.
  *  
  *  Note that for the attachment list to work properly, webflow transitions to the list item actions
  *  must be in place. e.g. for enrollmentStatus, the enrollmentAttachment action specifies the 
@@ -50,10 +52,15 @@ import edu.ucsf.lava.crms.session.CrmsSessionUtils;
  *	</bean>	
  *
  *  
- *  The list has an Add button:
- *  <tags:actionURLButton buttonText="Add" actionId="lava.crms.enrollment.attachments.enrollmentAttachment" eventId="enrollmentAttachment__add" component="${component}" parameters="${propertyValues}"/>
- *  This action will allow the user to create an attachment, a CrmsFile entity, where the enrollStatId 
- *  property of CrmsFile references the EnrollmentStatus entity of the current view.
+ *  The list has an Add button, e.g.
+ *  <tags:eventButton buttonText="Add" component="assessmentAttachment" action="add" pageName="${pageName}" javascript="submitted=true;" parameters="instrId,${instrId}"/> 
+ *  
+ *  This action will allow the user to create an attachment, a CrmsFile entity, where the instrId 
+ *  property of CrmsFile references the Instrument entity of the current view.
+ *  
+ *  Note that eventButton is used instead of listActionURLButton because the eventButton posts/binds the current form so if
+ *  in edit mode for the Instrument, any modified values will be submitted and retained upon returning to that form (in
+ *  edit mode) from the attachment CRUD form.
  *  
  */
 
@@ -83,7 +90,15 @@ public class CrmsAttachmentsListHandler extends AttachmentsListHandler {
 			filter.setParam("visitId", ((Visit)components.get("visit")).getId());
 		} else if (components.containsKey("patient")){
 			filter.addParamHandler(new LavaEqualityParamHandler("pidn"));
-			filter.setParam("pidn", ((Visit)components.get("patient")).getId());
+			filter.setParam("pidn", ((Patient)components.get("patient")).getId());
+			filter.addParamHandler(new LavaNullParamHandler("enrollStatId"));
+			filter.setParam("enrollStatId", null);
+			filter.addParamHandler(new LavaNullParamHandler("consentId"));
+			filter.setParam("consentId", null);
+			filter.addParamHandler(new LavaNullParamHandler("visitId"));
+			filter.setParam("visitId", null);
+			filter.addParamHandler(new LavaNullParamHandler("instrId"));
+			filter.setParam("instrId", null);
 		} else{
 			filter.setParam("DO_NOT_EXECUTE", true);
 		}
@@ -112,7 +127,6 @@ public class CrmsAttachmentsListHandler extends AttachmentsListHandler {
 		}
 		
 		return super.preEventHandled(context, command, errors);
-	}		
-		
+	}
 
 }
