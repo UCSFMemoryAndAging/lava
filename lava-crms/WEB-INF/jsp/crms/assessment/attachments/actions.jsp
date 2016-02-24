@@ -4,20 +4,17 @@
 <!--  patient actions -->
 <c:if test="${not empty currentPatient}">
 
-<a href="<tags:actionURL actionId="lava.crms.assessment.attachments.assessmentAttachments" idParam="${currentPatient.id}"/>">
-<spring:message code="action.lava.crms.assessment.attachments.assessmentAttachments.list"/></a><br>
-
 <a href="<tags:actionURL actionId="lava.crms.assessment.attachments.assessmentAttachment" startMode="add"/>">
 <spring:message code="action.lava.crms.assessment.attachments.assessmentAttachment.add"/></a><br>
 
-
+<a href="<tags:actionURL actionId="lava.crms.people.attachments.patientAttachment" startMode="add"/>">
+<spring:message code="action.lava.crms.people.attachments.patientAttachment.add"/></a><br>
 
 </c:if>
 
 <!--  project actions -->
- <a href="<tags:actionURL actionId="lava.crms.assessment.attachments.projectAssessmentAttachments" />">
-<spring:message code="action.lava.crms.assessment.attachments.projectAssessmentAttachments.list"/></a><br>
-
+<a href="<tags:actionURL actionId="lava.crms.people.attachments.projectPatientAttachments" />">
+<spring:message code="action.lava.crms.people.attachments.projectPatientAttachments.list"/></a><br>
 
 </body>
 </html>
