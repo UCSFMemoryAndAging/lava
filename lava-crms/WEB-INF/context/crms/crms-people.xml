@@ -41,9 +41,17 @@
 		
 	<bean id="lava.crms.people.attachments.patientAttachment" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
+			<value>lava.crms.people.patient.patient</value>
+			<!-- decided to put the same project/patient attachment lists on the people, enrollment, scheduling and
+				assessment modules, since any given attachment could be pertinent to a particular module. the user
+				can use list filters to filter on Category and Content Type to filter on a specific category of
+				attachments, e.g. 'Enrollment' Category attachments -->
 			<value>lava.crms.people.attachments.patientAttachments</value>
 			<value>lava.crms.people.attachments.projectPatientAttachments</value>
-			<value>lava.crms.people.patient.patient</value>
+			<value>lava.crms.enrollment.attachments.patientAttachments</value>
+			<value>lava.crms.enrollment.attachments.projectPatientAttachments</value>
+			<value>lava.crms.scheduling.attachments.patientAttachments</value>
+			<value>lava.crms.scheduling.attachments.projectPatientAttachments</value>
 		</list></property>
 	</bean>	
 				

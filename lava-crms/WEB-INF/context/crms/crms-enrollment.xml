@@ -45,6 +45,13 @@
 	<bean id="lava.crms.enrollment.status.patientEnrollmentStatus" parent="crmsPatientModuleListAction"/>
 	<bean id="lava.crms.enrollment.status.projectEnrollmentStatus" parent="crmsModuleListAction"/>
 
+	<bean id="lava.crms.enrollment.attachments.patientAttachments" parent="crmsPatientSectionListAction"/>
+	<bean id="lava.crms.enrollment.attachments.projectPatientAttachments" parent="crmsSectionListAction"/>
+
+	<!-- these actions just use the same FormAction beans and handlers as the people.attachments list
+		actions, as the same list of attachments is used by every module, with filters available to 
+		list just the attachments of a particular category, e.g. 'Enrollment' category.
+		they use the crms-people.xml FormAction beans -->
 	<bean id="lava.crms.enrollment.attachments.enrollmentAttachment" parent="crmsEntityFlowAction">
 			<property name="parentFlows"><list>
 				<value>lava.crms.enrollment.status.enrollmentStatus</value>

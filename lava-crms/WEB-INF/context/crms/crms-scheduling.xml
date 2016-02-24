@@ -75,11 +75,14 @@
 	<bean id="lava.crms.scheduling.projectCalendar.projectVisits" parent="crmsModuleListAction">
 		<property name="patientSectionDefault" value="true"/>
 	</bean>			
+
+	<!-- these actions just use the same FormAction beans and handlers as the people.attachments list
+		actions, as the same list of attachments is used by every module, with filters available to 
+		list just the attachments of a particular category, e.g. 'Visit' category.
+		they use the crms-people.xml FormAction beans -->
+	<bean id="lava.crms.scheduling.attachments.patientAttachments" parent="crmsPatientSectionListAction"/>
+	<bean id="lava.crms.scheduling.attachments.projectPatientAttachments" parent="crmsSectionListAction"/>
 			
-	<!-- visitAttachment only exists for a specific Visit so there are no patient/project lists
-	of Visit attachments like there are for EnrollmentStatus (which may or may not be used but
-	the preference for attachments is to display a list on a specific entity instead of displaying
-	lists of attachments across all entities of a specific type -->
 	<bean id="lava.crms.scheduling.attachments.visitAttachment" parent="crmsEntityFlowAction">
 		<property name="parentFlows"><list>
 			<value>lava.crms.scheduling.visit.visit</value>

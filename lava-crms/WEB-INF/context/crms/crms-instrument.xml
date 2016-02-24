@@ -120,6 +120,16 @@
 	
 	<bean id="lava.crms.assessment.instrument.instrumentGroup" parent="crmsInstrumentGroupFlowAction"/>				
 
+
+	<!-- these actions just use the same FormAction beans and handlers as the people.attachments list
+		actions, as the same list of attachments is used by every module, with filters available to 
+		list just the attachments of a particular category, e.g. 'Instrument' category.
+		they use the crms-people.xml FormAction beans -->
+	<bean id="lava.crms.assessment.attachments.patientAttachments" parent="crmsPatientSectionListAction"/>
+	<bean id="lava.crms.assessment.attachments.projectPatientAttachments" parent="crmsSectionListAction"/>
+			
+	<bean id="lava.crms.assessment.attachments.assessmentAttachment" parent="crmsEntityFlowAction"/>
+
 	
 	 <!-- form action definitions -->
     
@@ -183,6 +193,11 @@
 	<bean id="instrumentGroupFormAction" parent="crmsEntityComponentFormAction">
 		<constructor-arg><bean parent="instrumentGroupHandler"/></constructor-arg>
 	</bean>
+
+	<bean id="assessmentAttachmentFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
+		<bean class="edu.ucsf.lava.crms.assessment.controller.AssessmentAttachmentHandler" parent="crmsHandler"/>
+	</list></constructor-arg></bean>
+    
 
 
 	<bean id="instrumentFileLoader" abstract="true">
