@@ -40,7 +40,7 @@ import edu.ucsf.lava.crms.session.CrmsSessionUtils;
  *	</c:import>
  *
  *  enrollmentAttachmentListContent.jsp displays a list which is obtained by this controller.
- *  
+ *
  *  Note that for the attachment list to work properly, webflow transitions to the list item actions
  *  must be in place. e.g. for enrollmentStatus, the enrollmentAttachment action specifies the 
  *  enrollmentStatus action as a parentFlow, as follows:
@@ -50,7 +50,6 @@ import edu.ucsf.lava.crms.session.CrmsSessionUtils;
  *				<value>lava.crms.enrollment.status.enrollmentStatus</value>
  *			</list></property>
  *	</bean>	
- *
  *  
  *  The list has an Add button, e.g.
  *  <tags:eventButton buttonText="Add" component="assessmentAttachment" action="add" pageName="${pageName}" javascript="submitted=true;" parameters="instrId,${instrId}"/> 
@@ -61,7 +60,20 @@ import edu.ucsf.lava.crms.session.CrmsSessionUtils;
  *  Note that eventButton is used instead of listActionURLButton because the eventButton posts/binds the current form so if
  *  in edit mode for the Instrument, any modified values will be submitted and retained upon returning to that form (in
  *  edit mode) from the attachment CRUD form.
+ *
  *  
+ *   
+ *  Example of an adding attachment functionality to a specific instrument. Typically this is placed after the last
+ *  section decorator in the jsp, before the end of the entity/instrument decorator and end of the component.content
+ *  decorator
+ *  <c:if test="${componentView != 'add' && componentView != 'doubleEnter'}">
+ *	  <c:set var="id"><tags:componentProperty component="${component}" property="id"/></c:set>
+ *	  <c:import url="/WEB-INF/jsp/crms/assessment/attachments/assessmentAttachmentListContent.jsp">
+ *		  <c:param name="pageName">${instrTypeEncoded}</c:param>
+ *		  <c:param name="instrId">${id}</c:param>
+ *	  </c:import>
+ * </c:if> 
+ *
  */
 
 public class CrmsAttachmentsListHandler extends AttachmentsListHandler {
@@ -89,6 +101,15 @@ public class CrmsAttachmentsListHandler extends AttachmentsListHandler {
 			filter.addParamHandler(new LavaEqualityParamHandler("visitId"));
 			filter.setParam("visitId", ((Visit)components.get("visit")).getId());
 		} else if (components.containsKey("patient")){
+			// all attachments can be considered Patient attachments since there is always a PIDN. the people, enrollment,
+			// scheduling and assessment modules all have section links for a patient/project attachments list, which can
+			// be thought of as a global list of all attachments for a project (or all projects) and all attachments for
+			// a patient. these lists can then be filtered on Category and Content Type to get a list of a specific kind
+			// of attachment
+			// but there is also a notion of a patient attachment that is shown at the bottom of the Patient CRUD page. in
+			// this case, only show attachments where the other id fields are null, because then the attachment is truly
+			// considered a Patient attachment, whereas if another id is present then it is likely another entity 
+			// attachment, such as Enrollment, Consent, Visit or some instrument attachment
 			filter.addParamHandler(new LavaEqualityParamHandler("pidn"));
 			filter.setParam("pidn", ((Patient)components.get("patient")).getId());
 			filter.addParamHandler(new LavaNullParamHandler("enrollStatId"));
