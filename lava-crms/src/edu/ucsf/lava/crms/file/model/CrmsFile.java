@@ -138,23 +138,6 @@ public class CrmsFile extends LavaFile implements CrmsAuthEntity{
 	}	
 
 	
-	public String getAssociationBlock(){
-		StringBuffer buffer = new StringBuffer();
-		DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
-		
-		if(this.instrumentTracking!=null){
-			buffer.append("Instr:  ").append(this.instrumentTracking.getInstrType())
-				.append(" - ").append(dateFormat.format(this.instrumentTracking.getDcDate())).append("\n");
-		}
-		if(this.visit!=null){
-			buffer.append("Visit: ").append(getVisitDesc()).append("\n");
-		}
-		if(this.enrollmentStatus!=null){
-			buffer.append("Project: ").append(this.enrollmentStatus.getProjName()).append("\n");
-		}
-		return buffer.toString();
-	}
-	
 	public String getVisitDesc() {
 		DateFormat visitDateFormat = new SimpleDateFormat("MM/dd/yy");
 		if (this.visit != null){
