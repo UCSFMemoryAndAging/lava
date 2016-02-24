@@ -92,7 +92,7 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 		}else if (request.getParameterMap().containsKey("pidn")){
 			// note that this is an attachment at the level of Patient, meaning that all other entity id's are
 			// null
-			Patient p = (Patient)Patient.MANAGER.getOne(this.getFilterWithId(request, Long.valueOf(request.getParameter("patientId"))));
+			Patient p = (Patient)Patient.MANAGER.getOne(this.getFilterWithId(request, Long.valueOf(request.getParameter("pidn"))));
 			setPatient(crmsFile,p,request);
 		}else{
 			// can assume there is a current patient in context. otherwise there will be no Add attachement button
