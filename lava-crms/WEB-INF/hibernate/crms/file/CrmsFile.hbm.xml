@@ -25,11 +25,13 @@
 		<property name="consentId" column="consent_id" type="long"/>   	
 	</join>
 
+	<!-- cannot use default patient filters because ProjName and PIDN are not in the primary class table, lava_file, but instead is
+		in the joined subclass table, crms_file -->
 	<filter name="patientAuth" condition="id IN (SELECT cf.id from crms_file cf inner join enrollmentstatus e on cf.pidn=e.PIDN where cf.id=id and e.ProjName in (:projectList))"></filter>
-	<filter name="projectAuth"/> 		
+	<filter name="projectAuth" condition="id IN (SELECT cf.id from crms_file cf where cf.id=id and cf.ProjName in (:projectList))"/>
 	<filter name="patient" condition="id IN (SELECT cf.id from crms_file cf where cf.pidn = :patientId)"></filter>
 	<filter name="validPatient" condition="id IN (SELECT cf.id from crms_file cf where cf.id=id and cf.pidn > 0)"></filter>
-	<filter name="projectContext" condition=":projectContext=ProjName"/>
+	<filter name="projectContext" condition="id IN (SELECT cf.id from crms_file cf where cf.id=id and cf.ProjName = :projectContext)"/>
 </class>
 	
 	
