@@ -21,7 +21,7 @@
 <tags:listRow>
 
 <tags:componentListColumnHeader component="${component}" label="Action" width="12%"/>
-<tags:componentListColumnHeader component="${component}" label="Type (Source)" width="28%" sort="contentType"/>
+<tags:componentListColumnHeader component="${component}" label="Content Type" width="28%" sort="contentType"/>
 <tags:componentListColumnHeader component="${component}" label="Name" width="35%"/>
 <tags:componentListColumnHeader component="${component}" label="File Status" width="25%" sort="fileStatusDate"/>
 
