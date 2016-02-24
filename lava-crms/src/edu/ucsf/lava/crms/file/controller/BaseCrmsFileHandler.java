@@ -33,35 +33,19 @@ import edu.ucsf.lava.crms.session.CrmsSessionUtils;
  * VisitAttachmentHandler
  * AssessmentAttachmentHandler
  * 
- * Note there are two UIs to attach a file.
- * One UI presents a list of all attachments for a given type of entity, e.g. all EnrollmentStatus
- * attachments (enrollmentAttachments action for patient list, projectEnrollmentAttachments action
- * for project list). 
- * The Add view is currently generic for all entities, e.g. an Assessment attachment 
- * could be added under the EnrollmentStatus attachment list, and vice versa.
- * e.g. enrollmentAttachments action, which shows enrollmentAttachments.jsp (which includes
- * enrollmentAttachmentsContent.jsp which is a separate include as it is also included by 
- * enrollmentAttachmentsListContent.jsp as described below).
+ * This is for attaching a file to a specific entity. When this is done, only the id for Patient and
+ * the specific entity are populated in CrmsFile. If the attachment is at the "level of Patient" then 
+ * only the Patient id is populated and none of the other ids.
  * 
- * The second UI is where a specific entity includes a list of attachments at the end (as a secondary
- * component supported by CrmsAttachmentsListHandler). In that case, it is already known which entity
- * to which the file will be attached, so the Add view does not need the user to select the
- * entity.
- * e.g. enrollmentStatus.jsp includes enrollmentAttachmentListContent.jsp which includes
- * enrollmentAttachmentsContent.jsp to display the list (this is a separate include as it is also
- * included by enrollmentAttachments.jsp as described above).  
+ * The UI for this is a jsp that is included at the end of a specific type of entity which lists all
+ * attachments for that entity (an entity can have multiple attachments, i.e. a list). This secondary
+ * entity list is supported by CrmsAttachmentsListHandler. 
  * 
- * Both of these UIs use the enrollmentAttachment action for attachment CRUD, but they pass a 
- * request parameter to each CRUD action indicating whether the action was invoked from the list
- * of all attachments for a given type of entity or invoked from the list of attachments for a
- * specific entity. This parameter is put into the model by the handler so the jsp can display
- * accordingly.
- * e.g. enrollmentAttachment.jsp has logic that either displays the attachments/attachmentContent.jsp
- * which can be used across patients, enrollmentStatus, visit and assessment, or it displays
- * content specific to an enrollmentStatus attachment.
- *  * 
- * @author jhesse
- *
+ * This differs from the PatientAttachmentsHandler and ProjectPatientAttachmentsHandler which are 
+ * standard primary list handlers and display all the attachments associated with a Patient across all
+ * types of entities (i.e. enrollments, consents, visits and specific instruments) as opposed to 
+ * CrmsAttachmentsListHandler which for a specific Patient only lists the attachments at the level
+ * of Patient, i.e. not an enrollment, consent, visit or instrument attachments.
  */
 public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 
@@ -78,20 +62,12 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 	protected Object initializeNewCommandInstance(RequestContext context, Object command) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		CrmsFile crmsFile = (CrmsFile)command;
-		// critical to set the 
+		// critical to set the repo id 
 		crmsFile.setRepositoryId(CRMS_REPOSITORY_ID);
 		//Setup default values
 		crmsFile.setFileStatusBy(CrmsSessionUtils.getCrmsCurrentUser(sessionManager, request).getShortUserNameRev());
 		crmsFile.setFileStatusDate(LavaDateUtils.getDatePart(new Date()));
 		
-		//setup the linking data depending on the parameter supplied. 
-		
-		// when this handler is used by EnrollmentAttachmentsHandler/ProjectEnrollmentAttachmentsHandler, the "patientId" request param
-		// is set, and user must input the EnrollmentStatus (i.e. Project) at which time reRender event handling will set the EnrollmentStatus
-		// on CrmsFile
-		// when this handler is used by the secondary CrmsAttachmentsListHandler, the "enrollStatId" request param is set, so the
-		// EnrollmentStatus is set on CrmsFile. user need not input an EnrollmentStatus and rerender.
-//NOW WILL ONLY BE DOING THE LATTER OF 2 UI METHODS OF ATTACHING ENTITY SPECIFIC ATTACHMENTS	
 		if (request.getParameterMap().containsKey("enrollStatId")){
 			EnrollmentStatus es = (EnrollmentStatus) EnrollmentStatus.MANAGER.getOne(this.getFilterWithId(request,Long.valueOf(request.getParameter("enrollStatId"))));
 			setEnrollmentStatus(crmsFile,es,request);
@@ -114,21 +90,17 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 			this.setPatient(crmsFile, instr.getPatient(), request);
 			crmsFile.setProjName(instr.getProjName());
 		}else if (request.getParameterMap().containsKey("pidn")){
-//NOTE: this is a patient specific attachment vs. an general attachment, which is attached to the patient
-//in the patient specific attachment list will have to filter on Content Types that should be shown there. the general
-//attachemnt list will show all attachments for the Patient and have Filter on Consent Type(s)
+			// note that this is an attachment at the level of Patient, meaning that all other entity id's are
+			// null
 			Patient p = (Patient)Patient.MANAGER.getOne(this.getFilterWithId(request, Long.valueOf(request.getParameter("patientId"))));
 			setPatient(crmsFile,p,request);
 		}else{
-//TODO: attaching via the Patient Attachments list so attach to the Patient
-			
 			// can assume there is a current patient in context. otherwise there will be no Add attachement button
 			// so would never get here
 			Patient p = CrmsSessionUtils.getCurrentPatient(sessionManager, request);
 			setPatient(crmsFile,p,request);
 			
 			// do not set crmsFile.projName. user can optionally set a Project or not
-
 		}
 			
 		// check for property values in parameters list of action
@@ -236,38 +208,6 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 	}
 
 	/**
-	 * Utility method to get the enrollment status when we know the patient and project.
-	 * @param p
-	 * @param projName
-	 * @param request
-	 * @return
-	 */
-/**	NUKE WHEN READY
-	protected EnrollmentStatus getEnrollmentStatus(Patient p, String projName,HttpServletRequest request){
-		LavaDaoFilter filter = EnrollmentStatus.MANAGER.newFilterInstance(CrmsSessionUtils.getCrmsCurrentUser(sessionManager, request));
-		filter.setAlias("patient", "patient");
-		filter.addDaoParam(filter.daoEqualityParam("patient.id", p.getId()));
-		//TODO: refactor this to make sure it works with Project [unit] combinations
-		filter.addDaoParam(filter.daoEqualityParam("projName",projName));
-		EnrollmentStatus es = (EnrollmentStatus) EnrollmentStatus.MANAGER.getOne(filter);
-		return es;
-	}
-**/
-	
-	/**
-	 * Utility method to get the enrollment status when we have the id.
-	 * @param enrollStatId
-	 * @param request
-	 * @return
-	 */
-/**	NUKE WHEN READY
-	protected EnrollmentStatus getEnrollmentStatus(Long enrollStatId,HttpServletRequest request){
-		EnrollmentStatus es = (EnrollmentStatus) EnrollmentStatus.MANAGER.getOne(this.getFilterWithId(request,Long.valueOf(request.getParameter("enrollStatId"))));
-		return es;
-	}
-**/
-
-	/**
 	 * Configure the dynamic lists of linked / linkable objects.
 	 */
 	@Override
@@ -284,17 +224,6 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 	 	this.addListsToModel(model, listManager.getStaticListsForEntity("lavaFile"));
 	 	this.addListsToModel(model, listManager.getStaticListsForEntity("crmsFile"));
 
-// DO NOT HAVE Add button IF NO PATIENT IN CONTEXT
-/*		
-		if(crmsFile.getPatient()==null){
-			StateDefinition state = context.getCurrentState();
-			if ((flowMode.equals("edit") && state.getId().equals("edit"))) {
-				dynamicLists.put("crmsFile.patients", listManager.getDynamicList(getCurrentUser(request),"patient.allPatients"));
-			}
-
-		}
-*/
-		
 		Map<String,String> projList = listManager.getDynamicList(getCurrentUser(request),
 				"enrollmentStatus.patientProjects",	"patientId", crmsFile.getPatient().getId(),  Long.class);
 		projList = CrmsAuthUtils.filterProjectListByPermission(getCurrentUser(request),
