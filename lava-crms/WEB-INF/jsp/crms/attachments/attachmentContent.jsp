@@ -1,23 +1,20 @@
 <%@ include file="/WEB-INF/jsp/includes/include.jsp" %>
 
+<%-- this is included by all attachment CRUD jsps:
+people/attachments/patientAttachment.jsp
+enrollment/attachments/enrollmentAttachment.jsp
+enrollment/attachments/consentAttachment.jsp
+scheduling/attachments/visitAttachment.jsp
+assessment/attachments/assessmentAttachment.jsp
+--%>
+
 <c:set var="component">${param.component}</c:set>
 <c:set var="viewString" value="${component}_view"/>
 <c:set var="componentView" value="${requestScope[viewString]}"/>
 
-<page:applyDecorator name="component.entity.section">
-  <page:param name="sectionNameKey">lavaFile.fileInfo.section</page:param>
-  <page:param name="quicklinkPosition">none</page:param>
-<tags:createField property="name" entityType="lavaFile" component="${component}"/>
-<tags:createField property="filePath" entityType="lavaFile" component="${component}"/>
-<tags:createField property="fileType" entityType="lavaFile" component="${component}"/>
-<tags:outputText textKey="info.attachmentSearch" inline="false" styleClass="italic"/>
-<tags:createField property="category" entityType="lavaFile" component="${component}"/>
-<tags:outputText textKey="info.attachmentCategory" inline="false" styleClass="italic"/>
-
-<tags:outputText textKey="info.attachmentProject" inline="false" styleClass="italic"/>
-<%-- if adding an attachment where projName is not pre-populated, i.e. attaching
-at the Patient level, then projName should be editable. Otherwise, the ProjName is dictated
-by the specific entity to which the file is being attached and ProjName should be disabled.
+<%-- set a variable indicating whether attaching at the Patient level, in which case ProjName should be optional
+and editable and certain info msgs should be shown, or attaching to a specific project-based entity (Enrollment Status,
+Consent, Visit or an instrument.
 Determine if at the Patient level by checking that all other id's are null  --%>
 <c:set var="enrollStatId">
 	<tags:componentProperty component="${component}" property="enrollStatId"/>
@@ -33,10 +30,47 @@ Determine if at the Patient level by checking that all other id's are null  --%>
 </c:set>
 <c:choose>
 	<c:when test="${empty enrollStatId && empty consentId && empty visitId && empty instrId}">
+		<c:set var="patientLevelAttachment" value="true"/>
+	</c:when>
+	<c:otherwise>
+		<c:set var="patientLevelAttachment" value="false"/>
+	</c:otherwise>
+</c:choose>				
+
+<page:applyDecorator name="component.entity.section">
+  <page:param name="sectionNameKey">lavaFile.fileInfo.section</page:param>
+  <page:param name="quicklinkPosition">none</page:param>
+<tags:createField property="name" entityType="lavaFile" component="${component}"/>
+<tags:createField property="filePath" entityType="lavaFile" component="${component}"/>
+<tags:createField property="fileType" entityType="lavaFile" component="${component}"/>
+<tags:outputText textKey="info.attachmentSearch" inline="false" styleClass="italic"/>
+<tags:createField property="category" entityType="crmsFile" component="${component}"/>
+<c:if test="${patientLevelAttachment}">
+<tags:outputText textKey="info.attachmentCategory" inline="false" styleClass="italic"/>
+
+<tags:outputText textKey="info.attachmentProject" inline="false" styleClass="italic"/>
+</c:if>
+<%-- if adding an attachment where projName is not pre-populated, i.e. attaching
+at the Patient level, then projName should be editable (and optional). Otherwise, the ProjName
+is dictated by the specific (project-based) entity (enrollmentStatus, consent, visit or
+an instrument) to which the file is being attached and ProjName should be disabled. --%>
+<c:choose>
+	<c:when test="${patientLevelAttachment}">
 		<tags:createField property="projName" entityType="crmsFile" component="${component}"/>
 	</c:when>
 	<c:otherwise>
 		<tags:createField property="projName" entityType="crmsFile" component="${component}" disable="true"/>
+	</c:otherwise>
+</c:choose>				
+
+<c:choose>
+	<c:when test="${patientLevelAttachment}">
+		<tags:outputText textKey="info.attachmentEntityTypeOptional" inline="false" styleClass="italic"/>
+		<tags:createField property="entityType" entityType="crmsFile" component="${component}"/>
+	</c:when>
+	<c:otherwise>
+	<tags:outputText textKey="info.attachmentEntityTypeFixed" inline="false" styleClass="italic"/>
+		<tags:createField property="entityType" entityType="crmsFile" component="${component}" disable="true"/>
 	</c:otherwise>
 </c:choose>				
 <tags:createField property="contentType" entityType="crmsFile" component="${component}"/>
