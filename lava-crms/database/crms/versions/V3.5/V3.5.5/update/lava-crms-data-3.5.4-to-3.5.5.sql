@@ -3,6 +3,9 @@ INSERT INTO viewproperty(messageCode,locale,instance,scope,entity,property,conte
 values('*.crmsFile.category','en','lava','crms','crmsFile','category','i','range','No','Category',0,'crmsFile.category','2016-02-06');
 
 INSERT INTO viewproperty(messageCode,locale,instance,scope,prefix,entity,property,context,style,required,label,indentLevel,list,modified)
+values('filter.crmsFile.category','en','lava','crms','filter','crmsFile','category','i','range','No','Category',0,'crmsFile.category','2016-02-06');
+
+INSERT INTO viewproperty(messageCode,locale,instance,scope,prefix,entity,property,context,style,required,label,indentLevel,list,modified)
 values('*.crmsFile.projName','en','lava','crms','filter','crmsFile','projName','i','range','No','Project',0,'enrollmentStatus.patientProjects','2016-02-06');
 
 INSERT INTO viewproperty(messageCode,locale,instance,scope,prefix,entity,property,context,style,required,label,indentLevel,list,modified)
@@ -18,7 +21,9 @@ DELETE FROM viewproperty WHERE messageCode IN ('*.crmsFile.pidn','*.crmsFile.enr
 DELETE FROM viewproperty WHERE messageCode = '*.crmsFile.associationBlock';
 DELETE FROM viewproperty WHERE messageCode = '*.crmsFile.consent_projName';
 
-UPDATE listvalues SET ValueDesc = 'Scanned Consent' WHERE ValueDesc = 'Consent' AND ListID IN (SELECT ListID FROM list WHERE listname = 'CrmsFileContentType');
+INSERT INTO listvalues (ListId,instance,scope,ValueKey,ValueDesc,OrderID) SELECT `ListID`,'lava','crms','GENERAL','Scanned Consent',0 FROM list where ListName = 'CrmsFileContentType'; 
+INSERT INTO listvalues (ListId,instance,scope,ValueKey,ValueDesc,OrderID) SELECT `ListID`,'lava','crms','GENERAL','Chart Scan',0 FROM list where ListName = 'CrmsFileContentType'; 
+INSERT INTO listvalues (ListId,instance,scope,ValueKey,ValueDesc,OrderID) SELECT `ListID`,'lava','crms','GENERAL','Other',0 FROM list where ListName = 'CrmsFileContentType'; 
 
 DELETE FROM versionhistory WHERE module='lava-crms-data' AND version='3.5.5';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
