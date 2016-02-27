@@ -10,6 +10,7 @@
 			<bean parent="list.data"><constructor-arg value="Consent"/><constructor-arg value="Consent"/></bean>
 			<bean parent="list.data"><constructor-arg value="Visit"/><constructor-arg value="Visit"/></bean>
 			<bean parent="list.data"><constructor-arg value="Instrument"/><constructor-arg value="Instrument"/></bean>
+			<bean parent="list.data"><constructor-arg value="Other"/><constructor-arg value="Other"/></bean>
 		</list></property>	
 	</bean>
 
