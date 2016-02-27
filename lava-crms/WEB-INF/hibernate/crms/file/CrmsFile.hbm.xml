@@ -15,6 +15,7 @@
 		<many-to-one name="patient" column="pidn" class="edu.ucsf.lava.crms.people.model.Patient" insert="false" update="false" lazy="false"/>
 		<property name="pidn" column="pidn" type="long"/>
 		<property name="projName" type="string" column="ProjName"/>
+		<property name="entityType" type="string" length="50" column="entity_type"/>
 		<many-to-one name="visit" column="vid" class="edu.ucsf.lava.crms.scheduling.model.Visit" insert="false" update="false" lazy="false"/>
 		<property name="visitId" column="vid" type="long"/>
 		<many-to-one name="instrumentTracking" column="instr_id" class="edu.ucsf.lava.crms.assessment.model.InstrumentTracking" insert="false" update="false" lazy="false"/>

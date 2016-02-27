@@ -20,6 +20,11 @@ public class CrmsFile extends LavaFile implements CrmsAuthEntity{
 	
 	private Patient patient;
 	private String projName;
+	// this is a fixed value populated during Add Attachment as:
+	// for Consent attachment consentType
+	// for Visit attachment visitType
+	// for instrument attachment instrType
+	private String entityType;
 	private Visit visit;
 	private EnrollmentStatus enrollmentStatus;
 	private Consent consent;
@@ -54,6 +59,14 @@ public class CrmsFile extends LavaFile implements CrmsAuthEntity{
 
 	public void setProjName(String projName) {
 		this.projName = projName;
+	}
+
+	public String getEntityType() {
+		return entityType;
+	}
+
+	public void setEntityType(String entityType) {
+		this.entityType = entityType;
 	}
 
 	public Visit getVisit() {

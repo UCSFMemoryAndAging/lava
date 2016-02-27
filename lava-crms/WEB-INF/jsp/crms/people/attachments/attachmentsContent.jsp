@@ -11,6 +11,8 @@ in the People, Enrollment, Scheduling and Assessment modules --%>
 <content tag="listFilters">
 	<tags:contentColumn columnClass="colLeft2Col5050">
 		<tags:listFilterField property="category" component="${component}" entityType="crmsFile"/>
+		<tags:outputText textKey="info.attachmentFilterEntityType" inline="false" styleClass="italic"/>
+		<tags:listFilterField property="entityType" component="${component}" entityType="crmsFile"/>
 	</tags:contentColumn>
 	<tags:contentColumn columnClass="colRight2Col5050">
 		<tags:listFilterField property="contentType" component="${component}" entityType="crmsFile"/>
@@ -28,9 +30,10 @@ in the People, Enrollment, Scheduling and Assessment modules --%>
 <tags:listRow>
 <tags:componentListColumnHeader component="${component}" label="Action" width="12%"/>
 <tags:componentListColumnHeader component="${component}" label="Patient" width="20%" sort="patient.fullNameRevNoSuffix"/>
-<tags:componentListColumnHeader component="${component}" label="Category" width="24%" sort="category"/>
-<tags:componentListColumnHeader component="${component}" label="Type" width="24%" sort="contentType"/>
-<tags:componentListColumnHeader component="${component}" label="File Status" width="20%" sort="fileStatusDate"/>
+<tags:componentListColumnHeader component="${component}" label="Category" width="15%" sort="category"/>
+<tags:componentListColumnHeader component="${component}" label="Entity Type" width="15%" sort="entityType"/>
+<tags:componentListColumnHeader component="${component}" label="Content Type" width="21%" sort="contentType"/>
+<tags:componentListColumnHeader component="${component}" label="File Status" width="17%" sort="fileStatusDate"/>
 </tags:listRow>
 </content>
 
@@ -47,6 +50,9 @@ in the People, Enrollment, Scheduling and Assessment modules --%>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="category" component="${component}" listIndex="${iterator.index}" entityType="lavaFile"/>
+		</tags:listCell>
+		<tags:listCell>
+			<tags:listField property="entityType" component="${component}" listIndex="${iterator.index}" entityType="crmsFile"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="contentType" component="${component}" listIndex="${iterator.index}" entityType="lavaFile"/><br/>

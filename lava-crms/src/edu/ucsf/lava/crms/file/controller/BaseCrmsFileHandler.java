@@ -79,16 +79,19 @@ public class BaseCrmsFileHandler extends BaseLavaFileComponentHandler {
 			crmsFile.setConsent(consent);
 			this.setPatient(crmsFile, consent.getPatient(), request);
 			crmsFile.setProjName(consent.getProjName());
+			crmsFile.setEntityType(consent.getConsentType());
 		}else if (request.getParameterMap().containsKey("visitId")){
 			Visit v = (Visit)Visit.MANAGER.getOne(this.getFilterWithId(request, Long.valueOf(request.getParameter("visitId"))));
 			setVisit(crmsFile,v,request);
 			this.setPatient(crmsFile, v.getPatient(), request);
 			crmsFile.setProjName(v.getProjName());
+			crmsFile.setEntityType(v.getVisitType());
 		}else if (request.getParameterMap().containsKey("instrId")){
 			InstrumentTracking instr = (InstrumentTracking)InstrumentTracking.MANAGER.getOne(this.getFilterWithId(request, Long.valueOf(request.getParameter("instrId"))));
 			setInstrument(crmsFile,instr,request);
 			this.setPatient(crmsFile, instr.getPatient(), request);
 			crmsFile.setProjName(instr.getProjName());
+			crmsFile.setEntityType(instr.getInstrType());
 		}else if (request.getParameterMap().containsKey("pidn")){
 			// note that this is an attachment at the level of Patient, meaning that all other entity id's are
 			// null
