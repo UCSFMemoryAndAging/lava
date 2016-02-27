@@ -8,11 +8,17 @@ values('*.crmsFile.projName','en','lava','crms','filter','crmsFile','projName','
 INSERT INTO viewproperty(messageCode,locale,instance,scope,prefix,entity,property,context,style,required,label,indentLevel,list,modified)
 values('filter.crmsFile.contentType','en','lava','crms','filter','crmsFile','contentType','i','suggest','No','Content Type',0,'crmsFile.contentType','2016-02-06');
 
+INSERT INTO viewproperty(messageCode,locale,instance,scope,entity,property,context,style,required,label,indentLevel,list,modified)
+values('*.crmsFile.entityType','en','lava','crms','crmsFile','entityType','i','string','No','Entity Type',0,null,'2016-02-06');
 
--- TODO: ?get rid of CrmsFile metadata for pidn, enrollStatId, visitId, instrId since not inputting those
+INSERT INTO viewproperty(messageCode,locale,instance,scope,prefix,entity,property,context,style,required,label,indentLevel,list,modified)
+values('filter.crmsFile.entityType','en','lava','crms','filter','crmsFile','entityType','i','string','No','Entity Type',0,null,'2016-02-06');
 
+DELETE FROM viewproperty WHERE messageCode IN ('*.crmsFile.pidn','*.crmsFile.enrollStatId','*.crmsFile.visitId','*.crmsFile.instrId');
+DELETE FROM viewproperty WHERE messageCode = '*.crmsFile.associationBlock';
+DELETE FROM viewproperty WHERE messageCode = '*.crmsFile.consent_projName';
 
-
+UPDATE listvalues SET ValueDesc = 'Scanned Consent' WHERE ValueDesc = 'Consent' AND ListID IN (SELECT ListID FROM list WHERE listname = 'CrmsFileContentType');
 
 DELETE FROM versionhistory WHERE module='lava-crms-data' AND version='3.5.5';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
