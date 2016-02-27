@@ -52,6 +52,8 @@
 			<value>lava.crms.enrollment.attachments.projectPatientAttachments</value>
 			<value>lava.crms.scheduling.attachments.patientAttachments</value>
 			<value>lava.crms.scheduling.attachments.projectPatientAttachments</value>
+			<value>lava.crms.assessment.attachments.patientAttachments</value>
+			<value>lava.crms.assessment.attachments.projectPatientAttachments</value>
 		</list></property>
 	</bean>	
 				
