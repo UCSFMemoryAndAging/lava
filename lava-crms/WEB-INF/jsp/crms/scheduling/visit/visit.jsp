@@ -28,15 +28,13 @@
 	</c:import>
 	
 	<%-- associated attachments listing --%>
-	<%-- comment out until ready, i.e. create repos for smd and msc then uncomment and release
-	<c:if test="${componentView != 'add' && componentView != 'delete'}">
+	<c:if test="${componentView != 'addMany' && componentView != 'delete'}">
 		<c:set var="id"><tags:componentProperty component="${component}" property="id"/></c:set>
 		<c:import url="/WEB-INF/jsp/crms/scheduling/attachments/visitAttachmentListContent.jsp">
 			<c:param name="pageName">${component}</c:param>
 			<c:param name="visitId">${id}</c:param>
 		</c:import>
 	</c:if>	
-	 --%>
 	
 </page:applyDecorator>  
 
