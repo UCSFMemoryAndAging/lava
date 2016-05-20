@@ -22,7 +22,7 @@
 
 	<bean id="list.importDefinition.visitWindow" parent="list.numericRange">
 		<property name="defaultMinValue" value="0"/>	
-		<property name="defaultMaxValue" value="200"/>
+		<property name="defaultMaxValue" value="365"/>
 	</bean>
 
 
