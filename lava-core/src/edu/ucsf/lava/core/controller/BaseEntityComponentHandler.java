@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 import org.springframework.validation.ObjectError;
@@ -611,7 +612,21 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 				object.validate(metadataManager);
 				object.save();
 			}
-		}					
+		}	
+		// catch all known database exceptions (that flag the transaction for rollback) and rethrow so that the exception messages will be
+		// displayed to the user via CustomFlowExceptionHandler and the "error" view. otherwise, when attempting to insert audit records, an
+		// exception will be thrown (because of an attempt to flush the Hibernate session when a database exception has already been thrown)
+		// and that exception will obscure the database exception here, which is the real reason why there was a problem
+		// UPDATE: this may not happen in lava3 as each call to the DAO is marked as a new transaction so there is not a global rollback.
+		// so may want to get rid of this (can test by creating an Import Definition with an already existing name)
+		catch (DataIntegrityViolationException e) {
+			// this exception is throw when a database constraint is violated, e.g. a unique constraint when adding an import definition with 
+			// the same name as an existing import definition (note that ideally the handler should validate that the name is unique prior to
+			// attempting a save)
+			throw e;
+		}
+		//TODO: consider re-throwing all exceptions since there is a high liklihood that they are database exceptions
+				
 		catch (Exception e) {
 			if (e.getClass().equals(ValidationException.class)) {
 				LavaComponentFormAction.createCommandError(errors,e.getMessage());
@@ -787,7 +802,7 @@ public class BaseEntityComponentHandler extends LavaComponentHandler  {
 			return new Event(this,ERROR_FLOW_EVENT_ID);	
 		} catch (FileAccessException e){
 			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.fileAccessException"}, new Object[]{ExceptionUtils.getRootCauseMessage(e)}, ""));
-			return new Event(this,ERROR_FLOW_EVENT_ID);			
+			return new Event(this,ERROR_FLOW_EVENT_ID);
 		} catch (Exception e){
 			errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"error.uploadFile.genericException"},  new Object[]{ExceptionUtils.getRootCauseMessage(e)}, ""));
 			return new Event(this,ERROR_FLOW_EVENT_ID);
