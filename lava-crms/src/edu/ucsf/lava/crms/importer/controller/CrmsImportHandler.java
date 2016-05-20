@@ -3000,71 +3000,103 @@ public class CrmsImportHandler extends ImportHandler {
 				importLog.addCreatedMessage(lineNum, "ENROLLMENTSTATUS CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
 					" Project:" + importSetup.getRevisedProjName());
 			}
-			if (importSetup.isVisitCreated()) {
-				importSetup.getVisit().save();
-				importLog.addCreatedMessage(lineNum, "VISIT CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
-					this.getVisitInfo(importDefinition, importSetup));
-			}
 			
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstrCreated(), importSetup.isInstrExisted(), importSetup.isInstrExistedWithData(), 
-					importDefinition.getInstrCalculate(), importSetup.getInstrument(), importDefinition.getInstrType()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr2Created(), importSetup.isInstr2Existed(), importSetup.isInstr2ExistedWithData(), 
-					importDefinition.getInstrCalculate2(), importSetup.getInstrument2(), importDefinition.getInstrType2()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr3Created(), importSetup.isInstr3Existed(), importSetup.isInstr3ExistedWithData(), 
-					importDefinition.getInstrCalculate3(), importSetup.getInstrument3(), importDefinition.getInstrType3()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr4Created(), importSetup.isInstr4Existed(), importSetup.isInstr4ExistedWithData(), 
-					importDefinition.getInstrCalculate4(), importSetup.getInstrument4(), importDefinition.getInstrType4()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr5Created(), importSetup.isInstr5Existed(), importSetup.isInstr5ExistedWithData(), 
-					importDefinition.getInstrCalculate5(), importSetup.getInstrument5(), importDefinition.getInstrType5()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr6Created(), importSetup.isInstr6Existed(), importSetup.isInstr6ExistedWithData(), 
-					importDefinition.getInstrCalculate6(), importSetup.getInstrument6(), importDefinition.getInstrType6()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr7Created(), importSetup.isInstr7Existed(), importSetup.isInstr7ExistedWithData(), 
-					importDefinition.getInstrCalculate7(), importSetup.getInstrument7(), importDefinition.getInstrType7()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr8Created(), importSetup.isInstr8Existed(), importSetup.isInstr8ExistedWithData(), 
-					importDefinition.getInstrCalculate8(), importSetup.getInstrument8(), importDefinition.getInstrType8()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr9Created(), importSetup.isInstr9Existed(), importSetup.isInstr9ExistedWithData(), 
-					importDefinition.getInstrCalculate9(), importSetup.getInstrument9(), importDefinition.getInstrType9()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr10Created(), importSetup.isInstr10Existed(), importSetup.isInstr10ExistedWithData(), 
-					importDefinition.getInstrCalculate10(), importSetup.getInstrument10(), importDefinition.getInstrType10()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr11Created(), importSetup.isInstr11Existed(), importSetup.isInstr11ExistedWithData(), 
-					importDefinition.getInstrCalculate11(), importSetup.getInstrument11(), importDefinition.getInstrType11()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr12Created(), importSetup.isInstr12Existed(), importSetup.isInstr12ExistedWithData(), 
-					importDefinition.getInstrCalculate12(), importSetup.getInstrument12(), importDefinition.getInstrType12()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr13Created(), importSetup.isInstr13Existed(), importSetup.isInstr13ExistedWithData(), 
-					importDefinition.getInstrCalculate13(), importSetup.getInstrument13(), importDefinition.getInstrType13()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr14Created(), importSetup.isInstr14Existed(), importSetup.isInstr14ExistedWithData(), 
-					importDefinition.getInstrCalculate14(), importSetup.getInstrument14(), importDefinition.getInstrType14()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
-			}
-			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr15Created(), importSetup.isInstr15Existed(), importSetup.isInstr15ExistedWithData(), 
-					importDefinition.getInstrCalculate15(), importSetup.getInstrument15(), importDefinition.getInstrType15()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-				return new Event(this, ERROR_FLOW_EVENT_ID);
+			if (!importDefinition.getPatientOnlyImport()) {
+
+				if (importSetup.isVisitCreated()) {
+					importSetup.getVisit().save();
+					importLog.addCreatedMessage(lineNum, "VISIT CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
+						this.getVisitInfo(importDefinition, importSetup));
+				}
+				
+				if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstrCreated(), importSetup.isInstrExisted(), importSetup.isInstrExistedWithData(), 
+						importDefinition.getInstrCalculate(), importSetup.getInstrument(), importDefinition.getInstrType()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+					return new Event(this, ERROR_FLOW_EVENT_ID);
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType2())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr2Created(), importSetup.isInstr2Existed(), importSetup.isInstr2ExistedWithData(), 
+							importDefinition.getInstrCalculate2(), importSetup.getInstrument2(), importDefinition.getInstrType2()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType3())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr3Created(), importSetup.isInstr3Existed(), importSetup.isInstr3ExistedWithData(), 
+							importDefinition.getInstrCalculate3(), importSetup.getInstrument3(), importDefinition.getInstrType3()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType4())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr4Created(), importSetup.isInstr4Existed(), importSetup.isInstr4ExistedWithData(), 
+							importDefinition.getInstrCalculate4(), importSetup.getInstrument4(), importDefinition.getInstrType4()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType5())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr5Created(), importSetup.isInstr5Existed(), importSetup.isInstr5ExistedWithData(), 
+							importDefinition.getInstrCalculate5(), importSetup.getInstrument5(), importDefinition.getInstrType5()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType6())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr6Created(), importSetup.isInstr6Existed(), importSetup.isInstr6ExistedWithData(), 
+							importDefinition.getInstrCalculate6(), importSetup.getInstrument6(), importDefinition.getInstrType6()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType7())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr7Created(), importSetup.isInstr7Existed(), importSetup.isInstr7ExistedWithData(), 
+							importDefinition.getInstrCalculate7(), importSetup.getInstrument7(), importDefinition.getInstrType7()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType8())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr8Created(), importSetup.isInstr8Existed(), importSetup.isInstr8ExistedWithData(), 
+							importDefinition.getInstrCalculate8(), importSetup.getInstrument8(), importDefinition.getInstrType8()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType9())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr9Created(), importSetup.isInstr9Existed(), importSetup.isInstr9ExistedWithData(), 
+							importDefinition.getInstrCalculate9(), importSetup.getInstrument9(), importDefinition.getInstrType9()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType10())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr10Created(), importSetup.isInstr10Existed(), importSetup.isInstr10ExistedWithData(), 
+							importDefinition.getInstrCalculate10(), importSetup.getInstrument10(), importDefinition.getInstrType10()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType11())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr11Created(), importSetup.isInstr11Existed(), importSetup.isInstr11ExistedWithData(), 
+							importDefinition.getInstrCalculate11(), importSetup.getInstrument11(), importDefinition.getInstrType11()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType12())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr12Created(), importSetup.isInstr12Existed(), importSetup.isInstr12ExistedWithData(), 
+							importDefinition.getInstrCalculate12(), importSetup.getInstrument12(), importDefinition.getInstrType12()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType13())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr13Created(), importSetup.isInstr13Existed(), importSetup.isInstr13ExistedWithData(), 
+							importDefinition.getInstrCalculate13(), importSetup.getInstrument13(), importDefinition.getInstrType13()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType14())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr14Created(), importSetup.isInstr14Existed(), importSetup.isInstr14ExistedWithData(), 
+							importDefinition.getInstrCalculate14(), importSetup.getInstrument14(), importDefinition.getInstrType14()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
+				if (StringUtils.hasText(importDefinition.getInstrType15())) {
+					if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr15Created(), importSetup.isInstr15Existed(), importSetup.isInstr15ExistedWithData(), 
+							importDefinition.getInstrCalculate15(), importSetup.getInstrument15(), importDefinition.getInstrType15()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+						return new Event(this, ERROR_FLOW_EVENT_ID);
+					}
+				}
 			}
 		}
 		catch (Exception e) {
