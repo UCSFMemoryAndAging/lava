@@ -31,13 +31,9 @@
     <c:choose>
 	    <%-- rootCauseException and stateException are added to model by CustomFlowExceptionHandler 
 	        (in superclass TransitionExecutingStateException handle method --%>
-		<c:when test="${not empty rootCauseException || not empty stateException}">
+		<c:when test="${not empty rootCauseException}">
 			root cause:
 			${rootCauseException}
-			<br>
-			<br>
-			state exception:
-			${stateException}
 		</c:when>
 		<%-- exceptionMessage is added to model by the CustomExceptionHandler for handling
 		    exceptions outside of flows --%>
