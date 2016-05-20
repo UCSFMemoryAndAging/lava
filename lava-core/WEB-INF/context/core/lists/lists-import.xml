@@ -12,11 +12,19 @@
 			<bean parent="list.data"><constructor-arg value="TAB"/><constructor-arg value="TAB"/></bean>
 		</list></property>	
 	</bean>
+
+	<bean id="list.importDefinition.startDataRow" parent="list.numericRange">
+		<property name="defaultMinValue" value="2"/>	
+		<property name="defaultMaxValue" value="20"/>
+	</bean>
 	
 	<!-- this is a suggest list --> 	
 	<bean id="list.importDefinition.dateFormat" parent="list.dataOnly">
 		<property name="data"><list>
 			<bean parent="list.data"><constructor-arg value="MM/dd/yyyy"/><constructor-arg value="MM/dd/yyyy"/></bean>
+			<bean parent="list.data"><constructor-arg value="MM/dd/yy"/><constructor-arg value="MM/dd/yy"/></bean>
+			<bean parent="list.data"><constructor-arg value="M/d/yyyy"/><constructor-arg value="M/d/yyyy"/></bean>
+			<bean parent="list.data"><constructor-arg value="M/d/yy"/><constructor-arg value="M/d/yy"/></bean>
 		</list></property>	
 	</bean>
 
@@ -24,6 +32,7 @@
 	<bean id="list.importDefinition.timeFormat" parent="list.dataOnly">
 		<property name="data"><list>
 			<bean parent="list.data"><constructor-arg value="hh:mm a"/><constructor-arg value="hh:mm a"/></bean>
+			<bean parent="list.data"><constructor-arg value="HH:mm"/><constructor-arg value="HH:mm"/></bean>
 		</list></property>	
 	</bean>
 	
