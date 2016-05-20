@@ -5,6 +5,7 @@ import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_REPOSITORY
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.CSV_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.DEFAULT_DATE_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.TAB_FORMAT;
+import static edu.ucsf.lava.core.importer.model.ImportDefinition.SKIP_INDICATOR;
 import static edu.ucsf.lava.core.webflow.builder.ImportFlowTypeBuilder.IMPORT_EVENTS;
 
 import java.io.ByteArrayInputStream;
@@ -228,10 +229,13 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		// setup BeanUtilConverters for setting imported data values on entity properties
 		this.setupBeanUtilConverters(importSetup);
 		
+		// definition mapping and data arrays are defined as members of ImportSetup which is the (primary) command
+		// object used in the import. the import definition mapping file is read into the mapping arrays and the data file
+		// is read into the data arrays, and the import process then works with these arrays
+
 		// data file
 		MultipartFile dataMultipartFile = context.getRequestParameters().getMultipartFile(getDefaultObjectName() + "_uploadFile");
 		if (dataMultipartFile == null || dataMultipartFile.getSize() == 0) {
-			//TODO: error msg that no data file specified
 			LavaComponentFormAction.createCommandError(errors, "No Data File Specified");
 			return new Event(this,this.ERROR_FLOW_EVENT_ID);
 		}
@@ -239,16 +243,8 @@ public class ImportHandler extends BaseEntityComponentHandler {
 //TODO: add import event to audit events (persisted import data file in combination with importLog will essentially be the 
 // import data audit log)		
 		
-		// definition mapping and data arrays are defined as members of ImportSetup which is the (primary) command
-		// object used in the import. the import definition mapping file is read into the mapping arrays and the data file
-		// is read into the data arrays, and the import process then works with these arrays
-
-		// note that the data file variable name column headers match up with the definition mapping file variable name column
-		// headers, in terms of array indices, so that do not actually need the variable name column headers in the mapping file 
-		// for import purposes, but they are there for clarity and guidance in creating the definition mapping file. plus it 
-		// provides a validation step to compare the data file variable name column headers with the definition mapping file
-		// variable name column headers to make sure that the import is as intended
-		
+		// mapping file 
+		// note that import definition handling has already validated the mapping file contents, so can assume the mapping file is valid
 		InputStream mappingFileContent = new ByteArrayInputStream(mappingFile.getContent());		
 		CSVReader reader = null;
 		if (importSetup.getImportDefinition().getDataFileFormat().equals(CSV_FORMAT)) {
@@ -258,41 +254,21 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
 			reader = new CSVReader(new InputStreamReader(mappingFileContent), '\t');
 		}
-		// nextLine[] is an array of values from the line
-		String [] nextLine;
 	
 		// line 1 is columns, line 2 is entities, line 3 is properties
 		
 		// mapping file columns
 		//opencsv readNext parses the record into a String array
-		if ((nextLine = reader.readNext()) != null) {
-			// call trimTrailingCommas in case there are extra blank columns at the end of the row (which coordinators setting up mapping
-			// files often cannot detect because they cannot see them when viewing csv in Excel. would have to open the csv in a text
-			// editor to see one or more consecutive commas at the end of the row)
-			importSetup.setMappingCols(trimTrailingCommas(nextLine));
-		}
-		else {
-			LavaComponentFormAction.createCommandError(errors, "Cannot import. Definition mapping file does not contain the first row of column names");
-			return new Event(this,this.ERROR_FLOW_EVENT_ID);
-		}
+		// call trimTrailingCommas in case there are extra blank columns at the end of the row (which coordinators setting up mapping
+		// files often cannot detect because they cannot see them when viewing csv in Excel. would have to open the csv in a text
+		// editor to see one or more consecutive commas at the end of the row)
+		importSetup.setMappingCols(trimTrailingCommas(reader.readNext()));
 		
 		// mapping file entities
-		if ((nextLine = reader.readNext()) != null) {
-			importSetup.setMappingEntities(nextLine);
-		}
-		else {
-			LavaComponentFormAction.createCommandError(errors, "Cannot import. Definition mapping file does not contain the second row of entity names");
-			return new Event(this,this.ERROR_FLOW_EVENT_ID);
-		}
+		importSetup.setMappingEntities(reader.readNext());
 
 		// mapping file properties
-		if ((nextLine = reader.readNext()) != null) {
-			importSetup.setMappingProps(nextLine);
-		}
-		else {
-			LavaComponentFormAction.createCommandError(errors, "Cannot import. Definition mapping file does not contain the third row of property names");
-			return new Event(this,this.ERROR_FLOW_EVENT_ID);
-		}
+		importSetup.setMappingProps(reader.readNext());
 
 		// read in the data column headers
 		ImportFile dataFile = (ImportFile) this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
@@ -309,13 +285,16 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		else if (importSetup.getImportDefinition().getDataFileFormat().equals(TAB_FORMAT)) {
 			reader = new CSVReader(new InputStreamReader(dataFileContent), '\t');
 		}
+
+		// nextLine[] is an array of values from the line
+		String [] nextLine;
 		if ((nextLine = reader.readNext()) != null) {
 			// call trimTrailingCommas in case there are extra blank columns at the end of the row. this should not happen
 			// for the first row of column headers, but in case it does. this should NOT be done for the data rows because
 			// data rows could very well have blank/empty/null values
 			importSetup.setDataCols(trimTrailingCommas(nextLine));
 		}
-		if (validateDataFile(errors, importSetup.getImportDefinition(), importSetup).getId().equals(ERROR_FLOW_EVENT_ID)) {
+		if (validateAndMapDataFile(errors, importSetup.getImportDefinition(), importSetup).getId().equals(ERROR_FLOW_EVENT_ID)) {
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		
@@ -342,24 +321,67 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	 * Subclasses should override if there is additional validation that should take place before being reading 
 	 * and importing data. 
 	 * 
+	 * Generate a map of every mapping file index to a data file index, to be used in setting key data indices
+	 * and setting the data file variable values on entity properties.
+	 *
+	 * Subclass override must either invoke the superclass method or create the dataColMappingCol Map data.
+	 * 
 	 * @param importDefinition
 	 * @param importSetup
 	 * @param errors
 	 * @return
 	 */
-	protected Event validateDataFile(BindingResult errors, ImportDefinition importDefinition, ImportSetup importSetup) throws Exception {
-		// validate the mapping file data columns against the import file data columns as they should be
-		// identical (mapping file is created by pasting data column headers into row 1)
-		if (importSetup.getMappingCols().length != importSetup.getDataCols().length) {
-			LavaComponentFormAction.createCommandError(errors, "Cannot import. Mismatch in number of columns in mapping file vs data file");
-			return new Event(this,ERROR_FLOW_EVENT_ID);
-		}
-		for (int i=0; i < importSetup.getMappingCols().length; i++) {
-			if (!importSetup.getMappingCols()[i].equals(importSetup.getDataCols()[i])) {
-				LavaComponentFormAction.createCommandError(errors, "Cannot import. Mapping file column name " + importSetup.getMappingCols()[i] + " does not exactly match column header in data file");
-				return new Event(this,ERROR_FLOW_EVENT_ID);
+	protected Event validateAndMapDataFile(BindingResult errors, ImportDefinition importDefinition, ImportSetup importSetup) throws Exception {
+			// check that data file does not have more than one instance of a column (doing the same for mapping file in 
+			// ImportDefinitionHandler)
+			int j,k;
+			for (j=0; j<importSetup.getDataCols().length;j++) {
+			    for (k=j+1;k<importSetup.getDataCols().length;k++) {
+			        if (importSetup.getDataCols()[j].equalsIgnoreCase(importSetup.getDataCols()[k])) { 
+						LavaComponentFormAction.createCommandError(errors, "Invalid data file. Column " + (j+1) + ". Data file column " + importSetup.getDataCols()[j] + " appears multiple times in data file");
+						return new Event(this,ERROR_FLOW_EVENT_ID);
+			        }
+			    }
 			}
-		}
+			
+			// Validate
+			// a valid data file should have corresponding mapping information for each data column. if a data column should not be processed,
+			// i.e. the values in that column should not be imported, there should still be mapping information indicating that the column
+			// should be skipped, by prefixing the mapping column with SKIP:
+			// by requiring that every column in the data file be mapped in some way, we are enforcing data integrity that no data values
+			// will be accidentally skipped during import
+			
+			// in other words, the mapping file should not have fewer columns than the data file.
+			// note that the mapping file may have more columns than the data file, because
+			// a) a data file variable may map to more than one mapping file variables if the data value will be set on multiple entity properties
+			// b) the mapping file may have DEFAULT values where the value for a particular property does not come from the data file but
+			//    instead is set to a DEFAULT value
+
+
+			// Map
+			// generate a map of every mapping file index (except for default values) to a data file index, to be used in setting 
+			// key data indices and setting the data file variable values on entity properties.
+			// note: multiple mapping file indices could map to the same data file index, meaning that a given imported
+			//       data variable value could be set on multiple entity properties
+			// note: the index for any default value mappings in the mapping file will not be mapped to a data file index, i.e
+			//       it will not be present in this map
+
+			
+			for (j=0; j < importSetup.getDataCols().length; j++) {
+				int mappingColMatch = -1;
+				for (k=0; k < importSetup.getMappingCols().length; k++) {
+					if (importSetup.getDataCols()[j].equalsIgnoreCase(importSetup.getMappingCols()[k]) ||
+							(SKIP_INDICATOR + importSetup.getDataCols()[j]).equalsIgnoreCase(importSetup.getMappingCols()[k])) {
+						importSetup.getMappingColDataCol().put(k, j);
+						mappingColMatch = k;
+					}
+				}
+				if (mappingColMatch == -1) {
+					LavaComponentFormAction.createCommandError(errors, "Cannot import this data file. Data file column " + importSetup.getDataCols()[j] + " is not mapped in mapping file");
+					return new Event(this,ERROR_FLOW_EVENT_ID);
+				}
+			}
+		
 		return new Event(this, SUCCESS_FLOW_EVENT_ID);
 	}
 
@@ -378,9 +400,16 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	protected void setDataFilePropertyIndex(ImportSetup importSetup, String indexProperty, String entityName, String propertyName) throws Exception {
 		BeanUtils.setProperty(importSetup, indexProperty, -1);
 		int propIndex = -1;
+		// since using ArrayUtils.indexOf, matching is case sensitive. this is fine as the properties that are handled by 
+		// this method are only the predefined / required properties, so the case sensitivity is in effect part of the
+		// import mapping file specification
+		// note that there is functionality allowing instrument properties to be case insensitive (as users may be more
+		// prone to instrument variable name mistyping when creating mapping files, especially if many variables)
 		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), propertyName, propIndex+1)) != -1) {
 			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase(entityName)) {
-				BeanUtils.setProperty(importSetup, indexProperty, propIndex); 
+				// want the data file index that corresponds to the mapping file property, since they may be different,
+				// so use the mappingColDataCol map
+				BeanUtils.setProperty(importSetup, indexProperty, importSetup.getMappingColDataCol().get(propIndex)); 
 				break;
 			}
 		}
@@ -400,7 +429,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 
 	protected void setupBeanUtilConverters(ImportSetup importSetup) {
 		// default to throwing exceptions on conversion errors (this is the default anyway, but explicitly
-		// set here in case handling was temporarily changed
+		// set here in case handling was temporarily changed)
 		this.getConvertUtilsBean().register(true, true, -1);
 		
 		// register a DateConverter to handle String to java.util.Date conversion

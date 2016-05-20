@@ -16,8 +16,7 @@
 <tags:listRow>
 	<tags:componentListColumnHeader component="${component}" label="&nbsp;" width="3%"/>
 	<tags:componentListColumnHeader component="${component}" label="Timestamp" width="12%" sort="importTimestamp" />
-	<tags:componentListColumnHeader component="${component}" label="ImportedBy" width="15%" sort="importedBy"/>
-	<tags:componentListColumnHeader component="${component}" label="Definition / Data File" width="35%" sort="definition.name"/>
+	<tags:componentListColumnHeader component="${component}" label="Definition / Data File" width="50%" sort="definition.name"/>
 	<tags:componentListColumnHeader component="${component}" label="Project / Summary" width="35%" sort="projName"/>
 </tags:listRow>
 </content>
@@ -29,9 +28,6 @@
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="importTimestamp" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
-		</tags:listCell>
-		<tags:listCell>
-			<tags:listField property="importedBy" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="definition.name" component="${component}" listIndex="${iterator.index}" entityType="importLog"/><br/>

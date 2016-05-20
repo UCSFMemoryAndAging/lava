@@ -170,11 +170,22 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 	}
 	
 
-	//TODO: in doSaveAdd,doSave validate that the mapping file has either a PIDN or firstName/lastName fields, and
-	// a visitDate field. This would involve opening/reading the mapping file entity names (row 2) and property names
-	// (row 3) into an array and searching them using ArrayUtils.indexOf 
-	// presently this validation is being done in the CrmsImportHandler validateDataFile method but would
-	// be better to catch it earlier, and when done here remove it from there	
+	protected Event mappingFileValidation(RequestContext context, Object command, BindingResult errors) throws Exception{
+		HttpServletRequest request = ((ServletExternalContext)context.getExternalContext()).getRequest();
+		CrmsImportDefinition crmsImportDefinition = (CrmsImportDefinition) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
+
+		Event returnEvent = super.mappingFileValidation(context, command, errors);
+		
+		//TODO: validate that the mapping file has either a PIDN or firstName/lastName fields, and
+		// a visitDate field. This would involve opening/reading the mapping file entity names (row 2) and property names
+		// (row 3) into an array and searching them using ArrayUtils.indexOf 
+		// presently this validation is being done in the CrmsImportHandler validateDataFile method but would
+		// be better to catch it earlier, and when done here remove it from there	
+
+		
+		return returnEvent;
+	}
+	
 
 	protected Event doSaveAdd(RequestContext context, Object command, BindingResult errors) throws Exception{
 		if (this.conditionalValidation(context, command, errors).getId().equals(ERROR_FLOW_EVENT_ID)) {

@@ -16,7 +16,7 @@
   <page:param name="isSecondary">true</page:param>
   
 <content tag="listQuickFilter">
-Show: or Message Type:	
+Show Message Type:	
 <tags:singleSelect property="command.components[${pageName}].activeQuickFilter" fieldId="activeQuickFilter" 
 		list="${lists['importLog.quickFilter']}" attributesText="onChange=&quot;document.${empty pageName ? component : pageName}.action='#${component}';submitForm(document.${empty pageName ? component : pageName},'${component}__applyQuickFilter')&quot; "/>
 <br>

@@ -24,10 +24,9 @@ public class ImportLog extends EntityBase {
 	private ImportFile dataFile;
 	private ImportDefinition definition;
 	private Integer totalRecords;
-	// record imported (generally means row inserted, though  populating an "empty" record could 
-	// qualify as an import instead of an update 
+	// record imported into a new entity or entity that did not have data
 	private Integer imported; 
-	// update to existing data, mutually exclusive with imported   							
+	// record used to update existing data (only pertinent in "update" mode)							
 	private Integer updated; 
 	// record already existed so no import or update
 	private Integer alreadyExist;
@@ -215,7 +214,8 @@ public class ImportLog extends EntityBase {
 	public String getSummaryBlock() {
 		StringBuffer sb = new StringBuffer("Total=").append(this.getTotalRecords()).append(", ");
 		sb.append("Imported=").append(this.getImported()).append(", ");
-		sb.append("Updated=").append(this.getUpdated()).append("\n");
+		// comment out until "update" is supported
+		// sb.append("Updated=").append(this.getUpdated()).append(", ");
 		sb.append("Already Exists=").append(this.getAlreadyExist()).append(", ");
 		sb.append("Errors=").append(this.getErrors()).append(", ");
 		sb.append("Warnings=").append(this.getWarnings());

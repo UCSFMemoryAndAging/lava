@@ -10,9 +10,11 @@ public class CrmsImportLog extends ImportLog {
 	private String projName;
 	
 	// Record the following counts, which are for specific entities within an import record. Note
-	// that these do not represent errors and are just informational. 
-	// The superclass maintains properties for counts for import records as a whole, i.e. total
-	// imported, number not imported due to errors, number with warnings, etc. 
+	// that these are only for the import records which were successfully imported and do not pertain
+	// to import records that were aborted due to errors or data already existing (i.e. in most cases
+	// this translates to: the import record was already imported, which will be very common with
+	// cumulative data files)
+	
 	private Integer newPatients;
 	private Integer existingPatients;
 	private Integer newContactInfo;
@@ -26,8 +28,12 @@ public class CrmsImportLog extends ImportLog {
 	private Integer existingEnrollmentStatuses;
 	private Integer newVisits;
 	private Integer existingVisits;
+
 	private Integer newInstruments;
 	private Integer existingInstruments; // deDate == null
+	// this will only be tracked in "update" mode where an instrument with already existing data can be updated
+	// with the data in import records. 
+	// until "update" is supported this will never be incremented, so do not bother displaying in the UI 
 	private Integer existingInstrumentsWithData; // deDate != null 
 	
 	public CrmsImportLog(){
@@ -252,4 +258,5 @@ public class CrmsImportLog extends ImportLog {
 	public void incExistingInstrumentsWithData() {
 		this.existingInstrumentsWithData++;
 	}
+	
 }

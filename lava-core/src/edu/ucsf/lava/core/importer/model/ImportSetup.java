@@ -1,6 +1,8 @@
 package edu.ucsf.lava.core.importer.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class contains properties used during the import of a data file. Note that this
@@ -33,16 +35,24 @@ import java.io.Serializable;
 	// subclasses of the ImportHandler, in order to map it to a specific LAVA entity type.
 
 	// row 1 of the mapping file
-	private String mappingCols[]; // array of the mapping file variable names (i.e. equivalent to data file variable name column headers)
+	private String mappingCols[]; // array of the mapping file variable names
 	// row 2 of the mapping file
 	private String mappingEntities[]; // array of the mapping file entity names (for instruments this is the instrument name 
-									  // and must match the name in the Instrument table)
+					  // and must match the name in the Instrument table). if this is blank/null then it defaults
+					  // to the first instrument name in the ImportDefinition
 	// row 3 of the mapping file
 	private String mappingProps[]; // array of the mapping file Java property names (case insensitive)
 	// row 1 of the data file
 	private String dataCols[]; // array of the data file variable names, i.e. column names in the data file
 	// row 3 of the data file
 	private String dataValues[]; // array of the data file variable values 
+
+	// map of mapping file index to a data file index, to be used in setting key data indices and setting the data 
+	// file variable values on entity properties.
+	// note: multiple mapping file indices could map to the same data file index, meaning that a given imported
+	//       data variable value could be set on multiple entity properties
+	// note: the index for any default value mappings in the mapping file will not be mapped to a data file index
+	private Map<Integer,Integer> mappingColDataCol = new HashMap<Integer,Integer>();
 
 	public ImportSetup() {}
 	
@@ -104,5 +114,11 @@ import java.io.Serializable;
 		this.dataValues = dataValues;
 	}
 	
-	
+	public Map<Integer, Integer> getMappingColDataCol() {
+		return mappingColDataCol;
+	}
+
+	public void setMappingColDataCol(Map<Integer, Integer> mappingColDataCol) {
+		this.mappingColDataCol = mappingColDataCol;
+	}	
 }

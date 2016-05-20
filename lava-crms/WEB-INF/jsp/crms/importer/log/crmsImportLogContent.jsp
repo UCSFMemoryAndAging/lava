@@ -38,6 +38,9 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 	<tags:createField property="alreadyExist" component="${component}" labelStyle="longLeft"/>
 	<tags:createField property="errors" component="${component}" labelStyle="longLeft"/>
 	<tags:createField property="warnings" component="${component}" labelStyle="longLeft"/>
+
+	<div class="verticalSpace30">&nbsp;</div>
+	<tags:outputText textKey="importLog.successfulRecordsMetrics" styleClass="bold" inline="false"/>
 	
 	<tags:createField property="newPatients" component="${component}" labelStyle="longLeft"/>
 	<tags:createField property="existingPatients" component="${component}" labelStyle="longLeft"/>
@@ -56,13 +59,16 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 	
 	<tags:createField property="newVisits" component="${component}" labelStyle="longLeft"/>
 	<tags:createField property="existingVisits" component="${component}" labelStyle="longLeft"/>
+
+	<tags:outputText textKey="importLog.multipleInstrumentsInfo" styleClass="italic" inline="false"/>
 	
 	<tags:createField property="newInstruments" component="${component}" labelStyle="longLeft"/>
-<%-- TODO: list instrType(s) created. can reference importLog.importDefinition --%>	
-<%--   info text that instruments are handled as a group in terms of new/exisitng,etc. --%>	
 	<tags:createField property="existingInstruments" component="${component}" labelStyle="longLeft"/>
-<%-- TODO: info text to clarify this number vs. prior (the following is essentially an update) --%>	
+	<%-- this will only be tracked in "update" mode so until that is supported, do not bother displaying.
+		and even then, seems like this would be redundant with the global updated count
 	<tags:createField property="existingInstrumentsWithData" component="${component}" labelStyle="longLeft"/>
+	 --%>
+
 	<tags:createField property="notes" component="${component}" labelStyle="longLeft"/>
 </page:applyDecorator>
 

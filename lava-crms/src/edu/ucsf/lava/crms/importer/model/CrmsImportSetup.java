@@ -10,10 +10,10 @@ import edu.ucsf.lava.crms.scheduling.model.Visit;
 
 /**
  * This class contains properties used during the import of a crms data file. Note that this
- * is not a persisted class; it just faciliates the import process. Aside from the data that
+ * is not a persisted class; it just facilitates the import process. Aside from the data that
  * is imported and persisted in crms entities, the CrmsImportLog persists information about
  * the results of an import, in addition to a link to the imported data file, which is written
- * to the import file respository.
+ * to the import file repository.
  *  
  * @author ctoohey
  *
@@ -115,11 +115,116 @@ public class CrmsImportSetup extends ImportSetup {
 	
 	private int indexInstrDcDate;
 	private int indexInstrDcStatus;
-	private int indexInstrCaregiverId;
+//	private int indexInstrCaregiverId;  believe this was never used. took different approach to caregiver instruments
 	private Instrument instrument;
 	private boolean instrCreated;
 	private boolean instrExisted; // instrument exists with no data entered (deDate == null)
 	private boolean instrExistedWithData; // instrument exists with data entered (deDate != null)
+
+	private int indexInstr2DcDate;
+	private int indexInstr2DcStatus;
+	private Instrument instrument2;
+	// the first instrument uses these flags for updating instrument counts for successful import records where
+	// each count represents all the instruments if the data file has multiple import records -- so the
+	// first instrument is considered representative of all the instruments
+	
+	// for the first instrument and all subsequent instruments these flags are used for creating importLog
+	// detail messages whenever a new instrument is created (and possibly if an existing instrument is updated
+	// if that is considered valuable)
+	private boolean instr2Created;
+	private boolean instr2Existed;
+	private boolean instr2ExistedWithData;
+
+	private int indexInstr3DcDate;
+	private int indexInstr3DcStatus;
+	private Instrument instrument3;
+	private boolean instr3Created;
+	private boolean instr3Existed;
+	private boolean instr3ExistedWithData;
+	
+	private int indexInstr4DcDate;
+	private int indexInstr4DcStatus;
+	private Instrument instrument4;
+	private boolean instr4Created;
+	private boolean instr4Existed;
+	private boolean instr4ExistedWithData;
+	
+	private int indexInstr5DcDate;
+	private int indexInstr5DcStatus;
+	private Instrument instrument5;
+	private boolean instr5Created;
+	private boolean instr5Existed;
+	private boolean instr5ExistedWithData;
+	
+	private int indexInstr6DcDate;
+	private int indexInstr6DcStatus;
+	private Instrument instrument6;
+	private boolean instr6Created;
+	private boolean instr6Existed;
+	private boolean instr6ExistedWithData;
+	
+	private int indexInstr7DcDate;
+	private int indexInstr7DcStatus;
+	private Instrument instrument7;
+	private boolean instr7Created;
+	private boolean instr7Existed;
+	private boolean instr7ExistedWithData;
+	
+	private int indexInstr8DcDate;
+	private int indexInstr8DcStatus;
+	private Instrument instrument8;
+	private boolean instr8Created;
+	private boolean instr8Existed;
+	private boolean instr8ExistedWithData;
+	
+	private int indexInstr9DcDate;
+	private int indexInstr9DcStatus;
+	private Instrument instrument9;
+	private boolean instr9Created;
+	private boolean instr9Existed;
+	private boolean instr9ExistedWithData;
+	
+	private int indexInstr10DcDate;
+	private int indexInstr10DcStatus;
+	private Instrument instrument10;
+	private boolean instr10Created;
+	private boolean instr10Existed;
+	private boolean instr10ExistedWithData;
+
+	private int indexInstr11DcDate;
+	private int indexInstr11DcStatus;
+	private Instrument instrument11;
+	private boolean Instr11Created;
+	private boolean Instr11Existed;
+	private boolean Instr11ExistedWithData;
+	
+	private int indexInstr12DcDate;
+	private int indexInstr12DcStatus;
+	private Instrument instrument12;
+	private boolean Instr12Created;
+	private boolean Instr12Existed;
+	private boolean Instr12ExistedWithData;
+	
+	private int indexInstr13DcDate;
+	private int indexInstr13DcStatus;
+	private Instrument instrument13;
+	private boolean Instr13Created;
+	private boolean Instr13Existed;
+	private boolean Instr13ExistedWithData;
+	
+	private int indexInstr14DcDate;
+	private int indexInstr14DcStatus;
+	private Instrument instrument14;
+	private boolean Instr14Created;
+	private boolean Instr14Existed;
+	private boolean Instr14ExistedWithData;
+	
+	private int indexInstr15DcDate;
+	private int indexInstr15DcStatus;
+	private Instrument instrument15;
+	private boolean Instr15Created;
+	private boolean Instr15Existed;
+	private boolean Instr15ExistedWithData;
 	
 	public CrmsImportSetup() {
 		super();
@@ -576,14 +681,6 @@ public class CrmsImportSetup extends ImportSetup {
 		this.instrument = instrument;
 	}
 	
-	public int getIndexInstrCaregiverId() {
-		return indexInstrCaregiverId;
-	}
-
-	public void setIndexInstrCaregiverId(int indexInstrCaregiverId) {
-		this.indexInstrCaregiverId = indexInstrCaregiverId;
-	}
-
 	public boolean isCaregiverContactInfoCreated() {
 		return caregiverContactInfoCreated;
 	}
@@ -735,5 +832,678 @@ public class CrmsImportSetup extends ImportSetup {
 			int indexCaregiver2ContactInfoEmail) {
 		this.indexCaregiver2ContactInfoEmail = indexCaregiver2ContactInfoEmail;
 	}
-	
+
+
+	public int getIndexInstr2DcDate() {
+		return indexInstr2DcDate;
+	}
+
+	public void setIndexInstr2DcDate(int indexInstr2DcDate) {
+		this.indexInstr2DcDate = indexInstr2DcDate;
+	}
+
+	public int getIndexInstr2DcStatus() {
+		return indexInstr2DcStatus;
+	}
+
+	public void setIndexInstr2DcStatus(int indexInstr2DcStatus) {
+		this.indexInstr2DcStatus = indexInstr2DcStatus;
+	}
+
+	public Instrument getInstrument2() {
+		return instrument2;
+	}
+
+	public void setInstrument2(Instrument instrument2) {
+		this.instrument2 = instrument2;
+	}
+
+	public boolean isInstr2Created() {
+		return instr2Created;
+	}
+
+	public void setInstr2Created(boolean instr2Created) {
+		this.instr2Created = instr2Created;
+	}
+
+	public boolean isInstr2Existed() {
+		return instr2Existed;
+	}
+
+	public void setInstr2Existed(boolean instr2Existed) {
+		this.instr2Existed = instr2Existed;
+	}
+
+	public boolean isInstr2ExistedWithData() {
+		return instr2ExistedWithData;
+	}
+
+	public void setInstr2ExistedWithData(boolean instr2ExistedWithData) {
+		this.instr2ExistedWithData = instr2ExistedWithData;
+	}
+
+	public int getIndexInstr3DcDate() {
+		return indexInstr3DcDate;
+	}
+
+	public void setIndexInstr3DcDate(int indexInstr3DcDate) {
+		this.indexInstr3DcDate = indexInstr3DcDate;
+	}
+
+	public int getIndexInstr3DcStatus() {
+		return indexInstr3DcStatus;
+	}
+
+	public void setIndexInstr3DcStatus(int indexInstr3DcStatus) {
+		this.indexInstr3DcStatus = indexInstr3DcStatus;
+	}
+
+	public Instrument getInstrument3() {
+		return instrument3;
+	}
+
+	public void setInstrument3(Instrument instrument3) {
+		this.instrument3 = instrument3;
+	}
+
+	public boolean isInstr3Created() {
+		return instr3Created;
+	}
+
+	public void setInstr3Created(boolean instr3Created) {
+		this.instr3Created = instr3Created;
+	}
+
+	public boolean isInstr3Existed() {
+		return instr3Existed;
+	}
+
+	public void setInstr3Existed(boolean instr3Existed) {
+		this.instr3Existed = instr3Existed;
+	}
+
+	public boolean isInstr3ExistedWithData() {
+		return instr3ExistedWithData;
+	}
+
+	public void setInstr3ExistedWithData(boolean instr3ExistedWithData) {
+		this.instr3ExistedWithData = instr3ExistedWithData;
+	}
+
+	public int getIndexInstr4DcDate() {
+		return indexInstr4DcDate;
+	}
+
+	public void setIndexInstr4DcDate(int indexInstr4DcDate) {
+		this.indexInstr4DcDate = indexInstr4DcDate;
+	}
+
+	public int getIndexInstr4DcStatus() {
+		return indexInstr4DcStatus;
+	}
+
+	public void setIndexInstr4DcStatus(int indexInstr4DcStatus) {
+		this.indexInstr4DcStatus = indexInstr4DcStatus;
+	}
+
+	public Instrument getInstrument4() {
+		return instrument4;
+	}
+
+	public void setInstrument4(Instrument instrument4) {
+		this.instrument4 = instrument4;
+	}
+
+	public boolean isInstr4Created() {
+		return instr4Created;
+	}
+
+	public void setInstr4Created(boolean instr4Created) {
+		this.instr4Created = instr4Created;
+	}
+
+	public boolean isInstr4Existed() {
+		return instr4Existed;
+	}
+
+	public void setInstr4Existed(boolean instr4Existed) {
+		this.instr4Existed = instr4Existed;
+	}
+
+	public boolean isInstr4ExistedWithData() {
+		return instr4ExistedWithData;
+	}
+
+	public void setInstr4ExistedWithData(boolean instr4ExistedWithData) {
+		this.instr4ExistedWithData = instr4ExistedWithData;
+	}
+
+	public int getIndexInstr5DcDate() {
+		return indexInstr5DcDate;
+	}
+
+	public void setIndexInstr5DcDate(int indexInstr5DcDate) {
+		this.indexInstr5DcDate = indexInstr5DcDate;
+	}
+
+	public int getIndexInstr5DcStatus() {
+		return indexInstr5DcStatus;
+	}
+
+	public void setIndexInstr5DcStatus(int indexInstr5DcStatus) {
+		this.indexInstr5DcStatus = indexInstr5DcStatus;
+	}
+
+	public Instrument getInstrument5() {
+		return instrument5;
+	}
+
+	public void setInstrument5(Instrument instrument5) {
+		this.instrument5 = instrument5;
+	}
+
+	public boolean isInstr5Created() {
+		return instr5Created;
+	}
+
+	public void setInstr5Created(boolean instr5Created) {
+		this.instr5Created = instr5Created;
+	}
+
+	public boolean isInstr5Existed() {
+		return instr5Existed;
+	}
+
+	public void setInstr5Existed(boolean instr5Existed) {
+		this.instr5Existed = instr5Existed;
+	}
+
+	public boolean isInstr5ExistedWithData() {
+		return instr5ExistedWithData;
+	}
+
+	public void setInstr5ExistedWithData(boolean instr5ExistedWithData) {
+		this.instr5ExistedWithData = instr5ExistedWithData;
+	}
+
+	public int getIndexInstr6DcDate() {
+		return indexInstr6DcDate;
+	}
+
+	public void setIndexInstr6DcDate(int indexInstr6DcDate) {
+		this.indexInstr6DcDate = indexInstr6DcDate;
+	}
+
+	public int getIndexInstr6DcStatus() {
+		return indexInstr6DcStatus;
+	}
+
+	public void setIndexInstr6DcStatus(int indexInstr6DcStatus) {
+		this.indexInstr6DcStatus = indexInstr6DcStatus;
+	}
+
+	public Instrument getInstrument6() {
+		return instrument6;
+	}
+
+	public void setInstrument6(Instrument instrument6) {
+		this.instrument6 = instrument6;
+	}
+
+	public boolean isInstr6Created() {
+		return instr6Created;
+	}
+
+	public void setInstr6Created(boolean instr6Created) {
+		this.instr6Created = instr6Created;
+	}
+
+	public boolean isInstr6Existed() {
+		return instr6Existed;
+	}
+
+	public void setInstr6Existed(boolean instr6Existed) {
+		this.instr6Existed = instr6Existed;
+	}
+
+	public boolean isInstr6ExistedWithData() {
+		return instr6ExistedWithData;
+	}
+
+	public void setInstr6ExistedWithData(boolean instr6ExistedWithData) {
+		this.instr6ExistedWithData = instr6ExistedWithData;
+	}
+
+	public int getIndexInstr7DcDate() {
+		return indexInstr7DcDate;
+	}
+
+	public void setIndexInstr7DcDate(int indexInstr7DcDate) {
+		this.indexInstr7DcDate = indexInstr7DcDate;
+	}
+
+	public int getIndexInstr7DcStatus() {
+		return indexInstr7DcStatus;
+	}
+
+	public void setIndexInstr7DcStatus(int indexInstr7DcStatus) {
+		this.indexInstr7DcStatus = indexInstr7DcStatus;
+	}
+
+	public Instrument getInstrument7() {
+		return instrument7;
+	}
+
+	public void setInstrument7(Instrument instrument7) {
+		this.instrument7 = instrument7;
+	}
+
+	public boolean isInstr7Created() {
+		return instr7Created;
+	}
+
+	public void setInstr7Created(boolean instr7Created) {
+		this.instr7Created = instr7Created;
+	}
+
+	public boolean isInstr7Existed() {
+		return instr7Existed;
+	}
+
+	public void setInstr7Existed(boolean instr7Existed) {
+		this.instr7Existed = instr7Existed;
+	}
+
+	public boolean isInstr7ExistedWithData() {
+		return instr7ExistedWithData;
+	}
+
+	public void setInstr7ExistedWithData(boolean instr7ExistedWithData) {
+		this.instr7ExistedWithData = instr7ExistedWithData;
+	}
+
+	public int getIndexInstr8DcDate() {
+		return indexInstr8DcDate;
+	}
+
+	public void setIndexInstr8DcDate(int indexInstr8DcDate) {
+		this.indexInstr8DcDate = indexInstr8DcDate;
+	}
+
+	public int getIndexInstr8DcStatus() {
+		return indexInstr8DcStatus;
+	}
+
+	public void setIndexInstr8DcStatus(int indexInstr8DcStatus) {
+		this.indexInstr8DcStatus = indexInstr8DcStatus;
+	}
+
+	public Instrument getInstrument8() {
+		return instrument8;
+	}
+
+	public void setInstrument8(Instrument instrument8) {
+		this.instrument8 = instrument8;
+	}
+
+	public boolean isInstr8Created() {
+		return instr8Created;
+	}
+
+	public void setInstr8Created(boolean instr8Created) {
+		this.instr8Created = instr8Created;
+	}
+
+	public boolean isInstr8Existed() {
+		return instr8Existed;
+	}
+
+	public void setInstr8Existed(boolean instr8Existed) {
+		this.instr8Existed = instr8Existed;
+	}
+
+	public boolean isInstr8ExistedWithData() {
+		return instr8ExistedWithData;
+	}
+
+	public void setInstr8ExistedWithData(boolean instr8ExistedWithData) {
+		this.instr8ExistedWithData = instr8ExistedWithData;
+	}
+
+	public int getIndexInstr9DcDate() {
+		return indexInstr9DcDate;
+	}
+
+	public void setIndexInstr9DcDate(int indexInstr9DcDate) {
+		this.indexInstr9DcDate = indexInstr9DcDate;
+	}
+
+	public int getIndexInstr9DcStatus() {
+		return indexInstr9DcStatus;
+	}
+
+	public void setIndexInstr9DcStatus(int indexInstr9DcStatus) {
+		this.indexInstr9DcStatus = indexInstr9DcStatus;
+	}
+
+	public Instrument getInstrument9() {
+		return instrument9;
+	}
+
+	public void setInstrument9(Instrument instrument9) {
+		this.instrument9 = instrument9;
+	}
+
+	public boolean isInstr9Created() {
+		return instr9Created;
+	}
+
+	public void setInstr9Created(boolean instr9Created) {
+		this.instr9Created = instr9Created;
+	}
+
+	public boolean isInstr9Existed() {
+		return instr9Existed;
+	}
+
+	public void setInstr9Existed(boolean instr9Existed) {
+		this.instr9Existed = instr9Existed;
+	}
+
+	public boolean isInstr9ExistedWithData() {
+		return instr9ExistedWithData;
+	}
+
+	public void setInstr9ExistedWithData(boolean instr9ExistedWithData) {
+		this.instr9ExistedWithData = instr9ExistedWithData;
+	}
+
+	public int getIndexInstr10DcDate() {
+		return indexInstr10DcDate;
+	}
+
+	public void setIndexInstr10DcDate(int indexInstr10DcDate) {
+		this.indexInstr10DcDate = indexInstr10DcDate;
+	}
+
+	public int getIndexInstr10DcStatus() {
+		return indexInstr10DcStatus;
+	}
+
+	public void setIndexInstr10DcStatus(int indexInstr10DcStatus) {
+		this.indexInstr10DcStatus = indexInstr10DcStatus;
+	}
+
+	public Instrument getInstrument10() {
+		return instrument10;
+	}
+
+	public void setInstrument10(Instrument instrument10) {
+		this.instrument10 = instrument10;
+	}
+
+	public boolean isInstr10Created() {
+		return instr10Created;
+	}
+
+	public void setInstr10Created(boolean instr10Created) {
+		this.instr10Created = instr10Created;
+	}
+
+	public boolean isInstr10Existed() {
+		return instr10Existed;
+	}
+
+	public void setInstr10Existed(boolean instr10Existed) {
+		this.instr10Existed = instr10Existed;
+	}
+
+	public boolean isInstr10ExistedWithData() {
+		return instr10ExistedWithData;
+	}
+
+	public void setInstr10ExistedWithData(boolean instr10ExistedWithData) {
+		this.instr10ExistedWithData = instr10ExistedWithData;
+	}
+
+	public int getIndexInstr11DcDate() {
+		return indexInstr11DcDate;
+	}
+
+	public void setIndexInstr11DcDate(int indexInstr11DcDate) {
+		this.indexInstr11DcDate = indexInstr11DcDate;
+	}
+
+	public int getIndexInstr11DcStatus() {
+		return indexInstr11DcStatus;
+	}
+
+	public void setIndexInstr11DcStatus(int indexInstr11DcStatus) {
+		this.indexInstr11DcStatus = indexInstr11DcStatus;
+	}
+
+	public Instrument getInstrument11() {
+		return instrument11;
+	}
+
+	public void setInstrument11(Instrument instrument11) {
+		this.instrument11 = instrument11;
+	}
+
+	public boolean isInstr11Created() {
+		return Instr11Created;
+	}
+
+	public void setInstr11Created(boolean instr11Created) {
+		Instr11Created = instr11Created;
+	}
+
+	public boolean isInstr11Existed() {
+		return Instr11Existed;
+	}
+
+	public void setInstr11Existed(boolean instr11Existed) {
+		Instr11Existed = instr11Existed;
+	}
+
+	public boolean isInstr11ExistedWithData() {
+		return Instr11ExistedWithData;
+	}
+
+	public void setInstr11ExistedWithData(boolean instr11ExistedWithData) {
+		Instr11ExistedWithData = instr11ExistedWithData;
+	}
+
+	public int getIndexInstr12DcDate() {
+		return indexInstr12DcDate;
+	}
+
+	public void setIndexInstr12DcDate(int indexInstr12DcDate) {
+		this.indexInstr12DcDate = indexInstr12DcDate;
+	}
+
+	public int getIndexInstr12DcStatus() {
+		return indexInstr12DcStatus;
+	}
+
+	public void setIndexInstr12DcStatus(int indexInstr12DcStatus) {
+		this.indexInstr12DcStatus = indexInstr12DcStatus;
+	}
+
+	public Instrument getInstrument12() {
+		return instrument12;
+	}
+
+	public void setInstrument12(Instrument instrument12) {
+		this.instrument12 = instrument12;
+	}
+
+	public boolean isInstr12Created() {
+		return Instr12Created;
+	}
+
+	public void setInstr12Created(boolean instr12Created) {
+		Instr12Created = instr12Created;
+	}
+
+	public boolean isInstr12Existed() {
+		return Instr12Existed;
+	}
+
+	public void setInstr12Existed(boolean instr12Existed) {
+		Instr12Existed = instr12Existed;
+	}
+
+	public boolean isInstr12ExistedWithData() {
+		return Instr12ExistedWithData;
+	}
+
+	public void setInstr12ExistedWithData(boolean instr12ExistedWithData) {
+		Instr12ExistedWithData = instr12ExistedWithData;
+	}
+
+	public int getIndexInstr13DcDate() {
+		return indexInstr13DcDate;
+	}
+
+	public void setIndexInstr13DcDate(int indexInstr13DcDate) {
+		this.indexInstr13DcDate = indexInstr13DcDate;
+	}
+
+	public int getIndexInstr13DcStatus() {
+		return indexInstr13DcStatus;
+	}
+
+	public void setIndexInstr13DcStatus(int indexInstr13DcStatus) {
+		this.indexInstr13DcStatus = indexInstr13DcStatus;
+	}
+
+	public Instrument getInstrument13() {
+		return instrument13;
+	}
+
+	public void setInstrument13(Instrument instrument13) {
+		this.instrument13 = instrument13;
+	}
+
+	public boolean isInstr13Created() {
+		return Instr13Created;
+	}
+
+	public void setInstr13Created(boolean instr13Created) {
+		Instr13Created = instr13Created;
+	}
+
+	public boolean isInstr13Existed() {
+		return Instr13Existed;
+	}
+
+	public void setInstr13Existed(boolean instr13Existed) {
+		Instr13Existed = instr13Existed;
+	}
+
+	public boolean isInstr13ExistedWithData() {
+		return Instr13ExistedWithData;
+	}
+
+	public void setInstr13ExistedWithData(boolean instr13ExistedWithData) {
+		Instr13ExistedWithData = instr13ExistedWithData;
+	}
+
+	public int getIndexInstr14DcDate() {
+		return indexInstr14DcDate;
+	}
+
+	public void setIndexInstr14DcDate(int indexInstr14DcDate) {
+		this.indexInstr14DcDate = indexInstr14DcDate;
+	}
+
+	public int getIndexInstr14DcStatus() {
+		return indexInstr14DcStatus;
+	}
+
+	public void setIndexInstr14DcStatus(int indexInstr14DcStatus) {
+		this.indexInstr14DcStatus = indexInstr14DcStatus;
+	}
+
+	public Instrument getInstrument14() {
+		return instrument14;
+	}
+
+	public void setInstrument14(Instrument instrument14) {
+		this.instrument14 = instrument14;
+	}
+
+	public boolean isInstr14Created() {
+		return Instr14Created;
+	}
+
+	public void setInstr14Created(boolean instr14Created) {
+		Instr14Created = instr14Created;
+	}
+
+	public boolean isInstr14Existed() {
+		return Instr14Existed;
+	}
+
+	public void setInstr14Existed(boolean instr14Existed) {
+		Instr14Existed = instr14Existed;
+	}
+
+	public boolean isInstr14ExistedWithData() {
+		return Instr14ExistedWithData;
+	}
+
+	public void setInstr14ExistedWithData(boolean instr14ExistedWithData) {
+		Instr14ExistedWithData = instr14ExistedWithData;
+	}
+
+	public int getIndexInstr15DcDate() {
+		return indexInstr15DcDate;
+	}
+
+	public void setIndexInstr15DcDate(int indexInstr15DcDate) {
+		this.indexInstr15DcDate = indexInstr15DcDate;
+	}
+
+	public int getIndexInstr15DcStatus() {
+		return indexInstr15DcStatus;
+	}
+
+	public void setIndexInstr15DcStatus(int indexInstr15DcStatus) {
+		this.indexInstr15DcStatus = indexInstr15DcStatus;
+	}
+
+	public Instrument getInstrument15() {
+		return instrument15;
+	}
+
+	public void setInstrument15(Instrument instrument15) {
+		this.instrument15 = instrument15;
+	}
+
+	public boolean isInstr15Created() {
+		return Instr15Created;
+	}
+
+	public void setInstr15Created(boolean instr15Created) {
+		Instr15Created = instr15Created;
+	}
+
+	public boolean isInstr15Existed() {
+		return Instr15Existed;
+	}
+
+	public void setInstr15Existed(boolean instr15Existed) {
+		Instr15Existed = instr15Existed;
+	}
+
+	public boolean isInstr15ExistedWithData() {
+		return Instr15ExistedWithData;
+	}
+
+	public void setInstr15ExistedWithData(boolean instr15ExistedWithData) {
+		Instr15ExistedWithData = instr15ExistedWithData;
+	}
+
 }

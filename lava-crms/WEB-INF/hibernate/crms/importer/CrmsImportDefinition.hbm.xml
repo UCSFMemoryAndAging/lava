@@ -26,34 +26,79 @@
 		<property name="allowInstrUpdate" column="instr_update" type="boolean"/>
 		<property name="instrType" column="instr_type" type="string" length="25"/>
 		<property name="instrVer" column="instr_ver" type="string" length="25"/>
+		<property name="instrMappingAlias" column="instr_mapping_alias" type="string" length="25"/>
 		<property name="instrCaregiver" column="instr_caregiver" type="boolean"/>
+		<property name="instrCalculate" column="instr_calculate" type="boolean"/>
 		<property name="instrType2" column="instr_type2" type="string" length="25"/>
 		<property name="instrVer2" column="instr_ver2" type="string" length="25"/>
+		<property name="instrMappingAlias2" column="instr_mapping_alias2" type="string" length="25"/>
 		<property name="instrCaregiver2" column="instr_caregiver2" type="boolean"/>
+		<property name="instrCalculate2" column="instr_calculate2" type="boolean"/>
 		<property name="instrType3" column="instr_type3" type="string" length="25"/>
 		<property name="instrVer3" column="instr_ver3" type="string" length="25"/>
+		<property name="instrMappingAlias3" column="instr_mapping_alias3" type="string" length="25"/>
 		<property name="instrCaregiver3" column="instr_caregiver3" type="boolean"/>
+		<property name="instrCalculate3" column="instr_calculate3" type="boolean"/>
 		<property name="instrType4" column="instr_type4" type="string" length="25"/>
 		<property name="instrVer4" column="instr_ver4" type="string" length="25"/>
+		<property name="instrMappingAlias4" column="instr_mapping_alias4" type="string" length="25"/>
 		<property name="instrCaregiver4" column="instr_caregiver4" type="boolean"/>
+		<property name="instrCalculate4" column="instr_calculate4" type="boolean"/>
 		<property name="instrType5" column="instr_type5" type="string" length="25"/>
 		<property name="instrVer5" column="instr_ver5" type="string" length="25"/>
+		<property name="instrMappingAlias5" column="instr_mapping_alias5" type="string" length="25"/>
 		<property name="instrCaregiver5" column="instr_caregiver5" type="boolean"/>
+		<property name="instrCalculate5" column="instr_calculate5" type="boolean"/>
 		<property name="instrType6" column="instr_type6" type="string" length="25"/>
 		<property name="instrVer6" column="instr_ver6" type="string" length="25"/>
+		<property name="instrMappingAlias6" column="instr_mapping_alias6" type="string" length="25"/>
 		<property name="instrCaregiver6" column="instr_caregiver6" type="boolean"/>
+		<property name="instrCalculate6" column="instr_calculate6" type="boolean"/>
 		<property name="instrType7" column="instr_type7" type="string" length="25"/>
 		<property name="instrVer7" column="instr_ver7" type="string" length="25"/>
+		<property name="instrMappingAlias7" column="instr_mapping_alias7" type="string" length="25"/>
 		<property name="instrCaregiver7" column="instr_caregiver7" type="boolean"/>
+		<property name="instrCalculate7" column="instr_calculate7" type="boolean"/>
 		<property name="instrType8" column="instr_type8" type="string" length="25"/>
 		<property name="instrVer8" column="instr_ver8" type="string" length="25"/>
+		<property name="instrMappingAlias8" column="instr_mapping_alias8" type="string" length="25"/>
 		<property name="instrCaregiver8" column="instr_caregiver8" type="boolean"/>
+		<property name="instrCalculate8" column="instr_calculate8" type="boolean"/>
 		<property name="instrType9" column="instr_type9" type="string" length="25"/>
 		<property name="instrVer9" column="instr_ver9" type="string" length="25"/>
+		<property name="instrMappingAlias9" column="instr_mapping_alias9" type="string" length="25"/>
 		<property name="instrCaregiver9" column="instr_caregiver9" type="boolean"/>
+		<property name="instrCalculate9" column="instr_calculate9" type="boolean"/>
 		<property name="instrType10" column="instr_type10" type="string" length="25"/>
 		<property name="instrVer10" column="instr_ver10" type="string" length="25"/>
+		<property name="instrMappingAlias10" column="instr_mapping_alias10" type="string" length="25"/>
 		<property name="instrCaregiver10" column="instr_caregiver10" type="boolean"/>
+		<property name="instrCalculate10" column="instr_calculate10" type="boolean"/>
+		<property name="instrType11" column="instr_type11" type="string" length="25"/>
+		<property name="instrVer11" column="instr_ver11" type="string" length="25"/>
+		<property name="instrMappingAlias11" column="instr_mapping_alias11" type="string" length="25"/>
+		<property name="instrCaregiver11" column="instr_caregiver11" type="boolean"/>
+		<property name="instrCalculate11" column="instr_calculate11" type="boolean"/>
+		<property name="instrType12" column="instr_type12" type="string" length="25"/>
+		<property name="instrVer12" column="instr_ver12" type="string" length="25"/>
+		<property name="instrMappingAlias12" column="instr_mapping_alias12" type="string" length="25"/>
+		<property name="instrCaregiver12" column="instr_caregiver12" type="boolean"/>
+		<property name="instrCalculate12" column="instr_calculate12" type="boolean"/>
+		<property name="instrType13" column="instr_type13" type="string" length="25"/>
+		<property name="instrVer13" column="instr_ver13" type="string" length="25"/>
+		<property name="instrMappingAlias13" column="instr_mapping_alias13" type="string" length="25"/>
+		<property name="instrCaregiver13" column="instr_caregiver13" type="boolean"/>
+		<property name="instrCalculate13" column="instr_calculate13" type="boolean"/>
+		<property name="instrType14" column="instr_type14" type="string" length="25"/>
+		<property name="instrVer14" column="instr_ver14" type="string" length="25"/>
+		<property name="instrMappingAlias14" column="instr_mapping_alias14" type="string" length="25"/>
+		<property name="instrCaregiver14" column="instr_caregiver14" type="boolean"/>
+		<property name="instrCalculate14" column="instr_calculate14" type="boolean"/>
+		<property name="instrType15" column="instr_type15" type="string" length="25"/>
+		<property name="instrVer15" column="instr_ver15" type="string" length="25"/>
+		<property name="instrMappingAlias15" column="instr_mapping_alias15" type="string" length="25"/>
+		<property name="instrCaregiver15" column="instr_caregiver15" type="boolean"/>
+		<property name="instrCalculate15" column="instr_calculate15" type="boolean"/>
 		<property name="instrCaregiverExistRule" column="instr_caregiver_exist_rule" type="short"/>
 		<property name="instrDcStatus" column="instr_dc_status" type="string" length="25"/>
 	</joined-subclass>

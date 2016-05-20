@@ -4,6 +4,8 @@ import static edu.ucsf.lava.core.importer.model.ImportDefinition.CSV_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.DEFAULT_DATE_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.DEFAULT_TIME_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.TAB_FORMAT;
+import static edu.ucsf.lava.core.importer.model.ImportDefinition.SKIP_INDICATOR;
+import static edu.ucsf.lava.core.importer.model.ImportDefinition.DEFAULT_INDICATOR;
 import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MAY_OR_MAY_NOT_EXIST;
 import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MUST_EXIST;
 import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MUST_NOT_EXIST;
@@ -15,8 +17,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.beanutils.converters.DateConverter;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.util.StringUtils;
@@ -177,7 +182,6 @@ public class CrmsImportHandler extends ImportHandler {
 						
 				// skip over the data file column headers line (it has already been read into the importSetup
 				// dataCols by the superclass)
-//TODO: need to test this (believe that BASC export file has 2 header rows so that would be a good test)		
 				int startLine = importDefinition.getStartDataRow() != null ? importDefinition.getStartDataRow() : 2;
 				if (lineNum < startLine) {
 					continue;
@@ -203,7 +207,6 @@ public class CrmsImportHandler extends ImportHandler {
 	
 				// find existing Patient. possibly create new Patient
 				if ((handlingEvent = patientExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					this.updateEntityCounts(importSetup, importLog);
 					continue;
 				}
 
@@ -216,7 +219,6 @@ public class CrmsImportHandler extends ImportHandler {
 				// if Patient MUST_EXIST then importing assessment data, so do not deal with creating ContactInfo
 				if (!importDefinition.getPatientExistRule().equals(MUST_EXIST)) {
 					if ((handlingEvent = contactInfoExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-						this.updateEntityCounts(importSetup, importLog);
 						continue;
 					}
 				}
@@ -234,7 +236,6 @@ public class CrmsImportHandler extends ImportHandler {
 						importSetup.getIndexCaregiverContactInfoState(), importSetup.getIndexCaregiverContactInfoZip(),
 						importSetup.getIndexCaregiverContactInfoPhone1(), importSetup.getIndexCaregiverContactInfoPhone2(),
 						importSetup.getIndexCaregiverContactInfoEmail(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					this.updateEntityCounts(importSetup, importLog);
 					continue;
 				}
 				importSetup.setCaregiverCreated((Boolean) handlingEvent.getAttributes().get("caregiverCreated"));
@@ -255,7 +256,6 @@ public class CrmsImportHandler extends ImportHandler {
 						importSetup.getIndexCaregiver2ContactInfoState(), importSetup.getIndexCaregiver2ContactInfoZip(),
 						importSetup.getIndexCaregiver2ContactInfoPhone1(), importSetup.getIndexCaregiver2ContactInfoPhone2(), 
 						importSetup.getIndexCaregiver2ContactInfoEmail(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					this.updateEntityCounts(importSetup, importLog);
 					continue;
 				}
 				importSetup.setCaregiver2Created((Boolean) handlingEvent.getAttributes().get("caregiverCreated"));
@@ -271,7 +271,6 @@ public class CrmsImportHandler extends ImportHandler {
 
 				// determine if Patient is Enrolled in Project. possibly create new EnrollmentStatus
 				if ((handlingEvent = enrollmentStatusExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					this.updateEntityCounts(importSetup, importLog);
 					continue;
 				}
 						
@@ -281,23 +280,173 @@ public class CrmsImportHandler extends ImportHandler {
 			
 					// find matching Visit. possibly create new Visit
 					if ((handlingEvent = visitExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-						this.updateEntityCounts(importSetup, importLog);
 						continue;
 					}
 
-					// find matching instrument. possibly create new instrument. type of instrument specified in the 
-					// importDefinition
-					if ((instrHandlingEvent = instrumentExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-						// it is simply enough to check for the existence of the "alreadyExists" attribute, i.e. do not need to check its value
-						// note: if instrument exists but not data entered it is not considered as already existing because data is imported
-						// into the instrument since it is not overwriting anything, and already existing refers to the existence of data such
-						// that the import record should not be imported because it already exists
-						if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("alreadyExists") != null) {
-							importLog.incAlreadyExist();
-						}
-						this.updateEntityCounts(importSetup, importLog);
+					// up to 15 instruments can be imported from a single data file. for each instrument specified
+					// in the import definition, find matching instrument. possibly create new instrument. 
+
+					// if there are multiple instruments in a data file, referring to this as an instrument "bundle", and 
+					// the assumption is that with an instrument "bundle" all instruments are in unison, i.e. they all don't 
+					// exist, or they all exist without data, or they all exist with data
+					
+					// so if the first instrument exists with data such that the record will not be imported (because data cannot be
+					// overwritten and quite possibly the data file is being re-imported because it is cumulative) the import record
+					// is aborted, i.e. do not bother trying to import data for the other instruments in the data record
+					
+					// additionally, if any one of them has an error such that it cannot be imported then none of them are imported,
+					// i.e. that import record is aborted (e.g. instrument12 could have a data truncation error)
+
+
+					instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+							importDefinition.getInstrType(), importDefinition.getInstrVer(), importDefinition.getInstrMappingAlias(),
+							importSetup.getIndexInstrDcDate(), importSetup.getIndexInstrDcStatus(),
+							"instrument", "instrCreated", "instrExisted", "instrExistedWithData", lineNum);
+					if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
 						continue;
 					}
+
+					if (StringUtils.hasText(importDefinition.getInstrType2())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType2(), importDefinition.getInstrVer2(), importDefinition.getInstrMappingAlias2(),
+								importSetup.getIndexInstr2DcDate(), importSetup.getIndexInstr2DcStatus(),
+								"instrument2", "instr2Created", "instr2Existed", "instr2ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							// note: code is unlikely to get here because multiple instruments are assumed to be in unison.
+							continue;
+						}
+					}
+	
+					if (StringUtils.hasText(importDefinition.getInstrType3())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType3(), importDefinition.getInstrVer3(), importDefinition.getInstrMappingAlias3(),
+								importSetup.getIndexInstr3DcDate(), importSetup.getIndexInstr3DcStatus(),
+								"instrument3", "instr3Created", "instr3Existed", "instr3ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							continue;
+						}
+					}
+					
+					if (StringUtils.hasText(importDefinition.getInstrType4())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType4(), importDefinition.getInstrVer4(), importDefinition.getInstrMappingAlias4(),
+								importSetup.getIndexInstr4DcDate(), importSetup.getIndexInstr4DcStatus(),
+								"instrument4", "instr4Created", "instr4Existed", "instr4ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							continue;
+						}
+					}
+					
+					if (StringUtils.hasText(importDefinition.getInstrType5())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType5(), importDefinition.getInstrVer5(), importDefinition.getInstrMappingAlias5(),
+								importSetup.getIndexInstr5DcDate(), importSetup.getIndexInstr5DcStatus(),
+								"instrument5", "instr5Created", "instr5Existed", "instr5ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							continue;
+						}
+					}
+					
+					if (StringUtils.hasText(importDefinition.getInstrType6())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType6(), importDefinition.getInstrVer6(), importDefinition.getInstrMappingAlias6(),
+								importSetup.getIndexInstr6DcDate(), importSetup.getIndexInstr6DcStatus(),
+								"instrument6", "instr6Created", "instr6Existed", "instr6ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							continue;
+						}
+					}
+					
+					if (StringUtils.hasText(importDefinition.getInstrType7())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType7(), importDefinition.getInstrVer7(), importDefinition.getInstrMappingAlias7(),
+								importSetup.getIndexInstr7DcDate(), importSetup.getIndexInstr7DcStatus(),
+								"instrument7", "instr7Created", "instr7Existed", "instr7ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							continue;
+						}
+					}
+					
+					if (StringUtils.hasText(importDefinition.getInstrType8())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType8(), importDefinition.getInstrVer8(), importDefinition.getInstrMappingAlias8(), 
+								importSetup.getIndexInstr8DcDate(), importSetup.getIndexInstr8DcStatus(),
+								"instrument8", "instr8Created", "instr8Existed", "instr8ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							continue;
+						}
+					}
+					
+					if (StringUtils.hasText(importDefinition.getInstrType9())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType9(), importDefinition.getInstrVer9(),importDefinition.getInstrMappingAlias9(), 
+								importSetup.getIndexInstr9DcDate(), importSetup.getIndexInstr9DcStatus(),
+								"instrument9", "instr9Created", "instr9Existed", "instr9ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							continue;
+						}
+					}
+					
+					if (StringUtils.hasText(importDefinition.getInstrType10())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType10(), importDefinition.getInstrVer10(),importDefinition.getInstrMappingAlias10(), 
+								importSetup.getIndexInstr10DcDate(), importSetup.getIndexInstr10DcStatus(),
+								"instrument10", "instr10Created", "instr10Existed", "instr10ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							continue;
+						}
+					}
+					
+					if (StringUtils.hasText(importDefinition.getInstrType11())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType11(), importDefinition.getInstrVer11(), importDefinition.getInstrMappingAlias11(),
+								importSetup.getIndexInstr11DcDate(), importSetup.getIndexInstr11DcStatus(),
+								"instrument11", "instr11Created", "instr11Existed", "instr11ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							continue;
+						}
+					}
+					
+					if (StringUtils.hasText(importDefinition.getInstrType12())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType12(), importDefinition.getInstrVer12(), importDefinition.getInstrMappingAlias12(),
+								importSetup.getIndexInstr12DcDate(), importSetup.getIndexInstr12DcStatus(),
+								"instrument12", "instr12Created", "instr12Existed", "instr12ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							continue;
+						}
+					}
+					
+					if (StringUtils.hasText(importDefinition.getInstrType13())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType13(), importDefinition.getInstrVer13(), importDefinition.getInstrMappingAlias13(),
+								importSetup.getIndexInstr13DcDate(), importSetup.getIndexInstr13DcStatus(),
+								"instrument13", "instr13Created", "instr13Existed", "instr13ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							continue;
+						}
+					}
+					
+					if (StringUtils.hasText(importDefinition.getInstrType14())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType14(), importDefinition.getInstrVer14(), importDefinition.getInstrMappingAlias14(),
+								importSetup.getIndexInstr14DcDate(), importSetup.getIndexInstr14DcStatus(),
+								"instrument14", "instr14Created", "instr14Existed", "instr14ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							continue;
+						}
+					}
+					
+					if (StringUtils.hasText(importDefinition.getInstrType15())) {
+						instrHandlingEvent = processInstrumentExistsHandling(context, errors, importDefinition, importSetup, importLog,
+								importDefinition.getInstrType15(), importDefinition.getInstrVer15(), importDefinition.getInstrMappingAlias15(),
+								importSetup.getIndexInstr15DcDate(), importSetup.getIndexInstr15DcStatus(),
+								"instrument15", "instr15Created", "instr15Existed", "instr15ExistedWithData", lineNum);
+						if (instrHandlingEvent.getId().equals(ERROR_FLOW_EVENT_ID)) {
+							continue;
+						}
+					}
+
 				}
 
 
@@ -352,17 +501,18 @@ public class CrmsImportHandler extends ImportHandler {
 
 // allowInstrUpdate flag has been enabled for SYSTEM_ADMIN role and tested, but need to test what happens
 //   on error because modifying a Hibernate persistent instance (attached to the Hibernate session) so wouldn't
-
+// changes be persisted if there is no rollback? see TODO: in this method below for more comments on this				
+				
 // add useful Filter (and sorts) to definition and log lists, e.g. add instrument to Filter and compare to any 
 //   of 10 instruments allowed per data file, if the filter specified instrument matches any one of the 10, show 
 //   the import definition, import log
 
-// changes be persisted if there is no rollback? see TODO: in this method below for more comments on this				
+// add id columns of entities created or updated to the importLog detail				
 				
 // any remaining TODOs in import-related code, config, Hibernate mapping, jsp, etc.?
 				
 // make sure import events are audited to audit event log
-// implement project authorization for crmsImportDefinition, crmsImport, crmsImportLog
+// implement project authorization for crmsImportDefinition, crmsImport, crmsImportLog  UPDATE: may be done in lava2 implementation?
 			
 // other majors:
 // X-FileMaker patient import
@@ -386,25 +536,29 @@ public class CrmsImportHandler extends ImportHandler {
 //   match existing	Visit on user specified time window, in days, around the visitDate in data file. set
 //   to 0 for an exact date match (need info text with this) (0 is the default)				
 //   (columns and metadata to support already added to db)
-//   ?? what to do if multiple visits matched - probably error log				
-//				
-//   expand to work with multiple instruments (crmsImportDefinition will have inputs for up to 10 
-//   instruments, and will have to rework instrumentExistsHandling to go thru each specified instrument,
-//   and use of instrType,instrVer for generateLocation for data files will just have to use that of
-//   the first instrument chosen)
-//   (columns and metadata to support already added to db, i.e. 2 thru 10 instrType/instrVer)
+//   ?? what to do if multiple visits matched - probably error log
+//
+//   expand to work with multiple instruments 
+//      X-crmsImportDefinition will have inputs for up to 10 instruments 
+//   	  (columns and metadata to support already added to db, i.e. 2 thru 10 instrType/instrVer)
+//      - will have to rework instrumentExistsHandling to go thru each specified instrument
+// 		- use of instrType,instrVer for generateLocation for data files will just have to use that of
+//   		the first instrument chosen
+//                after definitionName (i.e. definitionNameEncoded)
+//		  UPDATE: believe this is incorrect. both mapping files and data files go under a folder named
 //   importDefinition has UI for all 10 instrType/instrVer even though could just use the values in the mapping
-//    file (row 2) to determine what instrument is being imported. but there is clarify in what exactly the import
+//    file (row 2) to determine what instrument is being imported. but there is clarity in what exactly the import
 //    definition is importing by having user explicitly specify which instruments are being imported, AND had
 //    to put a caregiver flag for each instrument so pretty much had to have user specify instrument types.
 //    and it may facilitate some future things and makes it a bit easier to iterate thru the instruments
 //    to process. For Rankin special case where IAS and Big Five Inventory have two instances in the data file
 //    could even use the version field for distinguishing (version in mapping file appended to instr type in row 2?)				
 //   need to validate mapping file that every row 2 instrType matches an existing instrType (and perhaps that
-//    they match the instruments specified in importDefinition
+//    they match the instruments specified in importDefinition)
 //   can use these instrument types to instantiate the instrument instance, but when setting property, will
 //    be matching mapping file instrType to get the correct instr instance, i.e. seems like importSetup will 
-//    need a mapping structure of instrType to instr instance				
+//    need a mapping structure of instrType to instr instance	
+//
 //
 //   IAS and Big Five Inventory have two instances in the same data file, one for pre and one for current,
 //   so will be instantiating two of each so have custom entity name in mapping file to facilitate this
@@ -421,17 +575,22 @@ public class CrmsImportHandler extends ImportHandler {
 //
 //   Possibly attempt to determine the value of TimeQuest based on which visit it is. 				
 //
-// 2.0 support instrument update with a confirmation flow state showing the user current and new values				
+// 2.0 support instrument update with a confirmation flow state showing the user current and new values	
+//     determine if update mode will just update existing data, or is a hybrid between creating new records
+//     and updating existing records (will need to set importLog counters accordingly)
 // 2.0  expand to work with files in folders for special not-exactly-import use cases:
 //      a) for instruments that load individual patient files, e.g. e-prime instruments
 //      b) for PDFs that should be attached to an existing instrument
 // 2.0: validation, i.e. read property metadata to obtain type, list of valid values
-// 3.0: validation on string field lengths. use max length from metadata. use importDefinition truncate
+// 2.0: validation on string field lengths. use max length from metadata. use importDefinition truncate
 //      flag (already added to schema) to either truncate or give error.
 //      in case where no max length specified, if database truncation exception thrown, then consult
 //      truncate flag to truncate or give error, but what length to truncate to since do not know
 //      length of database column?				
-// 
+// 3.0  expand to work with files in folders for special not-exactly-import use cases:
+//		      a) for instruments that load individual patient files, e.g. e-prime instruments
+//		      b) for PDFs that should be attached to an existing instrument
+//		i.e. iterate thru the files in a folder processing them one at a time
 // 3.0 import detail data files, e.g. Freesurfer 5.1 data				
 				
 				if ((handlingEvent = otherExistsHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
@@ -454,18 +613,153 @@ public class CrmsImportHandler extends ImportHandler {
 						continue;
 					}
 				}
+
+
+				if (!importDefinition.getPatientOnlyImport()) {
+					Event instrCaregiverHandlingEvent = null;
 				
-				
-				// if definition has flag set that this is a caregiver instrument, set the caregiver on the instrument
-				if (importDefinition.getInstrCaregiver() != null && importDefinition.getInstrCaregiver()) {
-					if ((handlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					// if definition has flag set that this is a caregiver instrument, set the caregiver on the instrument
+					if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+						importSetup.getInstrument(), importDefinition.getInstrType(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 						continue;
+					}
+				
+
+					if (StringUtils.hasText(importDefinition.getInstrType2())) {
+						if (importDefinition.getInstrCaregiver2() != null && importDefinition.getInstrCaregiver2()) {
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument2(), importDefinition.getInstrType2(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
+					}
+						
+					if (StringUtils.hasText(importDefinition.getInstrType3())) {
+						if (importDefinition.getInstrCaregiver3() != null && importDefinition.getInstrCaregiver3()) {
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument3(), importDefinition.getInstrType3(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
+					}
+
+					if (StringUtils.hasText(importDefinition.getInstrType4())) {
+						if (importDefinition.getInstrCaregiver4() != null && importDefinition.getInstrCaregiver4()) {
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument4(), importDefinition.getInstrType4(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
+					}
+
+					if (StringUtils.hasText(importDefinition.getInstrType5())) {
+						if (importDefinition.getInstrCaregiver5() != null && importDefinition.getInstrCaregiver5()) {
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument5(), importDefinition.getInstrType5(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
+					}
+
+					if (StringUtils.hasText(importDefinition.getInstrType6())) {
+						if (importDefinition.getInstrCaregiver6() != null && importDefinition.getInstrCaregiver6()) {						
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument6(), importDefinition.getInstrType6(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
+					}
+
+					if (StringUtils.hasText(importDefinition.getInstrType7())) {
+						if (importDefinition.getInstrCaregiver7() != null && importDefinition.getInstrCaregiver7()) {						
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument7(), importDefinition.getInstrType7(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
+					}
+
+					if (StringUtils.hasText(importDefinition.getInstrType8())) {
+						if (importDefinition.getInstrCaregiver8() != null && importDefinition.getInstrCaregiver8()) {						
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument8(), importDefinition.getInstrType8(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
+					}
+
+					if (StringUtils.hasText(importDefinition.getInstrType9())) {
+						if (importDefinition.getInstrCaregiver9() != null && importDefinition.getInstrCaregiver9()) {						
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument9(), importDefinition.getInstrType9(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
+					}
+
+					if (StringUtils.hasText(importDefinition.getInstrType10())) {
+						if (importDefinition.getInstrCaregiver10() != null && importDefinition.getInstrCaregiver10()) {						
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument10(), importDefinition.getInstrType10(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
+					}
+
+					if (StringUtils.hasText(importDefinition.getInstrType11())) {
+						if (importDefinition.getInstrCaregiver11() != null && importDefinition.getInstrCaregiver11()) {						
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument11(), importDefinition.getInstrType11(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
+					}
+
+					if (StringUtils.hasText(importDefinition.getInstrType12())) {
+						if (importDefinition.getInstrCaregiver12() != null && importDefinition.getInstrCaregiver12()) {						
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument12(), importDefinition.getInstrType12(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
+					}
+
+					if (StringUtils.hasText(importDefinition.getInstrType13())) {
+						if (importDefinition.getInstrCaregiver13() != null && importDefinition.getInstrCaregiver13()) {						
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument13(), importDefinition.getInstrType13(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
+					}
+
+					if (StringUtils.hasText(importDefinition.getInstrType14())) {
+						if (importDefinition.getInstrCaregiver14() != null && importDefinition.getInstrCaregiver14()) {						
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument14(), importDefinition.getInstrType14(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
+					}
+
+					if (StringUtils.hasText(importDefinition.getInstrType15())) {
+						if (importDefinition.getInstrCaregiver15() != null && importDefinition.getInstrCaregiver15()) {						
+							if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+								importSetup.getInstrument15(), importDefinition.getInstrType15(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+								continue;
+							}
+						}
 					}
 				}
 
+
+				// note that if an instrument already existed with data then will not get to this point as that is considered
+				// an error in the sense that data cannot be imported (although an update mode may be added where the existing
+				// data can be updated)
+				// when there are multiple instruments in a single import record, if the first instrument exists with data then it is
+				// assumed that all instruments exist with data, because multiple instruments in a single record are assumed
+				// to act in unison
 				
-				
-				// at this point all values of the import record have been successfully set on entity properties
 
 				//TODO: when enable updating existing instrument data:
 				// not calling save on the entity should solve not persisting new records that should be skipped
@@ -476,13 +770,22 @@ public class CrmsImportHandler extends ImportHandler {
 				// (could fool around with CRUD editing and take out refresh on cancel just to see if changes 
 				// are persisted without explicit call to save)
 				if ((handlingEvent = saveImportRecord(importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-					continue;
+					continue; // do not update any counts as nothing was imported for this record				
 				}
 				
+
+				// at this point all values of the import record have been successfully set on entity properties
+
 				// update counts
 				
-				// applies to entire import record
-				// it is simply enough to check for the existence of the "update" attribute, i.e. do not need to check its value
+				// applies to entire import record. increment a global count of how many data file records were imported (i.e. created)
+				// or updated
+				// note: it is simply enough to check for the existence of the "update" attribute, i.e. do not need to check its value
+				
+				// NOTE: assumption here is that if the data file maps to multiple instruments that all the instruments have
+				// the same situation, i.e. either all of them were updated, or all were imported (created). because if some were created and
+				// some were updated, then how would we categorize the data record as a whole? created or updated?
+				// so can use the instrHandlingEvent attributes from the last instrument processed to be representative of all instruments.
 				if (!importDefinition.getPatientOnlyImport()) {
 					if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("update") != null) {
 						importLog.incUpdated();
@@ -498,9 +801,13 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 				
 				// these counts apply to specific entities within an import record. note that if processing was aborted for an import 
-				// record the entity counts are still updated because want to know what entities already existed, etc. this is done
-				// above where this method is called before every "continue" statement that follows a handling method that matches
-				// an existing entity or creates a new entity
+				// record the entity counts are not updated, i.e. these only pertain to the records that were successfully imported
+				// (would be erroneous to record that a Patient was created when there is an error processing other parts of that
+				// import record such that the import record is aborted)
+				
+				// if an instrument already existed with data we will not get here but that will be reported for each such import
+				// record in the importLog detail messages and in that case everything already existed: Patient, EnrollmentStatus,
+				// Visit and Instrument
 				updateEntityCounts(importSetup, importLog);
 			}
 		}
@@ -509,6 +816,9 @@ public class CrmsImportHandler extends ImportHandler {
 		// may have had errors, which are logged as importLog messages and the total error count is incremented
 		// returnEvent error means that the import failed as a whole and error msg is put in the command
 		// object errors to be displayed
+		// note: if get to this point then the event will always be SUCCESS because the only way the import as a whole will not complete
+		// successfully is if a database transaction exception occurred, marking the transaction for rollback, in which cas the exception
+		// propagates all the way up and never get to this code
 		if (returnEvent.getId().equals(SUCCESS_FLOW_EVENT_ID)) {
 			importLog.save();
 			context.getFlowScope().put("importLogId", importLog.getId());
@@ -518,14 +828,16 @@ public class CrmsImportHandler extends ImportHandler {
 	}	
 	
 
-	protected Event validateDataFile(BindingResult errors, ImportDefinition importDefinition, ImportSetup importSetup) throws Exception {
+	protected Event validateAndMapDataFile(BindingResult errors, ImportDefinition importDefinition, ImportSetup importSetup) throws Exception {
 		CrmsImportSetup crmsImportSetup = (CrmsImportSetup) importSetup;
 		
-		if (super.validateDataFile(errors, importDefinition, importSetup).getId().equals(ERROR_FLOW_EVENT_ID)) {
+		if (super.validateAndMapDataFile(errors, importDefinition, importSetup).getId().equals(ERROR_FLOW_EVENT_ID)) {
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 				
-		// set indices here as this only needs to be done once for the entire data file
+		// set indices here as this only needs to be done once for the entire data file. note that we are finding
+		// the indices in the data file as a given property may have a different index in the mapping file and data
+		// file, and these indices are used to access the data
 		
 		// ** the import definition mapping file second row must have entity string and third row must have 
 		// property string that match exactly the entity and property name strings below  
@@ -589,11 +901,51 @@ public class CrmsImportHandler extends ImportHandler {
 		setDataFilePropertyIndex(importSetup, "indexVisitWith", "visit", "visitWith");
 		setDataFilePropertyIndex(importSetup, "indexVisitLoc", "visit", "visitLoc");
 		setDataFilePropertyIndex(importSetup, "indexVisitStatus", "visit", "visitStatus");
+
+		setDataFilePropertyIndex(importSetup, "indexInstrDcDate", ((CrmsImportDefinition)importDefinition).getInstrType(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstrDcStatus", ((CrmsImportDefinition)importDefinition).getInstrType(), "dcStatus");
 		
-		//TODO: when support multiple instruments for a single import, need separate instrDcDate and instrDcStatus properties, in
-		// conjunction with how handling and setting properties on multiple instruments will be done in general				
-		setDataFilePropertyIndex(importSetup, "indexInstrDcDate", "instrument", "dcDate");
-		setDataFilePropertyIndex(importSetup, "indexInstrDcStatus", "instrument", "dcStatus");
+		setDataFilePropertyIndex(importSetup, "indexInstr2DcDate", ((CrmsImportDefinition)importDefinition).getInstrType2(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr2DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType2(), "dcStatus");
+
+		setDataFilePropertyIndex(importSetup, "indexInstr3DcDate", ((CrmsImportDefinition)importDefinition).getInstrType3(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr3DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType3(), "dcStatus");
+		
+		setDataFilePropertyIndex(importSetup, "indexInstr4DcDate", ((CrmsImportDefinition)importDefinition).getInstrType4(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr4DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType4(), "dcStatus");
+		
+		setDataFilePropertyIndex(importSetup, "indexInstr5DcDate", ((CrmsImportDefinition)importDefinition).getInstrType5(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr5DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType5(), "dcStatus");
+
+		setDataFilePropertyIndex(importSetup, "indexInstr6DcDate", ((CrmsImportDefinition)importDefinition).getInstrType6(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr6DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType6(), "dcStatus");
+
+		setDataFilePropertyIndex(importSetup, "indexInstr7DcDate", ((CrmsImportDefinition)importDefinition).getInstrType7(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr7DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType7(), "dcStatus");
+
+		setDataFilePropertyIndex(importSetup, "indexInstr8DcDate", ((CrmsImportDefinition)importDefinition).getInstrType8(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr8DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType8(), "dcStatus");
+
+		setDataFilePropertyIndex(importSetup, "indexInstr9DcDate", ((CrmsImportDefinition)importDefinition).getInstrType9(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr9DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType9(), "dcStatus");
+
+		setDataFilePropertyIndex(importSetup, "indexInstr10DcDate", ((CrmsImportDefinition)importDefinition).getInstrType10(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr10DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType10(), "dcStatus");
+
+		setDataFilePropertyIndex(importSetup, "indexInstr11DcDate", ((CrmsImportDefinition)importDefinition).getInstrType11(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr11DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType11(), "dcStatus");
+
+		setDataFilePropertyIndex(importSetup, "indexInstr12DcDate", ((CrmsImportDefinition)importDefinition).getInstrType12(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr12DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType12(), "dcStatus");
+
+		setDataFilePropertyIndex(importSetup, "indexInstr13DcDate", ((CrmsImportDefinition)importDefinition).getInstrType13(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr13DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType13(), "dcStatus");
+
+		setDataFilePropertyIndex(importSetup, "indexInstr14DcDate", ((CrmsImportDefinition)importDefinition).getInstrType14(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr14DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType14(), "dcStatus");
+
+		setDataFilePropertyIndex(importSetup, "indexInstr15DcDate", ((CrmsImportDefinition)importDefinition).getInstrType15(), "dcDate");
+		setDataFilePropertyIndex(importSetup, "indexInstr15DcStatus", ((CrmsImportDefinition)importDefinition).getInstrType15(), "dcStatus");
 
 		setOtherIndices((CrmsImportDefinition)importDefinition, crmsImportSetup);
 
@@ -716,7 +1068,7 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 			// this should never happen. if re-running import of a data file, should just be one 
 			catch (IncorrectResultSizeDataAccessException ex) {
-				importLog.addErrorMessage(lineNum, "Duplicate Patient records for patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
+				importLog.addErrorMessage(lineNum, "Multiple Patient records matched for patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
 						" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]); 
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
@@ -750,7 +1102,7 @@ public class CrmsImportHandler extends ImportHandler {
 					}
 					// this should never happen. if re-running import of a data file, should just be one 
 					catch (IncorrectResultSizeDataAccessException ex) {
-						importLog.addErrorMessage(lineNum, "Duplicate Patient records for patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
+						importLog.addErrorMessage(lineNum, "Multiple Patient records matched for patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
 								" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]); 
 						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 					}
@@ -996,10 +1348,10 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 				// this should never happen. if re-running import of a data file, should just be one 
 				catch (IncorrectResultSizeDataAccessException ex) {
-					importLog.addErrorMessage(lineNum, "Duplicate Caregiver records for patient " + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
+					importLog.addErrorMessage(lineNum, "Multiple Caregiver records matched for patient " + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
 							" and Caregiver firstName:" + importSetup.getDataValues()[indexFirstName] 
 							+ " lastName:" + importSetup.getDataValues()[indexLastName]);
-					return new Event(this, "error"); // to abort processing this import record
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
 			}
 			
@@ -1086,7 +1438,7 @@ public class CrmsImportHandler extends ImportHandler {
 						caregiverContactInfo = (ContactInfo) ContactInfo.MANAGER.getOne(filter);
 					}
 					catch (IncorrectResultSizeDataAccessException ex) {
-						importLog.addErrorMessage(lineNum,  "Duplicate Existing ContactInfo records for Caregiver:" + caregiver.getFullName() +  
+						importLog.addErrorMessage(lineNum,  "Multiple Existing ContactInfo records matched for Caregiver:" + caregiver.getFullName() +  
 								" and Patient:" + importSetup.getPatient().getFullNameWithId() + 
 								(indexContactInfoAddress != -1 ? " and ContactInfo Address:" + importSetup.getDataValues()[indexContactInfoAddress] : "") + 
 								(indexContactInfoCity != -1 ? " and City:" + importSetup.getDataValues()[indexContactInfoCity] : "") + 
@@ -1095,7 +1447,7 @@ public class CrmsImportHandler extends ImportHandler {
 								(indexContactInfoPhone1 != -1 ? " and Phone1:" + importSetup.getDataValues()[indexContactInfoPhone1] : "") +
 								(indexContactInfoPhone2 != -1 ? " and Phone2:" + importSetup.getDataValues()[indexContactInfoPhone2] : "") +
 								(indexContactInfoEmail != -1 ? " and Email:" + importSetup.getDataValues()[indexContactInfoEmail] : ""));
-						return new Event(this, "error"); // to abort processing this import record
+						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 					}
 				}
 				
@@ -1191,7 +1543,7 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 			// this should never happen. if re-running import of a data file, should just be one 
 			catch (IncorrectResultSizeDataAccessException ex) {
-				importLog.addErrorMessage(lineNum, "Duplicate EnrollmentStatus records for patient " + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
+				importLog.addErrorMessage(lineNum, "Multiple EnrollmentStatus records matched for patient " + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
 						" and project " + importSetup.getRevisedProjName());
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
@@ -1331,6 +1683,7 @@ public class CrmsImportHandler extends ImportHandler {
 		String dateOrTimeAsString;
 
 		// search for existing Visit
+		List<Visit> visitList = null;
 		Visit v = null;
 		Date visitDate = null;
 		Time visitTime = null;
@@ -1426,15 +1779,45 @@ public class CrmsImportHandler extends ImportHandler {
 			// currently do not handle existing columns that have date and time in same column. not sure if this will
 			// be encountered
 
-			filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate)); // visitDate validated and instantiated earlier in this method
-			if (importSetup.getIndexVisitTime() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitTime()])) {
-				filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime)); // visitTime validated and instantiated earlier in this method
+			if (importDefinition.getVisitWindow() == null || importDefinition.getVisitWindow().equals((short)0)) {
+				// if visit window is 0 or not specified, then search for a LAVA visit with an exact match on the visit date (and time if supplied)
+				// to the record in the data file
+				
+				// note: could also use daoDateAndTimeEqualityParam
+				filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate)); // visitDate validated and instantiated earlier in this method
+				if (importSetup.getIndexVisitTime() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitTime()])) {
+					filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime)); // visitTime validated and instantiated earlier in this method
+				}
 			}
-			// note: could also use daoDateAndTimeEqualityParam
+			else{
+				// if visit window specified, search for an existing Visit where the data file visit date is within the visit window (+/- in days)
+				// of a LAVA Visit
+				
+				// note that if multiple visits are matched within the visit window, an error is given for the current import record. could instead
+				// do a proximity search to find the closest visit if multiple are found, but decided not to do that because there is no guarantee
+				// that the Visit is the correct Visit to import the data into just because it is closer to the data file visit date than another 
+				// Visit that is within the visit window
+				
+				// based on importDefinition visitWindow, determine the startDate and endDate to use for the query
+				// for the purpose of visit windows, ignore the time part of the LAVA visit date and any time supplied in the data file, unless
+				// this becomes important, which seems doubtful
+				Calendar startDateCal = Calendar.getInstance();
+				startDateCal.setTime(visitDate);
+				startDateCal.add(Calendar.DATE, -(importDefinition.getVisitWindow()));
+				Date startDate = startDateCal.getTime();
+				
+				Calendar endDateCal = Calendar.getInstance();
+				endDateCal.setTime(visitDate);
+				endDateCal.add(Calendar.DATE, importDefinition.getVisitWindow());
+				Date endDate = endDateCal.getTime();
+
+				// note: could use daoDateAndTImeBetweenParam
+				filter.addDaoParam(filter.daoBetweenParam("visitDate", startDate, endDate));
+			}
 			
 			//NOTE: setting matchVisitType is currently restricted to SYSTEM_ADMIN because still debating about 
-			//whether this is useful/good idea for users. Downsides exist, e.g. may match incorrect visit and/or multiple
-			//visits and incorreclty associate assessment data. matchVisitType defaults to TRUE for regular users
+			//whether this is useful/good idea for users. Downsides to turning it off exist, e.g. may match incorrect visit and/or multiple
+			//visits and incorrectly associate assessment data. matchVisitType defaults to TRUE for regular users
 			//so must match on visitType.
 			if (importDefinition.getMatchVisitType() != null && importDefinition.getMatchVisitType() && visitType != null) {
 				if (StringUtils.hasText(visitType)) {
@@ -1443,26 +1826,29 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 			
 			filter.addDaoParam(filter.daoNot(filter.daoEqualityParam("visitStatus", "Cancelled")));
-			
-			try {
-				v = (Visit) Visit.MANAGER.getOne(filter);
-			}
-			// this should never happen (assuming match on visitType included). if re-running import of a data file, should 
-			// just be one instance of a given visitType on a given date
+
+			// note: since just want a single Visit record, originally used the get method and caught the IncorrectResultSizeDataAccessException
+			// if there were more than one match, but that database exception marks the transaction for rollback so when attempting to commit
+			// the records added to the importLog this generates the UnexpectedRollbackException with an HTTP 500 page
+			visitList = Visit.MANAGER.get(Visit.class, filter);
+
+			// if visit window is 0 (or not set) then looking for an exact date match. should never get more than one visit then (assuming match
+			// on visitType included). if re-running import of a data file, should just be one instance of a given visitType on a given date
 			// however, if no visitType supplied in import definition, could match multiple visits on same date, in which case
 			// would not know which one to use. this is why the matchVisitType flag defaults to TRUE and is restricted to
 			// SYSTEM_ADMIN until further notice
-			//TODO: when start using Visit Window for Kate, figure out what to do if matches multiple visits
-			//      could be that need separate import definitions for different visit types, where could import the same 
-			//      data file with different import definitions/visit types
-			catch (IncorrectResultSizeDataAccessException ex) {
+
+			if (visitList.size() == 1) {
+				v = (Visit) visitList.get(0);
+			}
+			else if (visitList.size() > 1) {
 				if (visitType != null) {
-					importLog.addErrorMessage(lineNum, "Duplicate Visit records for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
-							" and Visit Date:" + dateOrTimeAsString + " and Visit Type:" + visitType);
+					importLog.addErrorMessage(lineNum, "Multiple Visit records matched for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
+							" and Visit Date:" + dateOrTimeAsString + " and Visit Type:" + visitType + " and Visit Window:+/-" + importDefinition.getVisitWindow() + " Days");
 				}
 				else {
-					importLog.addErrorMessage(lineNum, "Duplicate Visit records for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
-							" and Visit Date:" + dateOrTimeAsString + ". Specify Visit Type in Import Definition to match on single Visit");
+					importLog.addErrorMessage(lineNum, "Multiple Visit records matched for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
+							" and Visit Date:" + dateOrTimeAsString + " and Visit Window:+/-" + importDefinition.getVisitWindow() + " Days. Specify Visit Type in Import Definition to match on single Visit");
 				}
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
@@ -1577,6 +1963,63 @@ public class CrmsImportHandler extends ImportHandler {
 		
 
 	
+	/*
+	 * processInstrumentHandling
+	 * 
+	 * This is called for each instrument that is specified in the import definition. This code attempts to match
+	 * an existing instrument or create a new instrument. If it finds an existing instrument it determines whether
+	 * that instrument has already been data entered or not. If the instrument already has data, then it may or may
+	 * not update that data, based on the import definition. 
+	 * 
+	 * If any instrument cannot be processed an error Event is returned and processing of the current data record
+	 * is aborted.
+	 */
+	protected Event processInstrumentExistsHandling(RequestContext context, BindingResult errors, 
+			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup,  CrmsImportLog importLog,
+			String instrType, String instrVer, String instrMappingAlias, int indexInstrDcDate, int indexInstrDcStatus, 
+			String instrumentPropName, String instrCreatedPropName, String instrExistedPropName, String instrExistedWithDataPropName,
+			int lineNum) throws Exception {
+		Event instrHandlingEvent = null;
+		
+		// find matching instrument. possibly create new instrument. type of instrument specified in the 
+		// importDefinition
+		if ((instrHandlingEvent = instrumentExistsHandling(context, errors, importDefinition, importSetup, importLog, 
+				instrType, instrVer, instrMappingAlias, indexInstrDcDate, indexInstrDcStatus, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+			// it is simply enough to check for the existence of the "alreadyExists" attribute, i.e. do not need to check its value
+			// note: if instrument exists but not data entered it is not considered as already existing because data is imported
+			// into the instrument since it is not overwriting anything, and already existing refers to the existence of data such
+			// that the import record should not be imported because it already exists
+			if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("alreadyExists") != null) {
+				// this applies to the current record as a whole, not to individual instruments if there are multiple in data file
+				importLog.incAlreadyExist(); 
+			}
+			// error will be returned to caller, which will then skip the rest of the current record and continue to the next record
+		}
+		else { // assume instrHandlingEvent.getId() == success
+			if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("instrument") != null) {
+				BeanUtils.setProperty(importSetup, instrumentPropName, (Instrument)instrHandlingEvent.getAttributes().get("instrument")); 
+			}
+			
+			// set flags that will be used to increment instrument counts for the successful import records
+			
+			if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("instrCreated") != null) {
+				BeanUtils.setProperty(importSetup, instrCreatedPropName, Boolean.TRUE); 
+			}
+			if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("instrExisted") != null) {
+				BeanUtils.setProperty(importSetup, instrExistedPropName, Boolean.TRUE); 
+			}
+			// "instrExistedWithData" will only be reported if importing in "update" mode, because otherwise the fact that the
+			// instrument already exists with data will abort processing for this import record and continue with the next, i.e.
+			// "instrExistedWithData" will not be used because this import record was not imported.
+			// this will be redundant with the global "updated" count so not sure if this will even be used
+			if (instrHandlingEvent.getAttributes() != null && instrHandlingEvent.getAttributes().get("instrExistedWithData") != null) {
+				BeanUtils.setProperty(importSetup, instrExistedWithDataPropName, Boolean.TRUE); 
+			}
+		}
+		return instrHandlingEvent;
+	}
+	
+	
 	/**
 	 * instrumentExistsHandling
 	 * 
@@ -1588,10 +2031,15 @@ public class CrmsImportHandler extends ImportHandler {
 	 * @param importDefinition
 	 * @param importSetup
 	 * @param lineNum
+	 * @param instrType
+	 * @param instrVer
+	 * @param indexInstrDcDate
+	 * @param indexInstrDcStatus
 	 * @return SUCCESS Event if no import errors with current record; ERROR EVENT if errors
 	 */
 	protected Event instrumentExistsHandling(RequestContext context, BindingResult errors, 
 			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup,  CrmsImportLog importLog,
+			String instrType, String instrVer, String instrMappingAlias, int indexInstrDcDate, int indexInstrDcStatus, 
 			int lineNum) {
 		
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
@@ -1605,15 +2053,14 @@ public class CrmsImportHandler extends ImportHandler {
 		// search for existing instrument
 		Instrument instr = null;
 
-		Class instrClazz =instrumentManager.getInstrumentClass(
-				Instrument.getInstrTypeEncoded(importDefinition.getInstrType(), importDefinition.getInstrVer()));
+		Class instrClazz =instrumentManager.getInstrumentClass(Instrument.getInstrTypeEncoded(instrType, instrVer));
 
 		// determine dcDate for search
 		// convert DCDate
 		Date dcDate = null;
 		// if not supplied in data file then it defaults to visit date when adding new instrument
-		if (importSetup.getIndexInstrDcDate() != -1) {
-			dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexInstrDcDate()];
+		if (indexInstrDcDate != -1) {
+			dateOrTimeAsString = importSetup.getDataValues()[indexInstrDcDate];
 			formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
 			formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
 			try {
@@ -1638,37 +2085,44 @@ public class CrmsImportHandler extends ImportHandler {
 			filter.addDaoParam(filter.daoEqualityParam("visit.id", importSetup.getVisit().getId()));
 			filter.addDaoParam(filter.daoEqualityParam("instrType", importDefinition.getInstrType()));
 			filter.addDaoParam(filter.daoEqualityParam("dcDate", dcDate));
+			filter.addDaoParam(filter.daoEqualityParam("instrType", importDefinition.getInstrType()));
+
+			// subclasses can override and set additional filter matching to find existing instrument. note that the impetus for this is when a data
+			// file has multiple instances of the same instrument and the custom matching method can add search filter param specific to the instances
+			// that is currently being processed
+			setCustomInstrumentMatchFilter(filter, importDefinition, importSetup, instrType, instrVer, instrMappingAlias);
+			
 			try {
 				instr = (Instrument) Instrument.MANAGER.getOne(instrClazz, filter);
 			}
 			catch (IncorrectResultSizeDataAccessException ex) {
-				importLog.addErrorMessage(lineNum, "Duplicate " + importDefinition.getInstrType() + " records for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
-						" and Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
+				importLog.addErrorMessage(lineNum, "Multiple " + instrType + " records matched for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
+						+ this.getVisitInfo(importDefinition, importSetup));
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
 		}
 		
 		if (instr == null) {
 			if (importDefinition.getInstrExistRule().equals(MUST_EXIST)) {
-				importLog.addErrorMessage(lineNum, "Instrument does not exist violating MUST_EXIST flag. Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
-						+ " Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
+				importLog.addErrorMessage(lineNum, "Instrument " + instrType + "  does not exist violating MUST_EXIST flag. Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
+						+ this.getVisitInfo(importDefinition, importSetup));
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}else {
 				// instrument does not exist so instantiate
 				
-				String dcStatus = importSetup.getIndexInstrDcStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexInstrDcStatus()] : importDefinition.getInstrDcStatus();
+				String dcStatus = indexInstrDcStatus != -1 ? importSetup.getDataValues()[indexInstrDcStatus] : importDefinition.getInstrDcStatus();
 				if (!StringUtils.hasText(dcStatus)) {
-					if (importSetup.getIndexInstrDcStatus() != -1) {
-						importLog.addErrorMessage(lineNum, "Cannot create Instrument. Instrument DC Status field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexInstrDcStatus()] + ") has no value");
+					if (indexInstrDcStatus != -1) {
+						importLog.addErrorMessage(lineNum, "Cannot create Instrument " + instrType + ". Instrument DC Status field in data file (column:" + importSetup.getDataCols()[indexInstrDcStatus] + ") has no value");
 					}
 					else {
-						importLog.addErrorMessage(lineNum, "Cannot create Instrument. Instrument DC Status field not supplied in data file and no value specified in definition");									
+						importLog.addErrorMessage(lineNum, "Cannot create Instrument " + instrType + ". Instrument DC Status field not supplied in data file and no value specified in definition");									
 					}
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
 
 				try {
-					instr = createInstrument(context, importDefinition, importSetup, instrClazz, dcDate, dcStatus);
+					instr = createInstrument(context, importDefinition, importSetup, instrClazz, instrType, instrVer, dcDate, dcStatus);
 					instr.setDcBy(importSetup.getVisit().getVisitWith());
 					instr.setDeBy("IMPORTED");
 					instr.setDeDate(new Date());
@@ -1676,21 +2130,22 @@ public class CrmsImportHandler extends ImportHandler {
 					// status complete; if there are errors import record will be skipped and instrument will not 
 					// be saved, so it is ok if setting data entry status "Complete" here
 					instr.setDeStatus("Complete");
-					instr.setDeNotes("Data Imported by:" + CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request).getShortUserNameRev());				}
+					instr.setDeNotes("Data Imported by:" + CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request).getShortUserNameRev());				
+				}
 				catch (Exception ex) {
-					importLog.addErrorMessage(lineNum, "Error instantiating instrument. Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
-							+ " and Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
+					importLog.addErrorMessage(lineNum, "Error instantiating instrument " + instrType + ". Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
+							+ this.getVisitInfo(importDefinition, importSetup));
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
 			}
-			importSetup.setInstrCreated(true);
-			importSetup.setInstrument(instr);
+			eventAttrMap.put("instrCreated", Boolean.TRUE);
+			eventAttrMap.put("instrument", instr);
 		}
 		else { // instrument already exists
-			importSetup.setInstrument(instr);
+			eventAttrMap.put("instrument", instr);
 			if (importDefinition.getInstrExistRule().equals(MUST_NOT_EXIST)) {
-				importLog.addErrorMessage(lineNum, "Instrument already exists violating Import Definition MUST_NOT_EXIST setting. Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName())
-						+ " and Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
+				importLog.addErrorMessage(lineNum, "Instrument " + instrType + "  already exists violating Import Definition MUST_NOT_EXIST setting. Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName())
+						+ this.getVisitInfo(importDefinition, importSetup));
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
 			else {
@@ -1715,35 +2170,65 @@ public class CrmsImportHandler extends ImportHandler {
 				if (instr.getDeDate() == null) {
 					// in this case since the instrument has not had any data entered it is ok to use the existing instrument
 					// for the import
-					importSetup.setInstrExisted(true);
+					eventAttrMap.put("instrExisted", Boolean.TRUE);
+					instr.setDcBy(importSetup.getVisit().getVisitWith());
+					instr.setDeBy("IMPORTED");
+					instr.setDeDate(new Date());
+					// if import record does not have any errors then instrument will be saved so set data entry
+					// status complete; if there are errors import record will be skipped and instrument will not 
+					// be saved, so it is ok if setting data entry status "Complete" here
+					instr.setDeStatus("Complete");
+					instr.setDeNotes("Data Imported by:" + CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request).getShortUserNameRev());				
 				}
 				else {
-					// CURRENTLY ONLY ENABLED FOR SYSTEM_ADMIN, i.e. user cannot set this flag in the import definition yet. need
+					// CURRENTLY ONLY ENABLED IN THE UI FOR IMPORT_ADMIN, i.e. user cannot set this flag in the import definition yet. need
 					// to implement a confirmation flow state showing user existing and new values so they can confirm overwrite
 					if (importDefinition.getAllowInstrUpdate()) {
-						importSetup.setInstrExistedWithData(true);
-						// set an attribute on the return event so the caller can distinguish between an error and the
-						// record already exists
+						eventAttrMap.put("instrExistedWithData", Boolean.TRUE);
+						// set an attribute on the return event, "update", used to increment the global count for import records as
+						// a whole (if multiple instruments in single import record and no errors, if one is "update" they should all
+						// be in sync and return "update", so the "update" returned from the last instrument is the one used to increment
+						// the global count
 						eventAttrMap.put("update", Boolean.TRUE);
+						if (instr.getDeNotes() == null) {
+							instr.setDeNotes("");
+						}
+						instr.setDeNotes(instr.getDeNotes() + "  Data Updated via Import on " + new Date() + " by:" + CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request).getShortUserNameRev());				
 					}
 					else {
 						// this is not an error in the sense that the there was a problem; rather the ERROR Event is 
 						// returned so the current record will not be imported since data already exists, and it is likely
 						// that a data file with this record was already imported. 
-						importSetup.setInstrExistedWithData(true);
-						importLog.addDebugMessage(lineNum, "Instrument exists and has already been data entered. Cannot overwrite per Import Definition. Patient:" + 
-							(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + " and Visit Date:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()));
+						importLog.addWarningMessage(lineNum, "Instrument " + instrType + "  exists and has already been data entered. Cannot overwrite per Import Definition. Patient:" + 
+							(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + this.getVisitInfo(importDefinition, importSetup));
 
-						// set an attribute on the return event so the caller can distinguish between an error and the
-						// record already exists
+						// set an attribute on the return event, "alreadyExists", used to increment the global count for import records as a 
+						// whole
 						eventAttrMap.put("alreadyExists", Boolean.TRUE);
-						return new Event(this, ERROR_FLOW_EVENT_ID, attributeMap); // to abort processing this import record
+						// returning ERROR will stop processing the current import record and start importing the next record
+						return new Event(this, ERROR_FLOW_EVENT_ID, attributeMap); 
 					}
 				}
 			}
 		}
 		
 		return new Event(this, SUCCESS_FLOW_EVENT_ID, attributeMap);
+	}
+
+
+
+	/**
+	 * Set the filter for matching patient names. Subclasses should override if they have custom 
+	 * patient name matching.
+	 * 
+	 * @param filter
+	 * @param importSetup
+	 */
+	protected void setCustomInstrumentMatchFilter(LavaDaoFilter filter, CrmsImportDefinition importDefinition, CrmsImportSetup importSetup,
+			String instrType, String instrVer, String instrMappingAlias) {
+		
+		// base class implementation do nothing
+		
 	}
 
 	
@@ -1845,9 +2330,18 @@ public class CrmsImportHandler extends ImportHandler {
 	 * @return
 	 */
 	protected Instrument createInstrument(RequestContext context, CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, 
-			Class instrClazz, Date dcDate, String dcStatus) {
+			Class instrClazz, String instrType, String instrVer, Date dcDate, String dcStatus) {
+//TODO: if instrVer is specified, use it to instantiate an instrument with the specified version.		
+//		In simple cases, just setInstrVer, setFormVer after assessmentService.create returns newly instantiated object Consult the ChangeVersion proc for each instrument.
+//		May need to instantiate a different class depending upon the version (UdsFamilyHistory3 vs. UdsFamilyHistory2). Since nothing has been persisted a given class will use the given Hibernate mapping so no issue.
+//
+//		For existing instrument match, will have to add instrVer to the match (if no match, could match without instrVer and if there is a match give an error message instead of proceeding)
+//
+//		Hardest thing may be this:  will need to make sure instrument has that version (definition UI could use the same technique that Change Version does to determine the list of versions for a given instrument. would have to refresh page anytime an instrument is selected). May be easier to enforce at run-time, createInstrument will have hard-coded versions to determine what to do, so those can be used to validate version.
+
+		// create instrument-specific object
 		return Instrument.create(instrClazz, importSetup.getPatient(), importSetup.getVisit(), importSetup.getRevisedProjName(), 
-				importDefinition.getInstrType(), dcDate, dcStatus);
+				instrType, dcDate, dcStatus);
 	}
 	
 
@@ -1875,50 +2369,113 @@ public class CrmsImportHandler extends ImportHandler {
 			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum) throws Exception {
 		Event returnEvent = new Event(this, SUCCESS_FLOW_EVENT_ID);
 		String definitionColName, definitionPropName, definitionEntityName;
-		// for error messaging
-		String visitDateAsString = ((CrmsImportDefinition)importDefinition).getPatientOnlyImport() ? "" : "Visit Date:" + importSetup.getVisit().getVisitDate(); 
 		
-		// the primary part of an assessment import is importing the instrument variables. to make the end users job easier support
+		// the primary part of an assessment import is importing the instrument variables. to make the end users job easier, support
 		// ignoring case on the instrument property names in the import definition mapping file. part of the implementation for that 
 		// involves acquiring the set of all correct instrument property names, and that would be expensive to retrieve when processing
 		// each property, so instead just retrieve it once here and pass it into setProperty for each instrument property
-		Map<String,Object> instrPropNamesMap = new HashMap<String,Object>();
+
+		// this is not done for patient, enrollmentStatus or visit properties. those are case-sensitive. some of those properties are
+		// required. essentially those properties can be considered part of a formal import specification so requiring case-sensitivity
+		// for them is acceptable
+		Map<String,Object> instrPropNamesMap = new HashMap<String,Object>(),
+				instr2PropNamesMap = new HashMap<String,Object>(),
+				instr3PropNamesMap = new HashMap<String,Object>(),
+				instr4PropNamesMap = new HashMap<String,Object>(),
+				instr5PropNamesMap = new HashMap<String,Object>(),
+				instr6PropNamesMap = new HashMap<String,Object>(),
+				instr7PropNamesMap = new HashMap<String,Object>(),
+				instr8PropNamesMap = new HashMap<String,Object>(),
+				instr9PropNamesMap = new HashMap<String,Object>(),
+				instr10PropNamesMap = new HashMap<String,Object>(),
+				instr11PropNamesMap = new HashMap<String,Object>(),
+				instr12PropNamesMap = new HashMap<String,Object>(),
+				instr13PropNamesMap = new HashMap<String,Object>(),
+				instr14PropNamesMap = new HashMap<String,Object>(),
+				instr15PropNamesMap = new HashMap<String,Object>();
 		try {
 			if (!importDefinition.getPatientOnlyImport()) {
 				instrPropNamesMap = PropertyUtils.describe(importSetup.getInstrument());
 			}
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType2())) {
+				instr2PropNamesMap = PropertyUtils.describe(importSetup.getInstrument2());
+			}
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType3())) {
+				instr3PropNamesMap = PropertyUtils.describe(importSetup.getInstrument3());
+			}
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType4())) {
+				instr4PropNamesMap = PropertyUtils.describe(importSetup.getInstrument4());
+			}
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType5())) {
+				instr5PropNamesMap = PropertyUtils.describe(importSetup.getInstrument5());
+			}
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType6())) {
+				instr6PropNamesMap = PropertyUtils.describe(importSetup.getInstrument6());
+			}
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType7())) {
+				instr7PropNamesMap = PropertyUtils.describe(importSetup.getInstrument7());
+			}
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType8())) {
+				instr8PropNamesMap = PropertyUtils.describe(importSetup.getInstrument8());
+			}
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType9())) {
+				instr9PropNamesMap = PropertyUtils.describe(importSetup.getInstrument9());
+			}
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType10())) {
+				instr10PropNamesMap = PropertyUtils.describe(importSetup.getInstrument10());
+			}		
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType11())) {
+				instr11PropNamesMap = PropertyUtils.describe(importSetup.getInstrument11());
+			}
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType12())) {
+				instr12PropNamesMap = PropertyUtils.describe(importSetup.getInstrument12());
+			}
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType13())) {
+				instr13PropNamesMap = PropertyUtils.describe(importSetup.getInstrument13());
+			}
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType14())) {
+				instr14PropNamesMap = PropertyUtils.describe(importSetup.getInstrument14());
+			}
+			if (!importDefinition.getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType15())) {
+				instr15PropNamesMap = PropertyUtils.describe(importSetup.getInstrument15());
+			}
 		}
 		catch (InvocationTargetException ex2) {
 			importLog.addErrorMessage(lineNum, "[InvocationTargetException] Error on PropertyUtils.describe. Patient:" + 
-					(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+					(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + this.getVisitInfo(importDefinition, importSetup));
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		catch (IllegalAccessException ex2) {
 			importLog.addErrorMessage(lineNum, "[IllegalAccessException] Error on PropertyUtils.describe. Patient:" + 
-					(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+					(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + this.getVisitInfo(importDefinition, importSetup));
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		catch (NoSuchMethodException ex2) {
 			importLog.addErrorMessage(lineNum, "[NoSuchException] Error on PropertyUtils.describe. Patient:" + 
-					(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+					(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + this.getVisitInfo(importDefinition, importSetup));
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 
-		for (int i = 0; i < importSetup.getDataValues().length; i++) {
+		// iterate thru the mapping array so don't miss default value mappings, which would not be known from the data array
+		// since it was validated that every column in the data file has a corresponding column in the mapping file, will get every data value to set
+		// if there are any mapping array columns that do not correspond to the data array and are not default values, ignore them
+		for (int mappingIndex = 0; mappingIndex < importSetup.getMappingCols().length; mappingIndex++) {
 			returnEvent = new Event(this, SUCCESS_FLOW_EVENT_ID);
-			
-			definitionColName = importSetup.getMappingCols()[i];
-			definitionEntityName = importSetup.getMappingEntities()[i];
-			definitionPropName = importSetup.getMappingProps()[i];
-			
-			logger.info("i="+i+" colName="+definitionColName+ " entityName="+definitionEntityName+" propName="+definitionPropName);
 
-			// skip fields with column name or property name prefixed by XX						
-			if (definitionColName.startsWith("XX") || 
-				(definitionEntityName != null && definitionEntityName.startsWith("XX")) ||
-				(definitionPropName != null && definitionPropName.startsWith("XX"))) { 
-				// do nothing
+			// use type Integer for this index so can test for null when retrieving from mappingColDataCol Map
+			Integer dataIndex = importSetup.getMappingColDataCol().get(mappingIndex);
+			
+			definitionColName = importSetup.getMappingCols()[mappingIndex];
+			definitionEntityName = importSetup.getMappingEntities()[mappingIndex]; // this is instrType, not instrTypeEncoded
+			definitionPropName = importSetup.getMappingProps()[mappingIndex];
+			
+			logger.info("dataIndex=" + dataIndex + " mappingIndex=" + mappingIndex + " colName=" + definitionColName + " entityName=" + definitionEntityName + " propName=" + definitionPropName);
+
+			Object defaultValue = null;
+			if (definitionColName.startsWith(DEFAULT_INDICATOR)) { 
+				defaultValue = definitionColName.substring(DEFAULT_INDICATOR.length());
 			}
+			
 
 			// Set Property Values
 
@@ -1937,44 +2494,104 @@ public class CrmsImportHandler extends ImportHandler {
 			//    the mapping file for each variable
 			// note that all other entities must supply the entity in the entity row, i.e. Patient, EnrollmentStatus,
 			// Visit, etc. and all instruments beyond the first one
+			if (!StringUtils.hasText(definitionEntityName)) {
+				definitionEntityName = ((CrmsImportDefinition)importDefinition).getInstrMappingAlias() != null ? ((CrmsImportDefinition)importDefinition).getInstrMappingAlias() : importSetup.getInstrument().getInstrType();
+			}
 
 			// give this first instrument first shot at determining if the property applies to it, to support
 			// this shorthand
+
+			if (dataIndex == null && defaultValue == null) {
+				// do nothing. mapping file column does not reference a variable and value in the data file, nor is it a default value.
+			}
+			// skip fields when import definition mapping column name prefixed by SKIP_INDICATOR 
+			// note: column name following SKIP_INDICATOR must match data column name, this is validated earlier in the import process
+// TODO: see if any pedi mapping files use XX
+//			if (definitionColName.startsWith("XX") || 
+//				(definitionEntityName != null && definitionEntityName.startsWith("XX")) ||
+//				(definitionPropName != null && definitionPropName.startsWith("XX"))) { 
+			else if (definitionColName.startsWith(SKIP_INDICATOR)) { 
+				// do nothing
+			}
 			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && 
-					(!StringUtils.hasText(definitionEntityName) || definitionEntityName.equalsIgnoreCase(importSetup.getInstrument().getInstrType()))) {
-
-				//TODO: handle case where entity is an instrType to support multiple instrument data imports
-				//mappingPropName.startsWith(..each of the importDefinition instrType (10 of them)). this could also match
-				//the default instrument if mapping file puts in entity name (instrType) for it.
-				//if startsWith matches, given that instrumentExistsHandler will have iterated across all importDefinition
-				//instrTypes instantiating each, use the corresponding instantiated instrument (importSetup will have
-				//properties instrument, instrument2, instrument3, etc. that correspond with importDefinition 
-				//instrType, instrTyp2, instrType3, etc. (and don't forget about instrVer)
-				
-				//could go with either having mappingEntities be instrType or instrTypeEncoded. if the latter,
-				//instrExistsHandling will instantiate the Instrument from which instrTypeEncoded can be obtained
-				//(or it can be obtained passing importDefinition instrType to the static getInstrTypeEncoded method
-				//instrTypeEncoded would be a bit off for the users. instrType just have to be careful with spaces, etc.
-				//that there is an exact match
-
-				// missing entity means shorthand to use the first instrument specified in importDefinition
-				//if (!StringUtils.hasText(definitionEntityName)) {
-				//	
-				//}
-				
+				(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias()))) {
 				// for all instruments, if the property name is left blank in the mapping file that means that the
 				// column name is the same as the property name, so there is no need to redundantly specify the property 
 				// name as well.
-				String propName = null;
-				if (!StringUtils.hasText(definitionPropName)) {
-					propName = definitionColName;
-				}
-				else {
-					propName = definitionPropName;
-				}
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
 				
 				// set property on the first instrument specified in importDefinition
-				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument(), propName, i, instrPropNamesMap.keySet(), lineNum);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument(), definitionEntityName, propName, dataIndex, instrPropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType2()) &&
+						(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument2().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias2()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument2(), definitionEntityName, propName, dataIndex, instr2PropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType3()) &&
+					(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument3().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias3()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument3(), definitionEntityName, propName, dataIndex, instr3PropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType4()) &&
+					(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument4().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias4()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument4(), definitionEntityName, propName, dataIndex, instr4PropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType5()) &&
+					(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument5().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias5()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument5(), definitionEntityName, propName, dataIndex, instr5PropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType6()) &&
+					(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument6().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias6()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument6(), definitionEntityName, propName, dataIndex, instr6PropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType7()) &&
+					(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument7().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias7()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument7(), definitionEntityName, propName, dataIndex, instr7PropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType8()) &&
+					(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument8().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias8()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument8(), definitionEntityName, propName, dataIndex, instr8PropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType9()) &&
+					(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument9().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias9()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument9(), definitionEntityName, propName, dataIndex, instr9PropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType10()) &&
+					(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument10().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias10()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument10(), definitionEntityName, propName, dataIndex, instr10PropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType11()) &&
+					(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument11().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias11()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument11(), definitionEntityName, propName, dataIndex, instr11PropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType12()) &&
+					(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument12().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias12()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument12(), definitionEntityName, propName, dataIndex, instr12PropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType13()) &&
+					(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument13().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias13()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument13(), definitionEntityName, propName, dataIndex, instr13PropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType14()) &&
+					(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument14().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias14()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument14(), definitionEntityName, propName, dataIndex, instr14PropNamesMap.keySet(), defaultValue, lineNum);
+			}
+			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && StringUtils.hasText(importDefinition.getInstrType15()) &&
+					(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument15().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias15()))) {
+				String propName = (!StringUtils.hasText(definitionPropName) ? definitionColName : definitionPropName);
+				returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getInstrument15(), definitionEntityName, propName, dataIndex, instr15PropNamesMap.keySet(), defaultValue, lineNum);
 			}
 			//Patient properties
 			else if (definitionEntityName.equalsIgnoreCase("patient")) {
@@ -1991,7 +2608,7 @@ public class CrmsImportHandler extends ImportHandler {
 					// don't need to set properties already set when Patient was created
 					if (!definitionPropName.equalsIgnoreCase("firstName") && !definitionPropName.equalsIgnoreCase("lastName") && !definitionPropName.equalsIgnoreCase("birthDate")
 							&& !definitionPropName.equalsIgnoreCase("gender")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getPatient(), definitionPropName, i, null, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getPatient(), definitionEntityName, definitionPropName, dataIndex, null, defaultValue, lineNum);
 					}
 				}
 			}
@@ -2003,7 +2620,7 @@ public class CrmsImportHandler extends ImportHandler {
 							!definitionPropName.equalsIgnoreCase("state") && !definitionPropName.equalsIgnoreCase("zip") &&
 							!definitionPropName.equalsIgnoreCase("phone1") && !definitionPropName.equalsIgnoreCase("phone2") && 
 							!definitionPropName.equalsIgnoreCase("email")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getContactInfo(), definitionPropName, i, null, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getContactInfo(), definitionEntityName, definitionPropName, dataIndex, null, defaultValue, lineNum);
 					}
 				}
 			}
@@ -2012,7 +2629,7 @@ public class CrmsImportHandler extends ImportHandler {
 				if (importSetup.isCaregiverCreated()) {
 					// don't need to set properties already set when Caregiver was created
 					if (!definitionPropName.equalsIgnoreCase("firstName") && !definitionPropName.equalsIgnoreCase("lastName")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiver(), definitionPropName, i, null, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiver(), definitionEntityName, definitionPropName, dataIndex, null, defaultValue, lineNum);
 					}
 				}
 			}
@@ -2024,7 +2641,7 @@ public class CrmsImportHandler extends ImportHandler {
 							!definitionPropName.equalsIgnoreCase("state") && !definitionPropName.equalsIgnoreCase("zip") &&
 							!definitionPropName.equalsIgnoreCase("phone1") && !definitionPropName.equalsIgnoreCase("phone2") &&
 							!definitionPropName.equalsIgnoreCase("email")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiverContactInfo(), definitionPropName, i, null, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiverContactInfo(), definitionEntityName, definitionPropName, dataIndex, null, defaultValue, lineNum);
 					}
 				}
 			}
@@ -2033,7 +2650,7 @@ public class CrmsImportHandler extends ImportHandler {
 				if (importSetup.isCaregiver2Created()) {
 					// don't need to set properties already set when Caregiver2 was created
 					if (!definitionPropName.equalsIgnoreCase("firstName") && !definitionPropName.equalsIgnoreCase("lastName")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiver2(), definitionPropName, i, null, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiver2(), definitionEntityName, definitionPropName, dataIndex, null, defaultValue, lineNum);
 					}
 				}
 			}
@@ -2045,14 +2662,14 @@ public class CrmsImportHandler extends ImportHandler {
 							!definitionPropName.equalsIgnoreCase("state") && !definitionPropName.equalsIgnoreCase("zip") &&
 							!definitionPropName.equalsIgnoreCase("phone1") && !definitionPropName.equalsIgnoreCase("phone2") &&
 							!definitionPropName.equalsIgnoreCase("email")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiver2ContactInfo(), definitionPropName, i, null, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getCaregiver2ContactInfo(), definitionEntityName, definitionPropName, dataIndex, null, defaultValue, lineNum);
 					}
 				}
 			}
 			//EnrollmentStatus properties
 			else if (definitionEntityName.equalsIgnoreCase("enrollmentStatus")) {
 				if (importSetup.isEnrollmentStatusCreated()) {
-					returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getEnrollmentStatus(), definitionPropName, i, null, lineNum);
+					returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getEnrollmentStatus(), definitionEntityName, definitionPropName, dataIndex, null, defaultValue, lineNum);
 				}
 			}
 			//Visit properties
@@ -2061,13 +2678,13 @@ public class CrmsImportHandler extends ImportHandler {
 					// don't need to set properties already set when Visit was created
 					if (!definitionPropName.equalsIgnoreCase("visitDate") && !definitionPropName.equalsIgnoreCase("visitType") && !definitionPropName.equalsIgnoreCase("visitLocation")
 							&& !definitionPropName.equalsIgnoreCase("visitWith") && !definitionPropName.equalsIgnoreCase("visitStatus")) {
-						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getVisit(), definitionPropName, i, null, lineNum);
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getVisit(), definitionEntityName, definitionPropName, dataIndex, null, defaultValue, lineNum);
 					}
 				}
 			}
 			else {
 				// allow subclasses to set entity properties for any custom behavior
-				returnEvent = setOtherPropertyHandling(importDefinition, importSetup, importLog, i, instrPropNamesMap.keySet(), lineNum);
+				returnEvent = setOtherPropertyHandling(importDefinition, importSetup, importLog, dataIndex, definitionEntityName, definitionPropName, instrPropNamesMap.keySet(), defaultValue, lineNum);
 			}
 			
 			// abort import of the current record if there was an error setting the imported value on the property
@@ -2093,7 +2710,7 @@ public class CrmsImportHandler extends ImportHandler {
 	 * not require any change to the database schema. Hibernate mapping must change to an association, Java code must have
 	 * a Caregiver property and special setter code, handler must support changing Caregiver). 
 	 * The reason this is required rather than just setting the caregiver id property is because if a new Caregiver has
-	 * just been created by this import, the new Caregiver does has not been persisted and thus does not have a caregiver
+	 * just been created by this import, the new Caregiver has not been persisted and thus does not have a caregiver
 	 * id to set on the instrument. By setting the Caregiver instead of an id, Hibernate will take care of setting 
 	 * the caregiver id on the instrument when the transaction to save all of the entities created for all of the import
 	 * records is committed to the database.
@@ -2103,23 +2720,27 @@ public class CrmsImportHandler extends ImportHandler {
 	 * @param importDefinition
 	 * @param importSetup
 	 * @param importLog
+	 * @param instrument
+	 * @param instrType
 	 * @param lineNum
 	 * @return success Event to continue processing this record, error Event to abort processing this record 
 	 */
 	protected Event setInstrumentCaregiver(RequestContext context, BindingResult errors, 
-			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum) throws Exception {
+			CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, 
+			Instrument instrument, String instrType, int lineNum) throws Exception {
 		Event returnEvent = new Event(this, SUCCESS_FLOW_EVENT_ID);
 
 		if (importSetup.isCaregiverCreated() || importSetup.isCaregiverExisted()) {
-			//TODO:when support multiple instruments in a single import, each caregiver instrument will set its caregiver property to the
-			//same Caregiver, i.e. the Cargiver that was either created or matched based on a caregiver first and last name in the data file
+			// note: if there are multiple instruments in the data file, each caregiver instrument will set its caregiver property to the
+			// same Caregiver, i.e. the Cargiver that was either created or matched based on a caregiver first and last name in the data file
+			// in other words, the assumption is that the same caregiver is used for all instruments in the same record of the data file 
 			
 			//note: if for some reason encounter a caregiver instrument where the name of the Caregiver property is not "caregiver" then 
 			//could add a caregiver property name to CrmsImportDefinition
-			importSetup.getInstrument().setCaregiver(importSetup.getCaregiver());
+			instrument.setCaregiver(importSetup.getCaregiver());
 		}
 		else {
-			importLog.addWarningMessage(lineNum, "No Caregiver found or created to assign to instrument:" + importDefinition.getInstrType() + " for patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()));
+			importLog.addWarningMessage(lineNum, "No Caregiver found or created to assign to instrument:" + instrType + " for patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()));
 		}
 			
 		return returnEvent;
@@ -2134,7 +2755,7 @@ public class CrmsImportHandler extends ImportHandler {
 	 * @param importSetup
 	 * @param entity
 	 * @param propName
-	 * @param i
+	 * @param dataIndex
  	 * @param propNamesSet	populated in setPropertyHandling and any other methods that call setProperty. contains 
  	 * 						all of the property names of the entity to which propName belongs to facilitate 
  	 * 						ignoring case when matching propName to property on entity. this is only populated for 
@@ -2142,30 +2763,49 @@ public class CrmsImportHandler extends ImportHandler {
  	 * @param lineNum
 	 * @throws Exception
 	 */
-	protected Event setProperty(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup,	CrmsImportLog importLog, LavaEntity entity, String propName, int i, Set<String> propNamesSet, int lineNum) throws Exception {
+	protected Event setProperty(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup,	CrmsImportLog importLog, LavaEntity entity, String entityName, String propName, Integer dataIndex, Set<String> propNamesSet, Object defaultValue, int lineNum) throws Exception {
 		String entityPropName = propName; // if there is a case mismatch the entityPropName will be reset to the correct case
 		boolean propIgnoreCaseMatch = false;
-		// default BeanUtils converter will set empty values to a default which is not null, so change the
-		// behavior so property is set to null
-		// note: could just skip null values since property value is already null on new instrument, but if
-		// this code were to be used for an import update then would need to set null values
+
+		// BeanUtils.setProperty requires registering a converter setting Date and DateTime values. The import definition has the expected
+		// formats for dates and times in the data file, so register patterns for just the date, and for the date and time, so that a data
+		// file value with either can be set
+		DateConverter converter = new DateConverter();
+		converter.setPatterns(new String[]{importDefinition.getDateFormat() + " " + importDefinition.getTimeFormat(), importDefinition.getDateFormat()});
+		this.getConvertUtilsBean().register(converter, Date.class);
+
+		// if not mapped as a defaultValue, get the value for the property from the dataValues array
+		if (defaultValue == null) {
+			// default BeanUtils converter will set empty values to a default which is not null, so change the
+			// behavior so property is set to null
+			// note: could just skip null values since property value is already null on new instrument, but if
+			// this code were to be used for an import update then would need to set null values
 		
-		//TODO: consult the metadata for each property
-		// 1) if the property is a string/text value then check the length of the data vs. the max string length. 
-		//    add a flag to import definition about how user wants this handled: either do not import record and 
-		//    create error, or truncate the string to the max length and import it and create warning
-		// 2) validate data value by obtaining metadata for the entity.property, i.e. list of valid values
+			//TODO: consult the metadata for each property
+			// 1) if the property is a string/text value then check the length of the data vs. the max string length. 
+			//    add a flag to import definition about how user wants this handled: either do not import record and 
+			//    create error, or truncate the string to the max length and import it and create warning
+			// 2) validate data value by obtaining metadata for the entity.property, i.e. list of valid values
 		
-		if (!StringUtils.hasText(importSetup.getDataValues()[i])) {
-			// temporarily change the conversion handling so if no value to convert, just sets property null instead of
-			// throwing an exception
-			// false -use a default value instead of throwing a conversion exception (for any conversions)
-			// true - use null for the default value
-			// -1 - array types defaulted to null
-			this.getConvertUtilsBean().register(false, true, -1);
+			if (!StringUtils.hasText(importSetup.getDataValues()[dataIndex])) {
+				// temporarily change the conversion handling so if no value to convert, just sets property null instead of
+				// throwing an exception
+				// false -use a default value instead of throwing a conversion exception (for any conversions)
+				// true - use null for the default value
+				// -1 - array types defaulted to null
+				this.getConvertUtilsBean().register(false, true, -1);
+			}
+
+			logger.info("setting entityName="+entityName+" propName="+propName+" to value="+importSetup.getDataValues()[dataIndex]);
+		}
+		else {
+			if (!StringUtils.hasText(defaultValue.toString())) {
+				this.getConvertUtilsBean().register(false, true, -1);
+			}
+			logger.info("setting entityName="+entityName+" propName="+propName+" to DEFAULT value="+defaultValue);
 		}
 
-		logger.info("setting propName="+propName+" to value="+importSetup.getDataValues()[i]);
+
 		// for error messaging 
 		String visitDateAsString = ((CrmsImportDefinition)importDefinition).getPatientOnlyImport() ? "" : "Visit Date:" + importSetup.getVisit().getVisitDate(); 
 
@@ -2175,7 +2815,17 @@ public class CrmsImportHandler extends ImportHandler {
 			// BeanUtils.setProperty does not throw that exception and does not indicate anything if the property 
 			// does not exist (PropertyUtils.setProperty does, but using BeanUtils.setProperty because it does
 			// automatic type conversion without having to explicitly specify the type)
-			Object propValue = PropertyUtils.getSimpleProperty(entity, propName);
+
+			// NOTE: if need to support setting an indexed or nested property, will need to modify this. The call to 
+			// getSimpleProperty will throw this exception:
+			// IllegalArgumentException - if the property name is nested or indexed
+			// so could catch this exception and call various other methods, such as PropertyUtils.getMappedProperty
+			// for now, the instrument notes property is a Map and all instruments have the property, so we just skip
+			// the check in that case.
+			
+			if (!(entity instanceof Instrument) || !propName.startsWith("notes")) {
+				Object propValue = PropertyUtils.getSimpleProperty(entity, propName);
+			}
 		}
 		catch (NoSuchMethodException ex) {
 			// currently propNamesSet is an empty set, rather than null, when case insensitive matching should be used,
@@ -2184,8 +2834,8 @@ public class CrmsImportHandler extends ImportHandler {
 				// property does not exist so this is an error - and since propNamesSet not supplied not checking whether 
 				// the property exists when ignoring case. this would be the case for all non-instrument properties since 
 				// only doing match ignoring case for instrument properties
-				importLog.addErrorMessage(lineNum, "Property name in import definition mapping file does not exist. Check spelling of property name. Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
-						" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+				importLog.addErrorMessage(lineNum, "Property name in import definition mapping file does not exist. Check spelling of property name. Property:" + propName + " Value:" + (defaultValue == null ? importSetup.getDataValues()[dataIndex] : defaultValue) +
+						" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + this.getVisitInfo(importDefinition, importSetup));
 				return new Event(this, ERROR_FLOW_EVENT_ID);
 			}
 			else {
@@ -2209,8 +2859,8 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 
 				if (!propIgnoreCaseMatch) {
-					importLog.addErrorMessage(lineNum, "Property name in import definition mapping file does not exist in database. Check spelling of property name. Property:" + propName + " Value:" + importSetup.getDataValues()[i] +  
-						" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+					importLog.addErrorMessage(lineNum, "Property name in import definition mapping file does not exist in database. Check spelling of property name. Property:" + propName + " Value:" + (defaultValue == null ? importSetup.getDataValues()[dataIndex] : defaultValue) + 
+						" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + this.getVisitInfo(importDefinition, importSetup));
 					return new Event(this, ERROR_FLOW_EVENT_ID);
 				}
 				else {
@@ -2228,29 +2878,53 @@ public class CrmsImportHandler extends ImportHandler {
 			// use Apache Commons BeanUtils rather than PropertyUtils as BeanUtils will convert the data value
 			// from String to its correct type
 			
-			logger.info("setting propName="+propName+" to value="+importSetup.getDataValues()[i]);
+			logger.info("setting propName="+propName+" to value="+(defaultValue == null ? importSetup.getDataValues()[dataIndex] : defaultValue));
 			
-			BeanUtils.setProperty(entity, entityPropName, importSetup.getDataValues()[i]);
+			if (defaultValue == null) {
+				BeanUtils.setProperty(entity, entityPropName, importSetup.getDataValues()[dataIndex]);
+			}
+			else {
+				BeanUtils.setProperty(entity, entityPropName, defaultValue);
+			}
 		}
 		catch (InvocationTargetException ex) {
-			importLog.addErrorMessage(lineNum, "[InvocationTargetException] Error setting property: Property:" + entityPropName + " Value:" + importSetup.getDataValues()[i] +  
-					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+			importLog.addErrorMessage(lineNum, "[InvocationTargetException] setProperty: Data file index:" + dataIndex 
+					+ " Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + this.getVisitInfo(importDefinition, importSetup)
+					+ " Data file variable:" + importSetup.getDataCols()[dataIndex] + " Data file value:" + importSetup.getDataValues()[dataIndex] 
+					+ " Mapping entity:" + entityName + " Mapping property:" + propName
+					+ "<br>Message:" + ex.getMessage());
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		catch (IllegalAccessException ex) {
-			importLog.addErrorMessage(lineNum, "[IllegalAccessException] Error setting property: Property:" + entityPropName + " Value:" + importSetup.getDataValues()[i] +  
-					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+			importLog.addErrorMessage(lineNum, "[IllegalAccessException] setProperty: Data file index:" + dataIndex 
+					+ " Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + this.getVisitInfo(importDefinition, importSetup)
+					+ " Data file variable:" + importSetup.getDataCols()[dataIndex] + " Data file value:" + importSetup.getDataValues()[dataIndex] 
+					+ " Mapping entity:" + entityName + " Mapping property:" + propName
+					+ "<br>Message:" + ex.getMessage());
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		catch (Exception ex) {
-			importLog.addErrorMessage(lineNum, "[Exception] Error setting property: Property:" + entityPropName + " Value:" + importSetup.getDataValues()[i] +  
-					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + visitDateAsString);
+			importLog.addErrorMessage(lineNum, "[Exception] setProperty: Data file index:" + dataIndex 
+					+ " Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + this.getVisitInfo(importDefinition, importSetup)
+					+ " Data file variable:" + importSetup.getDataCols()[dataIndex] + " Data file value:" + importSetup.getDataValues()[dataIndex] 
+					+ " Mapping entity:" + entityName + " Mapping property:" + propName
+					+ "<br>Message:" + ex.getMessage());
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
-		if (!StringUtils.hasText(importSetup.getDataValues()[i])) {
-			// resume throwing exceptions (second and third arguments ignored in this case)
-			this.setupBeanUtilConverters(importSetup);
-		}								
+
+		if (defaultValue == null) {
+			if (!StringUtils.hasText(importSetup.getDataValues()[dataIndex])) {
+				// resume throwing exceptions (second and third arguments ignored in this case)
+				this.setupBeanUtilConverters(importSetup);
+			}
+		}		
+		else {
+			if (!StringUtils.hasText(defaultValue.toString())) {
+				// resume throwing exceptions (second and third arguments ignored in this case)
+				this.setupBeanUtilConverters(importSetup);
+			}
+		}
+
 		return new Event(this, SUCCESS_FLOW_EVENT_ID);
 	}
 
@@ -2261,16 +2935,20 @@ public class CrmsImportHandler extends ImportHandler {
 	 * @param importDefinition
 	 * @param importSetup
 	 * @param importLog
-	 * @param i
+	 * @param dataIndex
 	 * @param propNamesSet
 	 * @param lineNum
 	 * @throws Exception
 	 */
 	protected Event setOtherPropertyHandling(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, 
-			CrmsImportLog importLog, int i, Set<String> propNamesSet, int lineNum) throws Exception {
+			CrmsImportLog importLog, Integer dataIndex, String definitionEntityName, String definitionPropName,
+			Set<String> propNamesSet, Object defaultValue, int lineNum) throws Exception {
 		// if property was not set in setPropertyHandling then it is likely that there is a mapping problem, or it is
 		// a custom property that a subclass should handle in an overridden setOtherPropertyHandling
-		importLog.addErrorMessage(lineNum, "Property not set: Mapping column:" + importSetup.getMappingCols()[i] + " Mapping entity:" + importSetup.getMappingEntities()[i] + " Mapping property:" + importSetup.getMappingProps()[i]);
+		importLog.addErrorMessage(lineNum, "Property not set: Data file index:" + dataIndex 
+				+ " Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + this.getVisitInfo(importDefinition, importSetup)
+				+ " Data file variable:" + importSetup.getDataCols()[dataIndex] + " Data file value:" + importSetup.getDataValues()[dataIndex] 
+				+ " Mapping entity:" + definitionEntityName + " Mapping property:" + definitionPropName);
 		return new Event(this, ERROR_FLOW_EVENT_ID);
 	}
 
@@ -2284,7 +2962,6 @@ public class CrmsImportHandler extends ImportHandler {
 	 * Caregiver, or for other custom handling. Make sure they call this superclass method. 
 	 */
 	protected Event saveImportRecord(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum) {
-		SimpleDateFormat formatter, msgDateFormatter = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
 		// for new entities must explicitly save since not associated with a Hibernate session. for
 		// updates, entity was retrieved and thus attached to a session and Hibernate dirty checking should
 		// implicitly update the entity
@@ -2326,24 +3003,68 @@ public class CrmsImportHandler extends ImportHandler {
 			if (importSetup.isVisitCreated()) {
 				importSetup.getVisit().save();
 				importLog.addCreatedMessage(lineNum, "VISIT CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
-					" VisitDate:" + msgDateFormatter.format(importSetup.getVisit().getVisitDate()) + " VisitType:" + importSetup.getVisit().getVisitType());
+					this.getVisitInfo(importDefinition, importSetup));
 			}
-			if (importSetup.isInstrCreated() || importSetup.isInstrExisted() || importSetup.isInstrExistedWithData()) {
-				importSetup.getInstrument().save();
-				if (importSetup.isInstrCreated()) {
-					importLog.addCreatedMessage(lineNum, "INSTRUMENT CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
-						" Instrument:" + importDefinition.getInstrType());
-				}
-				if (importSetup.isInstrExisted()) {
-					importLog.addCreatedMessage(lineNum, "EXISTING INSTRUMENT WITH NO DATA USED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
-							" Instrument:" + importDefinition.getInstrType());
-				}
-				//NOTE: currently the allowInstrUpdate flag is only enabled in the UI for SYSTEM_ADMIN until implement a user confirmation that
-				// permits overwriting existing data
-				if (importSetup.isInstrExistedWithData()) {
-					importLog.addCreatedMessage(lineNum, "EXISTING INSTRUMENT WITH DATA UPDATED (OVERWRITTEN), Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
-							" Instrument:" + importDefinition.getInstrType());
-				}
+			
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstrCreated(), importSetup.isInstrExisted(), importSetup.isInstrExistedWithData(), 
+					importDefinition.getInstrCalculate(), importSetup.getInstrument(), importDefinition.getInstrType()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr2Created(), importSetup.isInstr2Existed(), importSetup.isInstr2ExistedWithData(), 
+					importDefinition.getInstrCalculate2(), importSetup.getInstrument2(), importDefinition.getInstrType2()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr3Created(), importSetup.isInstr3Existed(), importSetup.isInstr3ExistedWithData(), 
+					importDefinition.getInstrCalculate3(), importSetup.getInstrument3(), importDefinition.getInstrType3()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr4Created(), importSetup.isInstr4Existed(), importSetup.isInstr4ExistedWithData(), 
+					importDefinition.getInstrCalculate4(), importSetup.getInstrument4(), importDefinition.getInstrType4()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr5Created(), importSetup.isInstr5Existed(), importSetup.isInstr5ExistedWithData(), 
+					importDefinition.getInstrCalculate5(), importSetup.getInstrument5(), importDefinition.getInstrType5()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr6Created(), importSetup.isInstr6Existed(), importSetup.isInstr6ExistedWithData(), 
+					importDefinition.getInstrCalculate6(), importSetup.getInstrument6(), importDefinition.getInstrType6()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr7Created(), importSetup.isInstr7Existed(), importSetup.isInstr7ExistedWithData(), 
+					importDefinition.getInstrCalculate7(), importSetup.getInstrument7(), importDefinition.getInstrType7()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr8Created(), importSetup.isInstr8Existed(), importSetup.isInstr8ExistedWithData(), 
+					importDefinition.getInstrCalculate8(), importSetup.getInstrument8(), importDefinition.getInstrType8()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr9Created(), importSetup.isInstr9Existed(), importSetup.isInstr9ExistedWithData(), 
+					importDefinition.getInstrCalculate9(), importSetup.getInstrument9(), importDefinition.getInstrType9()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr10Created(), importSetup.isInstr10Existed(), importSetup.isInstr10ExistedWithData(), 
+					importDefinition.getInstrCalculate10(), importSetup.getInstrument10(), importDefinition.getInstrType10()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr11Created(), importSetup.isInstr11Existed(), importSetup.isInstr11ExistedWithData(), 
+					importDefinition.getInstrCalculate11(), importSetup.getInstrument11(), importDefinition.getInstrType11()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr12Created(), importSetup.isInstr12Existed(), importSetup.isInstr12ExistedWithData(), 
+					importDefinition.getInstrCalculate12(), importSetup.getInstrument12(), importDefinition.getInstrType12()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr13Created(), importSetup.isInstr13Existed(), importSetup.isInstr13ExistedWithData(), 
+					importDefinition.getInstrCalculate13(), importSetup.getInstrument13(), importDefinition.getInstrType13()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr14Created(), importSetup.isInstr14Existed(), importSetup.isInstr14ExistedWithData(), 
+					importDefinition.getInstrCalculate14(), importSetup.getInstrument14(), importDefinition.getInstrType14()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
+			}
+			if ((saveImportRecordInstrHelper(importDefinition, importSetup, importLog, lineNum, importSetup.isInstr15Created(), importSetup.isInstr15Existed(), importSetup.isInstr15ExistedWithData(), 
+					importDefinition.getInstrCalculate15(), importSetup.getInstrument15(), importDefinition.getInstrType15()).getId().equals(ERROR_FLOW_EVENT_ID))) {
+				return new Event(this, ERROR_FLOW_EVENT_ID);
 			}
 		}
 		catch (Exception e) {
@@ -2353,14 +3074,14 @@ public class CrmsImportHandler extends ImportHandler {
 			// e.cause.cause = MysqlDataTruncation
 			//  could potentially parse violating property out of cause.message e.g. "Data too long for column 'sp56_list' at row 1"
 			
-			// if data truncation exception iterate thru all properties, querying metadata and if property
+			//TODO: if data truncation exception iterate thru all properties, querying metadata and if property
 			// style is: "suggest", "string" or "text", get the max length from the metadata and iterate thru
 			// the properties comparing value against max length:
 			// if user set flag to truncate and warn: truncate data that exceeds max length and create warning and try again
 			// if user set flag to error out on the current record, stop processing this patient record and create error
 			
 			
-			importLog.addErrorMessage(lineNum, "Exception on save. Could be incomplete import of this record." +
+			importLog.addErrorMessage(lineNum, "Exception on save. " +
 					" Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
 					"<br>Message:" + e.getMessage() +
 					"<br>RootCause:" + ExceptionUtils.getRootCauseMessage(e));
@@ -2372,7 +3093,45 @@ public class CrmsImportHandler extends ImportHandler {
 	}
 	
 	
+	protected Event saveImportRecordInstrHelper(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum,
+			Boolean instrCreated, Boolean instrExisted, Boolean instrExistedWithData, Boolean instrCalculate, 
+			Instrument instrument, String instrType) throws Exception {
+
+		// note that if exception is throw the exception handling in the calling method will catch
+
+		if (instrCreated || instrExisted || instrExistedWithData) {
+				
+			/** TODO: at the moment, calculate is done by default because save() calls beforeCreate/afterCreate or beforeUpdate/afterUpdate 
+			 * first see if calculate will not be done merely by not importing the individual items that are used to computer summary scores
+			 *           if that does not work, need to add a flag on the Instrument class (default TRUE) and set/unset it here so the instrument beforeCreate/afterCreate 
+			 *           and beforeUpdate/afterUpdate are only called if the flag is set
+			if (!instrCalculate) {
+				//TODO: set a flag on Instrument so that it will not run calculations in the before/after hooks
+			}
+			**/
+				
+			importSetup.getInstrument().save();
+				
+			if (instrCreated) {
+				importLog.addCreatedMessage(lineNum, "INSTRUMENT CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
+					this.getVisitInfo(importDefinition, importSetup) + " Instrument:" + instrType);
+			}
+			if (instrExisted) {
+				importLog.addCreatedMessage(lineNum, "EXISTING INSTRUMENT WITH NO DATA UPDATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
+					this.getVisitInfo(importDefinition, importSetup) + " Instrument:" + instrType + " (" + instrument.getId() + ")");
+			}
+			//NOTE: currently the allowInstrUpdate flag is only enabled in the UI for SYSTEM_ADMIN until implement a user confirmation flow that
+			// permits overwriting existing data
+			if (instrExistedWithData) {
+				importLog.addCreatedMessage(lineNum, "EXISTING INSTRUMENT WITH DATA UPDATED (OVERWRITTEN), Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
+					this.getVisitInfo(importDefinition, importSetup) + " Instrument:" + instrType + "(" + instrument.getId() + ")");
+			}
+		}
+		
+		return new Event(this, SUCCESS_FLOW_EVENT_ID);
+	}
 	
+		
 	/**
 	 * Called at the end of processing an import record (that was not aborted due to an error).
 	 * 
@@ -2430,11 +3189,11 @@ public class CrmsImportHandler extends ImportHandler {
 		if (importSetup.isInstrCreated()) {
 			importLog.incNewInstruments();
 		}
+		if (importSetup.isInstrExisted()) {
+			importLog.incExistingInstruments();
+		}
 		if (importSetup.isInstrExistedWithData()) {
 			importLog.incExistingInstrumentsWithData();
-		}
-		else if (importSetup.isInstrExisted()) {
-			importLog.incExistingInstruments();
 		}
 	}
 	
@@ -2475,6 +3234,20 @@ public class CrmsImportHandler extends ImportHandler {
 		return model; 
 	}
 
+
+	protected String getVisitInfo(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup) {
+		if (importDefinition.getPatientOnlyImport()) {
+			return "";
+		}
+		
+		StringBuffer visitInfo = new StringBuffer(" Visit:").append(new SimpleDateFormat(DEFAULT_DATE_FORMAT).format(importSetup.getVisit().getVisitDate()));
+		visitInfo.append(" ").append(importSetup.getVisit().getVisitType());
+		// if visit was just created as part of the import it will not have an id yet
+		if (importSetup.getVisit().getId() != null) {
+			visitInfo.append(" (").append(importSetup.getVisit().getId()).append(")");
+		}
+		return visitInfo.toString();
+	}
 	
 	
 }

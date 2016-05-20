@@ -32,9 +32,12 @@ of component --%>
 	<page:param name="sectionNameKey">importDefinition.crmsConfig.section</page:param>
 	<page:param name="instructions"><spring:message code="importDefinition.crmsInstructions"/></page:param>
 
+	<div class="verticalSpace10">&nbsp;</div>
 	<tags:outputText textKey="importDefinition.project.usage" styleClass="italic" inline="false"/>
 	<tags:createField property="projName" component="${component}" entity="importDefinition"/>
-			
+	<div class="verticalSpace30">
+		&nbsp;
+	</div>	
 	<tags:tableForm>
 		<tags:listRow>
 			<tags:listColumnHeader labelKey="" width="10%"/>
@@ -84,8 +87,8 @@ of component --%>
 		
 		<tags:listRowGroup>
  				<tags:listRow height="100">
-				<tags:listCell rowspan="4">Visit</tags:listCell>
-				<tags:listCell rowspan="4" labelSize="medium">
+				<tags:listCell>Visit</tags:listCell>
+				<tags:listCell labelSize="medium">
 					<tags:outputText textKey="importDefinition.visit.visitWindow" styleClass="italic" inline="false"/>
 					<tags:createField property="visitWindow" component="${component}" entity="importDefinition"/><br/>
 					<tags:ifHasRole roles="SYSTEM ADMIN"> 
@@ -98,8 +101,8 @@ of component --%>
 	  			 	mission of the import functionality
 	  			<tags:createField property="allowVisitUpdate" component="${component}"/>
                    --%>
-				<tags:listCell rowspan="4"><tags:createField property="visitExistRule" component="${component}" entity="importDefinition" mode="${controlMode}"/></tags:listCell>
-				<tags:listCell rowspan="4" labelSize="medium">
+				<tags:listCell><tags:createField property="visitExistRule" component="${component}" entity="importDefinition" mode="${controlMode}"/></tags:listCell>
+				<tags:listCell labelSize="medium">
 					<tags:outputText textKey="importDefinition.visit.visitTypeMatched" styleClass="italic" inline="false"/>
 					<tags:createField property="visitType" component="${component}" entity="importDefinition"/>
 					<div class="verticalSpace10">&nbsp;</div>
@@ -114,53 +117,133 @@ of component --%>
 		
 		<tags:listRowGroup>
  				<tags:listRow>
-				<tags:listCell rowspan="30">Instrument</tags:listCell>
-				<tags:listCell rowspan="30">
-					<tags:outputText textKey="importDefinition.instr.upTo10Instruments" styleClass="italic" inline="false"/>
+				<tags:listCell>Instrument</tags:listCell>
+				<tags:listCell>
+					<tags:outputText textKey="importDefinition.instr.multipleInstruments" styleClass="italic" inline="false"/>
 					<tags:outputText text="Instrument #1" inline="true"/><br/>
 					<tags:createField property="instrType" component="${component}" entity="importDefinition" mode="${controlMode}"/>
 					<tags:createField property="instrVer" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
-					<tags:createField property="instrCaregiver" component="${component}" entity="importDefinition"/><br/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:createField property="instrCaregiver" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate" component="${component}" entity="importDefinition"/><br/><br/>   --%>
+					<div class="verticalSpace10">&nbsp;</div>
 					<tags:outputText text="Instrument #2" inline="true"/><br/>
 					<tags:createField property="instrType2" component="${component}" entity="importDefinition" mode="${controlMode}"/>
  					<tags:createField property="instrVer2" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
- 					<tags:createField property="instrCaregiver2" component="${component}" entity="importDefinition"/><br/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias2" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+ 					<tags:createField property="instrCaregiver2" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate2" component="${component}" entity="importDefinition"/><br/><br/> --%>
+					<div class="verticalSpace10">&nbsp;</div>
 					<tags:outputText text="Instrument #3" inline="true"/><br/>
 					<tags:createField property="instrType3" component="${component}" entity="importDefinition" mode="${controlMode}"/>
  					<tags:createField property="instrVer3" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
- 					<tags:createField property="instrCaregiver3" component="${component}" entity="importDefinition"/><br/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias3" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+ 					<tags:createField property="instrCaregiver3" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate3" component="${component}" entity="importDefinition"/><br/><br/> --%>
+					<div class="verticalSpace10">&nbsp;</div>
 					<tags:outputText text="Instrument #4" inline="true"/><br/>
 					<tags:createField property="instrType4" component="${component}" entity="importDefinition" mode="${controlMode}"/>
  					<tags:createField property="instrVer4" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
- 					<tags:createField property="instrCaregiver4" component="${component}" entity="importDefinition"/><br/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias4" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+ 					<tags:createField property="instrCaregiver4" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate4" component="${component}" entity="importDefinition"/><br/><br/> --%>
+					<div class="verticalSpace10">&nbsp;</div>
 					<tags:outputText text="Instrument #5" inline="true"/><br/>
 					<tags:createField property="instrType5" component="${component}" entity="importDefinition" mode="${controlMode}"/>
 					<tags:createField property="instrVer5" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
-					<tags:createField property="instrCaregiver5" component="${component}" entity="importDefinition"/><br/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias5" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:createField property="instrCaregiver5" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate5" component="${component}" entity="importDefinition"/><br/><br/> --%>
+					<div class="verticalSpace10">&nbsp;</div>
 					<tags:outputText text="Instrument #6" inline="true"/><br/>
 					<tags:createField property="instrType6" component="${component}" entity="importDefinition" mode="${controlMode}"/>
 					<tags:createField property="instrVer6" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
-					<tags:createField property="instrCaregiver6" component="${component}" entity="importDefinition"/><br/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias6" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:createField property="instrCaregiver6" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate6" component="${component}" entity="importDefinition"/><br/><br/> --%>
+					<div class="verticalSpace10">&nbsp;</div>
 					<tags:outputText text="Instrument #7" inline="true"/><br/>
 					<tags:createField property="instrType7" component="${component}" entity="importDefinition" mode="${controlMode}"/>
 					<tags:createField property="instrVer7" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
-					<tags:createField property="instrCaregiver7" component="${component}" entity="importDefinition"/><br/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias7" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:createField property="instrCaregiver7" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate7" component="${component}" entity="importDefinition"/><br/><br/> --%>
+					<div class="verticalSpace10">&nbsp;</div>
 					<tags:outputText text="Instrument #8" inline="true"/><br/>
 					<tags:createField property="instrType8" component="${component}" entity="importDefinition" mode="${controlMode}"/>
 					<tags:createField property="instrVer8" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
-					<tags:createField property="instrCaregiver8" component="${component}" entity="importDefinition"/><br/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias8" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:createField property="instrCaregiver8" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate8" component="${component}" entity="importDefinition"/><br/><br/> --%>
+					<div class="verticalSpace10">&nbsp;</div>
 					<tags:outputText text="Instrument #9" inline="true"/><br/>
 					<tags:createField property="instrType9" component="${component}" entity="importDefinition" mode="${controlMode}"/>
 					<tags:createField property="instrVer9" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
-					<tags:createField property="instrCaregiver9" component="${component}" entity="importDefinition"/><br/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias9" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:createField property="instrCaregiver9" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate9" component="${component}" entity="importDefinition"/><br/><br/> --%>
+					<div class="verticalSpace10">&nbsp;</div>
 					<tags:outputText text="Instrument #10" inline="true"/><br/>
 					<tags:createField property="instrType10" component="${component}" entity="importDefinition" mode="${controlMode}"/>
 					<tags:createField property="instrVer10" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
-					<tags:createField property="instrCaregiver10" component="${component}" entity="importDefinition"/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias10" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:createField property="instrCaregiver10" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate10" component="${component}" entity="importDefinition"/><br/><br/> --%>
+					<div class="verticalSpace10">&nbsp;</div>
+					<tags:outputText text="Instrument #11" inline="true"/><br/>
+					<tags:createField property="instrType11" component="${component}" entity="importDefinition" mode="${controlMode}"/>
+					<tags:createField property="instrVer11" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias11" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:createField property="instrCaregiver11" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate11" component="${component}" entity="importDefinition"/><br/><br/> --%>
+					<div class="verticalSpace10">&nbsp;</div>
+					<tags:outputText text="Instrument #12" inline="true"/><br/>
+					<tags:createField property="instrType12" component="${component}" entity="importDefinition" mode="${controlMode}"/>
+					<tags:createField property="instrVer12" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias12" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:createField property="instrCaregiver12" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate12" component="${component}" entity="importDefinition"/><br/><br/> --%>
+					<div class="verticalSpace10">&nbsp;</div>
+					<tags:outputText text="Instrument #13" inline="true"/><br/>
+					<tags:createField property="instrType13" component="${component}" entity="importDefinition" mode="${controlMode}"/>
+					<tags:createField property="instrVer13" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias13" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:createField property="instrCaregiver13" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate13" component="${component}" entity="importDefinition"/><br/><br/> --%>
+					<div class="verticalSpace10">&nbsp;</div>
+					<tags:outputText text="Instrument #14" inline="true"/><br/>
+					<tags:createField property="instrType14" component="${component}" entity="importDefinition" mode="${controlMode}"/>
+					<tags:createField property="instrVer14" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias14" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:createField property="instrCaregiver14" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate14" component="${component}" entity="importDefinition"/><br/><br/> --%>
+					<div class="verticalSpace10">&nbsp;</div>
+					<tags:outputText text="Instrument #15" inline="true"/><br/>
+					<tags:createField property="instrType15" component="${component}" entity="importDefinition" mode="${controlMode}"/>
+					<tags:createField property="instrVer15" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:outputText textKey="importDefinition.instr.mappingAlias" inline="true"/>
+					<tags:createField property="instrMappingAlias15" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
+					<tags:createField property="instrCaregiver15" component="${component}" entity="importDefinition"/><br/>
+					<%-- <tags:createField property="instrCalculate15" component="${component}" entity="importDefinition"/><br/><br/> --%>
 				</tags:listCell>
-				<tags:listCell rowspan="30">
-					<tags:outputText textKey="importDefinition.instr.existsRule" styleClass="italic" inline="false"/>
+				<tags:listCell>
 					<tags:createField property="instrExistRule" component="${component}" entity="importDefinition" mode="${controlMode}"/>
+					<div class="verticalSpace10">&nbsp;</div>
+					<tags:outputText textKey="importDefinition.instr.existsRule" styleClass="italic" inline="false"/>
 				<%-- currently not allowing update of instrument data to users because of testing needed to ensure 
 				    no issues with database contention and examining data quality issues that may arise giving users 
 				    the ability to update data in bulk this way (note that REDCap has this functionality). Need to 
@@ -175,7 +258,7 @@ of component --%>
 					<tags:outputText textKey="importDefinition.instr.caregiverExistsRule" styleClass="italic" inline="false"/>
 		  			<tags:createField property="instrCaregiverExistRule" component="${component}" entity="importDefinition" mode="${controlMode}"/>
 				</tags:listCell>				  			
-				<tags:listCell rowspan="30" labelSize="medium">
+				<tags:listCell labelSize="medium">
 		  			<tags:createField property="instrDcStatus" component="${component}" entity="importDefinition"/>
 				</tags:listCell>
 			</tags:listRow>
@@ -233,26 +316,36 @@ of component --%>
    	<ui:observeForNull elementIds="patientOnlyImport" component="${component}" negate="true"/>
    	<ui:setValue elementIds="esExistRule,esStatus,visitWindow,visitExistRule,visitType,visitWith,visitLoc,visitStatus" component="${component}" value=""/>
    	<ui:disable elementIds="esExistRule,esStatus,visitWindow,visitExistRule,visitType,visitWith,visitLoc,visitStatus" component="${component}"/>
-   	<ui:setValue elementIds="instrType,instrVer,instrCaregiver" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType,instrVer,instrCaregiver" component="${component}"/>
-   	<ui:setValue elementIds="instrType2,instrVer2,instrCaregiver2" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType2,instrVer2,instrCaregiver2" component="${component}"/>
-   	<ui:setValue elementIds="instrType3,instrVer3,instrCaregiver3" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType3,instrVer3,instrCaregiver3" component="${component}"/>
-   	<ui:setValue elementIds="instrType4,instrVer4,instrCaregiver4" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType4,instrVer4,instrCaregiver4" component="${component}"/>
-   	<ui:setValue elementIds="instrType5,instrVer5,instrCaregiver5" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType5,instrVer5,instrCaregiver5" component="${component}"/>
-   	<ui:setValue elementIds="instrType6,instrVer6,instrCaregiver6" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType6,instrVer6,instrCaregiver6" component="${component}"/>
-   	<ui:setValue elementIds="instrType7,instrVer7,instrCaregiver7" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType7,instrVer7,instrCaregiver7" component="${component}"/>
-   	<ui:setValue elementIds="instrType8,instrVer8,instrCaregiver8" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType8,instrVer8,instrCaregiver8" component="${component}"/>
-   	<ui:setValue elementIds="instrType9,instrVer9,instrCaregiver9" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType9,instrVer9,instrCaregiver9" component="${component}"/>
-   	<ui:setValue elementIds="instrType10,instrVer10,instrCaregiver10" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType10,instrVer10,instrCaregiver10" component="${component}"/>
+   	<ui:setValue elementIds="instrType,instrVer,instrCaregiver,instrCalculate" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType,instrVer,instrCaregiver,instrCalculate" component="${component}"/>
+   	<ui:setValue elementIds="instrType2,instrVer2,instrCaregiver2,instrCalculate2" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType2,instrVer2,instrCaregiver2,instrCalculate2" component="${component}"/>
+   	<ui:setValue elementIds="instrType3,instrVer3,instrCaregiver3,instrCalculate3" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType3,instrVer3,instrCaregiver3,instrCalculate3" component="${component}"/>
+   	<ui:setValue elementIds="instrType4,instrVer4,instrCaregiver4,instrCalculate4" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType4,instrVer4,instrCaregiver4,instrCalculate4" component="${component}"/>
+   	<ui:setValue elementIds="instrType5,instrVer5,instrCaregiver5,instrCalculate5" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType5,instrVer5,instrCaregiver5,instrCalculate5" component="${component}"/>
+   	<ui:setValue elementIds="instrType6,instrVer6,instrCaregiver6,instrCalculate6" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType6,instrVer6,instrCaregiver6,instrCalculate6" component="${component}"/>
+   	<ui:setValue elementIds="instrType7,instrVer7,instrCaregiver7,instrCalculate7" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType7,instrVer7,instrCaregiver7,instrCalculate7" component="${component}"/>
+   	<ui:setValue elementIds="instrType8,instrVer8,instrCaregiver8,instrCalculate8" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType8,instrVer8,instrCaregiver8,instrCalculate8" component="${component}"/>
+   	<ui:setValue elementIds="instrType9,instrVer9,instrCaregiver9,instrCalculate9" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType9,instrVer9,instrCaregiver9,instrCalculate9" component="${component}"/>
+   	<ui:setValue elementIds="instrType10,instrVer10,instrCaregiver10,instrCalculate10" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType10,instrVer10,instrCaregiver10,instrCalculate10" component="${component}"/>
+   	<ui:setValue elementIds="instrType11,instrVer11,instrCaregiver11,instrCalculate11" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType11,instrVer11,instrCaregiver11,instrCalculate11" component="${component}"/>
+   	<ui:setValue elementIds="instrType12,instrVer12,instrCaregiver12,instrCalculate12" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType12,instrVer12,instrCaregiver12,instrCalculate12" component="${component}"/>
+   	<ui:setValue elementIds="instrType13,instrVer13,instrCaregiver13,instrCalculate13" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType13,instrVer13,instrCaregiver13,instrCalculate13" component="${component}"/>
+   	<ui:setValue elementIds="instrType14,instrVer14,instrCaregiver14,instrCalculate14" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType14,instrVer14,instrCaregiver14,instrCalculate14" component="${component}"/>
+   	<ui:setValue elementIds="instrType15,instrVer15,instrCaregiver15,instrCalculate15" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType15,instrVer15,instrCaregiver15,instrCalculate15" component="${component}"/>
    	<%-- TODO: add allowInstrUpdate to these --%>
    	<ui:setValue elementIds="instrExistRule,instrCaregiverExistRule,instrDcStatus" component="${component}" value=""/>
    	<ui:disable elementIds="instrExistRule,instrCaregiverExistRule,instrDcStatus" component="${component}"/>
