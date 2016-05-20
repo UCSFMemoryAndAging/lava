@@ -322,6 +322,11 @@ abstract public class LavaComponentHandler implements ComponentHandler, Managers
 	}
 	/**
 	 * Utility method to extract backing object from the component map and cast to a LavaFile. 
+	 * 
+	 * Subclasses override if the LavaFile is a property of the backing object rather than the backing
+	 * object itself (general attachments work as a secondary handler where the LavaFile is the backing
+	 * object for that handler, whereas ImportDefinition and ImportLog have LavaFile (or subclass) properties.
+	 * 
 	 * @param context
 	 * @param components
 	 * @param errors
