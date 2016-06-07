@@ -6,6 +6,16 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 
 <c:set var="pageName">${param.component}</c:set>
 <c:set var="component" value="importLog"/>
+<c:set var="viewString" value="${component}_view"/>
+<c:set var="componentView" value="${requestScope[viewString]}"/>
+
+<page:applyDecorator name="component.entity.section">
+  <page:param name="sectionId">anonymous</page:param>
+<c:if test="${componentView == 'edit'}">
+	<tags:outputText textKey="importLog.notesEditable" styleClass="bold" inline="false"/>
+</c:if>	
+</page:applyDecorator>
+
 
 <page:applyDecorator name="component.entity.section">
   <page:param name="sectionId">logInfo</page:param>
