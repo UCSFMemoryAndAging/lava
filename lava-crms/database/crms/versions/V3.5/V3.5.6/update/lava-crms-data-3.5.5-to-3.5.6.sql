@@ -65,5 +65,5 @@ INSERT INTO `viewproperty` (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`
 
 DELETE FROM versionhistory WHERE module='lava-crms-data' AND version='3.5.6';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-VALUES ('lava-crms-data','3.5.6','2016-05-20',3,5,6,0);
+VALUES ('lava-crms-data','3.5.6','2016-06-06',3,5,6,0);
 
