@@ -225,6 +225,10 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		importSetup.setImportDefinition(ImportDefinition.findOneById(importSetup.getDefinitionId()));
 		importLog.setDefinition(importSetup.getImportDefinition());
 		LavaFile mappingFile = importSetup.getImportDefinition().getMappingFile();
+		if (mappingFile == null || mappingFile.getFileId() == null) {
+			LavaComponentFormAction.createCommandError(errors, "The import definition does not have a mapping file");
+			return new Event(this,this.ERROR_FLOW_EVENT_ID);
+		}
 
 		// setup BeanUtilConverters for setting imported data values on entity properties
 		this.setupBeanUtilConverters(importSetup);
@@ -334,6 +338,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	protected Event validateAndMapDataFile(BindingResult errors, ImportDefinition importDefinition, ImportSetup importSetup) throws Exception {
 			// check that data file does not have more than one instance of a column (doing the same for mapping file in 
 			// ImportDefinitionHandler)
+//TODO:	list all offending together instead of just first occurrence		
 			int j,k;
 			for (j=0; j<importSetup.getDataCols().length;j++) {
 			    for (k=j+1;k<importSetup.getDataCols().length;k++) {
@@ -388,6 +393,9 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	
 	/**
 	 * Find the index of a specified entity property in the data file, i.e. the column index of that property in the data file.
+	 * by finding the index of the property in the mapping file, and then use the mapping of mapping file indices to data
+	 * file indices to get the data file index.
+	 *
 	 * Set the resulting index on that entity property's index property in ImportSetup (or subclass).
 	 * Set the index to -1 if the property is not found in the mapping file so that there will be no attempt to import the property.
 	 * 
@@ -398,6 +406,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	 * @throws Exception
 	 */
 	protected void setDataFilePropertyIndex(ImportSetup importSetup, String indexProperty, String entityName, String propertyName) throws Exception {
+		// initialize the index to -1 meaning the property was not found
 		BeanUtils.setProperty(importSetup, indexProperty, -1);
 		int propIndex = -1;
 		// since using ArrayUtils.indexOf, matching is case sensitive. this is fine as the properties that are handled by 
