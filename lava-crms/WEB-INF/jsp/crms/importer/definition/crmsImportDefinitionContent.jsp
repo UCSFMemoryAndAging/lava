@@ -20,10 +20,22 @@ action for customization of Import Definitions, and want to share a single set o
 entity="importDefinition" to every createField so it will share the same metadata regardless of the value
 of component --%>
 
+<c:set var="mappingFile">
+	<tags:componentProperty component="${component}" property="mappingFile" property2="fileId"/>
+</c:set>		
+<c:if test="${componentView != 'add'}">
+<c:if test="${empty mappingFile}">
+  	<img class="errorIcon" src="images/error.gif" alt="error"/>
+	<tags:outputText textKey="importDefinition.noMappingFile" inline="true" styleClass="errorListItem"/>
+</c:if>
+</c:if>
+
 <page:applyDecorator name="component.entity.section">
 	<page:param name="sectionId">definition</page:param>
 	<page:param name="sectionNameKey">importDefinition.basicConfig.section</page:param>
 		<tags:createField property="name" component="${component}" entity="importDefinition"/>
+		<tags:createField property="created" component="${component}" entity="importDefinition"/>
+		<tags:createField property="createdBy" component="${component}" entity="importDefinition"/>
 		<tags:createField property="notes" component="${component}" entity="importDefinition"/>
 </page:applyDecorator>
 
@@ -285,7 +297,9 @@ of component --%>
    					need to use whatever the component is for events (actionId is fine as is because that just gets
    					turned into actionUrl which on a user request is handled by whatever dynamic and/or instance 
    					customization of the action exist) --%>
-				<tags:listActionURLButton buttonImage="download" actionId="lava.core.importer.definition.importDefinition" eventId="${component}__download" />
+				<c:if test="${not empty mappingFile}">
+					<tags:listActionURLButton buttonImage="download" actionId="lava.core.importer.definition.importDefinition" eventId="${component}__download" />
+				</c:if>
 			</c:when>
 			<c:when test="${componentView == 'edit'}">
 				<tags:outputText textKey="importDefinition.downloadMappingFile" inline="false" styleClass="italic"/>
@@ -305,6 +319,7 @@ of component --%>
 	<page:param name="sectionNameKey">importDefinition.dataFile.section</page:param>
 		<tags:createField property="dataFileFormat" component="${component}" entity="importDefinition"/>
 		<tags:createField property="startDataRow" component="${component}" entity="importDefinition"/>
+		<tags:outputText textKey="importDefinition.dateTimeFormatting" inline="false" styleClass="italic"/>
 		<tags:createField property="dateFormat" component="${component}" entity="importDefinition"/>
 		<tags:outputText textKey="importDefinition.defaultDateFormat" inline="false" indent="true" styleClass="italic"/>
 		<tags:createField property="timeFormat" component="${component}" entity="importDefinition"/>
