@@ -50,10 +50,33 @@ ALTER TABLE crms_import_definition ADD COLUMN instr_mapping_alias15 varchar(25) 
 ALTER TABLE crms_import_definition ADD COLUMN instr_caregiver15 BOOLEAN NULL DEFAULT NULL AFTER instr_mapping_alias15;
 ALTER TABLE crms_import_definition ADD COLUMN instr_calculate15 BOOLEAN NULL DEFAULT NULL AFTER instr_caregiver15;
 
+  
+DROP TABLE IF EXISTS `crms_import_log_message`;
+
+CREATE TABLE `crms_import_log_message` (
+  `message_id` int(11) NOT NULL,
+  EntityType varchar(25) NULL DEFAULT NULL,
+  PIDN int NULL DEFAULT NULL,
+  LName varchar(25) NULL DEFAULT NULL,
+  FName varchar(25) NULL DEFAULT NULL,
+  DOB datetime NULL DEFAULT NULL,
+  EnrollStatID int NULL DEFAULT NULL,
+  `ProjName` varchar(75) NULL DEFAULT NULL,
+  VID int NULL DEFAULT NULL,
+  VDate datetime NULL DEFAULT NULL,
+  VType varchar(25) NULL DEFAULT NULL,
+  InstrID int NULL DEFAULT NULL,
+  InstrType varchar(25) NULL DEFAULT NULL,
+  InstrVer varchar(25) NULL DEFAULT NULL,
+  PRIMARY KEY (`message_id`),
+  CONSTRAINT `crms_import_log_message__message_id` FOREIGN KEY (`message_id`) REFERENCES `import_log_message` (`message_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO crms_import_log_message(message_id) SELECT message_id FROM import_log_message;
 
 
 DELETE FROM versionhistory WHERE module='lava-crms-model' AND version='3.5.6';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
-VALUES ('lava-crms-model','3.5.6','2016-05-20',3,5,6,0);
+VALUES ('lava-crms-model','3.5.6','2016-06-06',3,5,6,0);
 
 
