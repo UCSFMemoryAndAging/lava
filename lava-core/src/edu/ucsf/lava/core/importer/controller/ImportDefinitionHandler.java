@@ -119,6 +119,7 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 		}
 
 			
+//TODO:	list all offending together instead of just first occurrence		
 		// validate that there are not repeated entity.property in the mapping file
 		int j,k;
 		for (j=0; j<mappingProps.length;j++) {
@@ -136,9 +137,15 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 		    }
 		}
 
-//TODO:			
+//TODO:	list all offending together instead of just first occurrence		
 		// validate that any default values in the mapping file have a property name specified, because the property cannot
 		// default to the row 1 variable name if row 3 property is blank because row 1 is used to specify the default value
+		for (j=0; j<mappingCols.length;j++) {
+			if (mappingCols[j].startsWith(("DEFAULT:")) && !StringUtils.hasText(mappingProps[j])) {
+				LavaComponentFormAction.createCommandError(errors, "DEFAULT Column " + j + ". Row 1 mapping " + mappingCols[j] + " must have a property name in Row 3");
+				return new Event(this,ERROR_FLOW_EVENT_ID);
+			}
+		}
 
 			
 			
@@ -149,9 +156,20 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 		// if entity.property does not exist. but would of course be better for the user if it was done now.
 			
 			
+		return mappingFilePropertyValidation(context, command, errors, mappingCols, mappingEntities, mappingProps);
+	}
+	
+
+	protected Event mappingFilePropertyValidation(RequestContext context, Object command, BindingResult errors, 
+			String[] mappingCols, String[] mappingEntities, String[] mappingProps) throws Exception{
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
 	
+
+	protected Event conditionalValidation(RequestContext context, Object command, BindingResult errors) throws Exception{
+		return new Event(this,SUCCESS_FLOW_EVENT_ID);
+	}
+
 	
 	// this is called in getUploadFile which uploads the specified file and populates the mappingFile 
 	// LavaFile properties and is called in getDownloadFileContent to download the file 
@@ -169,10 +187,15 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	
 	
 	protected Event doSaveAdd(RequestContext context, Object command,BindingResult errors) throws Exception {
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		Event returnEvent;
 		MultipartFile uploadFile = context.getRequestParameters().getMultipartFile(getDefaultObjectName() + "_uploadFile");
 		ImportDefinition definition = (ImportDefinition) ((ComponentCommand)command).getComponents().get(getDefaultObjectName());
 		ImportFile mappingFile = definition.getMappingFile();
+		
+		if (this.conditionalValidation(context, command, errors).getId().equals(ERROR_FLOW_EVENT_ID)) {
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
 		
 		if(uploadFile != null && uploadFile.getSize() != 0){
 			// doSaveAdd will save the importDefinition and mappingFile LavaFile properties. however, because the 
@@ -194,6 +217,13 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 			}
 
 			if (returnEvent.getId().equals(SUCCESS_FLOW_EVENT_ID)) {
+				definition.setCreated(new Date());
+				String createdBy = CoreSessionUtils.getCurrentUser(sessionManager, request).getUserName();
+				if (createdBy != null && createdBy.length() > 25) {
+					// have to truncate due to database mismatch in column lengths
+					createdBy = createdBy.substring(0,24);
+				}
+				definition.setCreatedBy(createdBy);
 				return super.doSaveAdd(context, command, errors);
 			}
 			else {
@@ -201,8 +231,9 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 			}
 		}
 		else {
-			LavaComponentFormAction.createCommandError(errors, "importDefinition.noMappingFile", null);
-			return new Event(this,ERROR_FLOW_EVENT_ID);
+			// allow save even if mapping file is not supplied as user may not have mapping file ready
+			// but wants to start definition
+			return super.doSaveAdd(context, command, errors);
 		}
 	}
 
@@ -227,6 +258,10 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	
 	protected Event doSave(RequestContext context, Object command,BindingResult errors) throws Exception {
 		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
+
+		if (this.conditionalValidation(context, command, errors).getId().equals(ERROR_FLOW_EVENT_ID)) {
+			return new Event(this, ERROR_FLOW_EVENT_ID);
+		}
 		
 		// only change lavaFile if MultipartFile is specified, i.e. it is not required here since it has already
 		// been uploaded and written to the repository by doSaveAdd
@@ -250,6 +285,9 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 			}
 		}
 
+		// allow save even if mapping file is not supplied as user may not have mapping file ready
+		// but wants to save definition
+
 		// do this after saving the LavaFile to the repository because that populates some LavaFile properties
 		if (returnEvent.getId().equals(SUCCESS_FLOW_EVENT_ID)) {
 			return super.doSave(context, command, errors);
@@ -269,7 +307,10 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 		// editing a definition where user is changing the mapping file
 
 				
-		mappingFile.deleteFile();
+		// editing a definition where user may either be adding a mapping file, or user may be changing the mapping file
+		if (mappingFile != null && mappingFile.getFileId() != null) {
+			mappingFile.deleteFile();
+		}
 
 		// getUploadFile will populate the mappingFile property due to getLavaBackingFileObject override
 		mappingFile = (ImportFile) this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
