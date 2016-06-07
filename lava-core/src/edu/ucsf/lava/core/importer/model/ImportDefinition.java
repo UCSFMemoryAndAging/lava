@@ -1,5 +1,7 @@
 package edu.ucsf.lava.core.importer.model;
 
+import java.util.Date;
+
 import edu.ucsf.lava.core.file.model.ImportFile;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
@@ -27,6 +29,8 @@ public class ImportDefinition extends EntityBase {
 	//imported textual data that is too long should be automatically truncated to the max length, or whether
 	//there should be an error and the record is not imported
 	private Short truncate;  
+	private Date created;
+	private String createdBy;
 	private String notes;
 
 	public ImportDefinition(){
@@ -100,6 +104,23 @@ public class ImportDefinition extends EntityBase {
 
 	public void setTruncate(Short truncate) {
 		this.truncate = truncate;
+	}
+
+	
+	public Date getCreated() {
+		return created;
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
 	}
 
 	public String getNotes() {

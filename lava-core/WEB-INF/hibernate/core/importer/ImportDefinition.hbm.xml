@@ -20,6 +20,8 @@
 		<property name="dateFormat" column="date_format" type="string" length="20"/>
 		<property name="timeFormat" column="time_format" type="string" length="20"/>
 		<property name="truncate" column="truncate" type="short"/>
+		<property name="created" column="created" type="timestamp"/>
+		<property name="createdBy" column="created_by" type="string" length="25"/>
 		<property name="notes" column="notes" type="string" length="500"/>
 
 		<!-- TODO: project references should be in lava-crms not lava-core. in order for the crms subclass of this class to
