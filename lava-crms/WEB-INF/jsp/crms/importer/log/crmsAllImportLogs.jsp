@@ -22,12 +22,19 @@
 </content>
 
 <tags:list component="${component}" >
+
+<%-- cannot get PropertyEditor registered to match the nested pageList array syntax, so convert here "manually" outside the
+scope of property editor conversion to display the time part of the date --%>
+	<fmt:formatDate value="${command.components['allImportLogs'].pageList[iterator.index].entity.importTimestamp}" type="both" 
+		pattern="MM/dd/yyyy hh:mm a" var="importTimestampString"/>	
+
 	<tags:listRow>
 		<tags:listCell styleClass="actionButton">
 			<tags:listActionURLButton buttonImage="view" actionId="lava.core.importer.log.importLog" eventId="importLog__view" idParam="${item.id}"/>	    
 		</tags:listCell>
 		<tags:listCell>
-			<tags:listField property="importTimestamp" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>
+			<tags:outputText text="${importTimestampString}" inline="true" styleClass="bold"/>
+			<%-- <tags:listField property="importTimestamp" component="${component}" listIndex="${iterator.index}" entityType="importLog"/>  --%>
 		</tags:listCell>
 		<tags:listCell>
 			<tags:listField property="definition.name" component="${component}" listIndex="${iterator.index}" entityType="importLog"/><br/>
