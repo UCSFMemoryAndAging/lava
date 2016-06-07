@@ -1,6 +1,5 @@
 package edu.ucsf.lava.core.importer.model;
 
-import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -220,47 +219,6 @@ public class ImportLog extends EntityBase {
 		sb.append("Errors=").append(this.getErrors()).append(", ");
 		sb.append("Warnings=").append(this.getWarnings());
 		return sb.toString();
-	}
-
-	public static class ImportLogMessage implements Serializable {
-		private String type;
-		private Integer lineNum;
-		private String message;
-		
-		public ImportLogMessage(){
-			super();
-		}
-		
-		public ImportLogMessage(String type, Integer lineNum, String message) {
-			this.type = type;
-			this.lineNum = lineNum;
-			this.message = message;
-		}
-
-		public String getType() {
-			return type;
-		}
-
-		public void setType(String type) {
-			this.type = type;
-		}
-
-		public Integer getLineNum() {
-			return lineNum;
-		}
-
-		public void setLineNum(Integer lineNum) {
-			this.lineNum = lineNum;
-		}
-
-		public String getMessage() {
-			return message;
-		}
-
-		public void setMessage(String message) {
-			this.message = message;
-		}
-
 	}
 
 }

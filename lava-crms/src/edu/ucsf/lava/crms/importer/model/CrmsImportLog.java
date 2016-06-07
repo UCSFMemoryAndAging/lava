@@ -1,6 +1,7 @@
 package edu.ucsf.lava.crms.importer.model;
 
 import edu.ucsf.lava.core.importer.model.ImportLog;
+import edu.ucsf.lava.core.importer.model.ImportLogMessage;
 import edu.ucsf.lava.core.model.EntityBase;
 import edu.ucsf.lava.core.model.EntityManager;
 
@@ -257,6 +258,38 @@ public class CrmsImportLog extends ImportLog {
 
 	public void incExistingInstrumentsWithData() {
 		this.existingInstrumentsWithData++;
+	}
+
+	public void addMessage(String type, Integer lineNum, String msg) {
+		ImportLogMessage logMessage = new CrmsImportLogMessage(type, lineNum, msg);
+		this.getMessages().add(logMessage);
+	}
+	
+	public void addMessage(String type, Integer lineNum, String msg, CrmsImportLogMessage crmsInfo) {
+		ImportLogMessage logMessage = new CrmsImportLogMessage(type, lineNum, msg, crmsInfo);
+		this.getMessages().add(logMessage);
+	}
+	
+	public void addDebugMessage(Integer lineNum, String msg, CrmsImportLogMessage crmsInfo) {
+		this.addMessage(DEBUG_MSG, lineNum, msg, crmsInfo);
+	}
+	
+	public void addErrorMessage(Integer lineNum, String msg, CrmsImportLogMessage crmsInfo) {
+		this.addMessage(ERROR_MSG, lineNum, msg, crmsInfo);
+		this.incErrors();
+	}
+
+	public void addWarningMessage(Integer lineNum, String msg, CrmsImportLogMessage crmsInfo) {
+		this.addMessage(WARNING_MSG, lineNum, msg, crmsInfo);
+		this.incWarnings();
+	}
+
+	public void addInfoMessage(Integer lineNum, String msg, CrmsImportLogMessage crmsInfo) {
+		this.addMessage(INFO_MSG, lineNum, msg, crmsInfo);
+	}
+	
+	public void addCreatedMessage(Integer lineNum, String msg, CrmsImportLogMessage crmsInfo) {
+		this.addMessage(CREATED_MSG, lineNum, msg, crmsInfo);
 	}
 	
 }

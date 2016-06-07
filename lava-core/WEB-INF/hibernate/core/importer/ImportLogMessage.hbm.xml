@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"
+    [<!ENTITY fileInclude SYSTEM "classpath://../hibernate/core/file/fileInclude.xml" >]>
+    
+<hibernate-mapping>
+
+	<class name="edu.ucsf.lava.core.importer.model.ImportLogMessage" table="import_log_message" select-before-update="true">
+		<id name="id" type="long">
+			<column name="message_id" not-null="true"/>
+			<generator class="identity"/>
+		</id>
+		<property name="type" column="msg_type" type="string" length="10"/>
+		<property name="lineNum" column="line_num" type="integer"/>
+		<property name="message" column="message" type="string" length="5000"/>
+	</class>
+	
+</hibernate-mapping>

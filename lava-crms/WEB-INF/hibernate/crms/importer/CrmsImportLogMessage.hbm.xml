@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+    
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"
+    [<!ENTITY fileInclude SYSTEM "classpath://../hibernate/core/file/fileInclude.xml" >]>
+    
+<hibernate-mapping>
+	<joined-subclass name="edu.ucsf.lava.crms.importer.model.CrmsImportLogMessage" table="crms_import_log_message" extends="edu.ucsf.lava.core.importer.model.ImportLogMessage" select-before-update="true">
+		<key column="message_id"/>		
+		<property name="entityType" column="EntityType" type="string" length="25"/>
+		<property name="patientId" column="PIDN" type="long"/>
+		<property name="lastName" column="LName" type="string" length="25"/>
+		<property name="firstName" column="FName" type="string" length="25"/>
+		<property name="birthDate" column="DOB" type="timestamp"/>
+		<property name="enrollStatId" column="EnrollStatID" type="long"/>
+		<property name="projName" column="ProjName" type="string" length="75"/>
+		<property name="visitId" column="VID" type="long"/>
+		<property name="visitDate" column="VDate" type="timestamp"/>
+		<property name="visitType" column="VType" type="string" length="25"/>
+		<property name="instrId" column="InstrID" type="long"/>
+		<property name="instrType" column="InstrType" type="string" length="25"/>
+		<property name="instrVer" column="InstrVer" type="string" length="25"/>
+	</joined-subclass>
+	
+</hibernate-mapping>

@@ -26,14 +26,11 @@
 		<property name="errors" column="errors" type="integer"/>
 		<property name="warnings" column="warnings" type="integer"/>
 		<property name="notes" column="notes" type="string" length="500"/>
-   		<list name="messages" table="import_log_message" lazy="false" cascade="all">
+		<!-- using one-to-many instead of inline composite-element because there is a crms subclass of this class -->   		
+   		<list name="messages" lazy="false" cascade="all">
    			<key column="log_id" not-null="true"/>
 			<list-index column="list_index" base="1"/>
-			<composite-element class="edu.ucsf.lava.core.importer.model.ImportLog$ImportLogMessage">
-				<property name="type" column="msg_type" type="string" length="10"/>
-				<property name="lineNum" column="line_num" type="integer"/>
-				<property name="message" column="message" type="string" length="5000"/>
-   			</composite-element>
+   			<one-to-many class="edu.ucsf.lava.core.importer.model.ImportLogMessage"/>
    		</list>
 
 		<!-- TODO: project references should be in lava-crms not lava-core. in order for the crms subclass of this class to
