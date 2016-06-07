@@ -1,11 +1,16 @@
 package edu.ucsf.lava.core.importer.controller;
 
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.PropertyEditorRegistry;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
@@ -19,7 +24,7 @@ import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.file.model.ImportFile;
 import edu.ucsf.lava.core.file.model.LavaFile;
 import edu.ucsf.lava.core.importer.model.ImportLog;
-import edu.ucsf.lava.core.importer.model.ImportLog.ImportLogMessage;
+import edu.ucsf.lava.core.importer.model.ImportLogMessage;
  
 
 /**
@@ -39,6 +44,14 @@ public class ImportLogHandler extends BaseEntityComponentHandler {
 		this.setSupportsAttachedFiles(true);
 	}
 	
+	public void registerPropertyEditors(PropertyEditorRegistry registry) {
+		super.registerPropertyEditors(registry);
+		// register a property-specific custom editor for importTimestamp since want to display a time component
+		// vital: Spring binding requires our syntax to not include the single quotes around the component entity name,
+		// i.e. must pass in "components[importLog].importTimestamp" and not "components['importLog'].importTimestamp" to registerCustomEditor
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy h:mma");
+		registry.registerCustomEditor(Date.class, "components[importLog].importTimestamp", new CustomDateEditor(dateFormat, true));
+	}
 	
 
 	@Override
