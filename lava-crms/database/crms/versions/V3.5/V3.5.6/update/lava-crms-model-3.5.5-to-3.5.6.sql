@@ -75,6 +75,15 @@ CREATE TABLE `crms_import_log_message` (
 INSERT INTO crms_import_log_message(message_id) SELECT message_id FROM import_log_message;
 
 
+ALTER TABLE crms_import_definition CHANGE COLUMN match_visit_type match_visit_type_flag BOOLEAN NULL DEFAULT NULL AFTER visit_window;
+— the following were added and then not used but keeping them for potential future use
+ALTER TABLE crms_import_definition ADD COLUMN match_visit_type varchar(25) NULL DEFAULT NULL AFTER `match_visit_type_flag`;
+ALTER TABLE crms_import_definition ADD COLUMN match_visit_type2 varchar(25) NULL DEFAULT NULL AFTER `match_visit_type`;
+ALTER TABLE crms_import_definition ADD COLUMN match_visit_type3 varchar(25) NULL DEFAULT NULL AFTER `match_visit_type2`;
+
+ALTER TABLE crms_import_definition ADD COLUMN instr_default_code varchar(5) NULL DEFAULT NULL AFTER `instr_calculate15`;
+
+
 DELETE FROM versionhistory WHERE module='lava-crms-model' AND version='3.5.6';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
 VALUES ('lava-crms-model','3.5.6','2016-06-06',3,5,6,0);

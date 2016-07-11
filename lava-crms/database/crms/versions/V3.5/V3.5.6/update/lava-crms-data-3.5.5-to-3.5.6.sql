@@ -4,7 +4,6 @@
 -- adding individual changes to a script like this, but then again a script like this makes it
 -- clear what metadata was added, changed, deleted
 
-
 UPDATE viewproperty SET label='New instrument (bundles) Created',quickHelp='New instruments (bundles) Created' WHERE messageCode = '*.importLog.newInstruments';
 UPDATE viewproperty SET label='Already Existing Instrument (bundles) with no data',quickHelp='Already Existing Instrument (bundles) with no data' WHERE messageCode = '*.importLog.existingInstruments';
 UPDATE viewproperty SET label='Already Existing Instrument (bundles) With Data (data not imported)',quickHelp='Already Existing Instrument (bundles) With Data (data not imported)' WHERE messageCode = '*.importLog.existingInstrumentsWithData';
@@ -62,6 +61,17 @@ INSERT INTO `viewproperty` (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`
 INSERT INTO `viewproperty` (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`list`,`attributes`,`required`,`label`,`quickHelp`,`propOrder`,`maxLength`,`size`,`modified`) VALUES ('*.importDefinition.instrType15','en','lava','crms',NULL,'importDefinition','instrType15',NULL,'i','range','instrumentMetadata.instrTypes',NULL,'Yes','Instrument 15','Instrument 15 for imported data',NULL,NULL,19,'2016-04-25 22:09:25');
 INSERT INTO `viewproperty` (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`list`,`attributes`,`required`,`label`,`quickHelp`,`propOrder`,`maxLength`,`size`,`modified`) VALUES ('*.importDefinition.instrVer15','en','lava','crms',NULL,'importDefinition','instrVer15',NULL,'i','string',NULL,NULL,NULL,'Instrument 15 Version','Version for New Instrument 15 Records',NULL,NULL,8,'2016-04-25 22:09:25');
 INSERT INTO `viewproperty` (`messageCode`,`locale`,`instance`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`list`,`attributes`,`required`,`label`,`quickHelp`,`propOrder`,`maxLength`,`size`,`modified`) VALUES ('*.importDefinition.instrCaregiver15','en','lava','crms',NULL,'importDefinition','instrCaregiver15',NULL,'i','toggle',NULL,NULL,NULL,'Caregiver instrument?','Is this instrument collected from a caregiver?',NULL,NULL,NULL,'2016-04-25 22:09:25');
+
+UPDATE viewproperty SET messageCode = '*.importDefinition.matchVisitTypeFlag', property='matchVisitTypeFlag' WHERE messageCode = '*.importDefinition.matchVisitType';
+
+INSERT INTO `viewproperty` (`messageCode`,`locale`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`list`,`attributes`,`required`,`label`,`quickHelp`,`propOrder`,`maxLength`,`size`) VALUES ('*.importDefinition.matchVisitType','en','lava',NULL,'importDefinition','matchVisitType',NULL,'i','range','visit.visitTypes',NULL,'No','Match Visit Type','Match Visit Type #1',NULL,NULL,30);
+INSERT INTO `viewproperty` (`messageCode`,`locale`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`list`,`attributes`,`required`,`label`,`quickHelp`,`propOrder`,`maxLength`,`size`) VALUES ('*.importDefinition.matchVisitType2','en','lava',NULL,'importDefinition','matchVisitType2',NULL,'i','range','visit.visitTypes',NULL,'No','Match Visit Type','Match Visit Type #2',NULL,NULL,30);
+INSERT INTO `viewproperty` (`messageCode`,`locale`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`list`,`attributes`,`required`,`label`,`quickHelp`,`propOrder`,`maxLength`,`size`) VALUES ('*.importDefinition.matchVisitType3','en','lava',NULL,'importDefinition','matchVisitType3',NULL,'i','range','visit.visitTypes',NULL,'No','Match Visit Type','Match Visit Type #3',NULL,NULL,30);
+
+INSERT INTO `viewproperty` (`messageCode`,`locale`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`list`,`attributes`,`required`,`label`,`quickHelp`,`propOrder`,`maxLength`,`size`) 
+VALUES ('*.importDefinition.instrDefaultCode','en','lava',NULL,'importDefinition','instrDefaultCode',NULL,'i','range','reference.stdErrorCodes',NULL,'No','Global Default','Global default for missing (i.e. blank) values',NULL,NULL,19);
+
+
 
 DELETE FROM versionhistory WHERE module='lava-crms-data' AND version='3.5.6';
 INSERT INTO versionhistory(`Module`,`Version`,`VersionDate`,`Major`,`Minor`,`Fix`,`UpdateRequired`)
