@@ -4,6 +4,7 @@ import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_DEF_MAPPIN
 import static edu.ucsf.lava.core.file.ImportRepositoryStrategy.IMPORT_REPOSITORY_ID;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.CSV_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.TAB_FORMAT;
+import static edu.ucsf.lava.core.importer.model.ImportDefinition.STATIC_INDICATOR;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -138,11 +139,11 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 		}
 
 //TODO:	list all offending together instead of just first occurrence		
-		// validate that any default values in the mapping file have a property name specified, because the property cannot
-		// default to the row 1 variable name if row 3 property is blank because row 1 is used to specify the default value
+		// validate that any static values in the mapping file have a property name specified, because the property cannot
+		// default to the row 1 variable name if row 3 property is blank because row 1 is used to specify the static value
 		for (j=0; j<mappingCols.length;j++) {
-			if (mappingCols[j].startsWith(("DEFAULT:")) && !StringUtils.hasText(mappingProps[j])) {
-				LavaComponentFormAction.createCommandError(errors, "DEFAULT Column " + j + ". Row 1 mapping " + mappingCols[j] + " must have a property name in Row 3");
+			if (mappingCols[j].startsWith((STATIC_INDICATOR)) && !StringUtils.hasText(mappingProps[j])) {
+				LavaComponentFormAction.createCommandError(errors, STATIC_INDICATOR + " Column " + j + ". Row 1 mapping " + mappingCols[j] + " must have a property name in Row 3");
 				return new Event(this,ERROR_FLOW_EVENT_ID);
 			}
 		}
