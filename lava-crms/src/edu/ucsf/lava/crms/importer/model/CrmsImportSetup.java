@@ -120,6 +120,7 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean instrCreated;
 	private boolean instrExisted; // instrument exists with no data entered (deDate == null)
 	private boolean instrExistedWithData; // instrument exists with data entered (deDate != null)
+	private boolean instrExistedWithDataNoUpdate; // instrument exists with data entered (deDate != null) and not in update mode (which may not be currently available to the users yet)
 
 	private int indexInstr2DcDate;
 	private int indexInstr2DcStatus;
@@ -134,6 +135,7 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean instr2Created;
 	private boolean instr2Existed;
 	private boolean instr2ExistedWithData;
+	private boolean instr2ExistedWithDataNoUpdate;
 
 	private int indexInstr3DcDate;
 	private int indexInstr3DcStatus;
@@ -141,6 +143,7 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean instr3Created;
 	private boolean instr3Existed;
 	private boolean instr3ExistedWithData;
+	private boolean instr3ExistedWithDataNoUpdate;
 	
 	private int indexInstr4DcDate;
 	private int indexInstr4DcStatus;
@@ -148,6 +151,7 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean instr4Created;
 	private boolean instr4Existed;
 	private boolean instr4ExistedWithData;
+	private boolean instr4ExistedWithDataNoUpdate;
 	
 	private int indexInstr5DcDate;
 	private int indexInstr5DcStatus;
@@ -155,6 +159,7 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean instr5Created;
 	private boolean instr5Existed;
 	private boolean instr5ExistedWithData;
+	private boolean instr5ExistedWithDataNoUpdate;
 	
 	private int indexInstr6DcDate;
 	private int indexInstr6DcStatus;
@@ -162,6 +167,7 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean instr6Created;
 	private boolean instr6Existed;
 	private boolean instr6ExistedWithData;
+	private boolean instr6ExistedWithDataNoUpdate;
 	
 	private int indexInstr7DcDate;
 	private int indexInstr7DcStatus;
@@ -169,6 +175,7 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean instr7Created;
 	private boolean instr7Existed;
 	private boolean instr7ExistedWithData;
+	private boolean instr7ExistedWithDataNoUpdate;
 	
 	private int indexInstr8DcDate;
 	private int indexInstr8DcStatus;
@@ -176,6 +183,7 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean instr8Created;
 	private boolean instr8Existed;
 	private boolean instr8ExistedWithData;
+	private boolean instr8ExistedWithDataNoUpdate;
 	
 	private int indexInstr9DcDate;
 	private int indexInstr9DcStatus;
@@ -183,6 +191,7 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean instr9Created;
 	private boolean instr9Existed;
 	private boolean instr9ExistedWithData;
+	private boolean instr9ExistedWithDataNoUpdate;
 	
 	private int indexInstr10DcDate;
 	private int indexInstr10DcStatus;
@@ -190,41 +199,47 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean instr10Created;
 	private boolean instr10Existed;
 	private boolean instr10ExistedWithData;
+	private boolean instr10ExistedWithDataNoUpdate;
 
 	private int indexInstr11DcDate;
 	private int indexInstr11DcStatus;
 	private Instrument instrument11;
-	private boolean Instr11Created;
-	private boolean Instr11Existed;
-	private boolean Instr11ExistedWithData;
+	private boolean instr11Created;
+	private boolean instr11Existed;
+	private boolean instr11ExistedWithData;
+	private boolean instr11ExistedWithDataNoUpdate;
 	
 	private int indexInstr12DcDate;
 	private int indexInstr12DcStatus;
 	private Instrument instrument12;
-	private boolean Instr12Created;
-	private boolean Instr12Existed;
-	private boolean Instr12ExistedWithData;
+	private boolean instr12Created;
+	private boolean instr12Existed;
+	private boolean instr12ExistedWithData;
+	private boolean instr12ExistedWithDataNoUpdate;
 	
 	private int indexInstr13DcDate;
 	private int indexInstr13DcStatus;
 	private Instrument instrument13;
-	private boolean Instr13Created;
-	private boolean Instr13Existed;
-	private boolean Instr13ExistedWithData;
+	private boolean instr13Created;
+	private boolean instr13Existed;
+	private boolean instr13ExistedWithData;
+	private boolean instr13ExistedWithDataNoUpdate;
 	
 	private int indexInstr14DcDate;
 	private int indexInstr14DcStatus;
 	private Instrument instrument14;
-	private boolean Instr14Created;
-	private boolean Instr14Existed;
-	private boolean Instr14ExistedWithData;
+	private boolean instr14Created;
+	private boolean instr14Existed;
+	private boolean instr14ExistedWithData;
+	private boolean instr14ExistedWithDataNoUpdate;
 	
 	private int indexInstr15DcDate;
 	private int indexInstr15DcStatus;
 	private Instrument instrument15;
-	private boolean Instr15Created;
-	private boolean Instr15Existed;
-	private boolean Instr15ExistedWithData;
+	private boolean instr15Created;
+	private boolean instr15Existed;
+	private boolean instr15ExistedWithData;
+	private boolean instr15ExistedWithDataNoUpdate;
 	
 	public CrmsImportSetup() {
 		super();
@@ -255,6 +270,21 @@ public class CrmsImportSetup extends ImportSetup {
 		this.visitCreated = this.visitExisted = false;
 		this.instrument = null;
 		this.instrCreated = this.instrExisted = this.instrExistedWithData = false;
+		this.instrExistedWithDataNoUpdate = false;
+		this.instr2ExistedWithDataNoUpdate = false;
+		this.instr3ExistedWithDataNoUpdate = false;
+		this.instr4ExistedWithDataNoUpdate = false;
+		this.instr5ExistedWithDataNoUpdate = false;
+		this.instr6ExistedWithDataNoUpdate = false;
+		this.instr7ExistedWithDataNoUpdate = false;
+		this.instr8ExistedWithDataNoUpdate = false;
+		this.instr9ExistedWithDataNoUpdate = false;
+		this.instr10ExistedWithDataNoUpdate = false;
+		this.instr11ExistedWithDataNoUpdate = false;
+		this.instr12ExistedWithDataNoUpdate = false;
+		this.instr13ExistedWithDataNoUpdate = false;
+		this.instr14ExistedWithDataNoUpdate = false;
+		this.instr15ExistedWithDataNoUpdate = false;
 	}
 
 	public String getRevisedProjName() {
@@ -833,7 +863,6 @@ public class CrmsImportSetup extends ImportSetup {
 		this.indexCaregiver2ContactInfoEmail = indexCaregiver2ContactInfoEmail;
 	}
 
-
 	public int getIndexInstr2DcDate() {
 		return indexInstr2DcDate;
 	}
@@ -1291,27 +1320,27 @@ public class CrmsImportSetup extends ImportSetup {
 	}
 
 	public boolean isInstr11Created() {
-		return Instr11Created;
+		return this.instr11Created;
 	}
 
 	public void setInstr11Created(boolean instr11Created) {
-		Instr11Created = instr11Created;
+		this.instr11Created = instr11Created;
 	}
 
 	public boolean isInstr11Existed() {
-		return Instr11Existed;
+		return instr11Existed;
 	}
 
 	public void setInstr11Existed(boolean instr11Existed) {
-		Instr11Existed = instr11Existed;
+		this.instr11Existed = instr11Existed;
 	}
 
 	public boolean isInstr11ExistedWithData() {
-		return Instr11ExistedWithData;
+		return instr11ExistedWithData;
 	}
 
 	public void setInstr11ExistedWithData(boolean instr11ExistedWithData) {
-		Instr11ExistedWithData = instr11ExistedWithData;
+		this.instr11ExistedWithData = instr11ExistedWithData;
 	}
 
 	public int getIndexInstr12DcDate() {
@@ -1339,27 +1368,27 @@ public class CrmsImportSetup extends ImportSetup {
 	}
 
 	public boolean isInstr12Created() {
-		return Instr12Created;
+		return instr12Created;
 	}
 
 	public void setInstr12Created(boolean instr12Created) {
-		Instr12Created = instr12Created;
+		this.instr12Created = instr12Created;
 	}
 
 	public boolean isInstr12Existed() {
-		return Instr12Existed;
+		return instr12Existed;
 	}
 
 	public void setInstr12Existed(boolean instr12Existed) {
-		Instr12Existed = instr12Existed;
+		this.instr12Existed = instr12Existed;
 	}
 
 	public boolean isInstr12ExistedWithData() {
-		return Instr12ExistedWithData;
+		return instr12ExistedWithData;
 	}
 
 	public void setInstr12ExistedWithData(boolean instr12ExistedWithData) {
-		Instr12ExistedWithData = instr12ExistedWithData;
+		this.instr12ExistedWithData = instr12ExistedWithData;
 	}
 
 	public int getIndexInstr13DcDate() {
@@ -1387,27 +1416,27 @@ public class CrmsImportSetup extends ImportSetup {
 	}
 
 	public boolean isInstr13Created() {
-		return Instr13Created;
+		return instr13Created;
 	}
 
 	public void setInstr13Created(boolean instr13Created) {
-		Instr13Created = instr13Created;
+		this.instr13Created = instr13Created;
 	}
 
 	public boolean isInstr13Existed() {
-		return Instr13Existed;
+		return instr13Existed;
 	}
 
 	public void setInstr13Existed(boolean instr13Existed) {
-		Instr13Existed = instr13Existed;
+		this.instr13Existed = instr13Existed;
 	}
 
 	public boolean isInstr13ExistedWithData() {
-		return Instr13ExistedWithData;
+		return instr13ExistedWithData;
 	}
 
 	public void setInstr13ExistedWithData(boolean instr13ExistedWithData) {
-		Instr13ExistedWithData = instr13ExistedWithData;
+		this.instr13ExistedWithData = instr13ExistedWithData;
 	}
 
 	public int getIndexInstr14DcDate() {
@@ -1435,27 +1464,27 @@ public class CrmsImportSetup extends ImportSetup {
 	}
 
 	public boolean isInstr14Created() {
-		return Instr14Created;
+		return instr14Created;
 	}
 
 	public void setInstr14Created(boolean instr14Created) {
-		Instr14Created = instr14Created;
+		this.instr14Created = instr14Created;
 	}
 
 	public boolean isInstr14Existed() {
-		return Instr14Existed;
+		return instr14Existed;
 	}
 
 	public void setInstr14Existed(boolean instr14Existed) {
-		Instr14Existed = instr14Existed;
+		this.instr14Existed = instr14Existed;
 	}
 
 	public boolean isInstr14ExistedWithData() {
-		return Instr14ExistedWithData;
+		return instr14ExistedWithData;
 	}
 
 	public void setInstr14ExistedWithData(boolean instr14ExistedWithData) {
-		Instr14ExistedWithData = instr14ExistedWithData;
+		this.instr14ExistedWithData = instr14ExistedWithData;
 	}
 
 	public int getIndexInstr15DcDate() {
@@ -1483,27 +1512,147 @@ public class CrmsImportSetup extends ImportSetup {
 	}
 
 	public boolean isInstr15Created() {
-		return Instr15Created;
+		return instr15Created;
 	}
 
 	public void setInstr15Created(boolean instr15Created) {
-		Instr15Created = instr15Created;
+		this.instr15Created = instr15Created;
 	}
 
 	public boolean isInstr15Existed() {
-		return Instr15Existed;
+		return instr15Existed;
 	}
 
 	public void setInstr15Existed(boolean instr15Existed) {
-		Instr15Existed = instr15Existed;
+		this.instr15Existed = instr15Existed;
 	}
 
 	public boolean isInstr15ExistedWithData() {
-		return Instr15ExistedWithData;
+		return instr15ExistedWithData;
 	}
 
 	public void setInstr15ExistedWithData(boolean instr15ExistedWithData) {
-		Instr15ExistedWithData = instr15ExistedWithData;
+		this.instr15ExistedWithData = instr15ExistedWithData;
+	}
+
+	public boolean isInstrExistedWithDataNoUpdate() {
+		return instrExistedWithDataNoUpdate;
+	}
+
+	public void setInstrExistedWithDataNoUpdate(boolean instrExistedWithDataNoUpdate) {
+		this.instrExistedWithDataNoUpdate = instrExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr2ExistedWithDataNoUpdate() {
+		return instr2ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr2ExistedWithDataNoUpdate(boolean instr2ExistedWithDataNoUpdate) {
+		this.instr2ExistedWithDataNoUpdate = instr2ExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr3ExistedWithDataNoUpdate() {
+		return instr3ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr3ExistedWithDataNoUpdate(boolean instr3ExistedWithDataNoUpdate) {
+		this.instr3ExistedWithDataNoUpdate = instr3ExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr4ExistedWithDataNoUpdate() {
+		return instr4ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr4ExistedWithDataNoUpdate(boolean instr4ExistedWithDataNoUpdate) {
+		this.instr4ExistedWithDataNoUpdate = instr4ExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr5ExistedWithDataNoUpdate() {
+		return instr5ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr5ExistedWithDataNoUpdate(boolean instr5ExistedWithDataNoUpdate) {
+		this.instr5ExistedWithDataNoUpdate = instr5ExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr6ExistedWithDataNoUpdate() {
+		return instr6ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr6ExistedWithDataNoUpdate(boolean instr6ExistedWithDataNoUpdate) {
+		this.instr6ExistedWithDataNoUpdate = instr6ExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr7ExistedWithDataNoUpdate() {
+		return instr7ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr7ExistedWithDataNoUpdate(boolean instr7ExistedWithDataNoUpdate) {
+		this.instr7ExistedWithDataNoUpdate = instr7ExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr8ExistedWithDataNoUpdate() {
+		return instr8ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr8ExistedWithDataNoUpdate(boolean instr8ExistedWithDataNoUpdate) {
+		this.instr8ExistedWithDataNoUpdate = instr8ExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr9ExistedWithDataNoUpdate() {
+		return instr9ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr9ExistedWithDataNoUpdate(boolean instr9ExistedWithDataNoUpdate) {
+		this.instr9ExistedWithDataNoUpdate = instr9ExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr10ExistedWithDataNoUpdate() {
+		return instr10ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr10ExistedWithDataNoUpdate(boolean instr10ExistedWithDataNoUpdate) {
+		this.instr10ExistedWithDataNoUpdate = instr10ExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr11ExistedWithDataNoUpdate() {
+		return instr11ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr11ExistedWithDataNoUpdate(boolean instr11ExistedWithDataNoUpdate) {
+		this.instr11ExistedWithDataNoUpdate = instr11ExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr12ExistedWithDataNoUpdate() {
+		return instr12ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr12ExistedWithDataNoUpdate(boolean instr12ExistedWithDataNoUpdate) {
+		this.instr12ExistedWithDataNoUpdate = instr12ExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr13ExistedWithDataNoUpdate() {
+		return instr13ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr13ExistedWithDataNoUpdate(boolean instr13ExistedWithDataNoUpdate) {
+		this.instr13ExistedWithDataNoUpdate = instr13ExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr14ExistedWithDataNoUpdate() {
+		return instr14ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr14ExistedWithDataNoUpdate(boolean instr14ExistedWithDataNoUpdate) {
+		this.instr14ExistedWithDataNoUpdate = instr14ExistedWithDataNoUpdate;
+	}
+
+	public boolean isInstr15ExistedWithDataNoUpdate() {
+		return instr15ExistedWithDataNoUpdate;
+	}
+
+	public void setInstr15ExistedWithDataNoUpdate(boolean instr15ExistedWithDataNoUpdate) {
+		this.instr15ExistedWithDataNoUpdate = instr15ExistedWithDataNoUpdate;
 	}
 
 }
