@@ -30,11 +30,20 @@ public class CrmsImportLog extends ImportLog {
 	private Integer newVisits;
 	private Integer existingVisits;
 
+	// these are not useful counts anymore now that multiple instrument records are supported. a given data
+	// record could have a mixture of newInstruments and existingInstruments, so what to designate the record
+	// as a whole? 
+	// doesn't really make sense to do that anymore since these counts are across all import records and if
+	// each import record has multiple instruments then these counts don't mean much to the user.
+	// also, both of these are combined in the superclass ImportLog "imported" count
+	// so still counting these but not displaying to the user
 	private Integer newInstruments;
 	private Integer existingInstruments; // deDate == null
+
 	// this will only be tracked in "update" mode where an instrument with already existing data can be updated
 	// with the data in import records. 
 	// until "update" is supported this will never be incremented, so do not bother displaying in the UI 
+	// note: this is redundant with the superclass ImportLog "updated" count
 	private Integer existingInstrumentsWithData; // deDate != null 
 	
 	public CrmsImportLog(){
