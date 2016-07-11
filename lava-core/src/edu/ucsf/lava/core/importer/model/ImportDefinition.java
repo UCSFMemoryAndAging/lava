@@ -15,7 +15,7 @@ public class ImportDefinition extends EntityBase {
 	//TODO: figure out 12 hour vs, 24 hour time and which should be default
 	public static String DEFAULT_TIME_FORMAT = "hh:mm a";
 	public static String SKIP_INDICATOR = "SKIP:";
-	public static String DEFAULT_INDICATOR = "DEFAULT:";
+	public static String STATIC_INDICATOR = "STATIC:";
 	
 	private String name;
 	private String category; // not currently used. available for future use.
