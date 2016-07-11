@@ -244,9 +244,6 @@ public class ImportHandler extends BaseEntityComponentHandler {
 			return new Event(this,this.ERROR_FLOW_EVENT_ID);
 		}
 		
-//TODO: add import event to audit events (persisted import data file in combination with importLog will essentially be the 
-// import data audit log)		
-		
 		// mapping file 
 		// note that import definition handling has already validated the mapping file contents, so can assume the mapping file is valid
 		InputStream mappingFileContent = new ByteArrayInputStream(mappingFile.getContent());		
@@ -274,6 +271,9 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		// mapping file properties
 		importSetup.setMappingProps(reader.readNext());
 
+		// mapping file properties
+		importSetup.setMappingDefaults(reader.readNext());
+			
 		// read in the data column headers
 		ImportFile dataFile = (ImportFile) this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
 		// dataFile needs definitionName for generating a location in the repository (folder is named after the definition name
@@ -359,8 +359,8 @@ public class ImportHandler extends BaseEntityComponentHandler {
 			// in other words, the mapping file should not have fewer columns than the data file.
 			// note that the mapping file may have more columns than the data file, because
 			// a) a data file variable may map to more than one mapping file variables if the data value will be set on multiple entity properties
-			// b) the mapping file may have DEFAULT values where the value for a particular property does not come from the data file but
-			//    instead is set to a DEFAULT value
+			// b) the mapping file may have STATIC values where the value for a particular property does not come from the data file but
+			//    instead is set to a STATIC value
 
 
 			// Map
