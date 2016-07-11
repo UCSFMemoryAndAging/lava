@@ -17,7 +17,10 @@
 		<property name="visitExistRule" column="visit_exist_rule" type="short"/>
 		<property name="allowVisitUpdate" column="visit_update" type="boolean"/>
 		<property name="visitWindow" column="visit_window" type="short"/>
-		<property name="matchVisitType" column="match_visit_type" type="boolean"/>
+		<property name="matchVisitTypeFlag” column="match_visit_type_flag” type="boolean"/>
+		<property name="matchVisitType" column="match_visit_type" type="string" length="25"/>
+		<property name="matchVisitType2" column="match_visit_type2" type="string" length="25"/>
+		<property name="matchVisitType3" column="match_visit_type3" type="string" length="25"/>
 		<property name="visitType" column="visit_type" type="string" length="25"/>
 		<property name="visitLoc" column="visit_loc" type="string" length="25"/>
 		<property name="visitWith" column="visit_with" type="string" length="25"/>
@@ -99,6 +102,7 @@
 		<property name="instrMappingAlias15" column="instr_mapping_alias15" type="string" length="25"/>
 		<property name="instrCaregiver15" column="instr_caregiver15" type="boolean"/>
 		<property name="instrCalculate15" column="instr_calculate15" type="boolean"/>
+		<property name="instrDefaultCode" column="instr_default_code" type="string" length="5"/>
 		<property name="instrCaregiverExistRule" column="instr_caregiver_exist_rule" type="short"/>
 		<property name="instrDcStatus" column="instr_dc_status" type="string" length="25"/>
 	</joined-subclass>

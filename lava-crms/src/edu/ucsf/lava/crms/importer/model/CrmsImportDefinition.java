@@ -57,7 +57,15 @@ public class CrmsImportDefinition extends ImportDefinition {
 	// visitDate (and optionally visitTime) must be present in the data file (mapped to either visitDate or
 	// dcDate). the rest of the required fields may not be in the data file so need to be supplied as part of
 	// the definition
-	private Boolean matchVisitType;
+	private Boolean matchVisitTypeFlag;
+	// allow user to specify up to 3 visit types to attempt to match already existing visits
+	// UPDATE: NOT using at this time. keeping these properties for now as may decide to use these if go with specifying 
+	// a visit type per instrument in multiple instrument imports, where would first attempt to match using matchVisitType
+	// and if not found then attempt using matchVisitType2 and then matchVisitType3
+	private String matchVisitType;
+	private String matchVisitType2;
+	private String matchVisitType3;
+	// the following are used when a new visit is created, unless values are supplied in the data file
 	private String visitType;
 	private String visitWith;
 	private String visitLoc;
@@ -149,6 +157,13 @@ public class CrmsImportDefinition extends ImportDefinition {
 	private Short instrCaregiverExistRule; // support MAY_OR_MAY_NOT_EXIST and MUST_EXIST (single rule suffices if multiple instruments)	
 	private String instrDcStatus;
 	
+	// a LAVA standard error code to use if an imported variable has no value (i.e. is blank in the data file)
+	// this is a string because all import data is read in as text and then converted via BeanUtils setProperty. also, this default 
+	// will be used on both numeric and string fields (but not dates, obviously)
+	// note that the 4th line of the data file will be dedicated to defaults on a per variable basis, but if nothing specified then this
+	// global default value will apply
+	private String instrDefaultCode; 
+	
 	public CrmsImportDefinition(){
 		super();
 		this.setAuditEntityType("CrmsImportDefinition");
@@ -158,7 +173,7 @@ public class CrmsImportDefinition extends ImportDefinition {
 		this.esStatus = "ENROLLED";
 		this.visitExistRule = MAY_OR_MAY_NOT_EXIST;
 		this.visitWindow = 0;
-		this.matchVisitType = Boolean.TRUE;
+		this.matchVisitTypeFlag = Boolean.TRUE;
 		this.visitStatus = "COMPLETE";
 		this.instrExistRule = MAY_OR_MAY_NOT_EXIST;
 		this.allowInstrUpdate = Boolean.FALSE;
@@ -260,12 +275,36 @@ public class CrmsImportDefinition extends ImportDefinition {
 		this.visitWindow = visitWindow;
 	}
 	
-	public Boolean getMatchVisitType() {
+	public Boolean getMatchVisitTypeFlag() {
+		return matchVisitTypeFlag;
+	}
+
+	public void setMatchVisitTypeFlag(Boolean matchVisitTypeFlag) {
+		this.matchVisitTypeFlag = matchVisitTypeFlag;
+	}
+
+	public String getMatchVisitType() {
 		return matchVisitType;
 	}
 
-	public void setMatchVisitType(Boolean matchVisitType) {
+	public void setMatchVisitType(String matchVisitType) {
 		this.matchVisitType = matchVisitType;
+	}
+
+	public String getMatchVisitType2() {
+		return matchVisitType2;
+	}
+
+	public void setMatchVisitType2(String matchVisitType2) {
+		this.matchVisitType2 = matchVisitType2;
+	}
+
+	public String getMatchVisitType3() {
+		return matchVisitType3;
+	}
+
+	public void setMatchVisitType3(String matchVisitType3) {
+		this.matchVisitType3 = matchVisitType3;
 	}
 
 	public String getVisitType() {
@@ -929,6 +968,14 @@ public class CrmsImportDefinition extends ImportDefinition {
 
 	public void setInstrCalculate15(Boolean instrCalculate15) {
 		this.instrCalculate15 = instrCalculate15;
+	}
+
+	public String getInstrDefaultCode() {
+		return instrDefaultCode;
+	}
+
+	public void setInstrDefaultCode(String instrDefaultCode) {
+		this.instrDefaultCode = instrDefaultCode;
 	}
 	
 }

@@ -103,11 +103,19 @@ of component --%>
 				<tags:listCell labelSize="medium">
 					<tags:outputText textKey="importDefinition.visit.visitWindow" styleClass="italic" inline="false"/>
 					<tags:createField property="visitWindow" component="${component}" entity="importDefinition"/><br/>
-					<tags:ifHasRole roles="SYSTEM ADMIN"> 
+					<tags:ifHasRole roles="SYSTEM ADMIN">   <%-- only allow the SYSTEM ADMIN to turn off the visit type match --%> 
 						<div class="verticalSpace30">&nbsp;</div>
 						<tags:outputText textKey="importDefinition.visit.matchVisitTypeFlag" styleClass="italic" inline="false"/>
 						<tags:createField property="matchVisitType" component="${component}" entity="importDefinition"/>
 					</tags:ifHasRole>
+					<%-- not using for now. see comments in CrmsImportDefinition for the matchVisitType properties
+						NOTE: if so use, info should change in that will attempt to match visit types in sequence, not all at once
+					<tags:outputText textKey="importDefinition.visit.matchVisitTypeInfo" styleClass="italic" inline="false"/>
+					<tags:outputText textKey="importDefinition.visit.matchVisitTypes" inline="true"/><br/>
+					<tags:createField property="matchVisitType" component="${component}" entity="importDefinition" mode="${controlMode}"/>
+					<tags:createField property="matchVisitType2" component="${component}" entity="importDefinition" mode="${controlMode}"/>
+					<tags:createField property="matchVisitType3" component="${component}" entity="importDefinition" mode="${controlMode}"/>
+					--%>					
 				</tags:listCell>
 	  			<%-- currently not allow existing Visit properties to be overwritten as that is not the
 	  			 	mission of the import functionality
@@ -251,6 +259,10 @@ of component --%>
 					<tags:createField property="instrMappingAlias15" component="${component}" entity="importDefinition" mode="${controlMode}"/><br/>
 					<tags:createField property="instrCaregiver15" component="${component}" entity="importDefinition"/><br/>
 					<%-- <tags:createField property="instrCalculate15" component="${component}" entity="importDefinition"/><br/> --%>
+					<div class="verticalSpace30">&nbsp;</div>
+					<tags:outputText text="Global Default Code" inline="true"/><br/>
+					<tags:outputText textKey="importDefinition.instr.defaultCode" inline="true"/><br/>
+					<tags:createField property="instrDefaultCode" component="${component}" entity="importDefinition" mode="${controlMode}"/>
 				</tags:listCell>
 				<tags:listCell>
 					<tags:createField property="instrExistRule" component="${component}" entity="importDefinition" mode="${controlMode}"/>
