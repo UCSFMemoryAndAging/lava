@@ -42,6 +42,10 @@ import java.util.Map;
 					  // to the first instrument name in the ImportDefinition
 	// row 3 of the mapping file
 	private String mappingProps[]; // array of the mapping file Java property names (case insensitive)
+	// row 4 of the mapping file
+	// default mapping of "NULL" will retain blank value. useful when there is a global default code set in the import definition
+	// but do not want to use that for a property
+	private String mappingDefaults[]; // array of the optional default values to use if the data file value is blank 
 	// row 1 of the data file
 	private String dataCols[]; // array of the data file variable names, i.e. column names in the data file
 	// row 3 of the data file
@@ -96,6 +100,14 @@ import java.util.Map;
 
 	public void setMappingProps(String[] mappingProps) {
 		this.mappingProps = mappingProps;
+	}
+	
+	public String[] getMappingDefaults() {
+		return mappingDefaults;
+	}
+
+	public void setMappingDefaults(String[] mappingDefaults) {
+		this.mappingDefaults = mappingDefaults;
 	}
 
 	public String[] getDataCols() {
