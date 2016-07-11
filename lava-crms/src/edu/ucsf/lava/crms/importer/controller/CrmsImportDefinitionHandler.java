@@ -358,7 +358,7 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 			String definitionColName, definitionPropName, definitionEntityName;
 			for (int mappingIndex = 0; mappingIndex < mappingCols.length; mappingIndex++) {
 				if (mappingCols[mappingIndex].startsWith("SKIP:")) {
-					
+					continue;
 				}
 				
 				definitionEntityName = mappingEntities[mappingIndex];  // this is instrType, not instrTypeEncoded
@@ -373,63 +373,63 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 				}
 				
 				// determine which instrument this property is for and test if it is in the property map for that instrument
-				if (definitionEntityName.equalsIgnoreCase(instr.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias())) {
+				if (definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias())) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr, instrPropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType2()) &&
-						(definitionEntityName.equalsIgnoreCase(instr2.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias2()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType2()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias2()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr2, instr2PropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType3()) &&
-						(definitionEntityName.equalsIgnoreCase(instr3.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias3()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType3()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias3()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr3, instr3PropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType4()) &&
-						(definitionEntityName.equalsIgnoreCase(instr4.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias4()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType4()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias4()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr4, instr4PropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType5()) &&
-						(definitionEntityName.equalsIgnoreCase(instr5.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias5()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType5()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias5()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr5, instr5PropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType6()) &&
-						(definitionEntityName.equalsIgnoreCase(instr6.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias6()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType6()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias6()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr6, instr6PropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType7()) &&
-						(definitionEntityName.equalsIgnoreCase(instr7.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias7()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType7()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias7()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr7, instr7PropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType8()) &&
-						(definitionEntityName.equalsIgnoreCase(instr8.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias8()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType8()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias8()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr8, instr8PropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType9()) &&
-						(definitionEntityName.equalsIgnoreCase(instr9.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias9()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType9()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias9()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr9, instr9PropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType10()) &&
-						(definitionEntityName.equalsIgnoreCase(instr10.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias10()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType10()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias10()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr10, instr10PropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType11()) &&
-						(definitionEntityName.equalsIgnoreCase(instr11.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias11()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType11()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias11()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr11, instr11PropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType12()) &&
-						(definitionEntityName.equalsIgnoreCase(instr12.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias12()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType12()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias12()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr12, instr12PropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType13()) &&
-						(definitionEntityName.equalsIgnoreCase(instr13.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias13()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType13()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias13()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr13, instr13PropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType14()) &&
-						(definitionEntityName.equalsIgnoreCase(instr14.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias14()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType14()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias14()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr14, instr14PropNamesMap.keySet(), invalidProps);
 				}
 				else if (StringUtils.hasText(importDefinition.getInstrType15()) &&
-						(definitionEntityName.equalsIgnoreCase(instr15.getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias15()))) {
+						(definitionEntityName.equalsIgnoreCase(importDefinition.getInstrType15()) || definitionEntityName.equalsIgnoreCase(importDefinition.getInstrMappingAlias15()))) {
 					propertyValidationHelper(definitionEntityName, definitionPropName, instr15, instr15PropNamesMap.keySet(), invalidProps);
 				}
 			}
