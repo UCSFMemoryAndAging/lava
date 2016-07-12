@@ -2181,6 +2181,19 @@ public class CrmsImportHandler extends ImportHandler {
 					}
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
+				
+				// if existing visit was matched with a visit window, the data collection date in the data file, which is mapped to visit.visitWith, might
+				// be different than the matched Visit visitDate, but the value in the data file should represent the data collection date for the instrument
+				dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitDate()];
+				formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+				formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+				try {
+					dcDate = formatter.parse(dateOrTimeAsString);
+				} catch (ParseException e) {
+					// likely will not occur with leniency applied
+					importLog.addErrorMessage(lineNum, "Visit.visitDate is an invalid Date format (when using for new instrument dcDate). Date:" + dateOrTimeAsString);
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
 
 				try {
 					instr = createInstrument(context, importDefinition, importSetup, instrClazz, instrType, instrVer, dcDate, dcStatus);
@@ -3274,6 +3287,14 @@ public class CrmsImportHandler extends ImportHandler {
 				if (instrument.getDcStatus().equalsIgnoreCase("Scheduled")) {
 					instrument.setDcStatus("Complete");
 				}
+				
+				// if existing visit was matched with a visit window, the data collection date in the data file, which is mapped to visit.visitWith, might
+				// be different than the matched Visit visitDate, but the value in the data file should represent the data collection date for the instrument
+				String dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitDate()];
+				SimpleDateFormat formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+				formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+				// if get this far then the string has already been successfully parsed into a Date in visitExistsHandling so no need to catch exception here
+				instrument.setDcDate(formatter.parse(dateOrTimeAsString)); 
 			}
 
 				
