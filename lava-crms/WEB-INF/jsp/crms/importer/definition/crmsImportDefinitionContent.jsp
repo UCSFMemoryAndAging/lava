@@ -106,7 +106,7 @@ of component --%>
 					<tags:ifHasRole roles="SYSTEM ADMIN">   <%-- only allow the SYSTEM ADMIN to turn off the visit type match --%> 
 						<div class="verticalSpace30">&nbsp;</div>
 						<tags:outputText textKey="importDefinition.visit.matchVisitTypeFlag" styleClass="italic" inline="false"/>
-						<tags:createField property="matchVisitType" component="${component}" entity="importDefinition"/>
+						<tags:createField property="matchVisitTypeFlag" component="${component}" entity="importDefinition"/>
 					</tags:ifHasRole>
 					<%-- not using for now. see comments in CrmsImportDefinition for the matchVisitType properties
 						NOTE: if so use, info should change in that will attempt to match visit types in sequence, not all at once
