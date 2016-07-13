@@ -76,7 +76,7 @@ INSERT INTO crms_import_log_message(message_id) SELECT message_id FROM import_lo
 
 
 ALTER TABLE crms_import_definition CHANGE COLUMN match_visit_type match_visit_type_flag BOOLEAN NULL DEFAULT NULL AFTER visit_window;
-— the following were added and then not used but keeping them for potential future use
+-- the following were added and then not used but keeping them for potential future use
 ALTER TABLE crms_import_definition ADD COLUMN match_visit_type varchar(25) NULL DEFAULT NULL AFTER `match_visit_type_flag`;
 ALTER TABLE crms_import_definition ADD COLUMN match_visit_type2 varchar(25) NULL DEFAULT NULL AFTER `match_visit_type`;
 ALTER TABLE crms_import_definition ADD COLUMN match_visit_type3 varchar(25) NULL DEFAULT NULL AFTER `match_visit_type2`;
