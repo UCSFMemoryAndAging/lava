@@ -20,7 +20,7 @@
 	<bean id="list.generic.deathdateYear" parent="list.numericRange">
 		<property name="defaultCodes"><ref bean="list.ref.logicalSkipErrorCode"/></property>
 		<property name="defaultMinValue" value="1950"/>	
-		<property name="defaultMaxValue" value="2015"/>
+		<property name="defaultMaxValue" value="2020"/>
 	</bean>	
 	
 	<bean id="list.generic.gender" parent="list.standardNumericValue">
