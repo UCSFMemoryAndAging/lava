@@ -531,23 +531,29 @@ public class CrmsImportHandler extends ImportHandler {
 //   an uploaded file but ran into problems integrating that into our implementation of uploading files
 //   so this is not a minor item
 // test that deleting import definition deletes the mapping file
+// figure out impact of user changing the import definition name since it is used to generate the path
+//  for storing the mapping file in the repo. update that path whenever user saves import definition
+//  and name field isDirty?
 // why does Browse button have _ in it? (is this browser specific?)				
-// importLogContent / crmsImportLogContent format log summary results in a table
+// X-importLogContent / crmsImportLogContent format log summary results in a table
 // validation check: compare DOB to form data collection date, as sometimes user enters current date for DOB
 
 // allowInstrUpdate flag has been enabled for SYSTEM_ADMIN role and tested, but need to test what happens
 //   on error because modifying a Hibernate persistent instance (attached to the Hibernate session) so wouldn't
-// changes be persisted if there is no rollback? see TODO: in this method below for more comments on this				
+//   changes be persisted if there is no rollback?
+// UPDATE: if database error, if swallow exception, then that is a problem because will rollback
+//         if not a database error there will be a commit at the end of the request, so need to evict modified
+//         objects so they will not be persisted. this is done in insert mode now.
 				
 // add useful Filter (and sorts) to definition and log lists, e.g. add instrument to Filter and compare to any 
 //   of 10 instruments allowed per data file, if the filter specified instrument matches any one of the 10, show 
 //   the import definition, import log
 
-// add id columns of entities created or updated to the importLog detail				
+// X-add id columns of entities created or updated to the importLog detail				
 				
 // any remaining TODOs in import-related code, config, Hibernate mapping, jsp, etc.?
 				
-// make sure import events are audited to audit event log
+// X-make sure import events are audited to audit event log
 // implement project authorization for crmsImportDefinition, crmsImport, crmsImportLog  UPDATE: may be done in lava2 implementation?
 			
 // other majors:
@@ -559,20 +565,19 @@ public class CrmsImportHandler extends ImportHandler {
 // ?? create preview mode, at least for development, that does not do anything to db
 				
 // Rankin TODOs:
-//   migrate to MAC LAVA
+//   X-migrate to MAC LAVA
 //				
-//   implement startDataRow (defaults to 2 for all imports done prior to implementation)
-//   UPDATE: this is implemented but not tested				
+//   X-implement startDataRow (defaults to 2 for all imports done prior to implementation)
 //				
 //   X-match existing Visit on Visit Type if user sets flag to do so. even if not, Visit Type could still be
 //     used when creating new Visits (default is false)				
 //     NOTE: implemented but currently restricted to SYSTEM_ADMIN until decide if it is a good idea to not 
 //           have to match on visitType (match defaults to TRUE)
 //				
-//   match existing	Visit on user specified time window, in days, around the visitDate in data file. set
+//   X-match existing	Visit on user specified time window, in days, around the visitDate in data file. set
 //   to 0 for an exact date match (need info text with this) (0 is the default)				
 //   (columns and metadata to support already added to db)
-//   ?? what to do if multiple visits matched - probably error log
+//      if multiple visits matched, then error
 //
 //   expand to work with multiple instruments 
 //      X-crmsImportDefinition will have inputs for up to 10 instruments 
