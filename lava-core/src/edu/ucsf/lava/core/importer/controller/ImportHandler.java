@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -336,56 +338,63 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	 * @return
 	 */
 	protected Event validateAndMapDataFile(BindingResult errors, ImportDefinition importDefinition, ImportSetup importSetup) throws Exception {
-			// check that data file does not have more than one instance of a column (doing the same for mapping file in 
-			// ImportDefinitionHandler)
-//TODO:	list all offending together instead of just first occurrence		
-			int j,k;
-			for (j=0; j<importSetup.getDataCols().length;j++) {
-			    for (k=j+1;k<importSetup.getDataCols().length;k++) {
-			        if (importSetup.getDataCols()[j].equalsIgnoreCase(importSetup.getDataCols()[k])) { 
-						LavaComponentFormAction.createCommandError(errors, "Invalid data file. Column " + (j+1) + ". Data file column " + importSetup.getDataCols()[j] + " appears multiple times in data file");
-						return new Event(this,ERROR_FLOW_EVENT_ID);
-			        }
-			    }
-			}
-			
-			// Validate
-			// a valid data file should have corresponding mapping information for each data column. if a data column should not be processed,
-			// i.e. the values in that column should not be imported, there should still be mapping information indicating that the column
-			// should be skipped, by prefixing the mapping column with SKIP:
-			// by requiring that every column in the data file be mapped in some way, we are enforcing data integrity that no data values
-			// will be accidentally skipped during import
-			
-			// in other words, the mapping file should not have fewer columns than the data file.
-			// note that the mapping file may have more columns than the data file, because
-			// a) a data file variable may map to more than one mapping file variables if the data value will be set on multiple entity properties
-			// b) the mapping file may have STATIC values where the value for a particular property does not come from the data file but
-			//    instead is set to a STATIC value
-
-
-			// Map
-			// generate a map of every mapping file index (except for default values) to a data file index, to be used in setting 
-			// key data indices and setting the data file variable values on entity properties.
-			// note: multiple mapping file indices could map to the same data file index, meaning that a given imported
-			//       data variable value could be set on multiple entity properties
-			// note: the index for any default value mappings in the mapping file will not be mapped to a data file index, i.e
-			//       it will not be present in this map
+		// check that data file does not have more than one instance of a column (doing the same for mapping file in 
+		// ImportDefinitionHandler)
+		Set<String> repeatedDataColumns = new LinkedHashSet<String>();	
+		int j,k;
+		for (j=0; j<importSetup.getDataCols().length;j++) {
+		    for (k=j+1;k<importSetup.getDataCols().length;k++) {
+		        if (importSetup.getDataCols()[j].equalsIgnoreCase(importSetup.getDataCols()[k])) { 
+		        	repeatedDataColumns.add(importSetup.getDataCols()[j]);
+		        }
+		    }
+		}
+		if (repeatedDataColumns.size() > 0) {
+			LavaComponentFormAction.createCommandError(errors, "Invalid data file. Data file column(s): " + repeatedDataColumns.toString() + " appear multiple times in data file");
+			return new Event(this,ERROR_FLOW_EVENT_ID);
+		}
 
 			
-			for (j=0; j < importSetup.getDataCols().length; j++) {
-				int mappingColMatch = -1;
-				for (k=0; k < importSetup.getMappingCols().length; k++) {
-					if (importSetup.getDataCols()[j].equalsIgnoreCase(importSetup.getMappingCols()[k]) ||
-							(SKIP_INDICATOR + importSetup.getDataCols()[j]).equalsIgnoreCase(importSetup.getMappingCols()[k])) {
-						importSetup.getMappingColDataCol().put(k, j);
-						mappingColMatch = k;
-					}
+		// Validate
+		// a valid data file should have corresponding mapping information for each data column. if a data column should not be processed,
+		// i.e. the values in that column should not be imported, there should still be mapping information indicating that the column
+		// should be skipped, by prefixing the mapping column with SKIP:
+		// by requiring that every column in the data file be mapped in some way, we are enforcing data integrity that no data values
+		// will be accidentally skipped during import
+			
+		// in other words, the mapping file should not have fewer columns than the data file.
+		// note that the mapping file may have more columns than the data file, because
+		// a) a data file variable may map to more than one mapping file variables if the data value will be set on multiple entity properties
+		// b) the mapping file may have STATIC values where the value for a particular property does not come from the data file but
+		//    instead is set to a STATIC value
+
+
+		// Map
+		// generate a map of every mapping file index (except for default values) to a data file index, to be used in setting 
+		// key data indices and setting the data file variable values on entity properties.
+		// note: multiple mapping file indices could map to the same data file index, meaning that a given imported
+		//       data variable value could be set on multiple entity properties
+		// note: the index for any default value mappings in the mapping file will not be mapped to a data file index, i.e
+		//       it will not be present in this map
+
+		Set<String> dataColumnsNotMapped = new LinkedHashSet<String>();
+		for (j=0; j < importSetup.getDataCols().length; j++) {
+			int mappingColMatch = -1;
+			for (k=0; k < importSetup.getMappingCols().length; k++) {
+				if (importSetup.getDataCols()[j].equalsIgnoreCase(importSetup.getMappingCols()[k]) ||
+						(SKIP_INDICATOR + importSetup.getDataCols()[j]).equalsIgnoreCase(importSetup.getMappingCols()[k])) {
+					importSetup.getMappingColDataCol().put(k, j);
+					mappingColMatch = k;
 				}
-				if (mappingColMatch == -1) {
-					LavaComponentFormAction.createCommandError(errors, "Cannot import this data file. Data file column " + importSetup.getDataCols()[j] + " is not mapped in mapping file");
-					return new Event(this,ERROR_FLOW_EVENT_ID);
-				}
 			}
+			if (mappingColMatch == -1) {
+				dataColumnsNotMapped.add(importSetup.getDataCols()[j]);
+			}
+		}
+		if (dataColumnsNotMapped.size() > 0) {
+			LavaComponentFormAction.createCommandError(errors, "Cannot import this data file. Data file column(s) not mapped in mapping file: " + dataColumnsNotMapped.toString());
+			return new Event(this,ERROR_FLOW_EVENT_ID);
+		}
 		
 		return new Event(this, SUCCESS_FLOW_EVENT_ID);
 	}
