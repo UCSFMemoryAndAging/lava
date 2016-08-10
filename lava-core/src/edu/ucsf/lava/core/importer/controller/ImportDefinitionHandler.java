@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -120,47 +122,60 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 		}
 
 			
-//TODO:	list all offending together instead of just first occurrence		
 		// validate that there are not repeated entity.property in the mapping file
+		Set<String> repeatedMappings = new LinkedHashSet<String>();
 		int j,k;
 		for (j=0; j<mappingProps.length;j++) {
 			if (!StringUtils.hasText(mappingProps[j])) {
 			continue;
-		}
+			}
 		    for (k=j+1;k<mappingProps.length;k++) {
-				if (!StringUtils.hasText(mappingProps[k])) {
-					continue;
-				}
-		        if (mappingProps[j].equalsIgnoreCase(mappingProps[k]) && mappingEntities[j].equalsIgnoreCase(mappingEntities[k]) ) { 
-					LavaComponentFormAction.createCommandError(errors, "Invalid mapping file. Column " + (j+1) + ". Row 2 mapping entity name " + mappingEntities[j] + " and Row 3 mapping property name " + mappingProps[j] + " appear multiple times in mapping file");
-					return new Event(this,ERROR_FLOW_EVENT_ID);
+			if (!StringUtils.hasText(mappingProps[k])) {
+				continue;
+			}
+		        if (mappingProps[j].equalsIgnoreCase(mappingProps[k]) && mappingEntities[j].equalsIgnoreCase(mappingEntities[k]) ) {
+		        	repeatedMappings.add("Col=" + j + "/Entity=" + mappingEntities[j] + "/Property=" + mappingProps[j]);
 		        }
 		    }
 		}
-
-//TODO:	list all offending together instead of just first occurrence		
-		// validate that any static values in the mapping file have a property name specified, because the property cannot
-		// default to the row 1 variable name if row 3 property is blank because row 1 is used to specify the static value
-		for (j=0; j<mappingCols.length;j++) {
-			if (mappingCols[j].startsWith((STATIC_INDICATOR)) && !StringUtils.hasText(mappingProps[j])) {
-				LavaComponentFormAction.createCommandError(errors, STATIC_INDICATOR + " Column " + j + ". Row 1 mapping " + mappingCols[j] + " must have a property name in Row 3");
-				return new Event(this,ERROR_FLOW_EVENT_ID);
-			}
+		if (repeatedMappings.size() > 0) {
+			LavaComponentFormAction.createCommandError(errors, "Invalid mapping file. Entity/Propert(ies): " + repeatedMappings.toString() + " appear multiple times in mapping file");
+			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
 
+
+		// validate that any static values in the mapping file have a property name specified, because the property cannot
+		// default to the row 1 variable name if row 3 property is blank because row 1 is used to specify the static value
+		Set<String> missingStaticPropNames = new LinkedHashSet<String>();
+		for (j=0; j<mappingCols.length;j++) {
+			if (mappingCols[j].startsWith((STATIC_INDICATOR)) && !StringUtils.hasText(mappingProps[j])) {
+				missingStaticPropNames.add(mappingCols[j]);
+			}
+		}
+		if (missingStaticPropNames.size() > 0) {
+			LavaComponentFormAction.createCommandError(errors, STATIC_INDICATOR + " Columns:" + missingStaticPropNames.toString() + " must have a property name in Row 3");
+			return new Event(this,ERROR_FLOW_EVENT_ID);
+		}
 			
 			
-		//TODO: using PropertyUtils.describe (or something similar) verify that every entity.property in the mapping
-		// file actually exists (would probably need to instantiate fake entities but want to do so outside the scope
-		// of Hibernate)
-		// note that this validation current takes place in the import handler, as setProperty will throw an exception
-		// if entity.property does not exist. but would of course be better for the user if it was done now.
-			
-			
+		// verify that every entity.property in the mapping file actually exists 
 		return mappingFilePropertyValidation(context, command, errors, mappingCols, mappingEntities, mappingProps);
 	}
 	
 
+	/**
+	 * Verify that every entity / property in the mapping file actually exists. Subclasses should override
+	 * to handle entity properties specific to that subclass. 
+	 * 
+	 * @param context
+	 * @param command
+	 * @param errors
+	 * @param mappingCols
+	 * @param mappingEntities
+	 * @param mappingProps
+	 * @return
+	 * @throws Exception
+	 */
 	protected Event mappingFilePropertyValidation(RequestContext context, Object command, BindingResult errors, 
 			String[] mappingCols, String[] mappingEntities, String[] mappingProps) throws Exception{
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
