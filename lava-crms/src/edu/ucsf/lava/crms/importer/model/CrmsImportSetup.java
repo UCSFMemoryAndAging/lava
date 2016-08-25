@@ -96,7 +96,7 @@ public class CrmsImportSetup extends ImportSetup {
 	private boolean caregiver2ContactInfoCreated;
 	private boolean caregiver2ContactInfoExisted;
 	
-	
+	private int indexEsProjName;	
 	private int indexEsStatusDate;
 	private int indexEsStatus;
 	private EnrollmentStatus enrollmentStatus;
@@ -334,7 +334,7 @@ public class CrmsImportSetup extends ImportSetup {
 	public void setIndexPatientGender(int indexPatientGender) {
 		this.indexPatientGender = indexPatientGender;
 	}
-
+	
 	public boolean isPatientCreated() {
 		return patientCreated;
 	}
@@ -549,6 +549,14 @@ public class CrmsImportSetup extends ImportSetup {
 
 	public void setCaregiver2ContactInfo(ContactInfo caregiver2ContactInfo) {
 		this.caregiver2ContactInfo = caregiver2ContactInfo;
+	}
+
+	public int getIndexEsProjName() {
+		return indexEsProjName;
+	}
+
+	public void setIndexEsProjName(int indexEsProjName) {
+		this.indexEsProjName = indexEsProjName;
 	}
 
 	public int getIndexEsStatusDate() {
