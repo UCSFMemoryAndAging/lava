@@ -65,7 +65,12 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	protected Event mappingFileValidation(RequestContext context, Object command, BindingResult errors) throws Exception{
 		ImportDefinition definition = (ImportDefinition) ((ComponentCommand)command).getComponents().get(getDefaultObjectName());
 		ImportFile mappingFile = definition.getMappingFile();
-			
+
+		if (mappingFile.getName().indexOf(".xls") != -1) {
+			LavaComponentFormAction.createCommandError(errors, "Mapping file cannot be in Excel format. Save As Comma Separated Value (CSV) format before uploading");
+			return new Event(this,this.ERROR_FLOW_EVENT_ID);
+		}
+
 		// row 1 of the mapping file
 		String mappingCols[]; // array of the mapping file variable names
 		// row 2 of the mapping file
@@ -227,6 +232,8 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 
 			if (returnEvent.getId().equals(SUCCESS_FLOW_EVENT_ID)) {
 				if (this.mappingFileValidation(context, command, errors).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					// note that there is an ImportFile record created upon initialization and persisted, even if there is no physical mapping file
+					// associated with it. so if there is an invalid mapping file, delete the physical file, but leave the ImportFile record 
 					mappingFile.deleteFile();					
 					return new Event(this, ERROR_FLOW_EVENT_ID);
 				}
@@ -274,6 +281,8 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	
 	protected Event doSave(RequestContext context, Object command,BindingResult errors) throws Exception {
 		Event returnEvent = new Event(this,SUCCESS_FLOW_EVENT_ID);
+		ImportDefinition definition = (ImportDefinition) ((ComponentCommand)command).getComponents().get(getDefaultObjectName());
+		ImportFile mappingFile = definition.getMappingFile();
 
 		if (this.conditionalValidation(context, command, errors).getId().equals(ERROR_FLOW_EVENT_ID)) {
 			return new Event(this, ERROR_FLOW_EVENT_ID);
@@ -288,6 +297,11 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 			// file (deleteFile will archive the file in addition to deleting)
 			// note: want same behavior even if user uploads same file as current file, because contents of file
 			// have presumably changed which is why it is being re-uploaded
+
+			// note: it is now possible to have a mappingFile record that does not have a physical file associated with it
+			// yet (to allow users to create an import definition even if mapping file is not ready yet). in this case, the
+			// saveFileCallback method will not call deleteFile to delete the physical file because the LavaFile fileId
+			// is null, indicating that there is no physical file
 			
 			// using callback method to use core file operations exception handling 
 			// have to use getDeclaredMethod instead of getMethod for non-public methods
@@ -296,6 +310,11 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 
 			if (returnEvent.getId().equals(SUCCESS_FLOW_EVENT_ID)) {
 				if (this.mappingFileValidation(context, command, errors).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					// note that just above an invalid mapping file replaced the previous file (or no file, since an import definition can be
+					// created without a mapping file at first), and that the file contents were persisted. but since the file is invalid we must
+					// delete the physical file here. the ImportFile record will still exist, with no physical file associated with it, because
+					// the ImportFile record always exists for an ImportDefinition as it is create as part of adding a new import definition 
+					mappingFile.deleteFile();
 					return new Event(this, ERROR_FLOW_EVENT_ID);
 				}
 			}
