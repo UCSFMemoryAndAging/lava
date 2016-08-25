@@ -188,6 +188,9 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 		Set<String> invalidEntities = new LinkedHashSet<String>();
 		for (int mappingIndex = 0; mappingIndex < mappingEntities.length; mappingIndex++) {
 			String mappingEntity = mappingEntities[mappingIndex];
+			if (mappingCols[mappingIndex].startsWith(SKIP_INDICATOR)) {
+				continue;
+			}
 			if (!importDefinition.getPatientOnlyImport()) {	
 				// if null that is valid, because it defaults to the first instrument
 				if (!StringUtils.hasText(mappingEntity)) {
