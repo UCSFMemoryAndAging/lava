@@ -278,6 +278,13 @@ public class ImportHandler extends BaseEntityComponentHandler {
 			
 		// read in the data column headers
 		ImportFile dataFile = (ImportFile) this.getUploadFile(context, ((ComponentCommand)command).getComponents(), errors);
+		
+		if (dataFile.getName().indexOf(".xls") != -1) {
+			LavaComponentFormAction.createCommandError(errors, "Data file cannot be in Excel format. Save As Comma Separated Value (CSV) format before importing");
+			return new Event(this,this.ERROR_FLOW_EVENT_ID);
+		}
+		
+
 		// dataFile needs definitionName for generating a location in the repository (folder is named after the definition name
 		// with encoding as necessary
 		dataFile.setDefinitionName(importLog.getDefinition().getName());
@@ -370,8 +377,9 @@ public class ImportHandler extends BaseEntityComponentHandler {
 
 
 		// Map
-		// generate a map of every mapping file index (except for default values) to a data file index, to be used in setting 
-		// key data indices and setting the data file variable values on entity properties.
+		// generate a map of every mapping file index to a data file index, to be used in setting key data indices and setting
+		// the data file variable values on entity properties. the exception is static mapped properties because in those cases
+		// there is no value in the data file as the value is a static value in the mapping file so there is nothing to map
 		// note: multiple mapping file indices could map to the same data file index, meaning that a given imported
 		//       data variable value could be set on multiple entity properties
 		// note: the index for any default value mappings in the mapping file will not be mapped to a data file index, i.e
