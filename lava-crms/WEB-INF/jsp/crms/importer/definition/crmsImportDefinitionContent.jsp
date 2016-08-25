@@ -341,83 +341,70 @@ of component --%>
 
 <ui:formGuide>
    	<ui:observeForNull elementIds="patientOnlyImport" component="${component}" negate="true"/>
-   	<ui:setValue elementIds="esExistRule,esStatus,visitWindow,visitExistRule,visitType,visitWith,visitLoc,visitStatus" component="${component}" value=""/>
-   	<ui:disable elementIds="esExistRule,esStatus,visitWindow,visitExistRule,visitType,visitWith,visitLoc,visitStatus" component="${component}"/>
-   	<ui:setValue elementIds="instrType,instrVer,instrCaregiver" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType,instrVer,instrCaregiver" component="${component}"/>
-   	<ui:setValue elementIds="instrType2,instrVer2,instrCaregiver2" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType2,instrVer2,instrCaregiver2" component="${component}"/>
-   	<ui:setValue elementIds="instrType3,instrVer3,instrCaregiver3" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType3,instrVer3,instrCaregiver3" component="${component}"/>
-   	<ui:setValue elementIds="instrType4,instrVer4,instrCaregiver4" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType4,instrVer4,instrCaregiver4" component="${component}"/>
-   	<ui:setValue elementIds="instrType5,instrVer5,instrCaregiver5" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType5,instrVer5,instrCaregiver5" component="${component}"/>
-   	<ui:setValue elementIds="instrType6,instrVer6,instrCaregiver6" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType6,instrVer6,instrCaregiver6" component="${component}"/>
-   	<ui:setValue elementIds="instrType7,instrVer7,instrCaregiver7" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType7,instrVer7,instrCaregiver7" component="${component}"/>
-   	<ui:setValue elementIds="instrType8,instrVer8,instrCaregiver8" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType8,instrVer8,instrCaregiver8" component="${component}"/>
-   	<ui:setValue elementIds="instrType9,instrVer9,instrCaregiver9" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType9,instrVer9,instrCaregiver9" component="${component}"/>
-   	<ui:setValue elementIds="instrType10,instrVer10,instrCaregiver10" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType10,instrVer10,instrCaregiver10" component="${component}"/>
-   	<ui:setValue elementIds="instrType11,instrVer11,instrCaregiver11" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType11,instrVer11,instrCaregiver11" component="${component}"/>
-   	<ui:setValue elementIds="instrType12,instrVer12,instrCaregiver12" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType12,instrVer12,instrCaregiver12" component="${component}"/>
-   	<ui:setValue elementIds="instrType13,instrVer13,instrCaregiver13" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType13,instrVer13,instrCaregiver13" component="${component}"/>
-   	<ui:setValue elementIds="instrType14,instrVer14,instrCaregiver14" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType14,instrVer14,instrCaregiver14" component="${component}"/>
-   	<ui:setValue elementIds="instrType15,instrVer15,instrCaregiver15" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType15,instrVer15,instrCaregiver15" component="${component}"/>
-<%-- if add instrCalculate back, replace the above with these
-   	<ui:setValue elementIds="instrType,instrVer,instrCaregiver,instrCalculate" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType,instrVer,instrCaregiver,instrCalculate" component="${component}"/>
-   	<ui:setValue elementIds="instrType2,instrVer2,instrCaregiver2,instrCalculate2" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType2,instrVer2,instrCaregiver2,instrCalculate2" component="${component}"/>
-   	<ui:setValue elementIds="instrType3,instrVer3,instrCaregiver3,instrCalculate3" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType3,instrVer3,instrCaregiver3,instrCalculate3" component="${component}"/>
-   	<ui:setValue elementIds="instrType4,instrVer4,instrCaregiver4,instrCalculate4" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType4,instrVer4,instrCaregiver4,instrCalculate4" component="${component}"/>
-   	<ui:setValue elementIds="instrType5,instrVer5,instrCaregiver5,instrCalculate5" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType5,instrVer5,instrCaregiver5,instrCalculate5" component="${component}"/>
-   	<ui:setValue elementIds="instrType6,instrVer6,instrCaregiver6,instrCalculate6" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType6,instrVer6,instrCaregiver6,instrCalculate6" component="${component}"/>
-   	<ui:setValue elementIds="instrType7,instrVer7,instrCaregiver7,instrCalculate7" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType7,instrVer7,instrCaregiver7,instrCalculate7" component="${component}"/>
-   	<ui:setValue elementIds="instrType8,instrVer8,instrCaregiver8,instrCalculate8" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType8,instrVer8,instrCaregiver8,instrCalculate8" component="${component}"/>
-   	<ui:setValue elementIds="instrType9,instrVer9,instrCaregiver9,instrCalculate9" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType9,instrVer9,instrCaregiver9,instrCalculate9" component="${component}"/>
-   	<ui:setValue elementIds="instrType10,instrVer10,instrCaregiver10,instrCalculate10" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType10,instrVer10,instrCaregiver10,instrCalculate10" component="${component}"/>
-   	<ui:setValue elementIds="instrType11,instrVer11,instrCaregiver11,instrCalculate11" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType11,instrVer11,instrCaregiver11,instrCalculate11" component="${component}"/>
-   	<ui:setValue elementIds="instrType12,instrVer12,instrCaregiver12,instrCalculate12" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType12,instrVer12,instrCaregiver12,instrCalculate12" component="${component}"/>
-   	<ui:setValue elementIds="instrType13,instrVer13,instrCaregiver13,instrCalculate13" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType13,instrVer13,instrCaregiver13,instrCalculate13" component="${component}"/>
-   	<ui:setValue elementIds="instrType14,instrVer14,instrCaregiver14,instrCalculate14" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType14,instrVer14,instrCaregiver14,instrCalculate14" component="${component}"/>
-   	<ui:setValue elementIds="instrType15,instrVer15,instrCaregiver15,instrCalculate15" component="${component}" value=""/>
-   	<ui:disable elementIds="instrType15,instrVer15,instrCaregiver15,instrCalculate15" component="${component}"/>
- --%>   	
-   	
-   	<%-- TODO: add allowInstrUpdate to these --%>
+   	<ui:setValue elementIds="visitWindow,matchVisitTypeFlag,visitExistRule,visitType,visitWith,visitLoc,visitStatus" component="${component}" value=""/>
+   	<ui:disable elementIds="visitWindow,matchVisitTypeFlag,visitExistRule,visitType,visitWith,visitLoc,visitStatus" component="${component}"/>
+   	<ui:setValue elementIds="instrType,instrMappingAlias,instrVer,instrCaregiver" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType,instrMappingAlias,instrVer,instrCaregiver" component="${component}"/>
+   	<ui:setValue elementIds="instrType2,instrMappingAlias2,instrVer2,instrCaregiver2" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType2,instrMappingAlias2,instrVer2,instrCaregiver2" component="${component}"/>
+   	<ui:setValue elementIds="instrType3,instrMappingAlias3,instrVer3,instrCaregiver3" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType3,instrMappingAlias3,instrVer3,instrCaregiver3" component="${component}"/>
+   	<ui:setValue elementIds="instrType4,instrMappingAlias4,instrVer4,instrCaregiver4" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType4,instrMappingAlias4,instrVer4,instrCaregiver4" component="${component}"/>
+   	<ui:setValue elementIds="instrType5,instrMappingAlias5,instrVer5,instrCaregiver5" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType5,instrMappingAlias5,instrVer5,instrCaregiver5" component="${component}"/>
+   	<ui:setValue elementIds="instrType6,instrMappingAlias6,instrVer6,instrCaregiver6" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType6,instrMappingAlias6,instrVer6,instrCaregiver6" component="${component}"/>
+   	<ui:setValue elementIds="instrType7,instrMappingAlias7,instrVer7,instrCaregiver7" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType7,instrMappingAlias7,instrVer7,instrCaregiver7" component="${component}"/>
+   	<ui:setValue elementIds="instrType8,instrMappingAlias8,instrVer8,instrCaregiver8" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType8,instrMappingAlias8,instrVer8,instrCaregiver8" component="${component}"/>
+   	<ui:setValue elementIds="instrType9,instrMappingAlias9,instrVer9,instrCaregiver9" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType9,instrMappingAlias9,instrVer9,instrCaregiver9" component="${component}"/>
+   	<ui:setValue elementIds="instrType10,instrMappingAlias10,instrVer10,instrCaregiver10" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType10,instrMappingAlias10,instrVer10,instrCaregiver10" component="${component}"/>
+   	<ui:setValue elementIds="instrType11,instrMappingAlias11,instrVer11,instrCaregiver11" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType11,instrMappingAlias11,instrVer11,instrCaregiver11" component="${component}"/>
+   	<ui:setValue elementIds="instrType12,instrMappingAlias12,instrVer12,instrCaregiver12" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType12,instrMappingAlias12,instrVer12,instrCaregiver12" component="${component}"/>
+   	<ui:setValue elementIds="instrType13,instrMappingAlias13,instrVer13,instrCaregiver13" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType13,instrMappingAlias13,instrVer13,instrCaregiver13" component="${component}"/>
+   	<ui:setValue elementIds="instrType14,instrMappingAlias14,instrVer14,instrCaregiver14" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType14,instrMappingAlias14,instrVer14,instrCaregiver14" component="${component}"/>
+   	<ui:setValue elementIds="instrType15,instrMappingAlias15,instrVer15,instrCaregiver15" component="${component}" value=""/>
+   	<ui:disable elementIds="instrType15,instrMappingAlias15,instrVer15,instrCaregiver15" component="${component}"/>
+   	<ui:setValue elementIds="instrDefaultCode" component="${component}" value=""/>
+   	<ui:disable elementIds="instrDefaultCode" component="${component}"/>
    	<ui:setValue elementIds="instrExistRule,instrCaregiverExistRule,instrDcStatus" component="${component}" value=""/>
    	<ui:disable elementIds="instrExistRule,instrCaregiverExistRule,instrDcStatus" component="${component}"/>
 </ui:formGuide>
+
+<tags:ifHasRole roles="DATA IMPORTER,SYSTEM ADMIN"> 
+<ui:formGuide>
+   	<ui:observeForNull elementIds="patientOnlyImport" component="${component}" negate="true"/>
+   	<ui:setValue elementIds="allowInstrUpdate" component="${component}" value=""/>
+   	<ui:disable elementIds="allowInstrUpdate" component="${component}"/>
+</ui:formGuide>
+</tags:ifHasRole>	
 
 <ui:formGuide>
 	<%-- if Patient Exist Rule is Must Not Exist, then other entities cannot possibly exist so set
 		their rule to Must Not Exist and disable --%>
    	<ui:observe elementIds="patientExistRule" component="${component}" forValue="3"/>
    	<%-- clear the properties that have project-dependent lists --%>
-   	<ui:setValue elementIds="esExistRule,visitExistRule,instrExistRule" component="${component}" value="3"/>
-   	<ui:disable elementIds="esExistRule,visitExistRule,instrExistRule" component="${component}"/>
+   	<ui:setValue elementIds="esExistRule" component="${component}" value="3"/>
+   	<ui:disable elementIds="esExistRule" component="${component}"/>
+</ui:formGuide>
+
+
+<ui:formGuide>
+	<%-- if Patient Exist Rule is Must Not Exist, then other entities cannot possibly exist so set
+		their rule to Must Not Exist and disable --%>
+   	<ui:observe elementIds="patientExistRule" component="${component}" forValue="3"/>
+   	<ui:ignoreForNull elementIds="patientOnlyImport" component="${component}" negate="true"/>
+   	<%-- clear the properties that have project-dependent lists --%>
+   	<ui:setValue elementIds="visitExistRule,instrExistRule" component="${component}" value="3"/>
+   	<ui:disable elementIds="visitExistRule,instrExistRule" component="${component}"/>
    	<%-- TODO: add allowInstrUpdate to these --%>
    	<ui:setValue elementIds="instrCaregiverExistRule" component="${component}" value="1"/>
    	<ui:disable elementIds="instrCaregiverExistRule" component="${component}"/>
