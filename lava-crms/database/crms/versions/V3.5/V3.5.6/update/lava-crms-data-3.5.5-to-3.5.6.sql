@@ -69,7 +69,7 @@ INSERT INTO `viewproperty` (`messageCode`,`locale`,`scope`,`prefix`,`entity`,`pr
 INSERT INTO `viewproperty` (`messageCode`,`locale`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`list`,`attributes`,`required`,`label`,`quickHelp`,`propOrder`,`maxLength`,`size`) VALUES ('*.importDefinition.matchVisitType3','en','lava',NULL,'importDefinition','matchVisitType3',NULL,'i','range','visit.visitTypes',NULL,'No','Match Visit Type','Match Visit Type #3',NULL,NULL,30);
 
 INSERT INTO `viewproperty` (`messageCode`,`locale`,`scope`,`prefix`,`entity`,`property`,`section`,`context`,`style`,`list`,`attributes`,`required`,`label`,`quickHelp`,`propOrder`,`maxLength`,`size`) 
-VALUES ('*.importDefinition.instrDefaultCode','en','lava',NULL,'importDefinition','instrDefaultCode',NULL,'i','range','reference.stdErrorCodes',NULL,'No','Global Default','Global default for missing (i.e. blank) values',NULL,NULL,19);
+VALUES ('*.importDefinition.instrDefaultCode','en','lava',NULL,'importDefinition','instrDefaultCode',NULL,'i','range','ref.stdErrorCodesValueConcatLabel',NULL,'No','Global Default','Global default for missing (i.e. blank) values',NULL,NULL,19);
 
 
 
