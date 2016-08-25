@@ -7,6 +7,11 @@
 	<bean id="list.ref.stdErrorCodes" parent="list.standard">
 		<property name="dbListName" value="StandardErrorCodes"/>
 	</bean>
+	
+	<bean id="list.ref.stdErrorCodesValueConcatLabel" parent="list.standard">
+		<property name="dbListName" value="StandardErrorCodes"/>
+		<property name="defaultFormat" value="valueConcatLabel"/>
+	</bean>
 
 	<bean id="list.ref.stdErrorCodesDecimal" parent="list.standardDecimal">
 		<property name="dbListName" value="StandardErrorCodes"/>
