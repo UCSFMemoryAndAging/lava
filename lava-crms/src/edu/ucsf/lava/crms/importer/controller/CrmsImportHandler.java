@@ -2169,6 +2169,7 @@ public class CrmsImportHandler extends ImportHandler {
 				v.setVisitLocation(visitLoc);
 				v.setVisitWith(visitWith);
 				v.setVisitStatus(visitStatus);
+				// do not need to explicitly call updateCalculatedFields as that is done on save
 
 				// note that non-required fields will be set in the setPropertyHandling method which iterates thru all
 				// property values. this could include custom, instance specfic fields. 
@@ -3283,6 +3284,7 @@ public class CrmsImportHandler extends ImportHandler {
 
 		try {
 			if (importSetup.isPatientCreated()) {
+				// do not need to explicitly call updateCalculatedFields as that is done on save
 				importSetup.getPatient().save();
 				logger.info("saving Patient lineNum="+lineNum);
 				importLog.addCreatedMessage(lineNum, "PATIENT CREATED:" + importSetup.getPatient().getFullName(),
