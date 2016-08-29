@@ -9,6 +9,7 @@ import static edu.ucsf.lava.core.importer.model.ImportDefinition.STATIC_INDICATO
 import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MAY_OR_MAY_NOT_EXIST;
 import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MUST_EXIST;
 import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MUST_NOT_EXIST;
+import static edu.ucsf.lava.crms.people.model.Patient.DEIDENTIFIED;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -20,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,8 +37,8 @@ import org.apache.commons.beanutils.converters.FloatConverter;
 import org.apache.commons.beanutils.converters.LongConverter;
 import org.apache.commons.beanutils.converters.ShortConverter;
 import org.apache.commons.beanutils.converters.StringConverter;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
@@ -160,6 +162,9 @@ public class CrmsImportHandler extends ImportHandler {
 		if ((returnEvent = super.doImport(context, command, errors)).getId().equals(SUCCESS_FLOW_EVENT_ID)) {
 			CrmsImportDefinition importDefinition = (CrmsImportDefinition) importSetup.getImportDefinition();
 
+
+			// note that if the ProjName is in the data file the importLog just represents the importDefinition projName since the import data file
+			// could have different ProjName on different rows
 			importLog.setProjName(importDefinition.getProjName());
 			importLog.setNotes(importSetup.getNotes());
 
@@ -663,12 +668,13 @@ public class CrmsImportHandler extends ImportHandler {
 					Event instrCaregiverHandlingEvent = null;
 				
 					// if definition has flag set that this is a caregiver instrument, set the caregiver on the instrument
-					if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
-						importSetup.getInstrument(), importDefinition.getInstrType(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
-						this.evictInstruments(importDefinition, importSetup);
-						continue;
+					if (importDefinition.getInstrCaregiver() != null && importDefinition.getInstrCaregiver()) {
+						if ((instrCaregiverHandlingEvent = setInstrumentCaregiver(context, errors, importDefinition, importSetup, importLog, 
+							importSetup.getInstrument(), importDefinition.getInstrType(), lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+							this.evictInstruments(importDefinition, importSetup);
+							continue;
+						}
 					}
-				
 
 					if (StringUtils.hasText(importDefinition.getInstrType2())) {
 						if (importDefinition.getInstrCaregiver2() != null && importDefinition.getInstrCaregiver2()) {
@@ -894,12 +900,12 @@ public class CrmsImportHandler extends ImportHandler {
 		// ** the import definition mapping file second row must have entity string and third row must have 
 		// property string that match exactly the entity and property name strings below  
 	
-		// look up the indices of fields in the import definition mapping file properties row that are required 
-		// to search for existing entities and/or populate new entities, and record the indices to be used in 
-		// processing each import record
-		// required fields for creating new Patient/EnrollmentStatus/Visit/instrument which could have the same 
+		// look up the column indices of fields in the import data file that are required to search for existing
+		// entities and/or populate new entities, and record the indices to be used in processing each import record
+		
+		// required fields for creating new Patient/EnrollmentStatus/Visit/instruments which could have the same 
 		// uniform value across all records imported from a data file may be specified as part of the import 
-		// definition rather then being supplied in the data file. but the data file takes precedent so first 
+		// definition rather then being supplied in the data file. but the data file takes precedence so first 
 		// check the data file and set the index if the field has a value in the data file.
 		
 		// note that the entity and property are on separate lines of the mapping file and thus in separate arrays,
@@ -909,8 +915,12 @@ public class CrmsImportHandler extends ImportHandler {
 		// editing entity.property format for each property)
 		
 		setDataFilePropertyIndex(importSetup, "indexPatientPIDN", "patient", "PIDN");
+		// note: if importing de-identified data then the data file de-identified ID column will be mapped to firstName and lastName will be mapped as "STATIC:DE-IDENTIFIED"
 		setDataFilePropertyIndex(importSetup, "indexPatientFirstName", "patient", "firstName");
-		setDataFilePropertyIndex(importSetup, "indexPatientLastName", "patient", "lastName");
+		// if this is a de-identified patient import there will not be a lastName in the data file so do not find its index
+		if (ArrayUtils.indexOf(importSetup.getMappingCols(), STATIC_INDICATOR + DEIDENTIFIED, 0) == -1) {
+			setDataFilePropertyIndex(importSetup, "indexPatientLastName", "patient", "lastName");
+		}
 		setDataFilePropertyIndex(importSetup, "indexPatientBirthDate", "patient", "birthDate");
 		setDataFilePropertyIndex(importSetup, "indexPatientGender", "patient", "gender");
 
@@ -944,9 +954,10 @@ public class CrmsImportHandler extends ImportHandler {
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoPhone2", "caregiver2ContactInfo", "phone2");
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoEmail", "caregiver2ContactInfo", "email");
 		
-		
-		setDataFilePropertyIndex(importSetup, "indexEsStatusDate", "enrollmentStatus", "date");
-		setDataFilePropertyIndex(importSetup, "indexEsStatus", "enrollmentStatus", "status");
+		setDataFilePropertyIndex(importSetup, "indexEsProjName", "enrollmentStatus", "projName");
+		setDataFilePropertyIndex(importSetup, "indexEsStatusDate", "enrollmentStatus", "statusDate");
+		setDataFilePropertyIndex(importSetup, "indexEsStatus", "enrollmentStatus", "statusDesc");
+
 		setDataFilePropertyIndex(importSetup, "indexVisitDate", "visit", "visitDate");
 		setDataFilePropertyIndex(importSetup, "indexVisitTime", "visit", "visitTime");
 		setDataFilePropertyIndex(importSetup, "indexVisitType", "visit", "visitType");
@@ -1025,7 +1036,7 @@ public class CrmsImportHandler extends ImportHandler {
 	 * @return
 	 */
 	protected void generateRevisedProjName(CrmsImportDefinition importDefinition, CrmsImportSetup importSetup) {
-		importSetup.setRevisedProjName(importDefinition.getProjName());
+		importSetup.setRevisedProjName(importSetup.getIndexEsProjName() != -1 ? importSetup.getDataValues()[importSetup.getIndexEsProjName()] : importDefinition.getProjName());
 	}
 
 	
@@ -1064,12 +1075,40 @@ public class CrmsImportHandler extends ImportHandler {
 			int lineNum) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter = EntityBase.newFilterInstance();
+		List<Patient> patientList = null;
 		SimpleDateFormat formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
 		String dateOrTimeAsString = null;
 		Date birthDate = null;
+		int birthDateYear = 0;
 
 		// search for existing patient
 		Patient p = null;
+
+		// convert the birthDate, if supplied in the data file, to a Date
+		if (importSetup.getIndexPatientBirthDate() != -1) {
+			dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexPatientBirthDate()];
+			
+			if (importDefinition.getDateFormat().endsWith("/yy")) {
+				// if 2 digit year, set start year to 1916 so birthDate year will be from 1916 to 2015, which covers the greatest probability
+				// for children and adult patients
+				Calendar tempCal = Calendar.getInstance();
+				tempCal.clear();
+				tempCal.set(Calendar.YEAR, 1916);
+				formatter.set2DigitYearStart(tempCal.getTime());
+			}
+			formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+			try {
+				birthDate = formatter.parse(dateOrTimeAsString);
+			} catch (ParseException e) {
+				// likely will not be called with leniency applied
+				importLog.addErrorMessage(lineNum, "Patient.birthDate is an invalid Date format, Date:" + dateOrTimeAsString);
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+			if (importDefinition.getDateFormat().endsWith("/yy")) {
+				// when data file has 2 digit years, reassign dataOrTimeAsString (used for log messages) to reflect the full 4 digit year 
+				dateOrTimeAsString = new SimpleDateFormat(importDefinition.getDateFormat()).format(birthDate);
+			}
+		}
 
 		filter.clearDaoParams();
 		if (importSetup.getIndexPatientPIDN() != -1) {
@@ -1084,28 +1123,22 @@ public class CrmsImportHandler extends ImportHandler {
 			filter.addIdDaoEqualityParam(pidn);
 			p = (Patient) Patient.MANAGER.getById(pidn);
 		}
+		else if (ArrayUtils.indexOf(importSetup.getMappingCols(), STATIC_INDICATOR + DEIDENTIFIED, 0) != -1) {
+			filter.addDaoParam(filter.daoEqualityParam("firstName", importSetup.getDataValues()[importSetup.getIndexPatientFirstName()]));
+			filter.addDaoParam(filter.daoEqualityParam("lastName", DEIDENTIFIED));
+		}
 		else { 
 			// birthDate is optional for search as it is often not part of data files
-			if (importSetup.getIndexPatientBirthDate() != -1) {
-				dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexPatientBirthDate()];
-				formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
-				try {
-					birthDate = formatter.parse(dateOrTimeAsString);
-				} catch (ParseException e) {
-					// likely will not be called with leniency applied
-					importLog.addErrorMessage(lineNum, "Patient.birthDate is an invalid Date format, Date:" + dateOrTimeAsString);
-					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
-				}
-				
-				// because if date format is yyyy for year part, the parser will allow any date into the future, even 5 digit dates, so 
+			if (birthDate != null && !importDefinition.getAllowExtremeDates()) {
+				// if date format is yyyy for year part, the parser will allow any date into the future, even 5 digit dates, so 
 				// have to do range checking to catch bad date errors
 				java.util.Calendar birthDateCalendar = java.util.Calendar.getInstance();
 				birthDateCalendar.setTime(birthDate);
-				int birthDateYear = birthDateCalendar.get(java.util.Calendar.YEAR);
+				birthDateYear = birthDateCalendar.get(java.util.Calendar.YEAR);
 				java.util.Calendar nowCalendar = java.util.Calendar.getInstance();
 				int nowYear = nowCalendar.get(java.util.Calendar.YEAR);
-				if (birthDateYear < (nowYear - 100) || birthDateYear > nowYear) {
-					importLog.addErrorMessage(lineNum, "Patient DOB has an invalid Year. DOB:" + dateOrTimeAsString);
+				if (birthDateYear < (nowYear - 120) || birthDateYear > nowYear) {
+					importLog.addErrorMessage(lineNum, "Patient birth date has an invalid Year. Birth Date:" + dateOrTimeAsString);
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
 
@@ -1114,55 +1147,137 @@ public class CrmsImportHandler extends ImportHandler {
 
 			// have already validated that firstName and lastName are present in the mapping definition file if PIDN is not
 			setPatientNameMatchFilter(filter, importSetup);
-			
-			try {
-				p = (Patient) Patient.MANAGER.getOne(filter);
+
+			patientList = Patient.MANAGER.get(Patient.class, filter);
+
+			if (patientList.size() == 1) {
+				p = (Patient) patientList.get(0);
 			}
-			// this should never happen. if re-running import of a data file, should just be one 
-			catch (IncorrectResultSizeDataAccessException ex) {
+			else if (patientList.size() > 1) {
+				// this should never happen. if re-running import of a data file, should just be one 
 				importLog.addErrorMessage(lineNum, "Multiple Patient records matched for patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
-						" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]); 
+					" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]); 
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
+
+			// since matching on patient first and last name and birth date is prone to error, consider whether correcting one
+			// of these would result in the Patient being found. if that were the case, then importing this patient results in 
+			// a duplicate Patient created by the import (unless the Patient MUST_EXIST was set in the import definition). it is
+			// a pain to remove a duplicate Patient with data and either merge that data with the pre-existing Patient or remove it.
 			
-			// if Patient not found, then determine if it is because of a mismatch in birthDate. if this is the case then return
-			// an ERROR rather than continuing to create a new Patient, because most often in the case where the first and last
-			// name match a Patient but there is no match when the birthDate is also considered it is because of a data entry 
-			// error on the birthDate (either in the data file or in LAVA).
+			// the probability of incorrect data is higher when there is a partial but not complete match of an existing Patient
+			// record. for example, the data file could have a record that matches a Patient on firstName and lastName but not
+			// birthDate. but there is no way to know whether the birthDate is incorrect in the data file, or whether this is a
+			// different patient that happens to have the same name as an existing patient. So the import must create the Patient
+			// because otherwise there would be no way to import this Patient into LAVA.
+		
+			// however, these partial matches should be flagged as warnings so that the user can review the import log and for
+			// each warning they should review whether a duplicate Patient was created.
 			
-			// so in this case where the names match without considering the birthDate it is better to return an ERROR rather
-			// than create a new Patient because it is likely that the new Patient will be a duplicate of an existing Patient
-			// it is pain to remove a duplicate Patient with data and either merge that data with the pre-existing Patient
-			// or remove it. better process is that the user will see the error on import, the record will not be imported,
+			// here we will attempt to identify the following partial match scenarios and log them as warnings. note that if the
+			// data file has a PIDN then there is no consideration of a partial match. 
 			
-			// the user will fix the birthDate in the data file or in LAVA, import the data file again, and the data will 
-			// correctly be imported to the pre-existing Patient
+			// the following partial matches are considered when there is a birthDate present in the data file
+		
+				// firstName and lastName match (birthDate may be incorrect) 
+				
+				// lastName and birthDate match (firstName may be incorrect)
+			 
+				// firstName and birthDate match (lastName may be incorrect)
 			
-			// the only exception to this would be if there are in fact two patients with the same name, but in this case, the
-			// query here would detect dups and return a Duplicate Patients error, and then the user would need to fix 
-			// the data to accommodate that (most likely by fixing the birthDate in the data file or in LAVA, but possibly
-			// by modifying patient first or last name if that made sense)
+				// birthDate matches (firstName and lastName may be incorrect)
+		
+			// the following partial matches are considered when there is no birthDate in the data file, just firstName and lastName
+
+				// lastName matches (firstName may be incorrect)
+		
+		
+			// note: at this point we are within the clause where a Patient is being matched on firstName and lastName and birthDate (if 
+			// supplied) and so we know there was not a PIDN supplied in the data file
+
+
+			if (p == null && !importDefinition.getPatientExistRule().equals(MUST_EXIST)) { // TODO: and not matching on de-identifiedID 
+				Set<String> matchedPatients = new LinkedHashSet<String>();
+				if (birthDate != null) { // birthDate is supplied in the data file
 			
-			// only do this if there is a birthDate in the date file because otherwise the match will have already been
-			// done on first and last name without considering birthDate
-			if (p == null) {
-				if (importSetup.getIndexPatientBirthDate() != -1) {
+					// firstName and lastName match (birthDate may be incorrect) 
 					filter.clearDaoParams();
 					setPatientNameMatchFilter(filter, importSetup);
-					try {
-						p = (Patient) Patient.MANAGER.getOne(filter);
+					patientList = Patient.MANAGER.get(Patient.class, filter);
+					// iterate thru results and concatenate each Patient matched together for a the log warning message
+					for (Patient matchedPatient : patientList) {
+						matchedPatients.add(matchedPatient.getFullNameWithId());
 					}
-					// this should never happen. if re-running import of a data file, should just be one 
-					catch (IncorrectResultSizeDataAccessException ex) {
-						importLog.addErrorMessage(lineNum, "Multiple Patient records matched for patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
-								" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]); 
-						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+					if (matchedPatients.size() > 0) {
+						importLog.addWarningMessage(lineNum, "Check for duplicate patients. Patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] + " lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()] + " birthDate:" + dateOrTimeAsString +
+						" created and the following existing patients matched on first name and last name but not birthdate:" + matchedPatients.toString());
 					}
-					if (p != null) {
-						importLog.addErrorMessage(lineNum, "Patient birth date may be incorrect in either data file (" + dateOrTimeAsString + ") or LAVA (" + 
-								formatter.format(p.getBirthDate()) + "). Patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] +
-								" lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()] + " birthDate:" + dateOrTimeAsString);
-						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+	
+					
+					// lastName and birthDate match (firstName may be incorrect)
+					matchedPatients.clear();
+					filter.clearDaoParams();
+					filter.addDaoParam(filter.daoEqualityParam("lastName", importSetup.getDataValues()[importSetup.getIndexPatientLastName()]));
+					filter.addDaoParam(filter.daoEqualityParam("birthDate", birthDate));
+					filter.addDaoParam(filter.daoNot(filter.daoEqualityParam("firstName", importSetup.getDataValues()[importSetup.getIndexPatientLastName()])));
+					
+					patientList = Patient.MANAGER.get(Patient.class, filter);
+					// iterate thru results and concatenate each Patient matched together for a the log warning message
+					for (Patient matchedPatient : patientList) {
+						matchedPatients.add(matchedPatient.getFullNameWithId());
+					}
+					if (matchedPatients.size() > 0) {
+						importLog.addWarningMessage(lineNum, "Check for duplicate patients. Patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] + " lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()] + " birthDate:" + dateOrTimeAsString +
+						" created and the following existing patients matched on last name and birthdate but not first name:" + matchedPatients.toString());
+					}
+	
+					
+					// firstName and birthDate match (lastName may be incorrect)
+					matchedPatients.clear();
+					filter.clearDaoParams();
+					filter.addDaoParam(filter.daoEqualityParam("firstName", importSetup.getDataValues()[importSetup.getIndexPatientFirstName()]));
+					filter.addDaoParam(filter.daoEqualityParam("birthDate", birthDate));
+					filter.addDaoParam(filter.daoNot(filter.daoEqualityParam("lastName", importSetup.getDataValues()[importSetup.getIndexPatientLastName()])));
+					patientList = Patient.MANAGER.get(Patient.class, filter);
+					// iterate thru results and concatenate each Patient matched together for a the log warning message
+					for (Patient matchedPatient : patientList) {
+						matchedPatients.add(matchedPatient.getFullNameWithId());
+					}
+					if (matchedPatients.size() > 0) {
+						importLog.addWarningMessage(lineNum, "Check for duplicate patients. Patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] + " lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()] + " birthDate:" + dateOrTimeAsString +
+						" created and the following existing patients matched on first name and birthdate but not last name:" + matchedPatients.toString());
+					}
+				
+					
+					// birthDate matches (firstName and lastName may be incorrect)
+					matchedPatients.clear();
+					filter.clearDaoParams();
+					filter.addDaoParam(filter.daoEqualityParam("birthDate", birthDate));
+					filter.addDaoParam(filter.daoAnd(filter.daoNot(filter.daoEqualityParam("lastName", importSetup.getDataValues()[importSetup.getIndexPatientLastName()])), filter.daoNot(filter.daoEqualityParam("firstName", importSetup.getDataValues()[importSetup.getIndexPatientFirstName()]))));
+					patientList = Patient.MANAGER.get(Patient.class, filter);
+					// iterate thru results and concatenate each Patient matched together for a the log warning message
+					for (Patient matchedPatient : patientList) {
+						matchedPatients.add(matchedPatient.getFullNameWithId());
+					}
+					if (matchedPatients.size() > 0) {
+						importLog.addWarningMessage(lineNum, "Check for duplicate patients. Patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] + " lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()] + " birthDate:" + dateOrTimeAsString +
+						" created and the following existing patients matched on birthdate but not first name and not last name:" + matchedPatients.toString());
+					}
+				}
+				else {
+					// lastName matches (firstName may be incorrect)
+					matchedPatients.clear();
+					filter.clearDaoParams();
+					filter.addDaoParam(filter.daoEqualityParam("lastName", importSetup.getDataValues()[importSetup.getIndexPatientLastName()]));
+					filter.addDaoParam(filter.daoNot(filter.daoEqualityParam("firstName", importSetup.getDataValues()[importSetup.getIndexPatientLastName()])));
+					patientList = Patient.MANAGER.get(Patient.class, filter);
+					// iterate thru results and concatenate each Patient matched together for a the log warning message
+					for (Patient matchedPatient : patientList) {
+						matchedPatients.add(matchedPatient.getFullNameWithId());
+					}
+					if (matchedPatients.size() > 0) {
+						importLog.addWarningMessage(lineNum, "Check for duplicate patients. Patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] + " lastName:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()] + 
+						" created and the following existing patients matched on last name but not first name:" + matchedPatients.toString());
 					}
 				}
 			}
@@ -1181,18 +1296,30 @@ public class CrmsImportHandler extends ImportHandler {
 			}else {
 				// for either MUST_NOT_EXIST or MAY_OR_MAY_NOT_EXIST instantiate the Patient
 				
+				// note that de-identified data will map the de-identified id to patient.firstName and a STATIC_INDICATOR value of the Patient.DEIDENTIFIED constant
+			    // to patient.lastName
 				if (importSetup.getIndexPatientFirstName() == -1 || !StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientFirstName()])) {
 					importLog.addErrorMessage(lineNum, "Cannot create Patient. First Name field (patient.firstName) is missing or has no value");
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
-				if (importSetup.getIndexPatientLastName() == -1 || !StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientLastName()])) {
-					importLog.addErrorMessage(lineNum, "Cannot create Patient. Last Name field (patient.lastName) is missing or has no value");
-					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				// so for de-identified data there is not a value in the data file for lastName, rather there is a STATIC:DE-IDENTIFIED value in the mapping
+				// file. so do not perform this error checking in that case
+				if (ArrayUtils.indexOf(importSetup.getMappingCols(), STATIC_INDICATOR + DEIDENTIFIED, 0) == -1) {
+					if (importSetup.getIndexPatientLastName() == -1 || !StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientLastName()])) {
+						importLog.addErrorMessage(lineNum, "Cannot create Patient. Last Name field (patient.lastName) is missing or has no value");
+						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+					}
 				}
+				// de-identified patients may not have a real birthDate, in which case the mapping file should provide a fake default birthDate (by adding
+				// a column to the data file for birth date but with no data and then mapping it to patient.birthDate with a default in row 4 of the fake
+				// date. cannot use STATIC: on birthDate because code expects it to be mapped from the data file (i.e. a static birth date does not make sense
+				// in general). and do not want to put the fake value in the data file for every row because it may not pass as a valid birth date if it is
+				// out of range of valid birth dates checked above).
 				if (importSetup.getIndexPatientBirthDate() == -1 || !StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientBirthDate()])) {
 					importLog.addErrorMessage(lineNum, "Cannot create Patient. Date of Birth field (patient.birthDate) is missing or has no value");
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
+				// de-identified patients must have a gender in the data file
 				if (importSetup.getIndexPatientGender() == -1 || !StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientGender()])) {
 					importLog.addErrorMessage(lineNum, "Cannot create Patient. Gender field (patient.gender) is missing or has no value");
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
@@ -1209,22 +1336,21 @@ public class CrmsImportHandler extends ImportHandler {
 
 				// however, do set first name, last name, dob properties as they may be used in error log
 				p.setFirstName(importSetup.getDataValues()[importSetup.getIndexPatientFirstName()]);
-				p.setLastName(importSetup.getDataValues()[importSetup.getIndexPatientLastName()]);
-				p.updateCalculatedFields(); // so can use full name in log messages
-				// if the birthDate conversion was not done yet, i.e. PIDN was supplied such that a PIDN match was done (and failed)
-				if (birthDate == null) {
-					//TODO: look at making this date conversion into a small helper method									
-					dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexPatientBirthDate()];
-					formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
-					try {
-						birthDate = formatter.parse(dateOrTimeAsString);
-					} catch (ParseException e) {
-						// likely will not be called with leniency applied
-						importLog.addErrorMessage(lineNum, "Patient.birthDate is an invalid Date format, Date:" + dateOrTimeAsString);
-						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
-					}
+				int propIndex = -1;
+				propIndex = ArrayUtils.indexOf(importSetup.getMappingCols(), STATIC_INDICATOR + DEIDENTIFIED);
+				if (propIndex != -1) {
+					p.setLastName(DEIDENTIFIED);
+					p.setDeidentified(true);
 				}
-				p.setBirthDate(birthDate);
+				else {
+					p.setLastName(importSetup.getDataValues()[importSetup.getIndexPatientLastName()]);
+				}
+				p.updateCalculatedFields(); // so can use full name in log messages
+
+				if (birthDate != null) {
+					p.setBirthDate(birthDate);
+				}
+
 				// at this point have already validated that patient.gender exists in import file and has a value
 				p.setGender(importSetup.getDataValues()[importSetup.getIndexPatientGender()].toLowerCase().startsWith("m") || 
 						importSetup.getDataValues()[importSetup.getIndexPatientGender()].equals("1") ? (byte)1 : (byte)2);
@@ -1368,6 +1494,8 @@ public class CrmsImportHandler extends ImportHandler {
 			int indexContactInfoState, int indexContactInfoZip, int indexContactInfoPhone1, int indexContactInfoPhone2, int indexContactInfoEmail,
 			int lineNum) {
 		LavaDaoFilter filter = EntityBase.newFilterInstance();
+		List<Caregiver> caregiverList = null;
+		List<ContactInfo> caregiverContactInfoList = null;
 
 		// search for existing ContactInfo for the Caregiver
 		Caregiver caregiver = null;
@@ -1395,11 +1523,14 @@ public class CrmsImportHandler extends ImportHandler {
 				filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
 				filter.addDaoParam(filter.daoEqualityParam("firstName", importSetup.getDataValues()[indexFirstName]));
 				filter.addDaoParam(filter.daoEqualityParam("lastName", importSetup.getDataValues()[indexLastName]));
-				try {
-					caregiver = (Caregiver) Caregiver.MANAGER.getOne(filter);
+				
+				caregiverList = Caregiver.MANAGER.get(Caregiver.class, filter);
+
+				if (caregiverList.size() == 1) {
+					caregiver = (Caregiver) caregiverList.get(0);
 				}
-				// this should never happen. if re-running import of a data file, should just be one 
-				catch (IncorrectResultSizeDataAccessException ex) {
+				else if (caregiverList.size() > 1) {
+					// this should never happen. if re-running import of a data file, should just be one 
 					importLog.addErrorMessage(lineNum, "Multiple Caregiver records matched for patient " + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
 							" and Caregiver firstName:" + importSetup.getDataValues()[indexFirstName] 
 							+ " lastName:" + importSetup.getDataValues()[indexLastName]);
@@ -1486,10 +1617,12 @@ public class CrmsImportHandler extends ImportHandler {
 					if (indexContactInfoEmail != -1 && StringUtils.hasText(importSetup.getDataValues()[indexContactInfoEmail])) {
 						filter.addDaoParam(filter.daoEqualityParam("email", importSetup.getDataValues()[indexContactInfoEmail]));
 					}
-					try {
-						caregiverContactInfo = (ContactInfo) ContactInfo.MANAGER.getOne(filter);
+					
+					caregiverContactInfoList = ContactInfo.MANAGER.get(ContactInfo.class, filter);
+					if (caregiverContactInfoList.size() == 1) {
+						caregiverContactInfo = (ContactInfo) caregiverContactInfoList.get(0);
 					}
-					catch (IncorrectResultSizeDataAccessException ex) {
+					else if (caregiverContactInfoList.size() > 1) {
 						importLog.addErrorMessage(lineNum,  "Multiple Existing ContactInfo records matched for Caregiver:" + caregiver.getFullName() +  
 								" and Patient:" + importSetup.getPatient().getFullNameWithId() + 
 								(indexContactInfoAddress != -1 ? " and ContactInfo Address:" + importSetup.getDataValues()[indexContactInfoAddress] : "") + 
@@ -1572,8 +1705,9 @@ public class CrmsImportHandler extends ImportHandler {
 			int lineNum) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter = EntityBase.newFilterInstance();
+		List<EnrollmentStatus> enrollmentStatusList = null;
 		SimpleDateFormat formatter;
-		String dateOrTimeAsString;
+		String dateOrTimeAsString = null;
 
 		// search for existing enrollmentStatus
 		EnrollmentStatus es = null;
@@ -1590,11 +1724,14 @@ public class CrmsImportHandler extends ImportHandler {
 			// for each project so that is a lot of logic and probably too much for the import definition,
 			// as can generally assume that if there is data for a patient and project that the patient 
 			// is currently enrolled
-			try {
-				es = (EnrollmentStatus) EnrollmentStatus.MANAGER.getOne(filter);
+			
+			enrollmentStatusList = EnrollmentStatus.MANAGER.get(EnrollmentStatus.class, filter);
+
+			if (enrollmentStatusList.size() == 1) {
+				es = (EnrollmentStatus) enrollmentStatusList.get(0);
 			}
-			// this should never happen. if re-running import of a data file, should just be one 
-			catch (IncorrectResultSizeDataAccessException ex) {
+			else if (enrollmentStatusList.size() > 1) {
+				// this should never happen. if re-running import of a data file, should just be one 
 				importLog.addErrorMessage(lineNum, "Multiple EnrollmentStatus records matched for patient " + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
 						" and project " + importSetup.getRevisedProjName());
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
@@ -1614,12 +1751,29 @@ public class CrmsImportHandler extends ImportHandler {
 				// enrollmentStatus date will typically not be supplied in the data file, so default to visitDate if not
 				// note if 'patientOnlyImport' flag set in importDefinition there will not be a date to use 
 				Date esDate = null;
-				if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport()) {
-					// note that for a patientOnlyImport, unless there is an enrollment date in the data, there will not be an enrollment
-					// date to assign to the new enrollmentStatus. this means that the enrollmentStatus latestDesc / latestDate will not be set
-					// because date is null
-					dateOrTimeAsString = importSetup.getIndexEsStatusDate() != -1 ? importSetup.getDataValues()[importSetup.getIndexEsStatusDate()] : importSetup.getDataValues()[importSetup.getIndexVisitDate()];
+				if (importSetup.getIndexEsStatusDate() != -1) {
+					dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexEsStatusDate()];
+				}
+				else if (importSetup.getIndexVisitDate() != -1) {
+					// if the enrollment date is not supplied in the data, use the visit date as the enrollment date
+					// note that for a patientOnlyImport, if there is not enrollment date in the data, then there will not be a visitDate in the data to
+					// fall back on because patientOnlyImport does not import visit or instrument data 
+					dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitDate()];
+				}
+				else {
+					importLog.addWarningMessage(lineNum, "Enrollment Status Date unknown for:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()));
+				}
+				
+
+				if (dateOrTimeAsString != null) {
 					formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+					if (importDefinition.getDateFormat().endsWith("/yy")) {
+						// if 2 digit year, set start year to 2000 so year will be in the 21st century since all enrollment and visit dates should be
+						Calendar tempCal = Calendar.getInstance();
+						tempCal.clear();
+						tempCal.set(Calendar.YEAR, 2000);
+						formatter.set2DigitYearStart(tempCal.getTime());
+					}
 					formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
 					try {
 						esDate = formatter.parse(dateOrTimeAsString);
@@ -1628,21 +1782,26 @@ public class CrmsImportHandler extends ImportHandler {
 						importLog.addErrorMessage(lineNum, "Enrollment Status Date or Visit Date is an invalid Date format. Date:" + dateOrTimeAsString);
 						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 					}
-					// because if date format is yyyy for year part, the parser will allow any date into the future, even 5 digit dates, so 
-					// have to do range checking to catch bad date errors
-					java.util.Calendar esDateCalendar = java.util.Calendar.getInstance();
-					esDateCalendar.setTime(esDate);
-					int esDateYear = esDateCalendar.get(java.util.Calendar.YEAR);
-					java.util.Calendar nowCalendar = java.util.Calendar.getInstance();
-					int nowYear = nowCalendar.get(java.util.Calendar.YEAR);
-					// allow for dates 5 years into the future
-					if (esDateYear < (nowYear - 100) || esDateYear > (nowYear + 5)) {
-						importLog.addErrorMessage(lineNum, "Enrollment Status Date or Visit Date has an invalid Year. Date:" + dateOrTimeAsString);
-						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+					if (importDefinition.getDateFormat().endsWith("/yy")) {
+						// when data file has 2 digit years, reassign dataOrTimeAsString (used for log messages) to reflect the full 4 digit year 
+						dateOrTimeAsString = new SimpleDateFormat(importDefinition.getDateFormat()).format(esDate);
 					}
-				}
-				else {
-					importLog.addWarningMessage(lineNum, "Enrollment Status Date unknown for 'Patient Only Import' for:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()));
+					
+					if (!importDefinition.getAllowExtremeDates()) {
+						// if date format is yyyy for year part, the parser will allow any date into the future, even 5 digit dates, so 
+						// have to do range checking to catch bad date errors
+						java.util.Calendar esDateCalendar = java.util.Calendar.getInstance();
+						esDateCalendar.setTime(esDate);
+						int esDateYear = esDateCalendar.get(java.util.Calendar.YEAR);
+						java.util.Calendar nowCalendar = java.util.Calendar.getInstance();
+						int nowYear = nowCalendar.get(java.util.Calendar.YEAR);
+						// cannot have an enrollmentStatus year before the MAC was founded (1998?) or in the future beyond the current year, but since
+						// enrollmentStatus may use visit year and visit year could be in the future allow 2 years into the future
+						if (esDateYear < (nowYear - 30) || esDateYear > (nowYear + 2)) {
+							importLog.addErrorMessage(lineNum, "Enrollment Status Date or Visit Date has an invalid Year. Date:" + dateOrTimeAsString);
+							return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+						}
+					}
 				}
 					
 				if (!StringUtils.hasText(importEsStatus)) {
@@ -1744,6 +1903,13 @@ public class CrmsImportHandler extends ImportHandler {
 		// visitDate is required for both matching Visit and as a required field when creating new Visit
 		dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitDate()];
 		formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+		if (importDefinition.getDateFormat().endsWith("/yy")) {
+			// if 2 digit year, set start year to 2000 so year will be in the 21st century since all enrollment and visit dates should be
+			Calendar tempCal = Calendar.getInstance();
+			tempCal.clear();
+			tempCal.set(Calendar.YEAR, 2000);
+			formatter.set2DigitYearStart(tempCal.getTime());
+		}
 		formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
 		try {
 			visitDate = formatter.parse(dateOrTimeAsString);
@@ -1752,18 +1918,24 @@ public class CrmsImportHandler extends ImportHandler {
 			importLog.addErrorMessage(lineNum, "Visit.visitDate is an invalid Date format. Date:" + dateOrTimeAsString);
 			return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 		}
+		if (importDefinition.getDateFormat().endsWith("/yy")) {
+			// when data file has 2 digit years, reassign dataOrTimeAsString (used for log messages) to reflect the full 4 digit year 
+			dateOrTimeAsString = new SimpleDateFormat(importDefinition.getDateFormat()).format(visitDate);
+		}
 
-		// because if date format is yyyy for year part, the parser will allow any date into the future, even 5 digit dates, so 
-		// have to do range checking to catch bad date errors
-		java.util.Calendar visitDateCalendar = java.util.Calendar.getInstance();
-		visitDateCalendar.setTime(visitDate);
-		int visitDateYear = visitDateCalendar.get(java.util.Calendar.YEAR);
-		java.util.Calendar nowCalendar = java.util.Calendar.getInstance();
-		int nowYear = nowCalendar.get(java.util.Calendar.YEAR);
-		// allow for dates 5 years into the future
-		if (visitDateYear < (nowYear - 100) || visitDateYear > (nowYear + 5)) {
-			importLog.addErrorMessage(lineNum, "Visit.visitDate has an invalid Year. Date:" + dateOrTimeAsString);
-			return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+		if (!importDefinition.getAllowExtremeDates()) {
+			// if date format is yyyy for year part, the parser will allow any date into the future, even 5 digit dates, so 
+			// have to do range checking to catch bad date errors
+			java.util.Calendar visitDateCalendar = java.util.Calendar.getInstance();
+			visitDateCalendar.setTime(visitDate);
+			int visitDateYear = visitDateCalendar.get(java.util.Calendar.YEAR);
+			java.util.Calendar nowCalendar = java.util.Calendar.getInstance();
+			int nowYear = nowCalendar.get(java.util.Calendar.YEAR);
+			// allow for visit dates a number of years before the MAC started (in 1998?) and 2 years into the future from the current year
+			if (visitDateYear < (nowYear - 30) || visitDateYear > (nowYear + 2)) {
+				importLog.addErrorMessage(lineNum, "Visit.visitDate has an invalid Year. Date:" + dateOrTimeAsString);
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
 		}
 
 		if (importSetup.getIndexVisitTime() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitTime()])) {
@@ -2123,13 +2295,39 @@ public class CrmsImportHandler extends ImportHandler {
 		if (indexInstrDcDate != -1) {
 			dateOrTimeAsString = importSetup.getDataValues()[indexInstrDcDate];
 			formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+			if (importDefinition.getDateFormat().endsWith("/yy")) {
+				// if 2 digit year, set start year to 2000 so year will be in the 21st century since all enrollment and visit dates should be
+				Calendar tempCal = Calendar.getInstance();
+				tempCal.clear();
+				tempCal.set(Calendar.YEAR, 2000);
+				formatter.set2DigitYearStart(tempCal.getTime());
+			}
 			formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
 			try {
 				dcDate = formatter.parse(dateOrTimeAsString);
 			} catch (ParseException e) {
 				// likely will not occur with leniency applied
-				importLog.addErrorMessage(lineNum, "Instrumet.dcDate is an invalid Date format. Date:" + dateOrTimeAsString);
+				importLog.addErrorMessage(lineNum, "Instrument.dcDate is an invalid Date format. Date:" + dateOrTimeAsString);
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+			if (importDefinition.getDateFormat().endsWith("/yy")) {
+				// when data file has 2 digit years, reassign dataOrTimeAsString (used for log messages) to reflect the full 4 digit year 
+				dateOrTimeAsString = new SimpleDateFormat(importDefinition.getDateFormat()).format(dcDate);
+			}
+			
+			if (!importDefinition.getAllowExtremeDates()) {
+				// if date format is yyyy for year part, the parser will allow any date into the future, even 5 digit dates, so 
+				// have to do range checking to catch bad date errors
+				java.util.Calendar dcDateCalendar = java.util.Calendar.getInstance();
+				dcDateCalendar.setTime(dcDate);
+				int dcDateYear = dcDateCalendar.get(java.util.Calendar.YEAR);
+				java.util.Calendar nowCalendar = java.util.Calendar.getInstance();
+				int nowYear = nowCalendar.get(java.util.Calendar.YEAR);
+				// allow for data collection dates a number of years before the MAC started (in 1998?) and 2 years into the future from the current year
+				if (dcDateYear < (nowYear - 30) || dcDateYear > (nowYear + 2)) {
+					importLog.addErrorMessage(lineNum, "Instrument.dcDate has an invalid Year. Date:" + dateOrTimeAsString);
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
 			}
 		}
 		else {
@@ -2536,6 +2734,16 @@ public class CrmsImportHandler extends ImportHandler {
 			Integer dataIndex = importSetup.getMappingColDataCol().get(mappingIndex);
 			
 			definitionColName = importSetup.getMappingCols()[mappingIndex];
+			// skip fields when import definition mapping column name prefixed by SKIP_INDICATOR 
+			// note: column name following SKIP_INDICATOR must match data column name, this is validated earlier in the import process
+			// TODO: check existing mapping files in lava3 (pedi) to alter how they use XX as this was the old lava3 code:
+			//	if (definitionColName.startsWith("XX") || 
+			//		(definitionEntityName != null && definitionEntityName.startsWith("XX")) ||
+			//		(definitionPropName != null && definitionPropName.startsWith("XX"))) { 
+			if (definitionColName.startsWith(SKIP_INDICATOR)) { 
+				continue;
+			}
+
 			definitionEntityName = importSetup.getMappingEntities()[mappingIndex]; // this is instrType, not instrTypeEncoded
 			definitionPropName = importSetup.getMappingProps()[mappingIndex];
 			if (importSetup.getMappingDefaults() == null || !StringUtils.hasText(importSetup.getMappingDefaults()[mappingIndex])) {
@@ -2579,15 +2787,6 @@ public class CrmsImportHandler extends ImportHandler {
 
 			if (dataIndex == null && staticValue == null) {
 				// do nothing. mapping file column does not reference a variable and value in the data file, nor is it a default value.
-			}
-			// skip fields when import definition mapping column name prefixed by SKIP_INDICATOR 
-			// note: column name following SKIP_INDICATOR must match data column name, this is validated earlier in the import process
-// TODO: see if any pedi mapping files use XX
-//			if (definitionColName.startsWith("XX") || 
-//				(definitionEntityName != null && definitionEntityName.startsWith("XX")) ||
-//				(definitionPropName != null && definitionPropName.startsWith("XX"))) { 
-			else if (definitionColName.startsWith(SKIP_INDICATOR)) { 
-				// do nothing
 			}
 			else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && 
 				(definitionEntityName.equalsIgnoreCase(importSetup.getInstrument().getInstrType()) || definitionEntityName.equalsIgnoreCase(((CrmsImportDefinition)importDefinition).getInstrMappingAlias()))) {
@@ -2745,7 +2944,10 @@ public class CrmsImportHandler extends ImportHandler {
 			//EnrollmentStatus properties
 			else if (definitionEntityName.equalsIgnoreCase("enrollmentStatus")) {
 				if (importSetup.isEnrollmentStatusCreated()) {
-					returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getEnrollmentStatus(), definitionEntityName, definitionPropName, definitionDefaultValue, dataIndex, null, staticValue, lineNum);
+					// don't need to set properties already set when EnrollmentStatus was created
+					if (!definitionPropName.equalsIgnoreCase("projName") && !definitionPropName.equalsIgnoreCase("statusDate") && !definitionPropName.equalsIgnoreCase("statusDesc")) {
+						returnEvent = this.setProperty(importDefinition, importSetup, importLog, importSetup.getEnrollmentStatus(), definitionEntityName, definitionPropName, definitionDefaultValue, dataIndex, null, staticValue, lineNum);
+					}
 				}
 			}
 			//Visit properties
@@ -2868,6 +3070,8 @@ public class CrmsImportHandler extends ImportHandler {
 			if (!StringUtils.hasText(importSetup.getDataValues()[dataIndex])) {
 				
 				// determine if there is either a default for the current property in the mapping file, or a global default from the import definition
+				// "NULL" in import definition mapping file as a default will leave the value blank instead of setting it to the import definition instrument
+				// default code 
 				if (StringUtils.hasText(definitionDefaultValue) && definitionDefaultValue.equalsIgnoreCase("NULL")) {
 					// leave the value blank 
 					
@@ -3448,6 +3652,15 @@ public class CrmsImportHandler extends ImportHandler {
 	}
 	
 	
+	/** 
+	 * Helper method to saveImportRecord to generate the importLog record content for saving an entity
+	 * 
+	 * @param entityType
+	 * @param importDefinition
+	 * @param importSetup
+	 * @param instr
+	 * @return
+	 */
 	protected CrmsImportLogMessage getCrmsImportLogMessageInfo(String entityType, CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, Instrument instr) {
 		CrmsImportLogMessage info = new CrmsImportLogMessage()
 ;
