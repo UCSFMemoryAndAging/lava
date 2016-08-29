@@ -28,6 +28,11 @@ public class CrmsImportDefinition extends ImportDefinition {
 	// Patients, ContactInfo, Caregivers, Caregivers ContactInfo, and if a Patient is created an EnrollmentStatus must 
 	// be created, which will use the projName project
 	private Boolean patientOnlyImport;
+	// currently this flag is only visible to the SYSADMIN and is used to support rare cases where there is not
+	// a date in the data for birthDate and/or esDate/visitDate/dcDate, such as when importing de-identified data
+	// where those dates are not present. if the flag is set then the code does not check that the dates are 
+	// out of range
+	private Boolean allowExtremeDates; 
 	// currently this flag is not used unless it is determined that import files should be able to overwrite
 	// existing Patient data
 	private Boolean allowPatientUpdate; 
@@ -976,6 +981,14 @@ public class CrmsImportDefinition extends ImportDefinition {
 
 	public void setInstrDefaultCode(String instrDefaultCode) {
 		this.instrDefaultCode = instrDefaultCode;
+	}
+
+	public Boolean getAllowExtremeDates() {
+		return allowExtremeDates;
+	}
+
+	public void setAllowExtremeDates(Boolean allowExtremeDates) {
+		this.allowExtremeDates = allowExtremeDates;
 	}
 	
 }
