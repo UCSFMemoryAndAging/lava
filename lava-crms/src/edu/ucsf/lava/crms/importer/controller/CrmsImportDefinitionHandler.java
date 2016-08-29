@@ -266,6 +266,9 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 		
 		// now validate that the instrument properties in the mapping file exist
 
+/********		
+TODO: find out which property getter throws an exception on PropertyUtils.describe, resulting in InvocationTargetException. does not happen in lava2 so could
+ try to isolate it by comparing with that. Also, could debug into that source code to find out.
 		if (!importDefinition.getPatientOnlyImport()) {	
 			try {
 				instrClazz = this.instrumentManager.getInstrumentClass(Instrument.getInstrTypeEncoded(importDefinition.getInstrType(), importDefinition.getInstrVer()));
@@ -444,6 +447,7 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 			
 			instr = instr2 = instr3 = instr4 = instr5 = instr6 = instr7 = instr8 = instr9 = instr10 = instr11 = instr12 = instr13 = instr14 = instr15 = null;
 		}
+*****/	
 		
 		
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
