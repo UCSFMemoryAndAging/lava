@@ -331,6 +331,9 @@ of component --%>
 	<page:param name="sectionNameKey">importDefinition.dataFile.section</page:param>
 		<tags:createField property="dataFileFormat" component="${component}" entity="importDefinition"/>
 		<tags:createField property="startDataRow" component="${component}" entity="importDefinition"/>
+		<tags:ifHasRole roles="SYSTEM ADMIN">   <%-- only allow the SYSTEM ADMIN to turn on Allow Extreme Dates --%> 
+			<tags:createField property="allowExtremeDates" component="${component}" entity="importDefinition"/>
+		</tags:ifHasRole>
 		<tags:outputText textKey="importDefinition.dateTimeFormatting" inline="false" styleClass="italic"/>
 		<tags:createField property="dateFormat" component="${component}" entity="importDefinition"/>
 		<tags:outputText textKey="importDefinition.defaultDateFormat" inline="false" indent="true" styleClass="italic"/>
