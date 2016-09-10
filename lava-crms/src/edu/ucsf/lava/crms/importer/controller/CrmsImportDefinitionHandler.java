@@ -528,11 +528,17 @@ TODO: find out which property getter throws an exception on PropertyUtils.descri
 				LavaComponentFormAction.createRequiredFieldError(errors, "visitExistRule", getDefaultObjectName());
 			}
 			// note that visitWith is not a required Visit property so not checking for that
+			/* update: cannot require because these values may be supplied in the data file, and cannot validate here because do not know
+			 * whether or not data files will have these values
+			 * could consider having user explicitly setting a flag to indicate the values will be in the data file, but bottom line is that
+			 * the user will get an import error if trying to load a data file and the visit fields are neither in the import definition or in
+			 * the data file
 			else if (crmsImportDefinition.getVisitExistRule().equals(MAY_OR_MAY_NOT_EXIST) || crmsImportDefinition.getVisitExistRule().equals(MUST_NOT_EXIST)) {
 				if (crmsImportDefinition.getVisitType() == null || crmsImportDefinition.getVisitLoc() == null || crmsImportDefinition.getVisitStatus() == null) {
 					LavaComponentFormAction.createCommandError(errors, "importDefinition.visitFields.required", null);
 				}
 			}
+			 */
 
 			if (crmsImportDefinition.getInstrExistRule() == null) {
 				LavaComponentFormAction.createRequiredFieldError(errors, "instrExistRule", getDefaultObjectName());
