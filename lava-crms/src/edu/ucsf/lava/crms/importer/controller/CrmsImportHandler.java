@@ -18,6 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -954,6 +955,8 @@ public class CrmsImportHandler extends ImportHandler {
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoPhone2", "caregiver2ContactInfo", "phone2");
 		setDataFilePropertyIndex(importSetup, "indexCaregiver2ContactInfoEmail", "caregiver2ContactInfo", "email");
 		
+		// note that if the Project is in the data file it is used both for enrollmentStatusExistsHandling and
+		// visitExistsHandling, but it should only be mapped as one or the other, so we have chosen enrollmentStatus.projName
 		setDataFilePropertyIndex(importSetup, "indexEsProjName", "enrollmentStatus", "projName");
 		setDataFilePropertyIndex(importSetup, "indexEsStatusDate", "enrollmentStatus", "statusDate");
 		setDataFilePropertyIndex(importSetup, "indexEsStatus", "enrollmentStatus", "statusDesc");
@@ -962,7 +965,7 @@ public class CrmsImportHandler extends ImportHandler {
 		setDataFilePropertyIndex(importSetup, "indexVisitTime", "visit", "visitTime");
 		setDataFilePropertyIndex(importSetup, "indexVisitType", "visit", "visitType");
 		setDataFilePropertyIndex(importSetup, "indexVisitWith", "visit", "visitWith");
-		setDataFilePropertyIndex(importSetup, "indexVisitLoc", "visit", "visitLoc");
+		setDataFilePropertyIndex(importSetup, "indexVisitLoc", "visit", "visitLocation");
 		setDataFilePropertyIndex(importSetup, "indexVisitStatus", "visit", "visitStatus");
 
 		//TODO: for each instrument, if properties not found when matching instrType, try matching instrAlias
@@ -1126,6 +1129,16 @@ public class CrmsImportHandler extends ImportHandler {
 		else if (ArrayUtils.indexOf(importSetup.getMappingCols(), STATIC_INDICATOR + DEIDENTIFIED, 0) != -1) {
 			filter.addDaoParam(filter.daoEqualityParam("firstName", importSetup.getDataValues()[importSetup.getIndexPatientFirstName()]));
 			filter.addDaoParam(filter.daoEqualityParam("lastName", DEIDENTIFIED));
+	
+			patientList = Patient.MANAGER.get(Patient.class, filter);
+
+			if (patientList.size() == 1) {
+				p = (Patient) patientList.get(0);
+			}
+			else if (patientList.size() > 1) {
+				importLog.addErrorMessage(lineNum, "Multiple Patient records matched for DEIDENTIFIED patient firstName:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()]); 
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
 		}
 		else { 
 			// birthDate is optional for search as it is often not part of data files
@@ -1352,8 +1365,16 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 
 				// at this point have already validated that patient.gender exists in import file and has a value
-				p.setGender(importSetup.getDataValues()[importSetup.getIndexPatientGender()].toLowerCase().startsWith("m") || 
-						importSetup.getDataValues()[importSetup.getIndexPatientGender()].equals("1") ? (byte)1 : (byte)2);
+				// to facilitate de-identified data other situations where there is no gender (value is blank), allow -9 the
+				// LAVA Missing Data code, so the import can proceed (gender is a required field in LAVA)
+				if (importSetup.getDataValues()[importSetup.getIndexPatientGender()].equals("-9")) {
+					p.setGender((byte)-9);
+				}
+				else {
+					// do conversion from text ("Male" or "male") to gender code (1=Male, 2=Female)
+					p.setGender(importSetup.getDataValues()[importSetup.getIndexPatientGender()].toLowerCase().startsWith("m") || 
+							importSetup.getDataValues()[importSetup.getIndexPatientGender()].equals("1") ? (byte)1 : (byte)2);
+				}
 				p.setCreated(new Date());
 				p.setCreatedBy("IMPORT (" + CoreSessionUtils.getCurrentUser(sessionManager, request).getLogin() + ")");
 				
@@ -1899,6 +1920,7 @@ public class CrmsImportHandler extends ImportHandler {
 		Date visitDate = null;
 		Time visitTime = null;
 		String visitType = null;
+		List<String> matchVisitTypes = new ArrayList<String>();
 
 		// visitDate is required for both matching Visit and as a required field when creating new Visit
 		dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitDate()];
@@ -1951,16 +1973,17 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 		}
 		
-		// match on the visitType value from the data file or specified in the import definition
-		// note that this value is also used to populate any visits that are created by the import
-		// if definition is such that not matching on visitType and visits will not be created (i.e. visit MUST_EXIST),
-		// then visitType would not need to be required. the latter is not considered here, but is considered below
-		// if a new visit is to be created
+		// match on the visitType value from the data file or specified in the import definition. the import definition
+		// can specify up to 3 visit types. one must be specified and the other two are optional. if more than one
+		// visit type is specified then the query to match visit does an "IN" to match any one of the visits
+		//NOTE: matchVisitType,matchVisitType2 and matchVisitType3 are separate from visitType, which is not used
+		// for matching an existing visit rather it is the visitType used if a new visit is created
 		//NOTE: setting matchVisitTypeFlag is currently restricted to SYSTEM_ADMIN because still debating about 
-		//whether this is useful/good idea for users to be able to turn this off. Downsides exist, e.g. may match incorrect visit and/or 
-		//multiple visits and incorrectly associate assessment data. for users match defaults to TRUE so must match on visitType.
+		//whether this is useful/good idea for users to be able to turn this off. Downsides exist, e.g. may match incorrect 
+		//visit and/or multiple visits and incorrectly associate assessment data. for users match defaults to TRUE so must
+		//match on visitType.
 		visitType = importSetup.getIndexVisitType() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitType()] : importDefinition.getVisitType();
-		if (importDefinition.getMatchVisitTypeFlag() != null && importDefinition.getMatchVisitTypeFlag() && visitType == null) {
+		if (importDefinition.getMatchVisitTypeFlag() != null && importDefinition.getMatchVisitTypeFlag() && !StringUtils.hasText(visitType)) {
 			if (importSetup.getIndexVisitType() != -1) {
 				importLog.addErrorMessage(lineNum, "Cannot match visit. Visit Type field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexVisitType()] + ") has no value");
 			}
@@ -1969,7 +1992,14 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 			return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 		}
-		
+
+		// begin setting up the filter to match an existing visit, starting with the patient id
+		filter.clearDaoParams();
+		filter.setAlias("patient", "patient");
+		filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
+
+		// Matching visits on visit date and visit type but not Project
+		//
 		// regardless of whether enrollmentStatus was created or not, search for a matching visit, i.e. even if the
 		// enrollmentStatus was just created, there could be an existing visit for the patient that matches on date
 		// that could be for a different project than what is specified in the import definition or the data file. this
@@ -1977,7 +2007,7 @@ public class CrmsImportHandler extends ImportHandler {
 		// imported under some Project X for a Visit Date, need to check that the same assessment data does not exist 
 		// for the Visit Date under any Project, not just Project X
 		// so the DaoParam on projName is commented out below, to illustrate this point
-		
+		//
 		// this handles this scenario. Patient AB comes in and has a Sensory Profile - Child assessment done under
 		// Project Pedi Evo Training in 2009. In 2010 the same patient has a Sensory Profile - Child which is done
 		// for Project SPD WES. The export data file for Sensory Profile - Child is cumulative over time such that
@@ -1990,10 +2020,19 @@ public class CrmsImportHandler extends ImportHandler {
 		// the SPD WES Visit). By removing the Visit match on Project, this will not happen. Ignoring Project, the 
 		// system will match a Visit for patient AB in 2009 that has a Sensory Profile - Child and therefore will
 		// not import data that has already been imported.
-		filter.clearDaoParams();
-		filter.setAlias("patient", "patient");
-		filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
-		// filter.addDaoParam(filter.daoEqualityParam("projName", importSetup.getRevisedProjName()));
+		//
+		// The exception to the above is when the Project is specified in the data file for each import record. In
+		// this case, the above does not apply because each record can match a visit on the Project that should
+		// have been used for that particular record
+		
+		// note that if the Project is in the data file it is used by both enrollmentStatusExistsHandling and
+		// visitExistsHandling, but it should only be mapped as one or the other, so we have chosen enrollmentStatus.projName
+		// and indexEsProjName
+		if (importSetup.getIndexEsProjName() != -1) { 
+			filter.addDaoParam(filter.daoEqualityParam("projName", importSetup.getRevisedProjName()));
+		}
+
+		// visit date (and time, if specified in the data file)
 		if (StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitDate()])) {
 
 			// do not have a flag for whether both date and time must match. just assume that whichever is provided should
@@ -2042,10 +2081,28 @@ public class CrmsImportHandler extends ImportHandler {
 			//NOTE: setting matchVisitTypeFlag is currently restricted to SYSTEM_ADMIN because still debating about 
 			//whether this is useful/good idea for users to be able to turn this off. Downsides exist, e.g. may match incorrect visit and/or 
 			//multiple visits and incorrectly associate assessment data. for users match defaults to TRUE so must match on visitType.
-			if (importDefinition.getMatchVisitTypeFlag() != null && importDefinition.getMatchVisitTypeFlag() && visitType != null) {
-				if (StringUtils.hasText(visitType)) {
-					filter.addDaoParam(filter.daoEqualityParam("visitType", visitType));
+			if (importDefinition.getMatchVisitTypeFlag() != null && importDefinition.getMatchVisitTypeFlag() && StringUtils.hasText(visitType)) {
+				if (importSetup.getIndexVisitType() != -1) {
+					// visit type supplied in data file so match that and only that
+					matchVisitTypes.add(visitType);
 				}
+				else {
+					// visit type supplied in import definition so match it or any one of the additional match visit types from
+					// the import definition, if specified (add them all to the daoInParam because even if the additional are not
+					// specified they will be null and no LAVA visit will match them because every LAVA visit will have a visit type
+					// as it is a required field
+					matchVisitTypes.add(visitType);
+					if (StringUtils.hasText(importDefinition.getMatchVisitType())) {
+						matchVisitTypes.add(importDefinition.getMatchVisitType());
+					}
+					if (StringUtils.hasText(importDefinition.getMatchVisitType2())) {
+						matchVisitTypes.add(importDefinition.getMatchVisitType2());
+					}
+					if (StringUtils.hasText(importDefinition.getMatchVisitType3())) {
+						matchVisitTypes.add(importDefinition.getMatchVisitType3());
+					}
+				}
+				filter.addDaoParam(filter.daoInParam("visitType", matchVisitTypes.toArray()));
 			}
 			
 			filter.addDaoParam(filter.daoNot(filter.daoEqualityParam("visitStatus", "Cancelled")));
@@ -2065,9 +2122,9 @@ public class CrmsImportHandler extends ImportHandler {
 				v = (Visit) visitList.get(0);
 			}
 			else if (visitList.size() > 1) {
-				if (visitType != null) {
+				if (StringUtils.hasText(visitType)) {
 					importLog.addErrorMessage(lineNum, "Multiple Visit records matched for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
-							" and Visit Date:" + dateOrTimeAsString + " and Visit Type:" + visitType + " and Visit Window:+/-" + importDefinition.getVisitWindow() + " Days");
+							" and Visit Date:" + dateOrTimeAsString + " and Visit Type(s):" + matchVisitTypes + " and Visit Window:+/-" + importDefinition.getVisitWindow() + " Days");
 				}
 				else {
 					importLog.addErrorMessage(lineNum, "Multiple Visit records matched for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
@@ -3510,8 +3567,8 @@ public class CrmsImportHandler extends ImportHandler {
 
 				
 			logger.info("saving instrument "+ instrument.getInstrType() + " lineNum="+lineNum);
-			//TODO: lava2 migration, create a saveNoFlush method and call that here
-			importSetup.getInstrument().save();
+			//TODO: lava2 migration, create a saveNoFlush method and call that here, if necessary as it was in lava2
+			instrument.save();
 				
 			if (instrCreated) {
 				importLog.addCreatedMessage(lineNum, "INSTRUMENT CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
