@@ -17,7 +17,7 @@ public class AllImportDefinitionsHandler extends BaseListComponentHandler {
 		super();
 		this.setHandledList("allImportDefinitions","importDefinition");
 		this.setEntityForStandardSourceProvider(ImportDefinition.class);
-		this.pageSize = 25;
+		this.pageSize = 50;
 		
 	}
 
