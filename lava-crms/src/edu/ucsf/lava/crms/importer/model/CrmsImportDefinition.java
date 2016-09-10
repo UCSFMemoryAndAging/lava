@@ -63,10 +63,11 @@ public class CrmsImportDefinition extends ImportDefinition {
 	// dcDate). the rest of the required fields may not be in the data file so need to be supplied as part of
 	// the definition
 	private Boolean matchVisitTypeFlag;
-	// allow user to specify up to 3 visit types to attempt to match already existing visits
-	// UPDATE: NOT using at this time. keeping these properties for now as may decide to use these if go with specifying 
-	// a visit type per instrument in multiple instrument imports, where would first attempt to match using matchVisitType
-	// and if not found then attempt using matchVisitType2 and then matchVisitType3
+	// allow user to specify up to 3 additional visit types to attempt to match already existing visits, along
+	// with visitType (unless the visit type is specified in the data file for each import record in which case
+	// these visit types are ignored for matching)
+	// use case: over time data has been collected under different visit types, such that within a given data
+	// file some records could match an earlier used visitType and later records could match a later used visitType
 	private String matchVisitType;
 	private String matchVisitType2;
 	private String matchVisitType3;
