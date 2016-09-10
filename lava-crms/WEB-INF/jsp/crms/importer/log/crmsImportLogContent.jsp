@@ -69,15 +69,20 @@ This content is only displayed in view mode, i.e. there is no concept of editing
 	
 	<tags:createField property="newVisits" component="${component}" labelStyle="longLeft"/>
 	<tags:createField property="existingVisits" component="${component}" labelStyle="longLeft"/>
+	
+	<tags:ifComponentPropertyEmpty component="${component}" property="definition" property2="instrType2">
+		<tags:createField property="newInstruments" component="${component}" labelStyle="longLeft"/>
+		<tags:createField property="existingInstruments" component="${component}" labelStyle="longLeft"/>
+	</tags:ifComponentPropertyEmpty>	
 
-	<%-- as of multiple instrument data records, no longer makes sense to report these as one import
-		record could have multiple new or exisitng counts so the numbers do not mean much to the 
+	<tags:ifComponentPropertyNotEmpty component="${component}" property="definition" property2="instrType2">
+	<%-- if multiple instrument data records, no longer makes sense to report these as one import
+		record could have multiple new or existing counts so the numbers do not mean much to the 
 		user across all import records. they would make more sense per import record, but already
-		have importLogMessage for each instrument within a muliple instrument data record
-	<tags:outputText textKey="importLog.multipleInstrumentsInfo" styleClass="italic" inline="false"/>
-	<tags:createField property="newInstruments" component="${component}" labelStyle="longLeft"/>
-	<tags:createField property="existingInstruments" component="${component}" labelStyle="longLeft"/>
-	--%>
+		have importLogMessage for each instrument within a multiple instrument data record --%>
+		<tags:outputText textKey="importLog.multipleInstrumentsInfo" styleClass="italic" inline="false"/>
+	</tags:ifComponentPropertyNotEmpty>	
+		
 
 	<%-- this will only be tracked in "update" mode so until that is supported, do not bother displaying.
 		and even then, seems like this would be redundant with the global updated count
