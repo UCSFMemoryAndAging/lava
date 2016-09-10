@@ -104,10 +104,10 @@ public class ProjectContextHandler extends CrmsContextChangeComponentHandler{
 						CoreSessionUtils.addFormError(sessionManager,request, new String[]{"info.projectContext.clearPatient"}, new Object[]{currPatient.getFullNameRev(),filter.getProjectName()});
 
 						CrmsSessionUtils.setCurrentPatient(sessionManager,request,(Patient)null);
-						// set flag in request scope to indicate to flow that new flow should begin at
-						// the defaultProjectAction
-						setDoDefaultActionFlag(context);
 					}
+					// set flag in request scope to indicate to flow that new flow should begin at
+					// the defaultProjectAction
+					setDoDefaultActionFlag(context);
 				}
 			}
 		}
