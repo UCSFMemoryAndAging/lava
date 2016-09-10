@@ -107,15 +107,13 @@ of component --%>
 						<div class="verticalSpace30">&nbsp;</div>
 						<tags:outputText textKey="importDefinition.visit.matchVisitTypeFlag" styleClass="italic" inline="false"/>
 						<tags:createField property="matchVisitTypeFlag" component="${component}" entity="importDefinition"/>
+						<div class="verticalSpace30">&nbsp;</div>
 					</tags:ifHasRole>
-					<%-- not using for now. see comments in CrmsImportDefinition for the matchVisitType properties
-						NOTE: if so use, info should change in that will attempt to match visit types in sequence, not all at once
 					<tags:outputText textKey="importDefinition.visit.matchVisitTypeInfo" styleClass="italic" inline="false"/>
 					<tags:outputText textKey="importDefinition.visit.matchVisitTypes" inline="true"/><br/>
 					<tags:createField property="matchVisitType" component="${component}" entity="importDefinition" mode="${controlMode}"/>
 					<tags:createField property="matchVisitType2" component="${component}" entity="importDefinition" mode="${controlMode}"/>
 					<tags:createField property="matchVisitType3" component="${component}" entity="importDefinition" mode="${controlMode}"/>
-					--%>					
 				</tags:listCell>
 	  			<%-- currently not allow existing Visit properties to be overwritten as that is not the
 	  			 	mission of the import functionality
@@ -124,6 +122,7 @@ of component --%>
 				<tags:listCell><tags:createField property="visitExistRule" component="${component}" entity="importDefinition" mode="${controlMode}"/></tags:listCell>
 				<tags:listCell labelSize="medium">
 					<tags:outputText textKey="importDefinition.visit.visitTypeMatched" styleClass="italic" inline="false"/>
+					<tags:outputText textKey="importDefinition.visit.newVisit" styleClass="italic" inline="false"/>
 					<tags:createField property="visitType" component="${component}" entity="importDefinition"/>
 					<div class="verticalSpace10">&nbsp;</div>
 		  			<tags:createField property="visitWith" component="${component}" entity="importDefinition"/>
