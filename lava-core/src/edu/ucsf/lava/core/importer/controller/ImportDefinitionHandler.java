@@ -365,9 +365,12 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	 */
 	protected Event doConfirmDelete(RequestContext context, Object command, BindingResult errors) throws Exception{
 		ImportDefinition importDefinition = (ImportDefinition) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
+		ImportFile mappingFile = (ImportFile) getLavaFileBackingObject(context, ((ComponentCommand)command).getComponents(), errors);
 		Event returnEvent = super.doConfirmDelete(context, command, errors);
 		if (returnEvent.getId().equals(SUCCESS_FLOW_EVENT_ID)) {
-			returnEvent = super.doDeleteFile(context, command, errors);
+			if (mappingFile != null && mappingFile.getFileId() != null) {
+				returnEvent = super.doDeleteFile(context, command, errors);
+			}
 		}
 		return returnEvent;
 	}
