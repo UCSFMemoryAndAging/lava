@@ -43,6 +43,7 @@
 			<bean parent="list.data"><constructor-arg value="Errors"/><constructor-arg value="Errors"/></bean>
 			<bean parent="list.data"><constructor-arg value="Warnings"/><constructor-arg value="Warnings"/></bean>
 			<bean parent="list.data"><constructor-arg value="Created"/><constructor-arg value="Created"/></bean>
+			<bean parent="list.data"><constructor-arg value="Info"/><constructor-arg value="Info"/></bean>
 			<bean parent="list.data"><constructor-arg value="Debug"/><constructor-arg value="Debug"/></bean>
 		</list></property>
 	</bean>
