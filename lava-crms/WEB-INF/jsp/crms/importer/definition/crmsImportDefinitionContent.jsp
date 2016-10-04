@@ -273,7 +273,7 @@ of component --%>
 				    implement a confirmation page in the flow that will show user existing and new values.
  			  		--%>
 					<div class="verticalSpace30">&nbsp;</div>
-					<tags:ifHasRole roles="DATA IMPORTER,SYSTEM ADMIN"> 
+					<tags:ifHasRole roles="SYSTEM ADMIN"> 
 	  					<tags:createField property="allowInstrUpdate" component="${component}" entity="importDefinition"/>
 						<div class="verticalSpace30">&nbsp;</div>
 	  				</tags:ifHasRole>	
@@ -343,8 +343,8 @@ of component --%>
 
 <ui:formGuide>
    	<ui:observeForNull elementIds="patientOnlyImport" component="${component}" negate="true"/>
-   	<ui:setValue elementIds="visitWindow,matchVisitTypeFlag,visitExistRule,visitType,visitWith,visitLoc,visitStatus" component="${component}" value=""/>
-   	<ui:disable elementIds="visitWindow,matchVisitTypeFlag,visitExistRule,visitType,visitWith,visitLoc,visitStatus" component="${component}"/>
+   	<ui:setValue elementIds="visitWindow,matchVisitTypeFlag,matchVisitType,matchVisitType2,matchVisitType3,visitExistRule,visitType,visitWith,visitLoc,visitStatus" component="${component}" value=""/>
+   	<ui:disable elementIds="visitWindow,matchVisitTypeFlag,matchVisitType,matchVisitType2,matchVisitType3,visitExistRule,visitType,visitWith,visitLoc,visitStatus" component="${component}"/>
    	<ui:setValue elementIds="instrType,instrMappingAlias,instrVer,instrCaregiver" component="${component}" value=""/>
    	<ui:disable elementIds="instrType,instrMappingAlias,instrVer,instrCaregiver" component="${component}"/>
    	<ui:setValue elementIds="instrType2,instrMappingAlias2,instrVer2,instrCaregiver2" component="${component}" value=""/>
@@ -381,7 +381,7 @@ of component --%>
    	<ui:disable elementIds="instrExistRule,instrCaregiverExistRule,instrDcStatus" component="${component}"/>
 </ui:formGuide>
 
-<tags:ifHasRole roles="DATA IMPORTER,SYSTEM ADMIN"> 
+<tags:ifHasRole roles="SYSTEM ADMIN"> 
 <ui:formGuide>
    	<ui:observeForNull elementIds="patientOnlyImport" component="${component}" negate="true"/>
    	<ui:setValue elementIds="allowInstrUpdate" component="${component}" value=""/>
