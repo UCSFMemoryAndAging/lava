@@ -223,7 +223,7 @@ public class ImportLogHandler extends BaseEntityComponentHandler {
 		
 		List<ImportLogMessage> filterLogMessages(List<ImportLogMessage> allMessages, String quickFilter) {
 			List<ImportLogMessage> filteredMessages = new ArrayList<ImportLogMessage>();
-			if (quickFilter.equals("All Messages")) {
+			if (quickFilter == null || quickFilter.equals("All Messages")) {
 				return allMessages;
 			}
 
@@ -245,6 +245,11 @@ public class ImportLogHandler extends BaseEntityComponentHandler {
 				}
 				else if (quickFilter.equals("Created")) {
 					if (message.getType().equals(ImportLog.CREATED_MSG)) {
+						filteredMessages.add(message);
+					}
+				}
+				else if (quickFilter.equals("Info")) {
+					if (message.getType().equals(ImportLog.INFO_MSG)) {
 						filteredMessages.add(message);
 					}
 				}
