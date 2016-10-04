@@ -214,9 +214,8 @@ public class CrmsImportHandler extends ImportHandler {
 
 				importLog.incTotalRecords(); // includes records that cannot be exported due to some error
 
-				// allow subclasses to custom generate revisedProjName (e.g. append unit/site to projName), which
-				// is used everywhere a projName is needed in the import
-				// this needs to be called for each record because site could differ for each record
+				// projName is vital to enrollment status and linking an imported data record. determine the projName for the current record. this needs to be called for each record
+				// because it could differ for each record if projName supplied in the data file
 				generateRevisedProjName(importDefinition, importSetup);
 	
 				// find existing Patient. possibly create new Patient
@@ -1034,7 +1033,7 @@ public class CrmsImportHandler extends ImportHandler {
 
 	
 	/**
-	 * Subclasses should override to generate custom projName
+	 * Subclasses should override to generate custom projName. For example to append unit/site to projName.
 	 * 
 	 * @return
 	 */
@@ -1733,6 +1732,14 @@ public class CrmsImportHandler extends ImportHandler {
 		// search for existing enrollmentStatus
 		EnrollmentStatus es = null;
 
+		
+		// projName may not be specified in the import definition if is it supplied in the data file. so validate that there is either a projName in 
+		// the import definition or in the data file (e.g. could be in the data file but left blank for a given row)
+		if (!StringUtils.hasText(importSetup.getRevisedProjName())) {
+			importLog.addErrorMessage(lineNum, "There is no Project name specified for this record in the data file, or in the import definition, for patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()));
+			return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+		}
+
 		// if patient was just created, know that the enrollmentStatus could not exist yet, but if patient
 		// was not just created, then check whether enrollmentStatus exists or not
 		if (!importSetup.isPatientCreated()) { 
@@ -1759,7 +1766,10 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 		}
 		
-		String importEsStatus = importSetup.getIndexEsStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexEsStatus()] : importDefinition.getEsStatus();
+		// the enrollment status is used as the status for new EnrollmentStatus records, and also to compare to the status of existing EnrollmentStatus records to report log warnings for inconsistency
+		// the enrollment status can be supplied in the data file for each record, or in the import definition to apply to all records. the data file value takes precedence of the value in the import definition
+		// if the enrollment status is not supplied in the data file or the import definition it defaults to "ENROLLED"
+		String importEsStatus = importSetup.getIndexEsStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexEsStatus()] : (StringUtils.hasText(importDefinition.getEsStatus()) ? importDefinition.getEsStatus() : "ENROLLED");
 		
 		if (es == null) {
 			if (importDefinition.getEsExistRule().equals(MUST_EXIST)) {
@@ -2042,20 +2052,22 @@ public class CrmsImportHandler extends ImportHandler {
 			// currently do not handle existing columns that have date and time in same column. not sure if this will
 			// be encountered
 
-			if (importDefinition.getVisitWindow() == null || importDefinition.getVisitWindow().equals((short)0)) {
-				// if visit window is 0 or not specified, then search for a LAVA visit with an exact match on the visit date (and time if supplied)
-				// to the record in the data file
+			if (importDefinition.getVisitWindow() == null) {
+				importDefinition.setVisitWindow((short)0);
+			}
 				
+			// if visit window is 0 and there is a time component in the data file then go for an exact match
+			if (importDefinition.getVisitWindow().equals((short)0) && importSetup.getIndexVisitTime() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitTime()])) {
 				// note: could also use daoDateAndTimeEqualityParam
 				filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate)); // visitDate validated and instantiated earlier in this method
-				if (importSetup.getIndexVisitTime() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitTime()])) {
-					filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime)); // visitTime validated and instantiated earlier in this method
-				}
+				filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime)); // visitTime validated and instantiated earlier in this method
 			}
-			else{
-				// if visit window specified, search for an existing Visit where the data file visit date is within the visit window (+/- in days)
-				// of a LAVA Visit
-				
+			// if visit window is 0 and no time component just match on date
+			else if (importDefinition.getVisitWindow().equals((short)0)) {
+				filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate)); // visitDate validated and instantiated earlier in this method
+			}
+			// if visit window > 0, even if there is a time component in the data file, ignore it and just match on date because if the match is going to span multiple days no sense including time
+			else {
 				// note that if multiple visits are matched within the visit window, an error is given for the current import record. could instead
 				// do a proximity search to find the closest visit if multiple are found, but decided not to do that because there is no guarantee
 				// that the Visit is the correct Visit to import the data into just because it is closer to the data file visit date than another 
@@ -2076,8 +2088,8 @@ public class CrmsImportHandler extends ImportHandler {
 
 				// note: could use daoDateAndTImeBetweenParam
 				filter.addDaoParam(filter.daoBetweenParam("visitDate", startDate, endDate));
-			}
-			
+			}				
+
 			//NOTE: setting matchVisitTypeFlag is currently restricted to SYSTEM_ADMIN because still debating about 
 			//whether this is useful/good idea for users to be able to turn this off. Downsides exist, e.g. may match incorrect visit and/or 
 			//multiple visits and incorrectly associate assessment data. for users match defaults to TRUE so must match on visitType.
@@ -2105,7 +2117,7 @@ public class CrmsImportHandler extends ImportHandler {
 				filter.addDaoParam(filter.daoInParam("visitType", matchVisitTypes.toArray()));
 			}
 			
-			filter.addDaoParam(filter.daoNot(filter.daoEqualityParam("visitStatus", "Cancelled")));
+			filter.addDaoParam(filter.daoNot(filter.daoLikeParam("visitStatus", "%Canceled")));
 
 			// note: since just want a single Visit record, originally used the get method and caught the IncorrectResultSizeDataAccessException
 			// if there were more than one match, but that database exception marks the transaction for rollback so when attempting to commit
@@ -2123,12 +2135,15 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 			else if (visitList.size() > 1) {
 				if (StringUtils.hasText(visitType)) {
-					importLog.addErrorMessage(lineNum, "Multiple Visit records matched for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
-							" and Visit Date:" + dateOrTimeAsString + " and Visit Type(s):" + matchVisitTypes + " and Visit Window:+/-" + importDefinition.getVisitWindow() + " Days");
+					// only include ProjName in error messaging if it was used in the query
+					importLog.addErrorMessage(lineNum, "Multiple Visit records matched for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName())  
+							+ (importSetup.getIndexEsProjName() != -1 ? ", Project:" + importSetup.getDataValues()[importSetup.getIndexEsProjName()] : "") 
+							+ ", Visit Date:" + dateOrTimeAsString + ", Visit Window:+/-" + importDefinition.getVisitWindow() + " Days, Visit Type(s):" + matchVisitTypes );
 				}
 				else {
-					importLog.addErrorMessage(lineNum, "Multiple Visit records matched for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + 
-							" and Visit Date:" + dateOrTimeAsString + " and Visit Window:+/-" + importDefinition.getVisitWindow() + " Days. Specify Visit Type in Import Definition to match on single Visit");
+					importLog.addErrorMessage(lineNum, "Multiple Visit records matched for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
+							+ (importSetup.getIndexEsProjName() != -1 ? ", Project:" + importSetup.getDataValues()[importSetup.getIndexEsProjName()] : "") 
+							+ ", Visit Date:" + dateOrTimeAsString + ", Visit Window:+/-" + importDefinition.getVisitWindow() + " Days. Specify Visit Type in Import Definition to match on single Visit");
 				}
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
@@ -2142,7 +2157,18 @@ public class CrmsImportHandler extends ImportHandler {
 		
 		if (v == null) {
 			if (importDefinition.getVisitExistRule().equals(MUST_EXIST)) {
-				importLog.addErrorMessage(lineNum, "Visit does not exist for Patient:" + importSetup.getPatient().getFullNameRev() + " Project:" + importSetup.getRevisedProjName() + " violating MUST_EXIST flag");
+				if (StringUtils.hasText(visitType)) {
+					// only include ProjName in error messaging if it was used in the query
+					importLog.addErrorMessage(lineNum, "Visit does not exist for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
+							+ (importSetup.getIndexEsProjName() != -1 ? ", Project:" + importSetup.getDataValues()[importSetup.getIndexEsProjName()] : "") 
+							+ ", Visit Date:" + dateOrTimeAsString + ", Visit Window:+/-" + importDefinition.getVisitWindow() + " Days, Visit Type(s):" + matchVisitTypes
+							+ ", violating MUST_EXIST flag");
+				}
+				else {
+					importLog.addErrorMessage(lineNum, "Visit does not exist for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
+							+ (importSetup.getIndexEsProjName() != -1 ? ", Project:" + importSetup.getDataValues()[importSetup.getIndexEsProjName()] : "") 
+							+ ", Visit Date:" + dateOrTimeAsString + ", Visit Window:+/-" + importDefinition.getVisitWindow() + " Days, violating MUST_EXIST flag");
+				}
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}else {
 				// for either MUST_NOT_EXIST or MAY_OR_MAY_NOT_EXIST instantiate the Visit
@@ -2335,73 +2361,24 @@ public class CrmsImportHandler extends ImportHandler {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter = EntityBase.newFilterInstance();
 		SimpleDateFormat formatter, msgDateFormatter = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
-
 		String dateOrTimeAsString;
 		Map<String,Object> eventAttrMap = new HashMap<String,Object>();
 		AttributeMap attributeMap = new LocalAttributeMap(eventAttrMap);
-		
-		// search for existing instrument
 		List<Instrument> instrList = null;
 		Instrument instr = null;
-
 		Class instrClazz =instrumentManager.getInstrumentClass(Instrument.getInstrTypeEncoded(instrType, instrVer));
-
-		// determine dcDate for search
-		// convert DCDate
 		Date dcDate = null;
-		// if not supplied in data file then it defaults to visit date when adding new instrument
-		if (indexInstrDcDate != -1) {
-			dateOrTimeAsString = importSetup.getDataValues()[indexInstrDcDate];
-			formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
-			if (importDefinition.getDateFormat().endsWith("/yy")) {
-				// if 2 digit year, set start year to 2000 so year will be in the 21st century since all enrollment and visit dates should be
-				Calendar tempCal = Calendar.getInstance();
-				tempCal.clear();
-				tempCal.set(Calendar.YEAR, 2000);
-				formatter.set2DigitYearStart(tempCal.getTime());
-			}
-			formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
-			try {
-				dcDate = formatter.parse(dateOrTimeAsString);
-			} catch (ParseException e) {
-				// likely will not occur with leniency applied
-				importLog.addErrorMessage(lineNum, "Instrument.dcDate is an invalid Date format. Date:" + dateOrTimeAsString);
-				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
-			}
-			if (importDefinition.getDateFormat().endsWith("/yy")) {
-				// when data file has 2 digit years, reassign dataOrTimeAsString (used for log messages) to reflect the full 4 digit year 
-				dateOrTimeAsString = new SimpleDateFormat(importDefinition.getDateFormat()).format(dcDate);
-			}
-			
-			if (!importDefinition.getAllowExtremeDates()) {
-				// if date format is yyyy for year part, the parser will allow any date into the future, even 5 digit dates, so 
-				// have to do range checking to catch bad date errors
-				java.util.Calendar dcDateCalendar = java.util.Calendar.getInstance();
-				dcDateCalendar.setTime(dcDate);
-				int dcDateYear = dcDateCalendar.get(java.util.Calendar.YEAR);
-				java.util.Calendar nowCalendar = java.util.Calendar.getInstance();
-				int nowYear = nowCalendar.get(java.util.Calendar.YEAR);
-				// allow for data collection dates a number of years before the MAC started (in 1998?) and 2 years into the future from the current year
-				if (dcDateYear < (nowYear - 30) || dcDateYear > (nowYear + 2)) {
-					importLog.addErrorMessage(lineNum, "Instrument.dcDate has an invalid Year. Date:" + dateOrTimeAsString);
-					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
-				}
-			}
-		}
-		else {
-			dcDate = importSetup.getVisit().getVisitDate();
-		}
 
 		// if Visit just created, know instrument could not exist. otherwise, check if instrument exists or not
 		if (!importSetup.isVisitCreated()) {
+	
+			// search for existing instrument
+
+			// since the Visit is already known it is just a matter of matching the instrument type within that visit (and possibly adding custom matching
+			// for cases where there are multiple instances of the same instrument within a single visit
 			filter.clearDaoParams();
-			filter.setAlias("patient", "patient");
-			filter.addDaoParam(filter.daoEqualityParam("patient.id", importSetup.getPatient().getId()));
-			filter.addDaoParam(filter.daoEqualityParam("projName", importSetup.getRevisedProjName()));
 			filter.setAlias("visit", "visit");
 			filter.addDaoParam(filter.daoEqualityParam("visit.id", importSetup.getVisit().getId()));
-			filter.addDaoParam(filter.daoEqualityParam("instrType", importDefinition.getInstrType()));
-			filter.addDaoParam(filter.daoEqualityParam("dcDate", dcDate));
 			filter.addDaoParam(filter.daoEqualityParam("instrType", instrType));
 
 			// subclasses can override and set additional filter matching to find existing instrument. note that the impetus for this is when a data
@@ -2443,18 +2420,66 @@ public class CrmsImportHandler extends ImportHandler {
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
 				
-				// if existing visit was matched with a visit window, the data collection date in the data file, which is mapped to visit.visitWith, might
-				// be different than the matched Visit visitDate, but the value in the data file should represent the data collection date for the instrument
-				dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitDate()];
-				formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
-				formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
-				try {
-					dcDate = formatter.parse(dateOrTimeAsString);
-				} catch (ParseException e) {
-					// likely will not occur with leniency applied
-					importLog.addErrorMessage(lineNum, "Visit.visitDate is an invalid Date format (when using for new instrument dcDate). Date:" + dateOrTimeAsString);
-					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				// if existing visit was matched with a visit window, the data collection date in the data file, which is mapped to either instrument name dcDate or
+				// if not present, visit.visitWith, might be different than the matched Visit visitDate, but the value in the data file should represent the data 
+				// collection date for the instrument. if it is in data file mapped to dcDate then validate it. otherwise the visitDate is used which
+				// has already been validated (but still must be converted from String to Date for the instrument constructor)
+				if (indexInstrDcDate != -1) {
+					// convert DCDate string in data file to a Date object, in the process validating whether it is in a valid date format
+					dateOrTimeAsString = importSetup.getDataValues()[indexInstrDcDate];
+					formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+					if (importDefinition.getDateFormat().endsWith("/yy")) {
+						// if 2 digit year, set start year to 2000 so year will be in the 21st century since all enrollment and visit dates should be
+						Calendar tempCal = Calendar.getInstance();
+						tempCal.clear();
+						tempCal.set(Calendar.YEAR, 2000);
+						formatter.set2DigitYearStart(tempCal.getTime());
+					}
+					formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+					try {
+						dcDate = formatter.parse(dateOrTimeAsString);
+					} catch (ParseException e) {
+						// likely will not occur with leniency applied
+						importLog.addErrorMessage(lineNum, "Instrument.dcDate is an invalid Date format. Date:" + dateOrTimeAsString);
+						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+					}
+					if (importDefinition.getDateFormat().endsWith("/yy")) {
+						// when data file has 2 digit years, reassign dataOrTimeAsString (used for log messages) to reflect the full 4 digit year 	
+						dateOrTimeAsString = new SimpleDateFormat(importDefinition.getDateFormat()).format(dcDate);
+					}
+			
+					if (!importDefinition.getAllowExtremeDates()) {
+						// if date format is yyyy for year part, the parser will allow any date into the future, even 5 digit dates, so 
+						// have to do range checking to catch bad date errors
+						java.util.Calendar dcDateCalendar = java.util.Calendar.getInstance();
+						dcDateCalendar.setTime(dcDate);
+						int dcDateYear = dcDateCalendar.get(java.util.Calendar.YEAR);
+						java.util.Calendar nowCalendar = java.util.Calendar.getInstance();
+						int nowYear = nowCalendar.get(java.util.Calendar.YEAR);
+						// allow for data collection dates a number of years before the MAC started (in 1998?) and 2 years into the future from the current year
+						if (dcDateYear < (nowYear - 30) || dcDateYear > (nowYear + 2)) {
+							importLog.addErrorMessage(lineNum, "Instrument.dcDate has an invalid Year. Date:" + dateOrTimeAsString);
+							return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+						}
+					}
 				}
+				else {
+					// visit.visitDate would have already been validated in visitExistsHandling, but still need to convert the string to a Date for passing
+					// to the new instrument's constructor. again, do not use the matched visits visitDate because if matching with a visit window that
+					// date might be different than the one in the data file and the date in the data file should be taken as the true dcDate
+					dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitDate()];
+					formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+					formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+					try {
+						dcDate = formatter.parse(dateOrTimeAsString);
+					} catch (ParseException e) {
+						// likely will not occur with leniency applied
+						importLog.addErrorMessage(lineNum, "Visit.visitDate is an invalid Date format (when using for new instrument dcDate). Date:" + dateOrTimeAsString);
+						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+					}
+				}
+
+
 
 				try {
 					instr = createInstrument(context, importDefinition, importSetup, instrClazz, instrType, instrVer, dcDate, dcStatus);
@@ -2527,7 +2552,7 @@ public class CrmsImportHandler extends ImportHandler {
 						// all matched instruments that had already been data entered, then it is considered an error so that the record will be aborted,
 						// i.e. it is likely that a data file with this record was already imported (or somebody data entered all the instrument data).
 						// but give a warning for each individual instrument
-						importLog.addWarningMessage(lineNum, "Instrument " + instrType + "  exists and has already been data entered. Cannot overwrite per Import Definition. Patient:" + 
+						importLog.addInfoMessage(lineNum, "Instrument " + instrType + "  exists and has already been data entered. Cannot overwrite per Import Definition. Patient:" + 
 							(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + this.getVisitInfo(importDefinition, importSetup));
 
 						// set an attribute on the return event, "instrExistedWithDataNoUpdate", used to determine whether the import record
