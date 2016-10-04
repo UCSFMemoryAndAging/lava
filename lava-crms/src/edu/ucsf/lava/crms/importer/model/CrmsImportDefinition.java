@@ -173,16 +173,25 @@ public class CrmsImportDefinition extends ImportDefinition {
 	public CrmsImportDefinition(){
 		super();
 		this.setAuditEntityType("CrmsImportDefinition");
+
 		// set defaults for typical usage (base defaults set in superclass)
+
+		// any Boolean properties that only appear in the UI conditionally need to be set to a default in case they are not submitted 
+		// because on submission they bind to 0 or 1, so if not submitted they will still be null and create the potential for NullPointerException
+		// these include: matchVisitTypeFlag, allowInstrUpdate, allowExtremeDates
+
 		this.patientExistRule = MUST_EXIST;
 		this.esExistRule = MAY_OR_MAY_NOT_EXIST;
 		this.esStatus = "ENROLLED";
 		this.visitExistRule = MAY_OR_MAY_NOT_EXIST;
 		this.visitWindow = 0;
-		this.matchVisitTypeFlag = Boolean.TRUE;
+		this.matchVisitTypeFlag = true;
 		this.visitStatus = "COMPLETE";
 		this.instrExistRule = MAY_OR_MAY_NOT_EXIST;
-		this.allowInstrUpdate = Boolean.FALSE;
+		this.allowPatientUpdate = false; // currently not used
+		this.allowEsUpdate = false; // currently not used
+		this.allowVisitUpdate = false; // currently not used
+		this.allowInstrUpdate = false; // only settable by SYSTEM ADMIN role until "update" mode is implemented
 		this.instrDcStatus = "Complete";
 		this.instrCalculate = true;
 		this.instrCalculate2 = true;
@@ -199,6 +208,7 @@ public class CrmsImportDefinition extends ImportDefinition {
 		this.instrCalculate13 = true;
 		this.instrCalculate14 = true;
 		this.instrCalculate15 = true;
+		this.allowExtremeDates = false;
 	}
 
 	public Short getPatientExistRule() {
