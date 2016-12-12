@@ -34,8 +34,7 @@ public class ImportFlowBuilder extends BaseFlowBuilder {
     			new Transition[] { 
     				// when user selects an import template the page is refreshed to re-populate the
     				// secondary list of import logs for the selected template
-        			// note: required field validation does not take place on refreshRefData so no required
-        			// field errors will be shown
+    				// UPDATE: this refresh and secondary display of import logs is currently unimplemented 
                     transition(on(objectName + "__reRender"), to("edit"), 
                        	ifReturnedSuccess(new Action[]{
                        		invoke("customBind", formAction),
@@ -44,9 +43,8 @@ public class ImportFlowBuilder extends BaseFlowBuilder {
                        	ifReturnedSuccess(new Action[]{
                        		invoke("customBind", formAction),
                        		invoke("handleFlowEvent", formAction)})),
-                    transition(on(objectName + "__close"), to("finish"), 
-                       	ifReturnedSuccess(invoke("handleFlowEvent", formAction))),
                     // support a list secondary component for nav events only, since just a reference list
+			// UPDATE: this refresh and secondary display of import logs is currently unimplemented 
                     buildListNavigationTransitions("edit")},
           		null,null,null);
     	
