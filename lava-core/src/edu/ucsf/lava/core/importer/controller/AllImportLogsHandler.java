@@ -17,7 +17,7 @@ public class AllImportLogsHandler extends BaseListComponentHandler {
 		super();
 		this.setHandledList("allImportLogs","importLog");
 		this.setEntityForStandardSourceProvider(ImportLog.class);
-		this.pageSize = 50;
+		this.setPageSize(50);
 		
 	}
 

@@ -18,6 +18,7 @@ public class CrmsAllImportLogsHandler extends AllImportLogsHandler {
 	public CrmsAllImportLogsHandler() {
 		super();
 		this.setEntityForStandardSourceProvider(CrmsImportLog.class);
+		this.setPageSize(50);
 	}
 	
 	/**
