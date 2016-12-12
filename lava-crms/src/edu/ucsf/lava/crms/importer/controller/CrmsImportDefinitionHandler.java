@@ -204,7 +204,15 @@ public class CrmsImportDefinitionHandler extends ImportDefinitionHandler {
 			// property names for user convenience by doing a case insensitive match of the mapping file property name against the real property name and then using the real property name. could do the
 			// same for non-instrument properties)
 			if (mappingEntity != null && (mappingEntity.equalsIgnoreCase("patient") || mappingEntity.equalsIgnoreCase("contactInfo") || mappingEntity.equalsIgnoreCase("caregiver") || mappingEntity.equalsIgnoreCase("caregiverContactInfo") || 
-					mappingEntity.equalsIgnoreCase("caregiver2") || mappingEntity.equalsIgnoreCase("caregiver2ContactInfo") || mappingEntity.equalsIgnoreCase("enrollmentStatus") || mappingEntity.equalsIgnoreCase("visit"))) {
+					mappingEntity.equalsIgnoreCase("caregiver2") || mappingEntity.equalsIgnoreCase("caregiver2ContactInfo") || mappingEntity.equalsIgnoreCase("enrollmentStatus") || mappingEntity.equalsIgnoreCase("visit") 
+				//TODO: presently need this hack for the SPDC History Form, but need to configure an SPDC History Form dynamic import definition handler (which handles a definition
+				//based on the instrType = "SPDC History Form 1") to ignore these custom entity names
+					|| mappingEntity.equalsIgnoreCase("SPDC History Form 2") || mappingEntity.equalsIgnoreCase("project")
+					|| mappingEntity.equalsIgnoreCase("spdcHistoryCaregiver") || mappingEntity.equalsIgnoreCase("spdcHistoryCaregiverContactInfo") 
+					|| mappingEntity.equalsIgnoreCase("spdcHistoryCaregiver2") || mappingEntity.equalsIgnoreCase("spdcHistoryCaregiver2ContactInfo") 
+					|| mappingEntity.equalsIgnoreCase("spdcHistoryCaregiver3") || mappingEntity.equalsIgnoreCase("spdcHistoryCaregiver3ContactInfo") 
+					))
+			{
 				continue;
 			}
 			// instrument matches can use equalsIgnoreCase because the import definition instrType is used to generate instrTypeEncoded to determine which instrument Class to retrieve
@@ -573,13 +581,6 @@ TODO: find out which property getter throws an exception on PropertyUtils.descri
 		CrmsImportDefinition crmsImportDefinition = (CrmsImportDefinition) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
 
 		Event returnEvent = super.mappingFileValidation(context, command, errors);
-		
-		//TODO: validate that the mapping file has either a PIDN or firstName/lastName fields, and
-		// a visitDate field. This would involve opening/reading the mapping file entity names (row 2) and property names
-		// (row 3) into an array and searching them using ArrayUtils.indexOf 
-		// presently this validation is being done in the CrmsImportHandler validateDataFile method but would
-		// be better to catch it earlier, and when done here remove it from there	
-
 		
 		return returnEvent;
 	}
