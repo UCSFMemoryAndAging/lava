@@ -25,7 +25,7 @@ of component --%>
 </c:set>		
 <c:if test="${componentView != 'add'}">
 <c:if test="${empty mappingFile}">
-  	<img class="errorIcon" src="images/error.gif" alt="error"/>
+  	<img class="errorIcon" src="images/error.png" alt="error"/>
 	<tags:outputText textKey="importDefinition.noMappingFile" inline="true" styleClass="errorListItem"/>
 </c:if>
 </c:if>
