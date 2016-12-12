@@ -382,7 +382,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		// there is no value in the data file as the value is a static value in the mapping file so there is nothing to map
 		// note: multiple mapping file indices could map to the same data file index, meaning that a given imported
 		//       data variable value could be set on multiple entity properties
-		// note: the index for any default value mappings in the mapping file will not be mapped to a data file index, i.e
+		// note: the index for any STATIC mappings in the mapping file will not be mapped to a data file index, i.e
 		//       it will not be present in this map
 
 		Set<String> dataColumnsNotMapped = new LinkedHashSet<String>();
