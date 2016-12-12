@@ -203,8 +203,6 @@ public class CrmsImportHandler extends ImportHandler {
 				
 				importSetup.reset(); // reset created/existed flags to false, entities that are retrieved or created to null
 				
-				// note that indices of data array items in data file match up with indices of column and 
-				// property array items in import definition mapping file
 				importSetup.setDataValues(nextLine);
 
 				// skip over blank lines. check first couple cols
@@ -535,7 +533,7 @@ public class CrmsImportHandler extends ImportHandler {
 //   field error on anohter field. keep in mind that tried this already using the Spring facility to bind
 //   an uploaded file but ran into problems integrating that into our implementation of uploading files
 //   so this is not a minor item
-// test that deleting import definition deletes the mapping file
+// X-test that deleting import definition deletes the mapping file
 // figure out impact of user changing the import definition name since it is used to generate the path
 //  for storing the mapping file in the repo. update that path whenever user saves import definition
 //  and name field isDirty?
@@ -648,7 +646,7 @@ public class CrmsImportHandler extends ImportHandler {
 				// determined by the importDefinition mapping file
 				if ((handlingEvent = setPropertyHandling(context, errors, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
 					// any time after setProperty, must call evictInstruments on processing error and before continuing to next record, so that any data that has been
-					// set on instruments does not persist, but to the error
+					// set on instruments does not persist
 					this.evictInstruments(importDefinition, importSetup);
 					continue;
 				}
@@ -898,7 +896,7 @@ public class CrmsImportHandler extends ImportHandler {
 		// file, and these indices are used to access the data
 		
 		// ** the import definition mapping file second row must have entity string and third row must have 
-		// property string that match exactly the entity and property name strings below  
+		// property string that match exactly the entity and property name strings searched for below  
 	
 		// look up the column indices of fields in the import data file that are required to search for existing
 		// entities and/or populate new entities, and record the indices to be used in processing each import record
@@ -1208,7 +1206,7 @@ public class CrmsImportHandler extends ImportHandler {
 			// supplied) and so we know there was not a PIDN supplied in the data file
 
 
-			if (p == null && !importDefinition.getPatientExistRule().equals(MUST_EXIST)) { // TODO: and not matching on de-identifiedID 
+			if (p == null && !importDefinition.getPatientExistRule().equals(MUST_EXIST)) {  
 				Set<String> matchedPatients = new LinkedHashSet<String>();
 				if (birthDate != null) { // birthDate is supplied in the data file
 			
@@ -1341,7 +1339,7 @@ public class CrmsImportHandler extends ImportHandler {
 				p = createPatient(importDefinition, importSetup);
 					
 				// the property values will be assigned when iterating dataValues below. could assign
-				// the "indexed" Patient properties here since those were found as part of determing whether the
+				// the "indexed" Patient properties here since those were found as part of determining whether the
 				// Patient exists. but still need to assign other Patient properties (can not index them
 				// all because do not even know what all the properties could be) and since will be 
 				// iterating thru all data values just assign all properties when iterating dataValues
@@ -1364,7 +1362,7 @@ public class CrmsImportHandler extends ImportHandler {
 				}
 
 				// at this point have already validated that patient.gender exists in import file and has a value
-				// to facilitate de-identified data other situations where there is no gender (value is blank), allow -9 the
+				// to facilitate de-identified data and other situations where there is no gender (value is blank), allow -9 the
 				// LAVA Missing Data code, so the import can proceed (gender is a required field in LAVA)
 				if (importSetup.getDataValues()[importSetup.getIndexPatientGender()].equals("-9")) {
 					p.setGender((byte)-9);
@@ -1886,10 +1884,8 @@ public class CrmsImportHandler extends ImportHandler {
 			importSetup.setEnrollmentStatus(es);
 			if (importDefinition.getEsExistRule().equals(MUST_NOT_EXIST)) {
 				// typically with this flag the first time the import is run the Enrollment Status will not 
-				// exist so it will be created above. if there were some import data errors they would be fixed
-				// and the script re-imported, at which point there will be these errors for all Enrollment 
-				// Statuses that were created on first run, so record will be skipped and Enrollment Status
-				// will correctly not be created again
+				// exist so it will be created above. if data file is cumulative and re-imported then will get
+				// an error here since Enrollment Status now exists and the record will be skipped
 								
 				// note: this differs from MAY_OR_MAY_NOT_EXIST where import of the record will continue if
 				// the Enrollment Status exists (as well as if Enrollment Status does not exist as it will be 
@@ -1984,8 +1980,9 @@ public class CrmsImportHandler extends ImportHandler {
 		}
 		
 		// match on the visitType value from the data file or specified in the import definition. the import definition
-		// can specify up to 3 visit types. one must be specified and the other two are optional. if more than one
-		// visit type is specified then the query to match visit does an "IN" to match any one of the visits
+		// can specify up to 3 additional visit types beyond the "primary" visit type (which is used as the visit type
+		// if a new visit is created). the additional visit types are optional and if more than one visit type is 
+		// specified then the query to match visit does an "IN" to match any one of the visits
 		//NOTE: matchVisitType,matchVisitType2 and matchVisitType3 are separate from visitType, which is not used
 		// for matching an existing visit rather it is the visitType used if a new visit is created
 		//NOTE: setting matchVisitTypeFlag is currently restricted to SYSTEM_ADMIN because still debating about 
@@ -2027,9 +2024,9 @@ public class CrmsImportHandler extends ImportHandler {
 		// However, it would not find an SPD WES Visit in 2009 since that was a Pedi Evo Training Visit and it will
 		// therefore erroneously create an SPD WES Visit in 2009 and import the 2009 Sensory Profile - Child data
 		// which already is imported and exists under a Pedi Evo Training Visit in 2009 (on the exact same date as
-		// the SPD WES Visit). By removing the Visit match on Project, this will not happen. Ignoring Project, the 
-		// system will match a Visit for patient AB in 2009 that has a Sensory Profile - Child and therefore will
-		// not import data that has already been imported.
+		// this newly created SPD WES Visit). By removing the Visit match on Project, this will not happen. Ignoring
+		// Project, the system will match a Visit for patient AB in 2009 that has a Sensory Profile - Child and therefore
+		// will not import data that has already been imported.
 		//
 		// The exception to the above is when the Project is specified in the data file for each import record. In
 		// this case, the above does not apply because each record can match a visit on the Project that should
@@ -2121,11 +2118,14 @@ public class CrmsImportHandler extends ImportHandler {
 
 			// note: since just want a single Visit record, originally used the get method and caught the IncorrectResultSizeDataAccessException
 			// if there were more than one match, but that database exception marks the transaction for rollback so when attempting to commit
-			// the records added to the importLog this generates the UnexpectedRollbackException with an HTTP 500 page
+			// the records added to the importLog this generates the UnexpectedRollbackException with an HTTP 500 page. so instead, use a 
+			// technique that will not result in a database exception where we an handle the condition gracefully with an error that skips this
+			// data record
 			visitList = Visit.MANAGER.get(Visit.class, filter);
 
 			// if visit window is 0 (or not set) then looking for an exact date match. should never get more than one visit then (assuming match
-			// on visitType included). if re-running import of a data file, should just be one instance of a given visitType on a given date
+			// on visitType included.if do get multiple visits matching a single visit date and visit type then that must be a data quality
+			// error in LAVA). if re-running import of a data file, should just be one instance of a given visitType on a given date
 			// however, if no visitType supplied in import definition, could match multiple visits on same date, in which case
 			// would not know which one to use. this is why the matchVisitTypeFlag flag defaults to TRUE and is restricted to
 			// SYSTEM_ADMIN until further notice
@@ -2231,15 +2231,11 @@ public class CrmsImportHandler extends ImportHandler {
 				**/
 
 				String visitStatus = importSetup.getIndexVisitStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitStatus()] : importDefinition.getVisitStatus();
+				// default if nothing specified
 				if (!StringUtils.hasText(visitStatus)) {
-					if (importSetup.getIndexVisitStatus() != -1) {
-						importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit Status field in data file (column:" + importSetup.getDataCols()[importSetup.getIndexVisitStatus()] + ") has no value");
-					}
-					else {
-						importLog.addErrorMessage(lineNum, "Cannot create Visit. Visit Status field not supplied in data file and no value specified in definition");									
-					}
-					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+					visitStatus = "COMPLETE";
 				}
+
 
 				// create Visit record
 				v = createVisit(importDefinition, importSetup);
@@ -2807,7 +2803,7 @@ public class CrmsImportHandler extends ImportHandler {
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 
-		// iterate thru the mapping array so don't miss static value mappings, which would not be known from the data array
+		// iterate thru the mapping array, as opposed to the data array, so don't miss static value mappings, which would not be known from the data array
 		// since it was validated that every column in the data file has a corresponding column in the mapping file, will get every data value to set
 		// if there are any mapping array columns that do not correspond to the data array and are not static values, ignore them
 		for (int mappingIndex = 0; mappingIndex < importSetup.getMappingCols().length; mappingIndex++) {
@@ -3545,7 +3541,7 @@ public class CrmsImportHandler extends ImportHandler {
 			Instrument instrument, String instrType) throws Exception {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 
-		// note that if exception is throw the exception handling in the calling method will catch
+		// note that if exception is thrown the exception handling in the calling method will catch
 
 		if (instrCreated || instrExisted || (importDefinition.getAllowInstrUpdate() && instrExistedWithData)) {
 			
@@ -3562,6 +3558,13 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 			**/
 
+
+			// do not set instrument status properties until now, after all	instrumentHandlingExists are done so that the status values for 
+			// a given instrument are not persisted by a flush prior to retrieving the next instrument, which would then result
+			// in a StaleObjectStateException when the instrument is dirtied by setProperty and flushed/committed again
+			// note: this may only be applicable for lava2 transaction configuration, and even then it may not have been necessary
+			// when added saveNoFlush to lava2
+				
 			instrument.setDcBy(importSetup.getVisit().getVisitWith());
 			instrument.setDeBy("IMPORTED");
 			instrument.setDeDate(new Date());
@@ -3571,12 +3574,18 @@ public class CrmsImportHandler extends ImportHandler {
 			instrument.setDeStatus("Complete");
 			instrument.setDeNotes("Data Imported by:" + CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request).getShortUserNameRev());
 
+
+			// if new visit created then visit status will have been set as specified
+			// however, if this is an existing visit and either an existing or new instrument, the status should be changed to the specified value
+			// i.e. from the data file or from the import definition, and if no value default to 'COMPLETE'
+			String visitStatus = importSetup.getIndexVisitStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitStatus()] : importDefinition.getVisitStatus();
+			// default if nothing specified
+			if (!StringUtils.hasText(visitStatus)) {
+				visitStatus = "COMPLETE";
+			}
+			instrument.getVisit().setVisitStatus(visitStatus);
+			
 			if (instrExisted) {
-				if (instrument.getVisit().getVisitStatus().equalsIgnoreCase("SCHEDULED")) {
-					// even if Visit was not created, this update will be persisted via Hibernate automatic dirty checking
-					instrument.getVisit().setVisitStatus("COMPLETE");
-				}
-				
 				if (instrument.getDcStatus().equalsIgnoreCase("Scheduled")) {
 					instrument.setDcStatus("Complete");
 				}
