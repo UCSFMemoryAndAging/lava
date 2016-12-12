@@ -22,7 +22,9 @@
 			<tags:createField property="mappingFile.name" component="${component}" inline="true" metadataName="importDefinition.mappingFilename"/>
 			<c:choose>
 				<c:when test="${componentView == 'view'}">
-					<tags:listActionURLButton buttonImage="download" actionId="lava.core.importer.definition.importDefinition" eventId="importDefinition__download" />
+					<c:if test="${not empty mappingFile}">
+						<tags:listActionURLButton buttonImage="download" actionId="lava.core.importer.definition.importDefinition" eventId="importDefinition__download" />
+					</c:if>
 				</c:when>
 				<c:when test="${componentView == 'edit'}">
 					<tags:outputText textKey="importDefinition.downloadMappingFile" inline="false"/>
