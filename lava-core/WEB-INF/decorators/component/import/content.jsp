@@ -16,9 +16,6 @@ the component value passed --%>
 	<c:if test="${flowState == 'edit'}">
 		<tags:eventButton buttonText="Import" action="import" component="${component}" pageName="${pageName}"/>
 	</c:if>		
-	<c:if test="${flowState == 'result'}">
-		<tags:eventButton buttonText="Close" action="close" component="${component}" pageName="${pageName}"/>
-	</c:if>		
 	<c:set var="customActions">
 		<decorator:getProperty property="page.customActions"/>
 	</c:set>	
@@ -36,9 +33,6 @@ the component value passed --%>
 <div id="pageLevelActionNavButtonBottomBox">           
 	<c:if test="${flowState == 'edit'}">
 		<tags:eventButton buttonText="Import" action="import" component="${component}" pageName="${pageName}"/>
-	</c:if>		
-	<c:if test="${flowState == 'result'}">
-		<tags:eventButton buttonText="Close" action="close" component="${component}" pageName="${pageName}"/>
 	</c:if>		
     ${customActions}
 </div>  
