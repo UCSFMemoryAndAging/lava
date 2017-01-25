@@ -30,6 +30,7 @@ import edu.ucsf.lava.core.action.ActionUtils;
 import edu.ucsf.lava.core.action.model.Action;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.controller.LavaComponentFormAction;
+import edu.ucsf.lava.core.controller.RenderException;
 import edu.ucsf.lava.core.controller.ScrollablePagedListHolder;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.crms.assessment.controller.upload.FileLoader;
@@ -67,7 +68,7 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 	
 	
 
-	// accomodate subclasses that have no-args constructure, like DiagnosisHandler
+	// accommodate subclasses that have no-args constructors, like DiagnosisHandler
 	public InstrumentHandler() {
 		super();
 		// just replace events from superclass, because some do not apply to instrument handling
@@ -242,6 +243,16 @@ public class InstrumentHandler extends CrmsEntityComponentHandler {
 				}
 				
 				instrument = (Instrument) Instrument.MANAGER.getOne(instrClass, getFilterWithId(request,Long.valueOf(id)));
+
+				if ((instrument.getVisit().getVisitStatus().equals("SCHEDULED") || instrument.getVisit().getVisitStatus().contains("CANCELED") || instrument.getVisit().getVisitStatus().equals("NO SHOW")) && 
+						!(flowMode.equals("view") || flowMode.equals("delete") || flowMode.equals("changeVersion") || flowMode.equals("status"))) {
+					StringBuffer sb = new StringBuffer(metadataManager.getMessage("visit.changeStatusToEditInstr.command", new Object[]{instrument.getVisit().getVisitStatus()}, Locale.getDefault()));
+					sb.append("<a href='crms/scheduling/visit/visit.lava?id=");
+					sb.append(instrument.getVisit().getId());
+					sb.append("'> View Visit</a>");
+					throw new RenderException(sb.toString());
+				}
+
 				backingObjects.put(getDefaultObjectName(), instrument);
 			}else{
 				throw new RuntimeException(metadataManager.getMessage("idMissing.command", new Object[]{instrTypeEncoded}, Locale.getDefault()));
