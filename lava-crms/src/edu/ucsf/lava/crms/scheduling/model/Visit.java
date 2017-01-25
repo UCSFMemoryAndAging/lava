@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import edu.ucsf.lava.core.dao.LavaDaoFilter;
 import edu.ucsf.lava.core.model.EntityBase;
@@ -36,6 +37,13 @@ public class Visit extends CrmsEntity {
 	private Date waitListDate;
 	private String visitDescrip; // computed
 	private Short ageAtVisit; //set by trigger
+	// this set is lazily fetched. it is only fetched when the Visit needs to do something with its instruments, like
+	// update the dcDate when a 'SCHEDULED' visit is saved so that any changes to visitDate will be propagated to all
+	// the visit's instruments
+	// NOTE: instruments will never be added to this list. Instruments are added independently of a Visit entity and
+	// then just set their Visit property to a Visit
+	private Set<InstrumentTracking> instruments;
+
 	
 	// add a connection to the enrollmentstatus since all visits must belong to an enrollment
 	private EnrollmentStatus enrollmentstatus;
@@ -50,7 +58,7 @@ public class Visit extends CrmsEntity {
 		this.setProjectAuth(true);
 	}
 	public Object[] getAssociationsToInitialize(String method) {
-		return new Object[]{this.patient};
+		return new Object[]{this.patient, this.instruments};
 	}
 	
 	public Patient getPatient() {return this.patient;}
@@ -162,6 +170,14 @@ public class Visit extends CrmsEntity {
 
 	public Short getAgeAtVisit() {return this.ageAtVisit;}
 	public void setAgeAtVisit(Short ageAtVisit) {this.ageAtVisit = ageAtVisit;}
+
+	public Set<InstrumentTracking> getInstruments() {
+		return instruments;
+	}
+
+	public void setInstruments(Set<InstrumentTracking> instruments) {
+		this.instruments = instruments;
+	}
 	
 	public EnrollmentStatus getEnrollmentstatus() {return enrollmentstatus;}
 	public void setEnrollmentstatus(EnrollmentStatus enrollmentstatus) {this.enrollmentstatus = enrollmentstatus;}

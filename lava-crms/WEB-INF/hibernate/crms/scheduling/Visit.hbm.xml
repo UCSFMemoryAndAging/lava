@@ -33,7 +33,19 @@
 		<property name="waitListDate" type="timestamp" column="WListDate"/>
 		<property name="visitDescrip" type="string" column="VShortDesc" length="255" not-null="true"/>
 		<property name="ageAtVisit" type="short" column="AgeAtVisit"/>
-			          
+
+		<!-- note: this is a Set<InstrumentTracking> not Set<Instrument> so that there will not be a join to all
+			instrument subclasses which could impact performance. this is only intended to serve use cases where
+			the Visit needs access the InstrumentTracking portion of its instruments
+		
+			note: not cascade delete as do not want this to happen. the LAVA way is to force the user to 
+			delete the instruments before they can delete a visit to force them to be better aware of what
+			data they are deleting -->
+		<set name="instruments" inverse="true" cascade="save-update" lazy="true">
+			<key column="VID"/>
+			<one-to-many class="edu.ucsf.lava.crms.assessment.model.InstrumentTracking"/>
+		</set>	
+		
 		<!-- All visits must have an enrollmentstatus associated with it.
 		    Using a special property-ref parameter since uniqueness is across multiple fields -->
 		<many-to-one name="enrollmentstatus" class="edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus" property-ref="enrollment_unique" insert="false" update="false">
@@ -87,10 +99,13 @@
 		order by year(VDate)+1
 	]]></query>
 
+	<!-- this list is used by Add Instrument. do not allow user to add an instrument to a canceled visit -->
 	<query name="list.visit.patientVisits"><![CDATA[
 	    select new edu.ucsf.lava.core.list.model.LabelValueBean(v.visitDescrip, v.id)
 		from Visit v 
 		where v.patient.id = :patientId
+		and v.visitStatus NOT LIKE '%CANCELED'
+		and v.visitStatus != 'NO SHOW' 
 		order by v.visitDate desc
 	]]></query>
 	

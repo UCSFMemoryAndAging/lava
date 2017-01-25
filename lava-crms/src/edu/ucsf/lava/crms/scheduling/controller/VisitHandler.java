@@ -18,6 +18,7 @@ import edu.ucsf.lava.core.auth.model.AuthUser;
 import edu.ucsf.lava.core.controller.ComponentCommand;
 import edu.ucsf.lava.core.session.CoreSessionUtils;
 import edu.ucsf.lava.crms.assessment.model.Instrument;
+import edu.ucsf.lava.crms.assessment.model.InstrumentTracking;
 import edu.ucsf.lava.crms.auth.CrmsAuthUtils;
 import edu.ucsf.lava.crms.controller.CrmsEntityComponentHandler;
 import edu.ucsf.lava.crms.people.model.Patient;
@@ -115,18 +116,24 @@ public class VisitHandler extends CrmsEntityComponentHandler {
 		
 		
 		Event result = super.doSaveAdd(context, command, errors);
-		//TODO: need to instantiate the actual instrument type instead of Instrument because
-		// other things may need to be done for a newly created instrument, such as calling its
-		// markUnusedFields method
+
 		List<Instrument> instrumentPrototypes = instrumentManager.getInstrumentPrototypes(visitDaoObj.getProjName(),visitDaoObj.getVisitType());
-		for(Instrument i : instrumentPrototypes){
-			i.setPatient(visitDaoObj.getPatient());
-			i.setProjName(visitDaoObj.getProjName());
-			i.setDcDate(visitDaoObj.dateWithoutTime(visitDaoObj.getVisitDate()));
-			i.setDcStatus("Scheduled");
-			i.setVisit(visitDaoObj);
-			i.save();
+		
+		// do not auto populate if the Visit status is ‘CANCELLED’ or ‘NO SHOW’
+		if (!visitDaoObj.getVisitStatus().contains("CANCELED") && !visitDaoObj.getVisitStatus().equals("NO SHOW")) {
+			for(Instrument i : instrumentPrototypes){
+				//TODO: need to instantiate the actual instrument type instead of Instrument because
+				// other things may need to be done for a newly created instrument, such as calling its
+				// markUnusedFields method
+				i.setPatient(visitDaoObj.getPatient());
+				i.setProjName(visitDaoObj.getProjName());
+				i.setDcDate(visitDaoObj.dateWithoutTime(visitDaoObj.getVisitDate()));
+				i.setDcStatus("Scheduled");
+				i.setVisit(visitDaoObj);
+				i.save();
+			}
 		}
+		
 						
 		/* Custom handling may be desired on the instruments (just created) belonging
 		 *   to custom visits.  To provide this, we add a hook here, overridable by a
@@ -162,6 +169,73 @@ public class VisitHandler extends CrmsEntityComponentHandler {
 		
 		return result;
 	}
+
+
+	protected Event doSave(RequestContext context, Object command, BindingResult errors) throws Exception {
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+		Event event = new Event(this, SUCCESS_FLOW_EVENT_ID);
+		Visit visit = (Visit) ((ComponentCommand)command).getComponents().get(getDefaultObjectName());
+
+		// keep in mind that a visit's instruments cannot be edited if the status of the visit is 'SCHEDULED'
+		
+
+		// if a user is changing the date of a scheduled visit then can assume the patient is rescheduling the visit
+		// and can change the instrument data collection date of all visit instruments to the new date.
+		
+		// also, if the user changes the visitStatus to 'SCHEDULED' then any instruments that had a dcStatus of 'Canceled'
+		// should be changed back to 'Scheduled'. This facilitates the situation where a coordinator cancels a visit (so
+		// all instruments get their dcStatus set to 'Canceled') and then reschedules the visit.
+		
+		// note: do not want to do this for completed visits where the instrument data has already been collected
+		// because in that case the instrument dcDate may legitimately have been set to a different value than
+		// the visit date
+		
+		if (visit.getVisitStatus().equals("SCHEDULED")) {
+			// TODO: this is done without knowing whether the visitDate or visitStatus were actually changed. inefficient. look at changing
+			// visitDate and visitStatus to be dirty tracked columns and then check isDirty here
+			for (InstrumentTracking instr : visit.getInstruments()) {
+				// additionally, while iterating through the instruments, if encounter an instrument that is data entered do
+				// not allow the save because a visit cannot have a status of 'SCHEDULED' if there are instruments with data entered.
+				// this generally cannot happen because an instrument can not be data entered until the visit status is 'COMPLETE' (or
+				// some variation thereof) but a user could attempt to change such a visit's status back to 'SCHEDULED' and that should
+				// not be permitted
+				if (instr.getDeDate() != null) {
+					errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"visit.statusScheduledWithInstrData.command"}, new Object[]{instr.getInstrType()}, ""));
+					return new Event(this,ERROR_FLOW_EVENT_ID);
+				}
+				
+				instr.setDcDate(visit.getVisitDate());
+				instr.setDcStatus("Scheduled");
+			}
+		}
+
+		// if the user changes the status of a visit to 'CANCELED' ('CANCELED%') or 'NO SHOW' then the instruments dcStatus
+		// should also be set to 'Canceled'
+		// however there should first be a check to see if any of the visit instruments have data entered
+		if (visit.getVisitStatus().endsWith("CANCELED") || visit.getVisitStatus().equals("NO SHOW")) {
+			for (InstrumentTracking instr : visit.getInstruments()) {
+				if (instr.getDeDate() != null) {
+					errors.addError(new ObjectError(errors.getObjectName(),	new String[]{"visit.statusCanceledWithInstrData.command"}, new Object[]{visit.getVisitStatus(), instr.getInstrType()}, ""));
+
+					return new Event(this,ERROR_FLOW_EVENT_ID);
+				}
+				instr.setDcStatus("Canceled");
+			}
+		}
+		
+		// make sure that the instruments have the same project as the visit (instruments project field cannot be edited so it should be kept 
+		// in sync with the visit project)
+		for (InstrumentTracking instr : visit.getInstruments()) {
+			if (!visit.getProjName().equals(instr.getProjName())) {
+				instr.setProjName(visit.getProjName());
+			}
+		}
+	
+		
+		return super.doSave(context,command,errors);
+	}
+
+
 
 	@Override
 	protected Event doConfirmDelete(RequestContext context, Object command, BindingResult errors) throws Exception {
