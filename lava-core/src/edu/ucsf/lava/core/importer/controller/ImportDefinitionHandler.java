@@ -297,6 +297,15 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 			// file (deleteFile will archive the file in addition to deleting)
 			// note: want same behavior even if user uploads same file as current file, because contents of file
 			// have presumably changed which is why it is being re-uploaded
+			
+			// ideally do not want the file deleted yet because if the new mapping file fails validation want to keep
+			// the existing mapping file, i.e. no changes to the import definition when there is an error on save. but
+			// because the mapping file typically keeps the same name every time it is edited and re-uploaded it will
+			// replace the existing mapping file (because it has to be uploaded before it can be validated)
+			// could do something where existing file is temporarily saved (to a temp folder or a temp rename in the
+			// import folder) and then deleted if the new file is valid, but that is a lot of work so just go with
+			// the existing file is deleted even if the new mapping file is not valid, in wihch case there will
+			// not be any mapping file
 
 			// note: it is now possible to have a mappingFile record that does not have a physical file associated with it
 			// yet (to allow users to create an import definition even if mapping file is not ready yet). in this case, the
@@ -311,10 +320,17 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 			if (returnEvent.getId().equals(SUCCESS_FLOW_EVENT_ID)) {
 				if (this.mappingFileValidation(context, command, errors).getId().equals(ERROR_FLOW_EVENT_ID)) {
 					// note that just above an invalid mapping file replaced the previous file (or no file, since an import definition can be
-					// created without a mapping file at first), and that the file contents were persisted. but since the file is invalid we must
-					// delete the physical file here. the ImportFile record will still exist, with no physical file associated with it, because
-					// the ImportFile record always exists for an ImportDefinition as it is create as part of adding a new import definition 
+					// created without a mapping file at first), and that the invalid file contents were persisted. but since the file is invalid
+					// we must delete the physical file here. the ImportFile record will still exist, with no physical file associated with it, 
+					// and with no file metadata (as deleteFile sets everything to null) because the ImportFile record always exists for an 
+					// ImportDefinition as it is created as part of adding a new import definition
+					
 					mappingFile.deleteFile();
+					// the import definition is not saved because of the validation error so changes to the mappingFile meta fields
+					// are not persisted. solution is that save should be called explicitly, even if validation fails (although the
+					// physical file is deleted because that is not a database transaction but a file operation)
+					// see if behavior is the same in lava2					
+					super.doSave(context, command, errors);
 					return new Event(this, ERROR_FLOW_EVENT_ID);
 				}
 			}
@@ -339,11 +355,10 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 		ImportDefinition importDefinition = (ImportDefinition) ((ComponentCommand)command).getComponents().get(this.getDefaultObjectName());
 		ImportFile mappingFile = (ImportFile) getLavaFileBackingObject(context, ((ComponentCommand)command).getComponents(), errors);
 
-		// editing a definition where user is changing the mapping file
-
-				
 		// editing a definition where user may either be adding a mapping file, or user may be changing the mapping file
+		
 		if (mappingFile != null && mappingFile.getFileId() != null) {
+			// note that deleteFile both deletes the physical file and sets all of the LavaFile meta fields to null
 			mappingFile.deleteFile();
 		}
 
@@ -355,6 +370,7 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 		// note: if did not delete file above, saveOrUpdateFile here would work if filename is the same, but
 		// if new filename is different than current filename the current file would not be deleted by
 		// saveOrUpdateFile
+		// note that in the case where the new file is not valid, it will be subsequently deleted
 		mappingFile.saveFile();
 		return new Event(this,SUCCESS_FLOW_EVENT_ID);
 	}
