@@ -31,6 +31,16 @@ public class PatientInstrumentsHandler extends CrmsListComponentHandler {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter = InstrumentTracking.newFilterInstance(getCurrentUser(request));
 		CrmsSessionUtils.setFilterPatientContext(sessionManager,request,filter);
+
+		// quick filter settings
+		filter.setActiveQuickFilter("Scheduled / Complete / Incomplete");
+		filter.addQuickFilter("Scheduled / Complete / Incomplete", filter.daoNot(filter.daoLikeParam("dcStatus","%Canceled%")));
+		filter.addQuickFilter("Scheduled",  filter.daoEqualityParam("dcStatus","Scheduled"));
+		filter.addQuickFilter("Complete",  filter.daoLikeParam("dcStatus","Complete%"));
+		filter.addQuickFilter("Incomplete",  filter.daoOr(filter.daoLikeParam("dcStatus","Incomplete%"), filter.daoEqualityParam("dcStatus", "Unknown")));
+		filter.addQuickFilter("Canceled",  filter.daoLikeParam("dcStatus","%Canceled%"));
+		filter.addQuickFilter("All Instruments",  null);
+
 		filter.addParamHandler(new LavaDateRangeParamHandler("dcDate"));
 		filter.addParamHandler(new LavaDateRangeParamHandler("deDate"));
 		filter.addDefaultSort("dcDate",true);

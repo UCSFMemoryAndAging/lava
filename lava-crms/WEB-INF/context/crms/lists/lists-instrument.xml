@@ -74,5 +74,16 @@
 			</bean>
 		</list></property>
 	</bean>
+
+	<bean id="list.instrument.quickFilter" parent="list.dataOnly">
+		<property name="data"><list>
+			<bean parent="list.data"><constructor-arg value="Scheduled / Complete / Incomplete"/><constructor-arg value="Scheduled / Complete / Incomplete"/></bean>
+			<bean parent="list.data"><constructor-arg value="Scheduled"/><constructor-arg value="Scheduled"/></bean>
+			<bean parent="list.data"><constructor-arg value="Complete"/><constructor-arg value="Complete"/></bean>
+			<bean parent="list.data"><constructor-arg value="Incomplete"/><constructor-arg value="Incomplete"/></bean>
+			<bean parent="list.data"><constructor-arg value="Canceled"/><constructor-arg value="Canceled"/></bean>
+			<bean parent="list.data"><constructor-arg value="All Instruments"/><constructor-arg value="All Instruments"/></bean>
+		</list></property>
+	</bean>
 	
 </beans>

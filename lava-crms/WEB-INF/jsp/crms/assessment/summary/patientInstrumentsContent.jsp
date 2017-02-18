@@ -1,7 +1,12 @@
 <%@ include file="/WEB-INF/jsp/includes/include.jsp" %>
 
 <c:set var="component">${param.component}</c:set>
-   
+
+<content tag="listQuickFilter">
+	<tags:listQuickFilter component="${component}" listItemSource="instrument.quickFilter" label="Show:"/>
+</content>
+
+
 <content tag="listFilters">
 <tags:contentColumn columnClass="colLeft2Col5050">
 	

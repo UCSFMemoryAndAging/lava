@@ -38,6 +38,17 @@ public class ProjectInstrumentsHandler extends CrmsCalendarComponentHandler {
 
 	public LavaDaoFilter prepareFilter(RequestContext context, LavaDaoFilter filter, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+
+		// quick filter settings
+		filter.setActiveQuickFilter("Scheduled / Complete / Incomplete");
+		filter.addQuickFilter("Scheduled / Complete / Incomplete", filter.daoNot(filter.daoLikeParam("dcStatus","%Canceled%")));
+		filter.addQuickFilter("Scheduled",  filter.daoEqualityParam("dcStatus","Scheduled"));
+		filter.addQuickFilter("Complete",  filter.daoLikeParam("dcStatus","Complete%"));
+		filter.addQuickFilter("Incomplete",  filter.daoOr(filter.daoLikeParam("dcStatus","Incomplete%"), filter.daoEqualityParam("dcStatus", "Unknown")));
+		filter.addQuickFilter("Canceled",  filter.daoLikeParam("dcStatus","%Canceled%"));
+		filter.addQuickFilter("All Instruments",  null);
+
+
 		filter.addDefaultSort("dcDate",true);
 		filter.addDefaultSort("patient.fullNameRevNoSuffix", true);
 		filter.addParamHandler(new LavaDateRangeParamHandler("dcDate"));
