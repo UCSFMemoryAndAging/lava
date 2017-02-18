@@ -30,12 +30,12 @@ public class ProjectCalendarHandler extends CrmsCalendarComponentHandler {
 		filter.setActiveQuickFilter("Scheduled / Complete Only");
 		filter.addQuickFilter("Scheduled / Complete Only", filter.daoNot(
 															filter.daoOr(
-																	filter.daoLikeParam("visitStatus","%Canceled%"),
-																	filter.daoLikeParam("visitStatus", "%No Show%"))));
+																	filter.daoLikeParam("visitStatus","%CANCELED%"),
+																	filter.daoLikeParam("visitStatus", "%NO SHOW%"))));
 		
 		filter.addQuickFilter("Canceled / No Show Only",  filter.daoOr(
-															filter.daoLikeParam("visitStatus","%Canceled%"),
-															filter.daoLikeParam("visitStatus", "%No Show%")));
+															filter.daoLikeParam("visitStatus","%CANCELED%"),
+															filter.daoLikeParam("visitStatus", "%NO SHOW%")));
 		filter.addQuickFilter("All Visits",  null);
 		
 		
