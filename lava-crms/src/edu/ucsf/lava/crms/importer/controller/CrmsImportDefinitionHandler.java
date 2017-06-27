@@ -449,7 +449,7 @@ TODO: find out which property getter throws an exception on PropertyUtils.descri
 			}
 			
 			if (invalidProps.size() > 0) {
-				LavaComponentFormAction.createCommandError(errors, "The following mapping instrument fields (in row 3 of mapping file) do not exist.<br/>" + invalidProps.toString());
+				LavaComponentFormAction.createCommandError(errors, "The following mapping instrument fields (in row 3 (or row 1, if row 3 is blank) of mapping file) do not exist.<br/>" + invalidProps.toString());
 				return new Event(this,ERROR_FLOW_EVENT_ID);
 			}
 			
