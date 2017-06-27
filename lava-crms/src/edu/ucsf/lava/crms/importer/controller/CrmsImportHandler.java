@@ -1930,7 +1930,21 @@ public class CrmsImportHandler extends ImportHandler {
 
 		// visitDate is required for both matching Visit and as a required field when creating new Visit
 		dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitDate()];
-		formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+
+		// test if the number of digits in the year in the data file matches the date format chosen in the import definition (users
+		// open the data file CSV in Excel and due to Excel formatting they may not know whether the year part of the date values is
+		// two or four digits, so check for these mismatches)
+		String yearPartAsString = dateOrTimeAsString.substring(dateOrTimeAsString.lastIndexOf('/') + 1);
+		if (importDefinition.getDateFormat().endsWith("/yy") && yearPartAsString.length() > 2) {
+			importLog.addErrorMessage(lineNum, "Date format in import definition has 2 digit year, but in data file the visit date does not adhere, visit date="+ dateOrTimeAsString);
+			return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+		}
+		else if (importDefinition.getDateFormat().endsWith("/yyyy") && yearPartAsString.length() < 4) {
+			importLog.addErrorMessage(lineNum, "Date format in import definition has 4 digit year, but in data file the visit date does not adhere, visit date="+ dateOrTimeAsString);
+			return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+		}
+	
+		formatter = new SimpleDateFormat(importDefinition.getDateFormat());
 		if (importDefinition.getDateFormat().endsWith("/yy")) {
 			// if 2 digit year, set start year to 2000 so year will be in the 21st century since all enrollment and visit dates should be
 			Calendar tempCal = Calendar.getInstance();
@@ -1938,6 +1952,7 @@ public class CrmsImportHandler extends ImportHandler {
 			tempCal.set(Calendar.YEAR, 2000);
 			formatter.set2DigitYearStart(tempCal.getTime());
 		}
+
 		formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
 		try {
 			visitDate = formatter.parse(dateOrTimeAsString);
