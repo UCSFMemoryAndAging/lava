@@ -44,7 +44,7 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 	public ImportDefinitionHandler() {
 		super();
 		setHandledEntity("importDefinition", ImportDefinition.class);
-		this.setRequiredFields(new String[]{"name", "dataFileFormat", "startDataRow"});
+		this.setRequiredFields(new String[]{"name", "dataFileFormat", "startDataRow", "dateFormat", "timeFormat"});
 		this.setSupportsAttachedFiles(true);
 	}
 	
@@ -110,6 +110,8 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 			
 		// mapping file entities
 		if ((nextLine = reader.readNext()) != null) {
+			// note that unlike mappingCols, do NOT call trimTrailingCommas here, as a blank entity is allowable (blank entity defaults
+			// to the instrument being imported
 			mappingEntities = nextLine;
 		}
 		else {
@@ -119,6 +121,8 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 
 		// mapping file properties
 		if ((nextLine = reader.readNext()) != null) {
+			// note that unlike mappingCols, do NOT call trimTrailingCommas here, as a blank property is allowable (blank property defaults
+			// to the column name in row 1, i.e. the mappingCols name)
 			mappingProps = nextLine;
 		}
 		else {
