@@ -489,6 +489,13 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	 */
 	protected String[] trimTrailingCommas(String[] line) {
 		List<String> trimmedLine = new ArrayList(Arrays.asList(line));
+		
+		// if there is a zero-width no-break space, aka byte-order mark (BOM) at the beginning of the data file, remove it from the first column
+		String firstCol = trimmedLine.get(0);
+		if ((int)firstCol.charAt(0) == 65279) {
+			trimmedLine.set(0, firstCol.substring(1));
+		}
+		
 		for (int i = line.length-1; i >= 0; i--) {
 			if (StringUtils.hasText(line[i])) {
 				break;
