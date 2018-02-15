@@ -27,7 +27,7 @@
 		<property name="warnings" column="warnings" type="integer"/>
 		<property name="notes" column="notes" type="string" length="500"/>
 		<!-- using one-to-many instead of inline composite-element because there is a crms subclass of this class -->   		
-   		<list name="messages" lazy="false" cascade="all">
+   		<list name="messages" lazy="true" cascade="all">
    			<key column="log_id" not-null="true"/>
 			<list-index column="list_index" base="1"/>
    			<one-to-many class="edu.ucsf.lava.core.importer.model.ImportLogMessage"/>
