@@ -52,7 +52,12 @@ public class ImportLog extends EntityBase {
 	}
 	
 	public Object[] getAssociationsToInitialize(String method) {
-		return new Object[]{this.definition};
+		if (method != null && method.equals("findById")) {
+			return new Object[] {this.getMessages()};
+		}
+		else {
+			return new Object[]{};
+		}
 	}
 	
 	public Timestamp getImportTimestamp() {
