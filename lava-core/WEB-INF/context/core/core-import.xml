@@ -44,7 +44,6 @@
 	
 	<bean id="importFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.core.importer.controller.ImportHandler" parent="coreHandler"/>
-		<bean class="edu.ucsf.lava.core.importer.controller.AllImportLogsHandler" parent="coreHandler"/>
 	</list></constructor-arg></bean>
 	
 	<bean id="importLaunchFormAction" parent="coreEntityComponentFormAction"><constructor-arg><list>
