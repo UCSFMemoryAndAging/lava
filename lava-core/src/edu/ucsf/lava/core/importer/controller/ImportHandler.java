@@ -6,6 +6,7 @@ import static edu.ucsf.lava.core.importer.model.ImportDefinition.CSV_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.DEFAULT_DATE_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.TAB_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.SKIP_INDICATOR;
+import static edu.ucsf.lava.core.importer.model.ImportDefinition.STATIC_INDICATOR;
 import static edu.ucsf.lava.core.webflow.builder.ImportFlowTypeBuilder.IMPORT_EVENTS;
 
 import java.io.ByteArrayInputStream;
@@ -431,8 +432,16 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		// import mapping file specification
 		// note that there is functionality allowing instrument properties to be case insensitive (as users may be more
 		// prone to instrument variable name mistyping when creating mapping files, especially if many variables)
+
+		// since there could be multiple entities with the same property name, iterate until find the property that belongs
+		// to the correct entity
 		while ((propIndex = ArrayUtils.indexOf(importSetup.getMappingProps(), propertyName, propIndex+1)) != -1) {
 			if (importSetup.getMappingEntities()[propIndex].equalsIgnoreCase(entityName)) {
+				// properties mapped as STATIC: do not have a value in the data file, thus do not have a data file index
+				if (importSetup.getMappingCols()[propIndex].startsWith(STATIC_INDICATOR)) {
+					break;
+				}
+
 				// want the data file index that corresponds to the mapping file property, since they may be different,
 				// so use the mappingColDataCol map
 				BeanUtils.setProperty(importSetup, indexProperty, importSetup.getMappingColDataCol().get(propIndex)); 
