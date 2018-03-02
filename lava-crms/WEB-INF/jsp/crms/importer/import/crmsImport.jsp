@@ -20,4 +20,3 @@ action customizes the core action whose target is 'import' (see BaseFlowBuilder 
 	</page:applyDecorator>    
 </page:applyDecorator>	    
 
-<%-- TODO: list of allCrmsImportLogs as secondary list, ala visits on Add Visit --%>
