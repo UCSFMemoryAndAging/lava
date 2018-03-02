@@ -21,8 +21,6 @@
 	<!-- this is a suggest list --> 	
 	<bean id="list.importDefinition.dateFormat" parent="list.dataOnly">
 		<property name="data"><list>
-			<bean parent="list.data"><constructor-arg value="MM/dd/yyyy"/><constructor-arg value="MM/dd/yyyy"/></bean>
-			<bean parent="list.data"><constructor-arg value="MM/dd/yy"/><constructor-arg value="MM/dd/yy"/></bean>
 			<bean parent="list.data"><constructor-arg value="M/d/yyyy"/><constructor-arg value="M/d/yyyy"/></bean>
 			<bean parent="list.data"><constructor-arg value="M/d/yy"/><constructor-arg value="M/d/yy"/></bean>
 		</list></property>	
