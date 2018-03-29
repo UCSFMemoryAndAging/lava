@@ -52,16 +52,14 @@ public class CrmsImportDefinition extends ImportDefinition {
 	private Boolean allowEsUpdate; 
 	private String esStatus;
 
-	// VIsit
+	// Visit
 	private Short visitExistRule;
 	// currently this flag is not used unless it is determined that import files should be able to overwrite
 	// existing Visit data
 	private Boolean allowVisitUpdate;
 	private Short visitWindow;
-	// if import will create new Visits, account for all Visit required fields
-	// visitDate (and optionally visitTime) must be present in the data file (mapped to either visitDate or
-	// dcDate). the rest of the required fields may not be in the data file so need to be supplied as part of
-	// the definition
+	private Boolean matchVisitProjFlag;
+	private Boolean matchVisitTimeFlag;
 	private Boolean matchVisitTypeFlag;
 	// allow user to specify up to 3 additional visit types to attempt to match already existing visits, along
 	// with visitType (unless the visit type is specified in the data file for each import record in which case
@@ -71,6 +69,10 @@ public class CrmsImportDefinition extends ImportDefinition {
 	private String matchVisitType;
 	private String matchVisitType2;
 	private String matchVisitType3;
+	// if import will create new Visits, account for all Visit required fields
+	// visitDate (and optionally visitTime) must be present in the data file (mapped to either visitDate or
+	// dcDate). the rest of the required fields may not be in the data file so need to be supplied as part of
+	// the definition
 	// the following are used when a new visit is created, unless values are supplied in the data file
 	private String visitType;
 	private String visitWith;
@@ -185,6 +187,8 @@ public class CrmsImportDefinition extends ImportDefinition {
 		this.esStatus = "ENROLLED";
 		this.visitExistRule = MAY_OR_MAY_NOT_EXIST;
 		this.visitWindow = 0;
+		this.matchVisitProjFlag = false;
+		this.matchVisitTimeFlag = false;
 		this.matchVisitTypeFlag = true;
 		this.visitStatus = "COMPLETE";
 		this.instrExistRule = MAY_OR_MAY_NOT_EXIST;
@@ -1000,6 +1004,22 @@ public class CrmsImportDefinition extends ImportDefinition {
 
 	public void setAllowExtremeDates(Boolean allowExtremeDates) {
 		this.allowExtremeDates = allowExtremeDates;
+	}
+
+	public Boolean getMatchVisitProjFlag() {
+		return matchVisitProjFlag;
+	}
+
+	public void setMatchVisitProjFlag(Boolean matchVisitProjFlag) {
+		this.matchVisitProjFlag = matchVisitProjFlag;
+	}
+
+	public Boolean getMatchVisitTimeFlag() {
+		return matchVisitTimeFlag;
+	}
+
+	public void setMatchVisitTimeFlag(Boolean matchVisitTimeFlag) {
+		this.matchVisitTimeFlag = matchVisitTimeFlag;
 	}
 	
 }

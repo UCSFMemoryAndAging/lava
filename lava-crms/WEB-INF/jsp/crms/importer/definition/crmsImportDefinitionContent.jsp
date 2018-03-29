@@ -103,6 +103,14 @@ of component --%>
 				<tags:listCell labelSize="medium">
 					<tags:outputText textKey="importDefinition.visit.visitWindow" styleClass="italic" inline="false"/>
 					<tags:createField property="visitWindow" component="${component}" entity="importDefinition"/><br/>
+					<tags:ifHasRole roles="SYSTEM ADMIN">  <%-- only allow the SYSTEM ADMIN to turn on the visit project match (for now) --%> 
+						<div class="verticalSpace30">&nbsp;</div>
+						<tags:outputText textKey="importDefinition.visit.matchVisitProjFlag" styleClass="italic" inline="false"/>
+						<tags:createField property="matchVisitProjFlag" component="${component}" entity="importDefinition"/>
+						<div class="verticalSpace30">&nbsp;</div>
+					</tags:ifHasRole>
+					<tags:outputText textKey="importDefinition.visit.matchVisitTimeFlag" styleClass="italic" inline="false"/>
+					<tags:createField property="matchVisitTimeFlag" component="${component}" entity="importDefinition"/>
 					<tags:ifHasRole roles="SYSTEM ADMIN">   <%-- only allow the SYSTEM ADMIN to turn off the visit type match --%> 
 						<div class="verticalSpace30">&nbsp;</div>
 						<tags:outputText textKey="importDefinition.visit.matchVisitTypeFlag" styleClass="italic" inline="false"/>

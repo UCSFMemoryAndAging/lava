@@ -18,6 +18,8 @@
 		<property name="visitExistRule" column="visit_exist_rule" type="short"/>
 		<property name="allowVisitUpdate" column="visit_update" type="boolean"/>
 		<property name="visitWindow" column="visit_window" type="short"/>
+		<property name="matchVisitProjFlag" column="match_visit_proj_flag" type="boolean"/>
+		<property name="matchVisitTimeFlag" column="match_visit_time_flag" type="boolean"/>
 		<property name="matchVisitTypeFlag" column="match_visit_type_flag" type="boolean"/>
 		<property name="matchVisitType" column="match_visit_type" type="string" length="25"/>
 		<property name="matchVisitType2" column="match_visit_type2" type="string" length="25"/>
