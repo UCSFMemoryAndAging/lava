@@ -48,7 +48,6 @@
 	
 	<bean id="crmsImportFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
 		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsImportHandler" parent="crmsHandler"/>
-		<bean class="edu.ucsf.lava.crms.importer.controller.CrmsAllImportLogsHandler" parent="crmsHandler"/>
 	</list></constructor-arg></bean>
    
 	<bean id="crmsImportLaunchFormAction" parent="crmsEntityComponentFormAction"><constructor-arg><list>
