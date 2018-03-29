@@ -126,7 +126,7 @@ public class ImportDefinitionHandler extends BaseEntityComponentHandler {
 			mappingProps = nextLine;
 		}
 		else {
-			LavaComponentFormAction.createCommandError(errors, "Invalid mapping file. Does contain the third row of property names");
+			LavaComponentFormAction.createCommandError(errors, "Invalid mapping file. Does not contain the third row of property names");
 			return new Event(this,this.ERROR_FLOW_EVENT_ID);
 		}
 
