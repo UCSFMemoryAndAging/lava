@@ -60,7 +60,7 @@ public class ArchivingLocalFileSystemRepositoryStrategy extends LocalFileSystemR
 						.append(file.getLocation()).append(File.separatorChar)
 						.append(file.getFileId());
 		if(archiveMethod == ARCHIVE_METHOD_APPEND_DATE){
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS");
 			archiveLocation.append("_").append(dateFormat.format(new Date()));
 		}
 		return new File(archiveLocation.toString());
