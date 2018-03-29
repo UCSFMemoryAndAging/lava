@@ -23,14 +23,17 @@
 		<property name="data"><list>
 			<bean parent="list.data"><constructor-arg value="M/d/yyyy"/><constructor-arg value="M/d/yyyy"/></bean>
 			<bean parent="list.data"><constructor-arg value="M/d/yy"/><constructor-arg value="M/d/yy"/></bean>
+			<bean parent="list.data"><constructor-arg value="yyyy-M-d"/><constructor-arg value="yyyy-M-d"/></bean>
 		</list></property>	
 	</bean>
 
 	<!-- this is a suggest list --> 	
 	<bean id="list.importDefinition.timeFormat" parent="list.dataOnly">
 		<property name="data"><list>
-			<bean parent="list.data"><constructor-arg value="hh:mm a"/><constructor-arg value="hh:mm a"/></bean>
 			<bean parent="list.data"><constructor-arg value="HH:mm"/><constructor-arg value="HH:mm"/></bean>
+			<bean parent="list.data"><constructor-arg value="HH:mm:ss"/><constructor-arg value="HH:mm:ss"/></bean>
+			<bean parent="list.data"><constructor-arg value="hh:mm a"/><constructor-arg value="hh:mm a"/></bean>
+			<bean parent="list.data"><constructor-arg value="hh:mm:ss a"/><constructor-arg value="hh:mm:ss a"/></bean>
 		</list></property>	
 	</bean>
 	
