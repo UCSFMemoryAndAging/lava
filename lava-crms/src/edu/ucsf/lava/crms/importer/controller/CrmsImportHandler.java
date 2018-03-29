@@ -815,7 +815,14 @@ public class CrmsImportHandler extends ImportHandler {
 					}
 				}
 
-
+				
+				// instruments need to have their statuses updated, and may need to have calculations run, before import is complete
+				if ((handlingEvent = finishInstruments(context, importDefinition, importSetup, importLog, lineNum)).getId().equals(ERROR_FLOW_EVENT_ID)) {
+					this.evictInstruments(importDefinition, importSetup);
+					continue; // do not update any counts as nothing was imported for this record
+				}
+				
+				
 				// note that if there is a single instrument in the data file record and it already existed with data then
 				// will not get to this point as that is considered an error in the sense that data cannot be imported (although
 				// an update mode may be added where the existing data can be updated)
@@ -1084,32 +1091,6 @@ public class CrmsImportHandler extends ImportHandler {
 		// search for existing patient
 		Patient p = null;
 
-		// convert the birthDate, if supplied in the data file, to a Date
-		if (importSetup.getIndexPatientBirthDate() != -1) {
-			dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexPatientBirthDate()];
-			
-			if (importDefinition.getDateFormat().endsWith("/yy")) {
-				// if 2 digit year, set start year to 1916 so birthDate year will be from 1916 to 2015, which covers the greatest probability
-				// for children and adult patients
-				Calendar tempCal = Calendar.getInstance();
-				tempCal.clear();
-				tempCal.set(Calendar.YEAR, 1916);
-				formatter.set2DigitYearStart(tempCal.getTime());
-			}
-			formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
-			try {
-				birthDate = formatter.parse(dateOrTimeAsString);
-			} catch (ParseException e) {
-				// likely will not be called with leniency applied
-				importLog.addErrorMessage(lineNum, "Patient.birthDate is an invalid Date format, Date:" + dateOrTimeAsString);
-				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
-			}
-			if (importDefinition.getDateFormat().endsWith("/yy")) {
-				// when data file has 2 digit years, reassign dataOrTimeAsString (used for log messages) to reflect the full 4 digit year 
-				dateOrTimeAsString = new SimpleDateFormat(importDefinition.getDateFormat()).format(birthDate);
-			}
-		}
-
 		filter.clearDaoParams();
 		if (importSetup.getIndexPatientPIDN() != -1) {
 			String pidnAsString = importSetup.getDataValues()[importSetup.getIndexPatientPIDN()];
@@ -1138,7 +1119,55 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 		}
 		else { 
+			// have already validated that firstName and lastName are present in the mapping definition file if PIDN is not (but have not validated
+			// that neither of these is blank for the current record)
+			
+			if (!StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientLastName()])) {
+				importLog.addErrorMessage(lineNum, "Patient lastName for this record is blank");
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+			
+			if (!StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientFirstName()])) {
+				importLog.addErrorMessage(lineNum, "Patient firstName for this record is blank");
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+			
+			setPatientNameMatchFilter(filter, importSetup);
+
 			// birthDate is optional for search as it is often not part of data files
+
+			// convert the birthDate, if supplied in the data file, to a Date
+			if (importSetup.getIndexPatientBirthDate() != -1) {
+				dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexPatientBirthDate()];
+				
+				// error if no birthDate, i.e. if it is mapped, then it should have a value
+				if (!StringUtils.hasText(dateOrTimeAsString)) { 
+					importLog.addErrorMessage(lineNum, "Patient birthDate is mapped but the value for this record is blank");
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+				
+				if (importDefinition.getDateFormat().endsWith("/yy")) {
+					// if 2 digit year, set start year to 1916 so birthDate year will be from 1916 to 2015, which covers the greatest probability
+					// for children and adult patients
+					Calendar tempCal = Calendar.getInstance();
+					tempCal.clear();
+					tempCal.set(Calendar.YEAR, 1916);
+					formatter.set2DigitYearStart(tempCal.getTime());
+				}
+				formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+				try {
+					birthDate = formatter.parse(dateOrTimeAsString);
+				} catch (ParseException e) {
+					// likely will not be called with leniency applied
+					importLog.addErrorMessage(lineNum, "Patient.birthDate is an invalid Date format, Date:" + dateOrTimeAsString);
+					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+				}
+				if (importDefinition.getDateFormat().endsWith("/yy")) {
+					// when data file has 2 digit years, reassign dataOrTimeAsString (used for log messages) to reflect the full 4 digit year 
+					dateOrTimeAsString = new SimpleDateFormat(importDefinition.getDateFormat()).format(birthDate);
+				}
+			}
+
 			if (birthDate != null && !importDefinition.getAllowExtremeDates()) {
 				// if date format is yyyy for year part, the parser will allow any date into the future, even 5 digit dates, so 
 				// have to do range checking to catch bad date errors
@@ -1154,9 +1183,6 @@ public class CrmsImportHandler extends ImportHandler {
 
 				filter.addDaoParam(filter.daoEqualityParam("birthDate", birthDate));
 			}
-
-			// have already validated that firstName and lastName are present in the mapping definition file if PIDN is not
-			setPatientNameMatchFilter(filter, importSetup);
 
 			patientList = Patient.MANAGER.get(Patient.class, filter);
 
@@ -1293,6 +1319,7 @@ public class CrmsImportHandler extends ImportHandler {
 			}
 		}
 			
+		// no patient matched
 		if (p == null) {
 			if (importDefinition.getPatientExistRule().equals(MUST_EXIST)) {
 				if (importSetup.getIndexPatientPIDN() != -1) {
@@ -1306,21 +1333,24 @@ public class CrmsImportHandler extends ImportHandler {
 			}else {
 				// for either MUST_NOT_EXIST or MAY_OR_MAY_NOT_EXIST instantiate the Patient
 				
+				// cannot create Patient without a firstName (or de-identified id)
 				// note that de-identified data will map the de-identified id to patient.firstName and a STATIC_INDICATOR value of the Patient.DEIDENTIFIED constant
 			    // to patient.lastName
 				if (importSetup.getIndexPatientFirstName() == -1 || !StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientFirstName()])) {
 					importLog.addErrorMessage(lineNum, "Cannot create Patient. First Name field (patient.firstName) is missing or has no value");
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
+				// cannot create Patient without a lastName
 				// so for de-identified data there is not a value in the data file for lastName, rather there is a STATIC:DE-IDENTIFIED value in the mapping
-				// file. so do not perform this error checking in that case
+				// file. so do not perform this error checking if this is to be a de-identified Patient record
 				if (ArrayUtils.indexOf(importSetup.getMappingCols(), STATIC_INDICATOR + DEIDENTIFIED, 0) == -1) {
 					if (importSetup.getIndexPatientLastName() == -1 || !StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientLastName()])) {
 						importLog.addErrorMessage(lineNum, "Cannot create Patient. Last Name field (patient.lastName) is missing or has no value");
 						return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 					}
 				}
-				// de-identified patients may not have a real birthDate, in which case the mapping file should provide a fake default birthDate (by adding
+				// cannot create Patient without a birthDate
+				// note: de-identified patients may not have a real birthDate, in which case the mapping file should provide a fake default birthDate (by adding
 				// a column to the data file for birth date but with no data and then mapping it to patient.birthDate with a default in row 4 of the fake
 				// date. cannot use STATIC: on birthDate because code expects it to be mapped from the data file (i.e. a static birth date does not make sense
 				// in general). and do not want to put the fake value in the data file for every row because it may not pass as a valid birth date if it is
@@ -1329,7 +1359,7 @@ public class CrmsImportHandler extends ImportHandler {
 					importLog.addErrorMessage(lineNum, "Cannot create Patient. Date of Birth field (patient.birthDate) is missing or has no value");
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 				}
-				// de-identified patients must have a gender in the data file
+				// cannot create patient without a gender
 				if (importSetup.getIndexPatientGender() == -1 || !StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexPatientGender()])) {
 					importLog.addErrorMessage(lineNum, "Cannot create Patient. Gender field (patient.gender) is missing or has no value");
 					return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
@@ -1918,31 +1948,63 @@ public class CrmsImportHandler extends ImportHandler {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		LavaDaoFilter filter = EntityBase.newFilterInstance();
 		SimpleDateFormat formatter;
-		String dateOrTimeAsString;
+		String dateAsString = null;
+		String timeAsString = null;
 
 		// search for existing Visit
 		List<Visit> visitList = null;
 		Visit v = null;
 		Date visitDate = null;
 		Time visitTime = null;
+		int visitTimeIndex = -1;
+		int spaceBeforeTimeIndex = -1;
 		String visitType = null;
 		List<String> matchVisitTypes = new ArrayList<String>();
 
 		// visitDate is required for both matching Visit and as a required field when creating new Visit
-		dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitDate()];
+		dateAsString = importSetup.getDataValues()[importSetup.getIndexVisitDate()];
+		// see if the date has a time component
+		if ((visitTimeIndex = dateAsString.indexOf(':')) != -1) {
+			// find the index in between the date and time
+			spaceBeforeTimeIndex = dateAsString.lastIndexOf(' ', visitTimeIndex);
+			timeAsString = dateAsString.substring(spaceBeforeTimeIndex+1);
+			dateAsString = dateAsString.substring(0, spaceBeforeTimeIndex);
+		}
 
-		// test if the number of digits in the year in the data file matches the date format chosen in the import definition (users
+		// test that the date format chosen in the import definition matches the date format of the date in the data file, i.e. generally
+		// speaking, i.e. both use '/' or both use '-'
+		// also test if the number of digits in the year in the data file matches the date format chosen in the import definition (users
 		// open the data file CSV in Excel and due to Excel formatting they may not know whether the year part of the date values is
 		// two or four digits, so check for these mismatches)
-		String yearPartAsString = dateOrTimeAsString.substring(dateOrTimeAsString.lastIndexOf('/') + 1);
-		if (importDefinition.getDateFormat().endsWith("/yy") && yearPartAsString.length() > 2) {
-			importLog.addErrorMessage(lineNum, "Date format in import definition has 2 digit year, but in data file the visit date does not adhere, visit date="+ dateOrTimeAsString);
-			return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+		String yearPartAsString = null;
+		if (importDefinition.getDateFormat().indexOf('/') != -1) {
+			if (dateAsString.indexOf('/') == -1) {
+				importLog.addErrorMessage(lineNum, "Date format specified in import definition does not mqtch date format in data file, visit date="+ dateAsString);
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+			yearPartAsString = dateAsString.substring(dateAsString.lastIndexOf('/') + 1);
+			if (importDefinition.getDateFormat().endsWith("/yy") && yearPartAsString.length() > 2) {
+				importLog.addErrorMessage(lineNum, "Date format in import definition has 2 digit year, but in data file the visit date does not adhere, visit date="+ dateAsString);
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+			else if (importDefinition.getDateFormat().endsWith("/yyyy") && yearPartAsString.length() < 4) {
+				importLog.addErrorMessage(lineNum, "Date format in import definition has 4 digit year, but in data file the visit date does not adhere, visit date="+ dateAsString);
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
 		}
-		else if (importDefinition.getDateFormat().endsWith("/yyyy") && yearPartAsString.length() < 4) {
-			importLog.addErrorMessage(lineNum, "Date format in import definition has 4 digit year, but in data file the visit date does not adhere, visit date="+ dateOrTimeAsString);
-			return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+		else if (importDefinition.getDateFormat().indexOf('-') != 1) {
+			// only date format supported using a dash is yyyy-M-d
+			if (dateAsString.indexOf('-') == -1) {
+				importLog.addErrorMessage(lineNum, "Date format specified in import definition does not mqtch date format in data file, visit date="+ dateAsString);
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
+			yearPartAsString = dateAsString.substring(0, dateAsString.indexOf('-'));
+			if (yearPartAsString.length() < 4) {
+				importLog.addErrorMessage(lineNum, "Date format in import definition has 4 digit year, but in data file the visit date does not adhere, visit date="+ dateAsString);
+				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
+			}
 		}
+
 	
 		formatter = new SimpleDateFormat(importDefinition.getDateFormat());
 		if (importDefinition.getDateFormat().endsWith("/yy")) {
@@ -1955,15 +2017,16 @@ public class CrmsImportHandler extends ImportHandler {
 
 		formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
 		try {
-			visitDate = formatter.parse(dateOrTimeAsString);
+			visitDate = formatter.parse(dateAsString);
 		} catch (ParseException e) {
 			// likely will not occur with leniency applied
-			importLog.addErrorMessage(lineNum, "Visit.visitDate is an invalid Date format. Date:" + dateOrTimeAsString);
+			importLog.addErrorMessage(lineNum, "Visit.visitDate is an invalid Date format. Date:" + dateAsString);
 			return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 		}
 		if (importDefinition.getDateFormat().endsWith("/yy")) {
-			// when data file has 2 digit years, reassign dataOrTimeAsString (used for log messages) to reflect the full 4 digit year 
-			dateOrTimeAsString = new SimpleDateFormat(importDefinition.getDateFormat()).format(visitDate);
+			// when data file has 2 digit years, reassign dataAsString (used for log messages) to reflect the full 4 digit year 
+			String fourYearDateFormat = importDefinition.getDateFormat().replaceFirst("yy", "yyyy");
+			dateAsString = new SimpleDateFormat(fourYearDateFormat).format(visitDate);
 		}
 
 		if (!importDefinition.getAllowExtremeDates()) {
@@ -1975,21 +2038,25 @@ public class CrmsImportHandler extends ImportHandler {
 			java.util.Calendar nowCalendar = java.util.Calendar.getInstance();
 			int nowYear = nowCalendar.get(java.util.Calendar.YEAR);
 			// allow for visit dates a number of years before the MAC started (in 1998?) and 2 years into the future from the current year
-			if (visitDateYear < (nowYear - 30) || visitDateYear > (nowYear + 2)) {
-				importLog.addErrorMessage(lineNum, "Visit.visitDate has an invalid Year. Date:" + dateOrTimeAsString);
+			if (visitDateYear < 1990 || visitDateYear > (nowYear + 2)) {
+				importLog.addErrorMessage(lineNum, "Visit.visitDate has an invalid Year. Date:" + dateAsString);
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
 		}
 
 		if (importSetup.getIndexVisitTime() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitTime()])) {
+			timeAsString = importSetup.getDataValues()[importSetup.getIndexVisitTime()];
+		}
+		// time could either be from the date field which included a time component, or from a separate time field, in which case indexVisitTime would 
+		// be the index to this field in the data file
+		if (timeAsString != null) {
 			Date visitTimeAsDate = null;
-			dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitTime()];
 			formatter = new SimpleDateFormat(importDefinition.getTimeFormat() != null ? importDefinition.getTimeFormat() : DEFAULT_TIME_FORMAT);
 			try{
-				visitTimeAsDate = formatter.parse(dateOrTimeAsString);
+				visitTimeAsDate = formatter.parse(timeAsString);
 				visitTime = LavaDateUtils.getTimePart(visitTimeAsDate);
 			}catch (ParseException e){
-				importLog.addErrorMessage(lineNum, "Visit.visitTime is an invalid Time format. Time:" + dateOrTimeAsString);
+				importLog.addErrorMessage(lineNum, "Visit.visitTime is an invalid Time format. Time:" + timeAsString);
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
 		}
@@ -2050,6 +2117,7 @@ public class CrmsImportHandler extends ImportHandler {
 		// note that if the Project is in the data file it is used by both enrollmentStatusExistsHandling and
 		// visitExistsHandling, but it should only be mapped as one or the other, so we have chosen enrollmentStatus.projName
 		// and indexEsProjName
+//TODO: integrate the new (3/12/18) and hidden matchVisitProjFlag which defaults to false
 		if (importSetup.getIndexEsProjName() != -1) { 
 			filter.addDaoParam(filter.daoEqualityParam("projName", importSetup.getRevisedProjName()));
 		}
@@ -2068,13 +2136,21 @@ public class CrmsImportHandler extends ImportHandler {
 				importDefinition.setVisitWindow((short)0);
 			}
 				
-			// if visit window is 0 and there is a time component in the data file then go for an exact match
-			if (importDefinition.getVisitWindow().equals((short)0) && importSetup.getIndexVisitTime() != -1 && StringUtils.hasText(importSetup.getDataValues()[importSetup.getIndexVisitTime()])) {
-				// note: could also use daoDateAndTimeEqualityParam
-				filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate)); // visitDate validated and instantiated earlier in this method
-				filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime)); // visitTime validated and instantiated earlier in this method
+			// if visit window is 0 and there is a time component in the data file then go for an exact match (note the time could have
+			// come from a separate column of the data file or from a column that combines date and time)
+			if (importDefinition.getVisitWindow().equals((short)0) && timeAsString != null) {
+				if (importDefinition.getMatchVisitTimeFlag() != null && importDefinition.getMatchVisitTimeFlag()) {
+					// note: could also use daoDateAndTimeEqualityParam
+					filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate)); // visitDate validated and instantiated earlier in this method
+					filter.addDaoParam(filter.daoEqualityParam("visitTime", visitTime)); // visitTime validated and instantiated earlier in this method
+				}
+				else {
+					filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate)); // visitDate validated and instantiated earlier in this method
+				}
 			}
 			// if visit window is 0 and no time component just match on date
+			// NOTE: this is not done in lava2 bc in lava2 date and time are in a single field and even if the data file does not have a time component
+			// have to consider that the data in LAVA may have a time component so have to match on date using a time window from 00:00 to 23:59 
 			else if (importDefinition.getVisitWindow().equals((short)0)) {
 				filter.addDaoParam(filter.daoEqualityParam("visitDate", visitDate)); // visitDate validated and instantiated earlier in this method
 			}
@@ -2153,12 +2229,12 @@ public class CrmsImportHandler extends ImportHandler {
 					// only include ProjName in error messaging if it was used in the query
 					importLog.addErrorMessage(lineNum, "Multiple Visit records matched for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName())  
 							+ (importSetup.getIndexEsProjName() != -1 ? ", Project:" + importSetup.getDataValues()[importSetup.getIndexEsProjName()] : "") 
-							+ ", Visit Date:" + dateOrTimeAsString + ", Visit Window:+/-" + importDefinition.getVisitWindow() + " Days, Visit Type(s):" + matchVisitTypes );
+							+ ", Visit Date:" + dateAsString + ", Visit Window:+/-" + importDefinition.getVisitWindow() + " Days, Visit Type(s):" + matchVisitTypes );
 				}
 				else {
 					importLog.addErrorMessage(lineNum, "Multiple Visit records matched for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
 							+ (importSetup.getIndexEsProjName() != -1 ? ", Project:" + importSetup.getDataValues()[importSetup.getIndexEsProjName()] : "") 
-							+ ", Visit Date:" + dateOrTimeAsString + ", Visit Window:+/-" + importDefinition.getVisitWindow() + " Days. Specify Visit Type in Import Definition to match on single Visit");
+							+ ", Visit Date:" + dateAsString + ", Visit Window:+/-" + importDefinition.getVisitWindow() + " Days. Specify Visit Type in Import Definition to match on single Visit");
 				}
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}
@@ -2176,13 +2252,13 @@ public class CrmsImportHandler extends ImportHandler {
 					// only include ProjName in error messaging if it was used in the query
 					importLog.addErrorMessage(lineNum, "Visit does not exist for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
 							+ (importSetup.getIndexEsProjName() != -1 ? ", Project:" + importSetup.getDataValues()[importSetup.getIndexEsProjName()] : "") 
-							+ ", Visit Date:" + dateOrTimeAsString + ", Visit Window:+/-" + importDefinition.getVisitWindow() + " Days, Visit Type(s):" + matchVisitTypes
+							+ ", Visit Date:" + dateAsString + ", Visit Window:+/-" + importDefinition.getVisitWindow() + " Days, Visit Type(s):" + matchVisitTypes
 							+ ", violating MUST_EXIST flag");
 				}
 				else {
 					importLog.addErrorMessage(lineNum, "Visit does not exist for Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) 
 							+ (importSetup.getIndexEsProjName() != -1 ? ", Project:" + importSetup.getDataValues()[importSetup.getIndexEsProjName()] : "") 
-							+ ", Visit Date:" + dateOrTimeAsString + ", Visit Window:+/-" + importDefinition.getVisitWindow() + " Days, violating MUST_EXIST flag");
+							+ ", Visit Date:" + dateAsString + ", Visit Window:+/-" + importDefinition.getVisitWindow() + " Days, violating MUST_EXIST flag");
 				}
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}else {
@@ -2257,9 +2333,15 @@ public class CrmsImportHandler extends ImportHandler {
 				v.setPatient(importSetup.getPatient());
 				v.setProjName(importSetup.getRevisedProjName());
 				v.setVisitType(visitType);
-				// visitDate and visitTime have already been converted above in search for Visit
-				v.setVisitDate(visitDate);
-				v.setVisitTime(visitTime);
+				// if the import definition specified that visit should not be matched on time, then likewise the visit should
+				// not be created with a time component 
+				if (importDefinition.getMatchVisitTimeFlag()) {
+					v.setVisitDate(visitDate);
+					v.setVisitTime(visitTime);
+				}
+				else {
+					v.setVisitDate(visitDate);
+				}
 				v.setVisitLocation(visitLoc);
 				v.setVisitWith(visitWith);
 				v.setVisitStatus(visitStatus);
@@ -2563,7 +2645,7 @@ public class CrmsImportHandler extends ImportHandler {
 						// all matched instruments that had already been data entered, then it is considered an error so that the record will be aborted,
 						// i.e. it is likely that a data file with this record was already imported (or somebody data entered all the instrument data).
 						// but give a warning for each individual instrument
-						importLog.addInfoMessage(lineNum, "Instrument " + instrType + "  exists and has already been data entered. Cannot overwrite per Import Definition. Patient:" + 
+						importLog.addInfoMessage(lineNum, "Instrument " + instrType + "  exists and has already been data entered or imported. Cannot overwrite per Import Definition. Patient:" + 
 							(importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) + this.getVisitInfo(importDefinition, importSetup));
 
 						// set an attribute on the return event, "instrExistedWithDataNoUpdate", used to determine whether the import record
@@ -3362,6 +3444,164 @@ public class CrmsImportHandler extends ImportHandler {
 	}
 
 
+
+	
+	/**
+	 * finishInstruments
+	 * 
+	 * Run calculate method on each instrument. Set instrument and visit statuses (based on whether the instrument was created or already existed). Import log entries for each instrument.  
+	 */
+	protected Event finishInstruments(RequestContext context, CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum) throws Exception {
+		if (!importDefinition.getPatientOnlyImport()) {
+
+			finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstrCreated(), importSetup.isInstrExisted(), importSetup.isInstrExistedWithData(), 
+					importDefinition.getInstrCalculate(), importSetup.getInstrument(), importDefinition.getInstrType());
+			
+			if (StringUtils.hasText(importDefinition.getInstrType2())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr2Created(), importSetup.isInstr2Existed(), importSetup.isInstr2ExistedWithData(), 
+					importDefinition.getInstrCalculate2(), importSetup.getInstrument2(), importDefinition.getInstrType2());
+			}
+			
+			if (StringUtils.hasText(importDefinition.getInstrType3())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr3Created(), importSetup.isInstr3Existed(), importSetup.isInstr3ExistedWithData(), 
+					importDefinition.getInstrCalculate3(), importSetup.getInstrument3(), importDefinition.getInstrType3());
+			}
+			
+			if (StringUtils.hasText(importDefinition.getInstrType4())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr4Created(), importSetup.isInstr4Existed(), importSetup.isInstr4ExistedWithData(), 
+					importDefinition.getInstrCalculate4(), importSetup.getInstrument4(), importDefinition.getInstrType4());
+			}
+
+			if (StringUtils.hasText(importDefinition.getInstrType5())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr5Created(), importSetup.isInstr5Existed(), importSetup.isInstr5ExistedWithData(), 
+					importDefinition.getInstrCalculate5(), importSetup.getInstrument5(), importDefinition.getInstrType5());
+			}
+
+			if (StringUtils.hasText(importDefinition.getInstrType6())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr6Created(), importSetup.isInstr6Existed(), importSetup.isInstr6ExistedWithData(), 
+					importDefinition.getInstrCalculate6(), importSetup.getInstrument6(), importDefinition.getInstrType6());
+			}
+
+			if (StringUtils.hasText(importDefinition.getInstrType7())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr7Created(), importSetup.isInstr7Existed(), importSetup.isInstr7ExistedWithData(), 
+					importDefinition.getInstrCalculate7(), importSetup.getInstrument7(), importDefinition.getInstrType7());
+			}
+
+			if (StringUtils.hasText(importDefinition.getInstrType8())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr8Created(), importSetup.isInstr8Existed(), importSetup.isInstr8ExistedWithData(), 
+					importDefinition.getInstrCalculate8(), importSetup.getInstrument8(), importDefinition.getInstrType8());
+			}
+
+			if (StringUtils.hasText(importDefinition.getInstrType9())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr9Created(), importSetup.isInstr9Existed(), importSetup.isInstr9ExistedWithData(), 
+					importDefinition.getInstrCalculate9(), importSetup.getInstrument9(), importDefinition.getInstrType9());
+			}
+
+			if (StringUtils.hasText(importDefinition.getInstrType10())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr10Created(), importSetup.isInstr10Existed(), importSetup.isInstr10ExistedWithData(), 
+					importDefinition.getInstrCalculate10(), importSetup.getInstrument10(), importDefinition.getInstrType10());
+			}
+			
+			if (StringUtils.hasText(importDefinition.getInstrType11())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr11Created(), importSetup.isInstr11Existed(), importSetup.isInstr11ExistedWithData(), 
+					importDefinition.getInstrCalculate11(), importSetup.getInstrument11(), importDefinition.getInstrType11());
+			}
+
+			if (StringUtils.hasText(importDefinition.getInstrType12())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr12Created(), importSetup.isInstr12Existed(), importSetup.isInstr12ExistedWithData(), 
+					importDefinition.getInstrCalculate12(), importSetup.getInstrument12(), importDefinition.getInstrType12());
+			}
+
+			if (StringUtils.hasText(importDefinition.getInstrType13())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr13Created(), importSetup.isInstr13Existed(), importSetup.isInstr13ExistedWithData(), 
+					importDefinition.getInstrCalculate13(), importSetup.getInstrument13(), importDefinition.getInstrType13());
+			}
+
+			if (StringUtils.hasText(importDefinition.getInstrType14())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr14Created(), importSetup.isInstr14Existed(), importSetup.isInstr14ExistedWithData(), 
+					importDefinition.getInstrCalculate14(), importSetup.getInstrument14(), importDefinition.getInstrType14());
+			}
+
+			if (StringUtils.hasText(importDefinition.getInstrType15())) {
+				finishInstrumentHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr15Created(), importSetup.isInstr15Existed(), importSetup.isInstr15ExistedWithData(), 
+					importDefinition.getInstrCalculate15(), importSetup.getInstrument15(), importDefinition.getInstrType15());
+			}
+		}
+
+		return new Event(this, SUCCESS_FLOW_EVENT_ID);
+	}
+	
+	
+	protected void finishInstrumentHelper(RequestContext context, CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum,
+			Boolean instrCreated, Boolean instrExisted, Boolean instrExistedWithData, Boolean instrCalculate, 
+			Instrument instrument, String instrType) throws Exception {
+		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
+
+		// note that if exception is thrown the exception handling in the calling method will catch
+
+		if (instrCreated || instrExisted || (importDefinition.getAllowInstrUpdate() && instrExistedWithData)) {
+			
+			// NOTE: calculate is done by default because save() calls beforeCreate/afterCreate or beforeUpdate/afterUpdate 
+			// calculate could throw an exception if certain values are missing and import does not enforce required field values as the
+			// LAVA UI does, so have to modify the calculate code for the specific instrument to check for null values and
+			// not throw an exception
+
+			instrument.setDcBy(importSetup.getVisit().getVisitWith());
+			instrument.setDeBy("IMPORTED");
+			instrument.setDeDate(new Date());
+			// if import record does not have any errors then instrument will be saved so set data entry
+			// status complete; if there are errors import record will be skipped and instrument will not 
+			// be saved
+			instrument.setDeStatus("Complete");
+			instrument.setDeNotes("Data Imported by:" + CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request).getShortUserNameRev());
+
+
+			// if new visit created then visit status will have been set as specified
+			// however, if this is an existing visit and either an existing or new instrument, the status should be changed to the specified value
+			// i.e. from the data file or from the import definition, and if no value default to 'COMPLETE'
+			String visitStatus = importSetup.getIndexVisitStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitStatus()] : importDefinition.getVisitStatus();
+			// default if nothing specified
+			if (!StringUtils.hasText(visitStatus)) {
+				visitStatus = "COMPLETE";
+			}
+			instrument.getVisit().setVisitStatus(visitStatus);
+			
+			if (instrExisted) {
+				if (instrument.getDcStatus().equalsIgnoreCase("Scheduled")) {
+					instrument.setDcStatus("Complete");
+				}
+				
+				// if existing visit was matched with a visit window, the data collection date in the data file, which is mapped to visit.visitWith, might
+				// be different than the matched Visit visitDate, but the value in the data file should represent the data collection date for the instrument
+				String dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitDate()];
+				SimpleDateFormat formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
+				formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
+				// if get this far then the string has already been successfully parsed into a Date in visitExistsHandling so no need to catch exception here
+				instrument.setDcDate(formatter.parse(dateOrTimeAsString)); 
+			}
+
+			if (instrCreated) {
+				importLog.addCreatedMessage(lineNum, "INSTRUMENT CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
+					this.getVisitInfo(importDefinition, importSetup) + " Instrument:" + instrType,
+					this.getCrmsImportLogMessageInfo("Instrument", importDefinition, importSetup, instrument));
+			}
+			if (instrExisted) {
+				importLog.addCreatedMessage(lineNum, "EXISTING INSTRUMENT WITH NO DATA UPDATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
+					this.getVisitInfo(importDefinition, importSetup) + " Instrument:" + instrType + " (" + instrument.getId() + ")",
+					this.getCrmsImportLogMessageInfo("Instrument", importDefinition, importSetup, instrument));
+			}
+			//NOTE: currently the allowInstrUpdate flag is only enabled in the UI for SYSTEM_ADMIN until implement a user confirmation flow that
+			// permits overwriting existing data. Probably want an importLog.addUpdatedMessage method
+			if (instrExistedWithData) {
+				importLog.addCreatedMessage(lineNum, "EXISTING INSTRUMENT WITH DATA UPDATED (OVERWRITTEN), Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
+					this.getVisitInfo(importDefinition, importSetup) + " Instrument:" + instrType + "(" + instrument.getId() + ")",
+					this.getCrmsImportLogMessageInfo("Instrument", importDefinition, importSetup, instrument));
+			}
+		}
+	}
+	
+
+
 	/**
 	 * saveImportRecord
 	 * 
@@ -3374,6 +3614,18 @@ public class CrmsImportHandler extends ImportHandler {
 		// for new entities must explicitly save since not associated with a Hibernate session. for
 		// updates, entity was retrieved and thus attached to a session and Hibernate dirty checking should
 		// implicitly update the entity
+
+		
+		
+		// BOTTOM LINE are two important points regarding the sequence of updating and flushing:
+		// 1) do not do any updates prior to retrieving all entities associated with this data record, because retrieving an instrument would first flush any updates to already
+		//    retrieved instruments, and this interim flush would create an OptimisticLockingException/StaleObjectStateException later when another flush is done, i.e. when the instrument
+		//    is saved after all properties set
+		// 2) do ALL updates prior to any saves (flush) because if there are some updates for an instrument (e.g. the imported properties) but not all (i.e. the statuses) then 
+		//    a flush on another entity (e.g. first instrument in an import with multiple instrument types) will flush all dirty instruments, and this would essentially be an interim
+		//    flush for instruments that will still have their statuses (and calculations) updated and be saved later, resulting in an OptimisticLockingException / StaleObjectStateException
+		// note: this is for lava2 which has different transaction behavior than lava3 so the above may not be issues under lava3
+
 
 		try {
 			if (importSetup.isPatientCreated()) {
@@ -3434,95 +3686,144 @@ public class CrmsImportHandler extends ImportHandler {
 						this.getVisitInfo(importDefinition, importSetup),
 						this.getCrmsImportLogMessageInfo("Visit", importDefinition, importSetup, null));
 				}
+
+				if (importSetup.isInstrCreated() || importSetup.isInstrExisted() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstrExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument().save();
+					// for entities that have afterUpdate lookup using Hibernate formulas, need to retrieve the entity so that the lookups are done on 
+					// the data that was just imported, and retrieval is done via a refresh 
+					importSetup.getInstrument().refresh();
+					if (importSetup.getInstrument().afterUpdate()) {
+						importSetup.getInstrument().save();
+					}
+				}
+
+				if (StringUtils.hasText(importDefinition.getInstrType2()) && importSetup.isInstr2Created() || importSetup.isInstr2Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr2ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument2().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument2().save();
+					importSetup.getInstrument2().refresh();
+					if (importSetup.getInstrument2().afterUpdate()) {
+						importSetup.getInstrument2().save();
+					}
+				}
 				
-				if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstrCreated(), importSetup.isInstrExisted(), importSetup.isInstrExistedWithData(), 
-						importDefinition.getInstrCalculate(), importSetup.getInstrument(), importDefinition.getInstrType()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-					return new Event(this, ERROR_FLOW_EVENT_ID);
-				}
-				if (StringUtils.hasText(importDefinition.getInstrType2())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr2Created(), importSetup.isInstr2Existed(), importSetup.isInstr2ExistedWithData(), 
-							importDefinition.getInstrCalculate2(), importSetup.getInstrument2(), importDefinition.getInstrType2()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
+				if (StringUtils.hasText(importDefinition.getInstrType3()) && importSetup.isInstr3Created() || importSetup.isInstr3Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr3ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument3().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument3().save();
+					importSetup.getInstrument3().refresh();
+					if (importSetup.getInstrument3().afterUpdate()) {
+						importSetup.getInstrument3().save();
 					}
 				}
-				if (StringUtils.hasText(importDefinition.getInstrType3())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr3Created(), importSetup.isInstr3Existed(), importSetup.isInstr3ExistedWithData(), 
-							importDefinition.getInstrCalculate3(), importSetup.getInstrument3(), importDefinition.getInstrType3()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
+				
+				if (StringUtils.hasText(importDefinition.getInstrType4()) && importSetup.isInstr4Created() || importSetup.isInstr4Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr4ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument4().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument4().save();
+					importSetup.getInstrument4().refresh();
+					if (importSetup.getInstrument4().afterUpdate()) {
+						importSetup.getInstrument4().save();
 					}
 				}
-				if (StringUtils.hasText(importDefinition.getInstrType4())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr4Created(), importSetup.isInstr4Existed(), importSetup.isInstr4ExistedWithData(), 
-							importDefinition.getInstrCalculate4(), importSetup.getInstrument4(), importDefinition.getInstrType4()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
+				
+				if (StringUtils.hasText(importDefinition.getInstrType5()) && importSetup.isInstr5Created() || importSetup.isInstr5Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr5ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument5().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument5().save();
+					importSetup.getInstrument5().refresh();
+					if (importSetup.getInstrument5().afterUpdate()) {
+						importSetup.getInstrument5().save();
 					}
 				}
-				if (StringUtils.hasText(importDefinition.getInstrType5())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr5Created(), importSetup.isInstr5Existed(), importSetup.isInstr5ExistedWithData(), 
-							importDefinition.getInstrCalculate5(), importSetup.getInstrument5(), importDefinition.getInstrType5()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
+				
+				if (StringUtils.hasText(importDefinition.getInstrType6()) && importSetup.isInstr6Created() || importSetup.isInstr6Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr6ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument6().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument6().save();
+					importSetup.getInstrument6().refresh();
+					if (importSetup.getInstrument6().afterUpdate()) {
+						importSetup.getInstrument6().save();
 					}
 				}
-				if (StringUtils.hasText(importDefinition.getInstrType6())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr6Created(), importSetup.isInstr6Existed(), importSetup.isInstr6ExistedWithData(), 
-							importDefinition.getInstrCalculate6(), importSetup.getInstrument6(), importDefinition.getInstrType6()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
+				
+				if (StringUtils.hasText(importDefinition.getInstrType7()) && importSetup.isInstr7Created() || importSetup.isInstr7Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr7ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument7().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument7().save();
+					importSetup.getInstrument7().refresh();
+					if (importSetup.getInstrument7().afterUpdate()) {
+						importSetup.getInstrument7().save();
 					}
 				}
-				if (StringUtils.hasText(importDefinition.getInstrType7())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr7Created(), importSetup.isInstr7Existed(), importSetup.isInstr7ExistedWithData(), 
-							importDefinition.getInstrCalculate7(), importSetup.getInstrument7(), importDefinition.getInstrType7()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
+				
+				if (StringUtils.hasText(importDefinition.getInstrType8()) && importSetup.isInstr8Created() || importSetup.isInstr8Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr8ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument8().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument8().save();
+					importSetup.getInstrument8().refresh();
+					if (importSetup.getInstrument8().afterUpdate()) {
+						importSetup.getInstrument8().save();
 					}
 				}
-				if (StringUtils.hasText(importDefinition.getInstrType8())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr8Created(), importSetup.isInstr8Existed(), importSetup.isInstr8ExistedWithData(), 
-							importDefinition.getInstrCalculate8(), importSetup.getInstrument8(), importDefinition.getInstrType8()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
+				
+				if (StringUtils.hasText(importDefinition.getInstrType9()) && importSetup.isInstr9Created() || importSetup.isInstr9Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr9ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument9().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument9().save();
+					importSetup.getInstrument9().refresh();
+					if (importSetup.getInstrument9().afterUpdate()) {
+						importSetup.getInstrument9().save();
 					}
 				}
-				if (StringUtils.hasText(importDefinition.getInstrType9())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr9Created(), importSetup.isInstr9Existed(), importSetup.isInstr9ExistedWithData(), 
-							importDefinition.getInstrCalculate9(), importSetup.getInstrument9(), importDefinition.getInstrType9()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
+				
+				if (StringUtils.hasText(importDefinition.getInstrType10()) && importSetup.isInstr10Created() || importSetup.isInstr10Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr10ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument10().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument10().save();
+					importSetup.getInstrument10().refresh();
+					if (importSetup.getInstrument10().afterUpdate()) {
+						importSetup.getInstrument10().save();
 					}
 				}
-				if (StringUtils.hasText(importDefinition.getInstrType10())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr10Created(), importSetup.isInstr10Existed(), importSetup.isInstr10ExistedWithData(), 
-							importDefinition.getInstrCalculate10(), importSetup.getInstrument10(), importDefinition.getInstrType10()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
+				
+				if (StringUtils.hasText(importDefinition.getInstrType11()) && importSetup.isInstr11Created() || importSetup.isInstr11Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr11ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument11().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument11().save();
+					importSetup.getInstrument11().refresh();
+					if (importSetup.getInstrument11().afterUpdate()) {
+						importSetup.getInstrument11().save();
 					}
 				}
-				if (StringUtils.hasText(importDefinition.getInstrType11())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr11Created(), importSetup.isInstr11Existed(), importSetup.isInstr11ExistedWithData(), 
-							importDefinition.getInstrCalculate11(), importSetup.getInstrument11(), importDefinition.getInstrType11()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
+				
+				if (StringUtils.hasText(importDefinition.getInstrType12()) && importSetup.isInstr12Created() || importSetup.isInstr12Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr12ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument12().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument12().save();
+					importSetup.getInstrument12().refresh();
+					if (importSetup.getInstrument12().afterUpdate()) {
+						importSetup.getInstrument12().save();
 					}
 				}
-				if (StringUtils.hasText(importDefinition.getInstrType12())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr12Created(), importSetup.isInstr12Existed(), importSetup.isInstr12ExistedWithData(), 
-							importDefinition.getInstrCalculate12(), importSetup.getInstrument12(), importDefinition.getInstrType12()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
+				
+				if (StringUtils.hasText(importDefinition.getInstrType13()) && importSetup.isInstr13Created() || importSetup.isInstr13Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr13ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument13().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument13().save();
+					importSetup.getInstrument13().refresh();
+					if (importSetup.getInstrument13().afterUpdate()) {
+						importSetup.getInstrument13().save();
 					}
 				}
-				if (StringUtils.hasText(importDefinition.getInstrType13())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr13Created(), importSetup.isInstr13Existed(), importSetup.isInstr13ExistedWithData(), 
-							importDefinition.getInstrCalculate13(), importSetup.getInstrument13(), importDefinition.getInstrType13()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
+				
+				if (StringUtils.hasText(importDefinition.getInstrType14()) && importSetup.isInstr14Created() || importSetup.isInstr14Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr14ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument14().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument14().save();
+					importSetup.getInstrument14().refresh();
+					if (importSetup.getInstrument14().afterUpdate()) {
+						importSetup.getInstrument14().save();
 					}
 				}
-				if (StringUtils.hasText(importDefinition.getInstrType14())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr14Created(), importSetup.isInstr14Existed(), importSetup.isInstr14ExistedWithData(), 
-							importDefinition.getInstrCalculate14(), importSetup.getInstrument14(), importDefinition.getInstrType14()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
+				
+				if (StringUtils.hasText(importDefinition.getInstrType15()) && importSetup.isInstr15Created() || importSetup.isInstr15Existed() || (importDefinition.getAllowInstrUpdate() && importSetup.isInstr15ExistedWithData())) {
+					logger.info("saving instrument "+ importSetup.getInstrument15().getInstrType() + " lineNum="+lineNum);
+					importSetup.getInstrument15().save();
+					importSetup.getInstrument15().refresh();
+					if (importSetup.getInstrument15().afterUpdate()) {
+						importSetup.getInstrument15().save();
 					}
 				}
-				if (StringUtils.hasText(importDefinition.getInstrType15())) {
-					if ((saveImportRecordInstrHelper(context, importDefinition, importSetup, importLog, lineNum, importSetup.isInstr15Created(), importSetup.isInstr15Existed(), importSetup.isInstr15ExistedWithData(), 
-							importDefinition.getInstrCalculate15(), importSetup.getInstrument15(), importDefinition.getInstrType15()).getId().equals(ERROR_FLOW_EVENT_ID))) {
-						return new Event(this, ERROR_FLOW_EVENT_ID);
-					}
-				}
+				
 			}
 		}
 		catch (Exception e) {
@@ -3550,96 +3851,6 @@ public class CrmsImportHandler extends ImportHandler {
 		return new Event(this, SUCCESS_FLOW_EVENT_ID);
 	}
 	
-	
-	protected Event saveImportRecordInstrHelper(RequestContext context, CrmsImportDefinition importDefinition, CrmsImportSetup importSetup, CrmsImportLog importLog, int lineNum,
-			Boolean instrCreated, Boolean instrExisted, Boolean instrExistedWithData, Boolean instrCalculate, 
-			Instrument instrument, String instrType) throws Exception {
-		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
-
-		// note that if exception is thrown the exception handling in the calling method will catch
-
-		if (instrCreated || instrExisted || (importDefinition.getAllowInstrUpdate() && instrExistedWithData)) {
-			
-			//TODO: set these status properties after setProperty and before saveImportRecords so that when data is flushed during saveImportRecords
-			// when saving prior instrument, the instrument will not be dirty again and thus persisted again when it is saved, which would result in
-			// a StaleObjectStateException for a Hibernate optimistic locking failure
-				
-			/** TODO: at the moment, calculate is done by default because save() calls beforeCreate/afterCreate or beforeUpdate/afterUpdate 
-			 * first see if calculate will not be done merely by not importing the individual items that are used to computer summary scores
-			 *           if that does not work, need to add a flag on the Instrument class (default TRUE) and set/unset it here so the instrument beforeCreate/afterCreate 
-			 *           and beforeUpdate/afterUpdate are only called if the flag is set
-			if (!instrCalculate) {
-				//TODO: set a flag on Instrument so that it will not run calculations in the before/after hooks
-			}
-			**/
-
-
-			// do not set instrument status properties until now, after all	instrumentHandlingExists are done so that the status values for 
-			// a given instrument are not persisted by a flush prior to retrieving the next instrument, which would then result
-			// in a StaleObjectStateException when the instrument is dirtied by setProperty and flushed/committed again
-			// note: this may only be applicable for lava2 transaction configuration, and even then it may not have been necessary
-			// when added saveNoFlush to lava2
-				
-			instrument.setDcBy(importSetup.getVisit().getVisitWith());
-			instrument.setDeBy("IMPORTED");
-			instrument.setDeDate(new Date());
-			// if import record does not have any errors then instrument will be saved so set data entry
-			// status complete; if there are errors import record will be skipped and instrument will not 
-			// be saved
-			instrument.setDeStatus("Complete");
-			instrument.setDeNotes("Data Imported by:" + CrmsSessionUtils.getCrmsCurrentUser(sessionManager,request).getShortUserNameRev());
-
-
-			// if new visit created then visit status will have been set as specified
-			// however, if this is an existing visit and either an existing or new instrument, the status should be changed to the specified value
-			// i.e. from the data file or from the import definition, and if no value default to 'COMPLETE'
-			String visitStatus = importSetup.getIndexVisitStatus() != -1 ? importSetup.getDataValues()[importSetup.getIndexVisitStatus()] : importDefinition.getVisitStatus();
-			// default if nothing specified
-			if (!StringUtils.hasText(visitStatus)) {
-				visitStatus = "COMPLETE";
-			}
-			instrument.getVisit().setVisitStatus(visitStatus);
-			
-			if (instrExisted) {
-				if (instrument.getDcStatus().equalsIgnoreCase("Scheduled")) {
-					instrument.setDcStatus("Complete");
-				}
-				
-				// if existing visit was matched with a visit window, the data collection date in the data file, which is mapped to visit.visitWith, might
-				// be different than the matched Visit visitDate, but the value in the data file should represent the data collection date for the instrument
-				String dateOrTimeAsString = importSetup.getDataValues()[importSetup.getIndexVisitDate()];
-				SimpleDateFormat formatter = new SimpleDateFormat(importDefinition.getDateFormat() != null ? importDefinition.getDateFormat() : DEFAULT_DATE_FORMAT);
-				formatter.setLenient(true); // to avoid exceptions; we check later to see if leniency was applied
-				// if get this far then the string has already been successfully parsed into a Date in visitExistsHandling so no need to catch exception here
-				instrument.setDcDate(formatter.parse(dateOrTimeAsString)); 
-			}
-
-				
-			logger.info("saving instrument "+ instrument.getInstrType() + " lineNum="+lineNum);
-			//TODO: lava2 migration, create a saveNoFlush method and call that here, if necessary as it was in lava2
-			instrument.save();
-				
-			if (instrCreated) {
-				importLog.addCreatedMessage(lineNum, "INSTRUMENT CREATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
-					this.getVisitInfo(importDefinition, importSetup) + " Instrument:" + instrType,
-					this.getCrmsImportLogMessageInfo("Instrument", importDefinition, importSetup, instrument));
-			}
-			if (instrExisted) {
-				importLog.addCreatedMessage(lineNum, "EXISTING INSTRUMENT WITH NO DATA UPDATED, Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
-					this.getVisitInfo(importDefinition, importSetup) + " Instrument:" + instrType + " (" + instrument.getId() + ")",
-					this.getCrmsImportLogMessageInfo("Instrument", importDefinition, importSetup, instrument));
-			}
-			//NOTE: currently the allowInstrUpdate flag is only enabled in the UI for SYSTEM_ADMIN until implement a user confirmation flow that
-			// permits overwriting existing data. Probably want an importLog.addUpdatedMessage method
-			if (instrExistedWithData) {
-				importLog.addCreatedMessage(lineNum, "EXISTING INSTRUMENT WITH DATA UPDATED (OVERWRITTEN), Patient:" + (importSetup.isPatientExisted() ? importSetup.getPatient().getFullNameWithId() : importSetup.getPatient().getFullName()) +
-					this.getVisitInfo(importDefinition, importSetup) + " Instrument:" + instrType + "(" + instrument.getId() + ")",
-					this.getCrmsImportLogMessageInfo("Instrument", importDefinition, importSetup, instrument));
-			}
-		}
-		
-		return new Event(this, SUCCESS_FLOW_EVENT_ID);
-	}
 	
 		
 	/**
