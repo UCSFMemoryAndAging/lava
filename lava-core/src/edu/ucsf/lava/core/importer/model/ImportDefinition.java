@@ -13,8 +13,9 @@ public class ImportDefinition extends EntityBase {
 	public static String TAB_FORMAT = "TAB";
 	// M/d/yyyy seems to be the most common for hand entered data files, and MM/dd/yyyy for computer-generated data files 	
 	public static String DEFAULT_DATE_FORMAT = "M/d/yyyy";
-	//TODO: figure out 12 hour vs, 24 hour time and which should be default
-	public static String DEFAULT_TIME_FORMAT = "hh:mm a";
+	// default time format to 24 hour time and which should be default (note that time values could be in their own column in
+	// the data file, or in the same column as the date)
+	public static String DEFAULT_TIME_FORMAT = "HH:mm";
 	public static String SKIP_INDICATOR = "SKIP:";
 	public static String STATIC_INDICATOR = "STATIC:";
 	
