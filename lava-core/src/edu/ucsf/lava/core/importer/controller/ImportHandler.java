@@ -127,11 +127,12 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	public Map getBackingObjects(RequestContext context, Map components) {
 		HttpServletRequest request =  ((ServletExternalContext)context.getExternalContext()).getRequest();
 		Map backingObjects = new HashMap<String,Object>();
+		// do not call super.getBackingObjects as this is an odd case where flowMode is set to "edit" so the importLog is a persistent object which should be created
+		// and the importSetup instance needs to be created and that would not happen in BaseEntityComponentHandler if flowMode = "edit"
 		ImportSetup importSetup = (ImportSetup) initializeNewCommandInstance(context,EntityBase.MANAGER.create(getDefaultObjectClass()));
 		backingObjects.put(this.getDefaultObjectName(), importSetup);
 		
-		// put in the importLog which will be populated on import with import log / result and
-		// will be displayed when import is complete
+		// put in the importLog which will be populated on import with import log / result
 		ImportLog importLog = new ImportLog();
 		backingObjects.put("importLog", importLog);
 		
@@ -160,19 +161,6 @@ public class ImportHandler extends BaseEntityComponentHandler {
 			Map<String,String> definitionList = listManager.getDynamicList("importDefinition.definitions"); 
 			dynamicLists.put("importDefinition.definitions", definitionList);
 		}
-	 	else if (state.getId().equals("result")){
-			// individual log messages
-			ScrollablePagedListHolder logMessagesListHolder = new ScrollablePagedListHolder();
-			logMessagesListHolder.setPageSize(250);
-			logMessagesListHolder.setSourceFromEntityList(importLog.getMessages());
-			((ComponentCommand)command).getComponents().put("importLogMessages", logMessagesListHolder);
-	 	}
-
-
-	 	// get the list of all importLogs for the selected import definition, to be displayed as a 
-	 	// secondary list component in both "edit" and "result" flow states
-	 	//TODO: setup LavaDaoFilter to query for this and put resulting list in a ScrollablePagedListHolder
-	 	// via setSourceFromEntityList and put in model as "importLogs"
 	 	
 		model.put("dynamicLists", dynamicLists);			
 		return model;
@@ -350,12 +338,27 @@ public class ImportHandler extends BaseEntityComponentHandler {
 		// ImportDefinitionHandler)
 		Set<String> repeatedDataColumns = new LinkedHashSet<String>();	
 		int j,k;
+		boolean ignoreSkippedDataCol;
 		for (j=0; j<importSetup.getDataCols().length;j++) {
-		    for (k=j+1;k<importSetup.getDataCols().length;k++) {
-		        if (importSetup.getDataCols()[j].equalsIgnoreCase(importSetup.getDataCols()[k])) { 
-		        	repeatedDataColumns.add(importSetup.getDataCols()[j]);
-		        }
-		    }
+			// do not worry about skipped columns. if there are multiple instances of a data column that has been mapped as SKIP: that
+			// will not affect the import so do not consider it an invalid data file
+			ignoreSkippedDataCol = false;
+			for (k=0; k < importSetup.getMappingCols().length; k++) {
+				if ((SKIP_INDICATOR + importSetup.getDataCols()[j]).equalsIgnoreCase(importSetup.getMappingCols()[k])) {
+					ignoreSkippedDataCol = true;
+					break;
+				}
+			}
+			if (ignoreSkippedDataCol) {
+				continue;
+			}
+
+			// iterate thru all the data file columns following the current data file column to look for repeats
+		    	for (k=j+1;k<importSetup.getDataCols().length;k++) {
+		        	if (importSetup.getDataCols()[j].equalsIgnoreCase(importSetup.getDataCols()[k])) { 
+		        		repeatedDataColumns.add(importSetup.getDataCols()[j]);
+		        	}
+		    	}
 		}
 		if (repeatedDataColumns.size() > 0) {
 			LavaComponentFormAction.createCommandError(errors, "Invalid data file. Data file column(s): " + repeatedDataColumns.toString() + " appear multiple times in data file");
@@ -378,12 +381,13 @@ public class ImportHandler extends BaseEntityComponentHandler {
 
 
 		// Map
-		// generate a map of every mapping file index to a data file index, to be used in setting key data indices and setting
-		// the data file variable values on entity properties. the exception is static mapped properties because in those cases
-		// there is no value in the data file as the value is a static value in the mapping file so there is nothing to map
+		// generate a map of every mapping file index (except for STATIC values) to a data file index, to be used in setting
+		// key data indices and setting the data file variable values on entity properties. 
+		// the exception is static mapped properties because in those cases there is no value in the data file as the value
+		// is a static value in the mapping file so there is nothing to map
 		// note: multiple mapping file indices could map to the same data file index, meaning that a given imported
 		//       data variable value could be set on multiple entity properties
-		// note: the index for any STATIC mappings in the mapping file will not be mapped to a data file index, i.e
+		// note: the index for any STATIC value mappings in the mapping file will not be mapped to a data file index, i.e
 		//       it will not be present in this map
 
 		Set<String> dataColumnsNotMapped = new LinkedHashSet<String>();
