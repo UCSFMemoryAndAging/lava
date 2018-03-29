@@ -2335,7 +2335,7 @@ public class CrmsImportHandler extends ImportHandler {
 				v.setVisitType(visitType);
 				// if the import definition specified that visit should not be matched on time, then likewise the visit should
 				// not be created with a time component 
-				if (importDefinition.getMatchVisitTimeFlag()) {
+				if (importDefinition.getMatchVisitTimeFlag() != null && importDefinition.getMatchVisitTimeFlag()) {
 					v.setVisitDate(visitDate);
 					v.setVisitTime(visitTime);
 				}
