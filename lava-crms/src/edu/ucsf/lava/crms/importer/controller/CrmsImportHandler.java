@@ -205,8 +205,12 @@ public class CrmsImportHandler extends ImportHandler {
 				
 				importSetup.setDataValues(nextLine);
 
-				// skip over blank lines. check first couple cols
-				if (!StringUtils.hasText(importSetup.getDataValues()[0]) && !StringUtils.hasText(importSetup.getDataValues()[1]) && !StringUtils.hasText(importSetup.getDataValues()[2])) {
+				// skip over blank lines. check first few cols in data file
+				if (importSetup.getDataValues().length == 0 || 
+					(importSetup.getDataValues().length == 1 && !StringUtils.hasText(importSetup.getDataValues()[0])) || 
+					(importSetup.getDataValues().length == 2 && !StringUtils.hasText(importSetup.getDataValues()[0]) && !StringUtils.hasText(importSetup.getDataValues()[1])) ||
+					(importSetup.getDataValues().length >= 3 && !StringUtils.hasText(importSetup.getDataValues()[0]) && !StringUtils.hasText(importSetup.getDataValues()[1]) && !StringUtils.hasText(importSetup.getDataValues()[2]))) 
+				{
 					continue;
 				}
 
@@ -891,10 +895,10 @@ public class CrmsImportHandler extends ImportHandler {
 	}	
 	
 
-	protected Event validateAndMapDataFile(BindingResult errors, ImportDefinition importDefinition, ImportSetup importSetup) throws Exception {
+	protected Event validateAndMapDataFile(BindingResult errors, ImportDefinition importDefinition, ImportSetup importSetup, ImportLog importLog) throws Exception {
 		CrmsImportSetup crmsImportSetup = (CrmsImportSetup) importSetup;
 		
-		if (super.validateAndMapDataFile(errors, importDefinition, importSetup).getId().equals(ERROR_FLOW_EVENT_ID)) {
+		if (super.validateAndMapDataFile(errors, importDefinition, importSetup, importLog).getId().equals(ERROR_FLOW_EVENT_ID)) {
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 				
@@ -1023,12 +1027,12 @@ public class CrmsImportHandler extends ImportHandler {
 		// error on entire import if either no PIDN or no FirstName/LastName in data file			
 		if (crmsImportSetup.getIndexPatientPIDN() == -1 && 
 				(crmsImportSetup.getIndexPatientFirstName() == -1 || crmsImportSetup.getIndexPatientLastName() == -1)) {
-			LavaComponentFormAction.createCommandError(errors, "Insufficient Patient properties. Data file must have a property that maps to patient PIDN or patient firstName and lastName in the mapping file.");
+			LavaComponentFormAction.createCommandError(errors, "Insufficient Patient properties. Data file must have a property to which patient PIDN or patient firstName and lastName in the mapping file are mapped");
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		// error on entire import if no visitDate in data file		
 		else if (!((CrmsImportDefinition)importDefinition).getPatientOnlyImport() && crmsImportSetup.getIndexVisitDate() == -1) {
-			LavaComponentFormAction.createCommandError(errors, "Data file must hove a property that maps to visit visitDate in the mapping file");
+			LavaComponentFormAction.createCommandError(errors, "Data file must have a property to which visit visitDate in the mapping file is mapped");
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 
@@ -1326,8 +1330,10 @@ public class CrmsImportHandler extends ImportHandler {
 					importLog.addErrorMessage(lineNum, "Patient does not exist violating MUST_EXIST flag. PIDN:" + importSetup.getDataValues()[importSetup.getIndexPatientPIDN()]); 
 				}
 				else {
-					importLog.addErrorMessage(lineNum, "Patient does not exist violating MUST_EXIST flag.Line:" +  
-						" First Name:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] + " Last Name:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()]);
+					importLog.addErrorMessage(lineNum, "Patient does not exist violating MUST_EXIST flag." +  
+						" First Name:" + importSetup.getDataValues()[importSetup.getIndexPatientFirstName()] + " Last Name:" + importSetup.getDataValues()[importSetup.getIndexPatientLastName()] + 
+						(importSetup.getIndexPatientBirthDate() != -1 ? "Birth Date:" + dateOrTimeAsString : "")  		
+						);
 				}
 				return new Event(this, ERROR_FLOW_EVENT_ID); // to abort processing this import record
 			}else {
