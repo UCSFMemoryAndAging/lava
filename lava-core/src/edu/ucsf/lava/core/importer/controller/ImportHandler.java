@@ -296,7 +296,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 			// data rows could very well have blank/empty/null values
 			importSetup.setDataCols(trimTrailingCommas(nextLine));
 		}
-		if (validateAndMapDataFile(errors, importSetup.getImportDefinition(), importSetup).getId().equals(ERROR_FLOW_EVENT_ID)) {
+		if (validateAndMapDataFile(errors, importSetup.getImportDefinition(), importSetup, importLog).getId().equals(ERROR_FLOW_EVENT_ID)) {
 			return new Event(this, ERROR_FLOW_EVENT_ID);
 		}
 		
@@ -333,7 +333,7 @@ public class ImportHandler extends BaseEntityComponentHandler {
 	 * @param errors
 	 * @return
 	 */
-	protected Event validateAndMapDataFile(BindingResult errors, ImportDefinition importDefinition, ImportSetup importSetup) throws Exception {
+	protected Event validateAndMapDataFile(BindingResult errors, ImportDefinition importDefinition, ImportSetup importSetup, ImportLog importLog) throws Exception {
 		// check that data file does not have more than one instance of a column (doing the same for mapping file in 
 		// ImportDefinitionHandler)
 		Set<String> repeatedDataColumns = new LinkedHashSet<String>();	
@@ -409,6 +409,22 @@ public class ImportHandler extends BaseEntityComponentHandler {
 			return new Event(this,ERROR_FLOW_EVENT_ID);
 		}
 		
+		
+		// get a list of all mapping file columns that are not mapped to anything in the current data file being uploaded. then present this as a
+		// warning to the user. could be considered an error, but for now go with warning.
+		Set<String> mappingColsNotInData = new LinkedHashSet<String>();	
+		for (k=0; k < importSetup.getMappingCols().length; k++) {
+			if (importSetup.getMappingCols()[k].startsWith(STATIC_INDICATOR) || importSetup.getMappingCols()[k].startsWith(SKIP_INDICATOR)) {
+				continue;
+			}
+			if (importSetup.getMappingColDataCol().get(k) == null) {
+				mappingColsNotInData.add(importSetup.getMappingCols()[k]);
+			}
+		}
+		if (mappingColsNotInData.size() > 0) {
+			importLog.addWarningMessage(null, "Mapping file has the following variable(s) that do not exist in this data file: " + mappingColsNotInData.toString());
+		}
+		
 		return new Event(this, SUCCESS_FLOW_EVENT_ID);
 	}
 
@@ -447,9 +463,12 @@ public class ImportHandler extends BaseEntityComponentHandler {
 				}
 
 				// want the data file index that corresponds to the mapping file property, since they may be different,
-				// so use the mappingColDataCol map
-				BeanUtils.setProperty(importSetup, indexProperty, importSetup.getMappingColDataCol().get(propIndex)); 
-				break;
+				// so use the mappingColDataCol map. But do not set the index if the mapping property did not have a 
+				// corresponding property in the data file
+				if (importSetup.getMappingColDataCol().get(propIndex) != null) {
+					BeanUtils.setProperty(importSetup, indexProperty, importSetup.getMappingColDataCol().get(propIndex)); 
+					break;
+				}
 			}
 		}
 	}
