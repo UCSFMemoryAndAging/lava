@@ -15,6 +15,7 @@ public interface EntityManager {
 		public void evict(Object entity);
 		public void lock(Object entity);
 		public List get(LavaDaoFilter filter);
+		public List getAndInitialize(Class clazz, LavaDaoFilter filter);
 		public List get();
 		public Object getById(Long id, LavaDaoFilter filter);
 		public Object getById(Long id);

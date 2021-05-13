@@ -808,6 +808,10 @@ public abstract class EntityBase implements LavaEntity, Cloneable, LogicCheckEnt
 			return manager.get(clazz, filter);
 		}
 
+		public List getAndInitialize(Class clazz, LavaDaoFilter filter) {
+			return manager.getAndInitialize(clazz, filter);
+		}
+
 		public List get(LavaDaoFilter filter) {
 			return manager.get(entityClass,filter);
 		}

@@ -46,6 +46,10 @@ public class EntityManagerBase {
 			return getDao().find(entityClass, filter);
 		}
 		
+		public  List getAndInitialize(Class entityClass,LavaDaoFilter filter) {
+			return getDao().findAndInitialize(entityClass, filter);
+		}
+
 		public  List get(Class entityClass) {
 			return getDao().find(entityClass,newFilterInstance(null));
 		}
