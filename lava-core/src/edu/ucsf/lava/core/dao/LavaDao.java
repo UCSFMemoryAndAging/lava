@@ -11,6 +11,7 @@ public interface LavaDao {
 	public void refresh(Object object, boolean InitializeDependents);
 	public Object findOne(Class clazz, LavaDaoFilter filter);
 	public List find(Class entityClass, LavaDaoFilter filter);
+	public List findAndInitialize(Class entityClass, LavaDaoFilter filter);
 	public List findByNamedQuery(String namedQuery, LavaDaoFilter filter);
 	public Object uniqueResult(List results);
 	public LavaDaoFilter newFilterInstance();

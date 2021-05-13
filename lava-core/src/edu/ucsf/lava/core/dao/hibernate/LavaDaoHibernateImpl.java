@@ -127,6 +127,14 @@ public class LavaDaoHibernateImpl extends HibernateDaoSupport implements LavaDao
 	}
 
 	
+	public List findAndInitialize(Class entityClass, LavaDaoFilter filter) {
+		List objectList = new ArrayList(getHibernateTemplate().executeFind(new CriteriaHibernateCallback(entityClass, filter)));
+		for(Object o: objectList){
+			doInitializeObject(o,"find");
+		}
+		return objectList;
+	}
+	
 
 	public Object findOne(Class entityClass, LavaDaoFilter filter){
 		Object obj = getHibernateTemplate().execute(new GetUniqueCriteriaHibernateCallback(entityClass,filter));
