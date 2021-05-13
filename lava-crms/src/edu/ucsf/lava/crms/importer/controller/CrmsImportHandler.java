@@ -3,9 +3,9 @@ package edu.ucsf.lava.crms.importer.controller;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.CSV_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.DEFAULT_DATE_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.DEFAULT_TIME_FORMAT;
-import static edu.ucsf.lava.core.importer.model.ImportDefinition.TAB_FORMAT;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.SKIP_INDICATOR;
 import static edu.ucsf.lava.core.importer.model.ImportDefinition.STATIC_INDICATOR;
+import static edu.ucsf.lava.core.importer.model.ImportDefinition.TAB_FORMAT;
 import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MAY_OR_MAY_NOT_EXIST;
 import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MUST_EXIST;
 import static edu.ucsf.lava.crms.importer.model.CrmsImportDefinition.MUST_NOT_EXIST;
@@ -58,7 +58,6 @@ import edu.ucsf.lava.core.file.model.ImportFile;
 import edu.ucsf.lava.core.importer.controller.ImportHandler;
 import edu.ucsf.lava.core.importer.model.ImportDefinition;
 import edu.ucsf.lava.core.importer.model.ImportLog;
-import edu.ucsf.lava.crms.importer.model.CrmsImportLogMessage;
 import edu.ucsf.lava.core.importer.model.ImportSetup;
 import edu.ucsf.lava.core.manager.Managers;
 import edu.ucsf.lava.core.model.EntityBase;
@@ -72,6 +71,7 @@ import edu.ucsf.lava.crms.enrollment.EnrollmentManager;
 import edu.ucsf.lava.crms.enrollment.model.EnrollmentStatus;
 import edu.ucsf.lava.crms.importer.model.CrmsImportDefinition;
 import edu.ucsf.lava.crms.importer.model.CrmsImportLog;
+import edu.ucsf.lava.crms.importer.model.CrmsImportLogMessage;
 import edu.ucsf.lava.crms.importer.model.CrmsImportSetup;
 import edu.ucsf.lava.crms.manager.CrmsManagerUtils;
 import edu.ucsf.lava.crms.people.model.Caregiver;
@@ -2488,7 +2488,12 @@ public class CrmsImportHandler extends ImportHandler {
 			// note: since just want a single Instrument record, originally used the get method and caught the IncorrectResultSizeDataAccessException
 			// if there were more than one match, but that database exception marks the transaction for rollback so when attempting to commit
 			// the records added to the importLog this generates the UnexpectedRollbackException with an HTTP 500 page
-			instrList = Instrument.MANAGER.get(instrClazz, filter);
+
+			// use the getAndInitialize method which initializes proxies on each object in the list after retrieval. the get method does not initialize 
+			// proxies when retrieving lists for performance reasons. But this is an odd case where we are retrieving a list just to get a single object, 
+			// so we have to explicitly materialize the proxy. Otherwise, setPropertyHandling will generate an InvocationTargetException when calling 
+			// PropertyUtils.describe
+			instrList = Instrument.MANAGER.getAndInitialize(instrClazz, filter);
 
 			if (instrList.size() == 1) {
 				instr = (Instrument) instrList.get(0);
