@@ -242,7 +242,7 @@
     <dependency>
       <groupId>struts</groupId>
       <artifactId>struts</artifactId>
-      <version>1.1</version>
+      <version>1.2.9</version>
       <scope>compile</scope>
       <optional>true</optional><!-- Only when using StrutsMessageFinder -->
       <exclusions>
